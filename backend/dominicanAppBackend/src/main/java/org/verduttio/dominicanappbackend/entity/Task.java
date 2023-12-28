@@ -1,7 +1,6 @@
 package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
-
 import java.time.DayOfWeek;
 import java.util.Set;
 
@@ -39,10 +38,85 @@ public class Task {
     )
     private Set<DayOfWeek> daysOfWeek;
 
+
     // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public int getParticipantsLimit() {
+        return participantsLimit;
+    }
+
+    public void setParticipantsLimit(int participantsLimit) {
+        this.participantsLimit = participantsLimit;
+    }
+
+    public boolean isPermanent() {
+        return permanent;
+    }
+
+    public void setPermanent(boolean permanent) {
+        this.permanent = permanent;
+    }
+
+    public boolean isParticipantForWholePeriod() {
+        return participantForWholePeriod;
+    }
+
+    public void setParticipantForWholePeriod(boolean participantForWholePeriod) {
+        this.participantForWholePeriod = participantForWholePeriod;
+    }
+
+    public Set<Role> getAllowedRoles() {
+        return allowedRoles;
+    }
+
+    public void setAllowedRoles(Set<Role> allowedRoles) {
+        this.allowedRoles = allowedRoles;
+    }
+
+    public Set<DayOfWeek> getDaysOfWeek() {
+        return daysOfWeek;
+    }
+
+    public void setDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
+    }
 
     // Constructors
+    public Task() {
+    }
 
-    // Other methods
+    public Task(String name, String category, int participantsLimit, boolean permanent,
+                boolean participantForWholePeriod, Set<Role> allowedRoles, Set<DayOfWeek> daysOfWeek) {
+        this.name = name;
+        this.category = category;
+        this.participantsLimit = participantsLimit;
+        this.permanent = permanent;
+        this.participantForWholePeriod = participantForWholePeriod;
+        this.allowedRoles = allowedRoles;
+        this.daysOfWeek = daysOfWeek;
+    }
+
 }
-
