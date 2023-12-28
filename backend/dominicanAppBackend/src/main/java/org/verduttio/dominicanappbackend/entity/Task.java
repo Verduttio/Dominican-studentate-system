@@ -6,41 +6,36 @@ import java.time.DayOfWeek;
 import java.util.Set;
 
 @Entity
-@Table(name = "Tasks")
+@Table(name = "tasks")
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "category")
     private String category;
 
-    @Column(name = "participantsLimit")
     private int participantsLimit;
 
-    @Column(name = "permanent")
     private boolean permanent;
 
-    @Column(name = "participantForWholePeriod")
     private boolean participantForWholePeriod;
 
     @OneToMany
     @JoinTable(
-            name = "TaskAllowedRoles",
-            joinColumns = @JoinColumn(name = "taskId"),
-            inverseJoinColumns = @JoinColumn(name = "roleId")
+            name = "task_allowed_roles",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> allowedRoles;
 
     @ElementCollection(targetClass = DayOfWeek.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
-            name = "TaskDayOfWeek",
-            joinColumns = @JoinColumn(name = "taskId")
+            name = "task_day_of_week",
+            joinColumns = @JoinColumn(name = "task_id")
     )
     private Set<DayOfWeek> daysOfWeek;
 

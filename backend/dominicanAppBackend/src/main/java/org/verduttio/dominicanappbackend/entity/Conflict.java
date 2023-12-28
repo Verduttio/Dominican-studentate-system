@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Conflicts")
+@Table(name = "conflicts")
 public class Conflict {
 
     @Id
@@ -11,11 +11,11 @@ public class Conflict {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "task1Id")
+    @JoinColumn(name = "task1_id")
     private Task task1;
 
     @ManyToOne
-    @JoinColumn(name = "task2Id")
+    @JoinColumn(name = "task2_id")
     private Task task2;
 
     // Getters and setters

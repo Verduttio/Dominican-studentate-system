@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Schedule")
+@Table(name = "schedule")
 public class Schedule {
 
     @Id
@@ -12,17 +12,15 @@ public class Schedule {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "taskId")
+    @JoinColumn(name = "task_id")
     private Task task;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "participantsNumber")
     private int participantsNumber;
 
-    @Column(name = "date")
     private LocalDate date;
 
     // Getters and setters
