@@ -24,9 +24,55 @@ public class Schedule {
     private LocalDate date;
 
     // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public int getParticipantsNumber() {
+        return participantsNumber;
+    }
+
+    public void setParticipantsNumber(int participantsNumber) {
+        this.participantsNumber = participantsNumber;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
     // Constructors
+    public Schedule() {
+    }
 
-    // Other methods
+    public Schedule(Task task, User user, int participantsNumber, LocalDate date) {
+        this.task = task;
+        this.user = user;
+        this.participantsNumber = participantsNumber;
+        this.date = date;
+    }
+
 }
-
