@@ -2,12 +2,11 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -19,37 +18,28 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
     public void saveUser(User user) {
         userRepository.save(user);
     }
 
-    public Set<Role> getUserRoles(Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        return (user != null) ? user.getRoles() : new HashSet<>();
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 
-    public void assignRoles(Long userId, Set<Role> roles) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            user.setRoles(roles);
-            userRepository.save(user);
-        }
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
-    public void removeRoles(Long userId, Set<Role> roles) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            user.getRoles().removeAll(roles);
-            userRepository.save(user);
-        }
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 }

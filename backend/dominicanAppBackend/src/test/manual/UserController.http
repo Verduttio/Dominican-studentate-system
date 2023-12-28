@@ -1,0 +1,30 @@
+### Get all users
+GET {{host}}/api/users
+
+
+### Get a user by a specific ID
+GET {{host}}/api/users/1
+
+
+### Create a new user
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+  "email": "new@example.com",
+  "password": "password123",
+  "roles": []
+}
+
+
+### Update an existing user
+PUT {{host}}/api/users/2
+Content-Type: application/json
+
+{
+  "email": "new-email@example.com"
+}
+
+
+### Delete an existing user
+DELETE {{host}}/api/users/1
