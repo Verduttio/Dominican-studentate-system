@@ -31,6 +31,10 @@ public class TaskService {
         return taskRepository.findById(taskId);
     }
 
+    public boolean taskExistsById(Long taskId) {
+        return taskRepository.existsById(taskId);
+    }
+
     public void saveTask(TaskDTO taskDTO) {
         Task task = convertTaskDTOToTask(taskDTO);
         taskRepository.save(task);

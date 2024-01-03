@@ -1,0 +1,26 @@
+### Get all conflicts
+GET http://localhost:8080/api/conflicts
+
+### Get a conflict by a specific ID
+GET http://localhost:8080/api/conflicts/1
+
+### Create a new conflict
+POST http://localhost:8080/api/conflicts
+Content-Type: application/json
+
+{
+  "task1Id": 1,
+  "task2Id": 7
+}
+
+### Update an existing conflict
+PUT http://localhost:8080/api/conflicts/1
+Content-Type: application/json
+
+{
+  "task1Id": 1,
+  "task2Id": 3
+}
+
+### Delete an existing conflict
+DELETE http://localhost:8080/api/conflicts/1
