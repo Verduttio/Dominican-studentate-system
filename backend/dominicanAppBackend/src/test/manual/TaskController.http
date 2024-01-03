@@ -1,0 +1,36 @@
+### Get all tasks
+GET http://localhost:8080/api/tasks
+
+### Get a task by a specific ID
+GET http://localhost:8080/api/tasks/1
+
+### Create a new task
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{
+  "name": "Wash dishes",
+  "category": "Kitchen",
+  "participantsLimit": 10,
+  "permanent": true,
+  "participantForWholePeriod": false,
+  "allowedRoleNames": ["ROLE_USER"],
+  "daysOfWeek": ["MONDAY", "WEDNESDAY", "FRIDAY"]
+}
+
+### Update an existing task
+PUT http://localhost:8080/api/tasks/1
+Content-Type: application/json
+
+{
+  "name": "UpdatedTask",
+  "category": "Personal",
+  "participantsLimit": 15,
+  "permanent": false,
+  "participantForWholePeriod": true,
+  "allowedRoleNames": ["ROLE_USER", "ROLE_ADMIN"],
+  "daysOfWeek": ["TUESDAY", "THURSDAY"]
+}
+
+### Delete an existing task
+DELETE http://localhost:8080/api/tasks/1

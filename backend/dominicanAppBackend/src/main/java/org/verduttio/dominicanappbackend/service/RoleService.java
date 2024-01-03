@@ -41,6 +41,10 @@ public class RoleService {
 
     public Set<Role> getRolesByRoleNames(Set<String> roleNames) {
         Set<Role> rolesDB = new HashSet<>();
+        if (roleNames == null) {
+            return rolesDB;
+        }
+
         for (String roleName : roleNames) {
             Role roleDB = getRoleByName(roleName);
             rolesDB.add(roleDB);
