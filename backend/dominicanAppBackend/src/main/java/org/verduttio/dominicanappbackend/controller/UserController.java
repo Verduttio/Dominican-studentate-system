@@ -9,6 +9,7 @@ import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -41,16 +42,14 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User updatedUser) {
-        return userService.getUserById(userId)
-                .map(existingUser -> {
-                    existingUser.setEmail(updatedUser.getEmail());
-                    // Set other fields as needed
-
-                    userService.saveUser(existingUser);
-                    return new ResponseEntity<>(existingUser, HttpStatus.OK);
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Void> updateUser(@PathVariable Long userId, @RequestBody UserDTO updatedUserDTO) {
+        Optional<User> existingUser = userService.getUserById(userId);
+        if(existingUser.isPresent()) {
+            userService.updateUser(existingUser.get(), updatedUserDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{userId}")

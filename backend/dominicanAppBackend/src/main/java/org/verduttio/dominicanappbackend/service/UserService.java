@@ -60,4 +60,12 @@ public class UserService {
         return user;
     }
 
+    public void updateUser(User existingUser, UserDTO updatedUserDTO) {
+        existingUser.setEmail(updatedUserDTO.getEmail());
+        existingUser.setPassword(updatedUserDTO.getPassword());
+        Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedUserDTO.getRoleNames());
+        existingUser.setRoles(rolesDB);
+
+        userRepository.save(existingUser);
+    }
 }

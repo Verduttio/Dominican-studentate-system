@@ -22,7 +22,9 @@ PUT {{host}}/api/users/2
 Content-Type: application/json
 
 {
-  "email": "new-email@example.com"
+  "email": "new-email@example.com",
+  "password": "new-password123",
+  "roleNames": ["ROLE_USER"]
 }
 
 
