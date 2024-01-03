@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RoleService {
@@ -35,6 +37,16 @@ public class RoleService {
 
     public void deleteRole(Long roleId) {
         roleRepository.deleteById(roleId);
+    }
+
+    public Set<Role> getRolesByRoleNames(Set<String> roleNames) {
+        Set<Role> rolesDB = new HashSet<>();
+        for (String roleName : roleNames) {
+            Role roleDB = getRoleByName(roleName);
+            rolesDB.add(roleDB);
+        }
+
+        return rolesDB;
     }
 
 }

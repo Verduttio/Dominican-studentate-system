@@ -2,20 +2,25 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
+        this.roleService = roleService;
     }
 
     public List<User> getAllUsers() {
@@ -24,6 +29,11 @@ public class UserService {
 
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public void saveUser(UserDTO userDTO) {
+        User user = convertUserDTOToUser(userDTO);
+        userRepository.save(user);
     }
 
     public void saveUser(User user) {
@@ -40,6 +50,14 @@ public class UserService {
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    private User convertUserDTOToUser(UserDTO userDTO) {
+        User user = userDTO.basicFieldsToUser();
+        Set<Role> rolesDB = roleService.getRolesByRoleNames(userDTO.getRoleNames());
+        user.setRoles(rolesDB);
+
+        return user;
     }
 
 }

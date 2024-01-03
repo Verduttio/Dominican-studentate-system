@@ -9,15 +9,15 @@ POST {{host}}/api/roles
 Content-Type: application/json
 
 {
-  "name": "Admin"
+  "name": "ROLE_ADMIN"
 }
 
 ### Update an existing role
-PUT {{host}}/api/roles/1
+PUT {{host}}/api/roles/2
 Content-Type: application/json
 
 {
-  "name": "UpdatedRole"
+  "name": "ROLE_ADMIN"
 }
 
 ### Delete an existing role
