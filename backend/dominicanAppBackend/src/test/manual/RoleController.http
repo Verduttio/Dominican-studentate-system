@@ -1,0 +1,24 @@
+### Get all roles
+GET {{host}}/api/roles
+
+### Get a role by a specific ID
+GET {{host}}/api/roles/1
+
+### Create a new role
+POST {{host}}/api/roles
+Content-Type: application/json
+
+{
+  "name": "Admin"
+}
+
+### Update an existing role
+PUT {{host}}/api/roles/1
+Content-Type: application/json
+
+{
+  "name": "UpdatedRole"
+}
+
+### Delete an existing role
+DELETE {{host}}/api/roles/1
