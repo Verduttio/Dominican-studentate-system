@@ -22,7 +22,7 @@ public class Task {
 
     private boolean participantForWholePeriod;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(
             name = "task_allowed_roles",
             joinColumns = @JoinColumn(name = "task_id"),
