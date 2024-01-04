@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.service.exception.UserWithGivenEmailAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,10 @@ public class UserService {
     }
 
     public void saveUser(UserDTO userDTO) {
+        if (existsByEmail(userDTO.getEmail())) {
+            throw new UserWithGivenEmailAlreadyExistsException("User with given email already exists");
+        }
+
         User user = convertUserDTOToUser(userDTO);
         userRepository.save(user);
     }
@@ -52,6 +57,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    protected boolean existsAnotherUserWithGivenEmail(String newEmail, String currentEmail) {
+        return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
+    }
+
     private User convertUserDTOToUser(UserDTO userDTO) {
         User user = userDTO.basicFieldsToUser();
         Set<Role> rolesDB = roleService.getRolesByRoleNames(userDTO.getRoleNames());
@@ -61,6 +70,10 @@ public class UserService {
     }
 
     public void updateUser(User existingUser, UserDTO updatedUserDTO) {
+        if (existsAnotherUserWithGivenEmail(updatedUserDTO.getEmail(), existingUser.getEmail())) {
+            throw new UserWithGivenEmailAlreadyExistsException("This email belongs to another user");
+        }
+
         existingUser.setEmail(updatedUserDTO.getEmail());
         existingUser.setPassword(updatedUserDTO.getPassword());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedUserDTO.getRoleNames());

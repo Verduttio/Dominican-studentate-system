@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.UserService;
+import org.verduttio.dominicanappbackend.service.exception.UserWithGivenEmailAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,17 +37,21 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO) {
-        userService.saveUser(userDTO);
+    public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+        try {
+            userService.saveUser(userDTO);
+        } catch (UserWithGivenEmailAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long userId, @RequestBody UserDTO updatedUserDTO) {
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserDTO updatedUserDTO) {
         Optional<User> existingUser = userService.getUserById(userId);
         if(existingUser.isPresent()) {
-            userService.updateUser(existingUser.get(), updatedUserDTO);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return updateUserIfExists(existingUser.get(), updatedUserDTO);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -56,5 +61,15 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    private ResponseEntity<?> updateUserIfExists(User existingUser, UserDTO updatedUserDTO) {
+        try {
+            userService.updateUser(existingUser, updatedUserDTO);
+        } catch (UserWithGivenEmailAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
