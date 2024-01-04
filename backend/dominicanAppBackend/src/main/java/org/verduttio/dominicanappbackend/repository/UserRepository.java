@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.repository;
 
+import jakarta.annotation.Nonnull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.verduttio.dominicanappbackend.entity.User;
 
@@ -10,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    boolean existsById(@Nonnull Long id);
 }

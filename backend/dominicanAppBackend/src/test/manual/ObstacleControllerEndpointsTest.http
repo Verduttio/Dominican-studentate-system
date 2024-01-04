@@ -1,0 +1,35 @@
+### Get All Obstacles
+GET {{host}}/api/obstacles
+
+### Get Obstacle by ID
+GET {{host}}/api/obstacles/1
+
+### Create Obstacle
+POST {{host}}/api/obstacles
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "taskId": 7,
+  "fromDate": "2023-01-01",
+  "toDate": "2023-01-10",
+  "applicantDescription": "Some description"
+}
+
+### Update Obstacle (Not implemented)
+# PUT {{host}}/api/obstacles/1
+# Content-Type: application/json
+#
+# {
+#   "userId": 1,
+#   "taskId": 2,
+#   "fromDate": "2023-01-01",
+#   "toDate": "2023-01-15",
+#   "applicantDescription": "Updated description",
+#   "status": "APPROVED",
+#   "recipientAnswer": "Approved",
+#   "recipientUserId": 3
+# }
+
+### Delete Obstacle
+DELETE {{host}}/api/obstacles/1

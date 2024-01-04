@@ -2,8 +2,11 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,10 +15,14 @@ import java.util.Optional;
 public class ObstacleService {
 
     private final ObstacleRepository obstacleRepository;
+    private final UserService userService;
+    private final TaskService taskService;
 
     @Autowired
-    public ObstacleService(ObstacleRepository obstacleRepository) {
+    public ObstacleService(ObstacleRepository obstacleRepository, UserService userService, TaskService taskService) {
         this.obstacleRepository = obstacleRepository;
+        this.userService = userService;
+        this.taskService = taskService;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -26,12 +33,28 @@ public class ObstacleService {
         return obstacleRepository.findById(obstacleId);
     }
 
-    public void saveObstacle(Obstacle obstacle) {
+    public void saveObstacle(ObstacleRequestDTO obstacleRequestDTO) {
+        validateObstacleRequestDTO(obstacleRequestDTO);
+
+        Obstacle obstacle = obstacleRequestDTO.toObstacle();
         obstacleRepository.save(obstacle);
     }
 
     public void deleteObstacle(Long obstacleId) {
         obstacleRepository.deleteById(obstacleId);
+    }
+
+    private void validateObstacleRequestDTO(ObstacleRequestDTO obstacleRequestDTO) {
+        Long userId = obstacleRequestDTO.getUserId();
+        Long taskId = obstacleRequestDTO.getTaskId();
+
+        if (!userService.existsById(userId)) {
+            throw new UserNotFoundException("User with id " + userId + " does not exist");
+        }
+
+        if (!taskService.existsById(taskId)) {
+            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+        }
     }
 
 }

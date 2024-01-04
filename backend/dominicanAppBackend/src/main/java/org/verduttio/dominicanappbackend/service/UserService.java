@@ -57,6 +57,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
     protected boolean existsAnotherUserWithGivenEmail(String newEmail, String currentEmail) {
         return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
     }
