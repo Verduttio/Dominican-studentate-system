@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
+import org.verduttio.dominicanappbackend.service.exception.RoleExistsByNameException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,18 @@ public class RoleService {
     }
 
     public void saveRole(Role role) {
+        if (roleRepository.existsByName(role.getName())) {
+           throw new RoleExistsByNameException("Role with given name already exists");
+        }
         roleRepository.save(role);
+    }
+
+    public void updateRole(Role updatedRole, Role existingRole) {
+        if (existsAnotherRoleWithGivenName(updatedRole.getName(), existingRole.getName())) {
+            throw new RoleExistsByNameException("Another role with given name already exists");
+        }
+        existingRole.setName(updatedRole.getName());
+        roleRepository.save(existingRole);
     }
 
     public void deleteRole(Long roleId) {
@@ -51,6 +63,10 @@ public class RoleService {
         }
 
         return rolesDB;
+    }
+
+    private boolean existsAnotherRoleWithGivenName(String newName, String currentName) {
+        return roleRepository.existsByName(newName) && !newName.equals(currentName);
     }
 
 }

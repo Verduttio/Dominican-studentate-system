@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.service.RoleService;
+import org.verduttio.dominicanappbackend.service.exception.RoleExistsByNameException;
 
 import java.util.List;
 
@@ -35,20 +36,20 @@ public class RoleController {
     }
 
     @PostMapping
-    public ResponseEntity<Role> createRole(@RequestBody Role role) {
-        roleService.saveRole(role);
+    public ResponseEntity<?> createRole(@RequestBody Role role) {
+        try {
+            roleService.saveRole(role);
+        } catch (RoleExistsByNameException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         return new ResponseEntity<>(role, HttpStatus.CREATED);
     }
 
     @PutMapping("/{roleId}")
-    public ResponseEntity<Role> updateRole(@PathVariable Long roleId, @RequestBody Role updatedRole) {
+    public ResponseEntity<?> updateRole(@PathVariable Long roleId, @RequestBody Role updatedRole) {
         Role existingRole = roleService.getRoleById(roleId);
         if (existingRole != null) {
-            existingRole.setName(updatedRole.getName());
-            //TODO: Set other fields as needed
-
-            roleService.saveRole(existingRole);
-            return new ResponseEntity<>(existingRole, HttpStatus.OK);
+            return updateRoleIfExist(updatedRole, existingRole);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -58,5 +59,14 @@ public class RoleController {
     public ResponseEntity<Void> deleteRole(@PathVariable Long roleId) {
         roleService.deleteRole(roleId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    private ResponseEntity<?> updateRoleIfExist(Role updatedRole, Role existingRole) {
+        try {
+            roleService.updateRole(updatedRole, existingRole);
+        } catch (RoleExistsByNameException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        return new ResponseEntity<>(existingRole, HttpStatus.OK);
     }
 }
