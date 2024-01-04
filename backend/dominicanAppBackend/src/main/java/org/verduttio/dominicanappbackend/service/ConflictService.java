@@ -2,6 +2,8 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.controller.exception.ConflictAlreadyExistsException;
+import org.verduttio.dominicanappbackend.controller.exception.ConflictIdNotFoundException;
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
@@ -30,15 +32,20 @@ public class ConflictService {
         return conflictRepository.findById(conflictId);
     }
 
-    public boolean saveConflict(ConflictDTO conflictDTO) {
+    public void saveConflict(ConflictDTO conflictDTO) {
         Conflict conflict = conflictDTO.onlyIdFieldsToConflict();
 
         boolean task1Exists = taskService.taskExistsById(conflictDTO.getTask1Id());
         boolean task2Exists = taskService.taskExistsById(conflictDTO.getTask2Id());
-        if (!task1Exists || !task2Exists) return false;
+        if (!task1Exists || !task2Exists) {
+            throw new ConflictIdNotFoundException("Tasks' id not found");
+        }
+
+        if (conflictRepository.existsByTaskIds(conflictDTO.getTask1Id(), conflictDTO.getTask2Id())) {
+            throw new ConflictAlreadyExistsException("Conflict with given tasks already exists");
+        }
 
         conflictRepository.save(conflict);
-        return true;
     }
 
     public void saveConflict(Conflict conflict) {

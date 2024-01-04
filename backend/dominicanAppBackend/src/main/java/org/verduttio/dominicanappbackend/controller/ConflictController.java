@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.verduttio.dominicanappbackend.controller.exception.ConflictAlreadyExistsException;
+import org.verduttio.dominicanappbackend.controller.exception.ConflictIdNotFoundException;
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.service.ConflictService;
@@ -37,12 +39,13 @@ public class ConflictController {
 
     @PostMapping
     public ResponseEntity<?> createConflict(@RequestBody ConflictDTO conflictDTO) {
-        boolean actionResult = conflictService.saveConflict(conflictDTO);
-        if (actionResult) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("Tasks' id not found", HttpStatus.UNPROCESSABLE_ENTITY);
+        try {
+            conflictService.saveConflict(conflictDTO);
+        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{conflictId}")
