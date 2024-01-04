@@ -50,16 +50,15 @@ public class ConflictController {
 
     @PutMapping("/{conflictId}")
     public ResponseEntity<?> updateConflict(@PathVariable Long conflictId, @RequestBody ConflictDTO updatedConflictDTO) {
-        Optional<Conflict> existingConflict = conflictService.getConflictById(conflictId);
-        if (existingConflict.isPresent()) {
-            Optional<Conflict> updatedConflictDB = conflictService.updateConflict(existingConflict.get(), updatedConflictDTO);
+        boolean conflictExist = conflictService.existsById(conflictId);
+        if (conflictExist) {
+            try {
+                conflictService.updateConflict(conflictId, updatedConflictDTO);
+            } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
 
-            if (updatedConflictDB.isEmpty()) {
-                return new ResponseEntity<>("Tasks' id not found", HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-            else {
-                return new ResponseEntity<>(updatedConflictDB, HttpStatus.OK);
-            }
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

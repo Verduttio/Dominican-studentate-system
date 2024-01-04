@@ -6,7 +6,6 @@ import org.verduttio.dominicanappbackend.controller.exception.ConflictAlreadyExi
 import org.verduttio.dominicanappbackend.controller.exception.ConflictIdNotFoundException;
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
-import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 
 import java.util.List;
@@ -35,15 +34,7 @@ public class ConflictService {
     public void saveConflict(ConflictDTO conflictDTO) {
         Conflict conflict = conflictDTO.onlyIdFieldsToConflict();
 
-        boolean task1Exists = taskService.taskExistsById(conflictDTO.getTask1Id());
-        boolean task2Exists = taskService.taskExistsById(conflictDTO.getTask2Id());
-        if (!task1Exists || !task2Exists) {
-            throw new ConflictIdNotFoundException("Tasks' id not found");
-        }
-
-        if (conflictRepository.existsByTaskIds(conflictDTO.getTask1Id(), conflictDTO.getTask2Id())) {
-            throw new ConflictAlreadyExistsException("Conflict with given tasks already exists");
-        }
+        validateConflictFields(conflict);
 
         conflictRepository.save(conflict);
     }
@@ -56,17 +47,30 @@ public class ConflictService {
         conflictRepository.deleteById(conflictId);
     }
 
-    public Optional<Conflict> updateConflict(Conflict conflict, ConflictDTO updatedConflictDTO) {
-        Optional<Task> updatedTask1 = taskService.getTaskById(updatedConflictDTO.getTask1Id());
-        if (updatedTask1.isEmpty()) return Optional.empty();
+    public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {
+        Conflict conflict = updatedConflictDTO.onlyIdFieldsToConflict();
+        conflict.setId(conflictId);
 
-        Optional<Task> updatedTask2 = taskService.getTaskById(updatedConflictDTO.getTask2Id());
-        if (updatedTask2.isEmpty()) return Optional.empty();
-
-        conflict.setTask1(updatedTask1.get());
-        conflict.setTask2(updatedTask2.get());
+        validateConflictFields(conflict);
 
         conflictRepository.save(conflict);
-        return Optional.of(conflict);
+    }
+
+    public boolean existsById(Long conflictId) {
+        return conflictRepository.existsById(conflictId);
+    }
+
+    private void validateConflictFields(Conflict conflict) {
+        Long task1Id = conflict.getTask1().getId();
+        Long task2Id = conflict.getTask2().getId();
+        boolean task1Exists = taskService.taskExistsById(task1Id);
+        boolean task2Exists = taskService.taskExistsById(task2Id);
+        if (!task1Exists || !task2Exists) {
+            throw new ConflictIdNotFoundException("Tasks' id not found");
+        }
+
+        if (conflictRepository.existsByTaskIds(task1Id, task2Id)) {
+            throw new ConflictAlreadyExistsException("Conflict with given tasks already exists");
+        }
     }
 }
