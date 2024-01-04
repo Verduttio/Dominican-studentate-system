@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.controller.exception;
+package org.verduttio.dominicanappbackend.service.exception;
 
 public class ConflictAlreadyExistsException extends RuntimeException{
     public ConflictAlreadyExistsException(String message) {

@@ -2,8 +2,8 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.controller.exception.ConflictAlreadyExistsException;
-import org.verduttio.dominicanappbackend.controller.exception.ConflictIdNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
