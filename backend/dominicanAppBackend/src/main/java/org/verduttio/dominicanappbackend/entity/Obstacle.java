@@ -23,6 +23,17 @@ public class Obstacle {
 
     private LocalDate toDate;
 
+    private String applicantDescription;
+
+    @Enumerated(EnumType.STRING)
+    private ObstacleStatus status;
+
+    private String recipientAnswer;
+
+    @ManyToOne
+    @JoinColumn(name = "recipient_user_id")
+    private User recipientUser;
+
     // Getters and setters
     public Long getId() {
         return id;
@@ -64,15 +75,52 @@ public class Obstacle {
         this.toDate = toDate;
     }
 
+    public String getApplicantDescription() {
+        return applicantDescription;
+    }
+
+    public void setApplicantDescription(String applicantDescription) {
+        this.applicantDescription = applicantDescription;
+    }
+
+    public ObstacleStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ObstacleStatus status) {
+        this.status = status;
+    }
+
+    public String getRecipientAnswer() {
+        return recipientAnswer;
+    }
+
+    public void setRecipientAnswer(String recipientAnswer) {
+        this.recipientAnswer = recipientAnswer;
+    }
+
+    public User getRecipientUser() {
+        return recipientUser;
+    }
+
+    public void setRecipientUser(User recipientUser) {
+        this.recipientUser = recipientUser;
+    }
+
     // Constructors
     public Obstacle() {
     }
 
-    public Obstacle(User user, Task task, LocalDate fromDate, LocalDate toDate) {
+    public Obstacle(User user, Task task, LocalDate fromDate, LocalDate toDate,
+                    String applicantDescription, ObstacleStatus status, String recipientAnswer,
+                    User recipientUser) {
         this.user = user;
         this.task = task;
         this.fromDate = fromDate;
         this.toDate = toDate;
+        this.applicantDescription = applicantDescription;
+        this.status = status;
+        this.recipientAnswer = recipientAnswer;
+        this.recipientUser = recipientUser;
     }
-
 }
