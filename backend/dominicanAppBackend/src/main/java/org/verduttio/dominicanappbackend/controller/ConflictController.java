@@ -52,14 +52,7 @@ public class ConflictController {
     public ResponseEntity<?> updateConflict(@PathVariable Long conflictId, @RequestBody ConflictDTO updatedConflictDTO) {
         boolean conflictExist = conflictService.existsById(conflictId);
         if (conflictExist) {
-            try {
-                conflictService.updateConflict(conflictId, updatedConflictDTO);
-            } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
-                return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-
-            return new ResponseEntity<>(HttpStatus.OK);
-
+            return updateConflictIfExists(conflictId, updatedConflictDTO);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -69,5 +62,14 @@ public class ConflictController {
     public ResponseEntity<Void> deleteConflict(@PathVariable Long conflictId) {
         conflictService.deleteConflict(conflictId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    private ResponseEntity<?> updateConflictIfExists(Long conflictId, ConflictDTO updatedConflictDTO) {
+        try {
+            conflictService.updateConflict(conflictId, updatedConflictDTO);
+        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
