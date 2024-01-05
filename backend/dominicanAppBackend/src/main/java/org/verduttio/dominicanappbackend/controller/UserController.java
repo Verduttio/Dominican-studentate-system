@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.UserService;
-import org.verduttio.dominicanappbackend.service.exception.UserWithGivenEmailAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
         try {
             userService.saveUser(userDTO);
-        } catch (UserWithGivenEmailAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
@@ -66,7 +66,7 @@ public class UserController {
     private ResponseEntity<?> updateUserIfExists(User existingUser, UserDTO updatedUserDTO) {
         try {
             userService.updateUser(existingUser, updatedUserDTO);
-        } catch (UserWithGivenEmailAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 

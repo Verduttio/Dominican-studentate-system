@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.service.RoleService;
-import org.verduttio.dominicanappbackend.service.exception.RoleExistsByNameException;
+import org.verduttio.dominicanappbackend.service.exception.RoleAlreadyExistsException;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class RoleController {
     public ResponseEntity<?> createRole(@RequestBody Role role) {
         try {
             roleService.saveRole(role);
-        } catch (RoleExistsByNameException e) {
+        } catch (RoleAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
         return new ResponseEntity<>(role, HttpStatus.CREATED);
@@ -64,7 +64,7 @@ public class RoleController {
     private ResponseEntity<?> updateRoleIfExist(Role updatedRole, Role existingRole) {
         try {
             roleService.updateRole(updatedRole, existingRole);
-        } catch (RoleExistsByNameException e) {
+        } catch (RoleAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
         return new ResponseEntity<>(existingRole, HttpStatus.OK);

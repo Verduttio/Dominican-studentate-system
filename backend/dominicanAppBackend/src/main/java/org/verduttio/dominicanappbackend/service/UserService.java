@@ -6,7 +6,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
-import org.verduttio.dominicanappbackend.service.exception.UserWithGivenEmailAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class UserService {
 
     public void saveUser(UserDTO userDTO) {
         if (existsByEmail(userDTO.getEmail())) {
-            throw new UserWithGivenEmailAlreadyExistsException("User with given email already exists");
+            throw new UserAlreadyExistsException("User with given email already exists");
         }
 
         User user = convertUserDTOToUser(userDTO);
@@ -75,7 +75,7 @@ public class UserService {
 
     public void updateUser(User existingUser, UserDTO updatedUserDTO) {
         if (existsAnotherUserWithGivenEmail(updatedUserDTO.getEmail(), existingUser.getEmail())) {
-            throw new UserWithGivenEmailAlreadyExistsException("This email belongs to another user");
+            throw new UserAlreadyExistsException("This email belongs to another user");
         }
 
         existingUser.setEmail(updatedUserDTO.getEmail());
