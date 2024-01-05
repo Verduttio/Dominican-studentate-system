@@ -40,7 +40,7 @@ public class ObstacleController {
     public ResponseEntity<?> createObstacle(@RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {
             obstacleService.saveObstacle(obstacleRequestDTO);
-        } catch (TaskNotFoundException | UserNotFoundException e) {
+        } catch (TaskNotFoundException | UserNotFoundException | IllegalArgumentException e ) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 

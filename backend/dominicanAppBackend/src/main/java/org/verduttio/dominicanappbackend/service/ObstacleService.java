@@ -8,6 +8,7 @@ import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ public class ObstacleService {
 
     public void saveObstacle(ObstacleRequestDTO obstacleRequestDTO) {
         validateObstacleRequestDTO(obstacleRequestDTO);
+        validateDates(obstacleRequestDTO.getFromDate(), obstacleRequestDTO.getToDate());
 
         Obstacle obstacle = obstacleRequestDTO.toObstacle();
         obstacleRepository.save(obstacle);
@@ -57,4 +59,9 @@ public class ObstacleService {
         }
     }
 
+    private void validateDates(LocalDate fromDate, LocalDate toDate) {
+        if(!(fromDate.isBefore(toDate) || fromDate.isEqual(toDate))) {
+            throw new IllegalArgumentException("Invalid dates. 'fromDate' must be before or equal to 'toDate'");
+        }
+    }
 }
