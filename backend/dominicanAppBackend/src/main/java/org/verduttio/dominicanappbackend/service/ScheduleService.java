@@ -41,6 +41,21 @@ public class ScheduleService {
     }
 
     public void saveSchedule(ScheduleDTO scheduleDTO) {
+        validateSchedule(scheduleDTO);
+
+        Schedule schedule = scheduleDTO.toSchedule();
+        scheduleRepository.save(schedule);
+    }
+
+    public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO) {
+        validateSchedule(updatedScheduleDTO);
+
+        Schedule schedule = updatedScheduleDTO.toSchedule();
+        schedule.setId(scheduleId);
+        scheduleRepository.save(schedule);
+    }
+
+    private void validateSchedule(ScheduleDTO scheduleDTO) {
         User user = userService.getUserById(scheduleDTO.getUserId()).orElse(null);
         if(user == null) {
             throw new UserNotFoundException("User with given id does not exist");
@@ -61,15 +76,14 @@ public class ScheduleService {
         if(!userHasAllowedRoleForTask(user, task)) {
             throw new IllegalArgumentException("User does not have allowed role for task");
         }
-
-
-
-        Schedule schedule = scheduleDTO.toSchedule();
-        scheduleRepository.save(schedule);
     }
 
     public void deleteSchedule(Long scheduleId) {
         scheduleRepository.deleteById(scheduleId);
+    }
+
+    public boolean existsById(Long scheduleId) {
+        return scheduleRepository.existsById(scheduleId);
     }
 
     protected boolean userHasAllowedRoleForTask(User user, Task task) {

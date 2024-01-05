@@ -15,14 +15,14 @@ Content-Type: application/json
 }
 
 #### Update an existing schedule by ID
-#PUT http://localhost:8080/api/schedules/1
-#Content-Type: application/json
-#
-#{
-#  "taskId": 1,
-#  "userId": 2,
-#  "date": "2023-12-31"
-#}
+PUT http://localhost:8080/api/schedules/2
+Content-Type: application/json
+
+{
+  "taskId": 1,
+  "userId": 4,
+  "date": "2023-01-13"
+}
 
 ### Delete schedule by ID
 DELETE http://localhost:8080/api/schedules/1

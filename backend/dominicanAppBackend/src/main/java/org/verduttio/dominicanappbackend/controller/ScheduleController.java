@@ -47,19 +47,15 @@ public class ScheduleController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-//    @PutMapping("/{scheduleId}")
-//    public ResponseEntity<Schedule> updateSchedule(@PathVariable Long scheduleId, @RequestBody Schedule updatedSchedule) {
-//        return scheduleService.getScheduleById(scheduleId)
-//                .map(existingSchedule -> {
-//                    existingSchedule.setTask(updatedSchedule.getTask());
-//                    existingSchedule.setUser(updatedSchedule.getUser());
-//                    existingSchedule.setDate(updatedSchedule.getDate());
-//
-//                    scheduleService.saveSchedule(existingSchedule);
-//                    return new ResponseEntity<>(existingSchedule, HttpStatus.OK);
-//                })
-//                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//    }
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<Void> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleDTO updatedScheduleDTO) {
+        if (scheduleService.existsById(scheduleId)) {
+            scheduleService.updateSchedule(scheduleId, updatedScheduleDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId) {
