@@ -16,20 +16,15 @@ Content-Type: application/json
   "applicantDescription": "Some description"
 }
 
-### Update Obstacle (Not implemented)
-# PUT {{host}}/api/obstacles/1
-# Content-Type: application/json
-#
-# {
-#   "userId": 1,
-#   "taskId": 2,
-#   "fromDate": "2023-01-01",
-#   "toDate": "2023-01-15",
-#   "applicantDescription": "Updated description",
-#   "status": "APPROVED",
-#   "recipientAnswer": "Approved",
-#   "recipientUserId": 3
-# }
+### Update Obstacle
+PATCH {{host}}/api/obstacles/5
+Content-Type: application/json
+
+{
+"status": "APPROVED",
+"recipientAnswer": "Agreed",
+"recipientUserId": 2
+}
 
 ### Delete Obstacle
 DELETE {{host}}/api/obstacles/1

@@ -2,9 +2,13 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.dto.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
+import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
+import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.service.exception.ObstacleNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
@@ -42,6 +46,37 @@ public class ObstacleService {
         obstacleRepository.save(obstacle);
     }
 
+    public void saveObstacle(Obstacle obstacle) {
+        obstacleRepository.save(obstacle);
+    }
+
+    public void patchObstacle(Long obstacleId, ObstaclePatchDTO obstaclePatchDTO) {
+        Obstacle obstacle = obstacleRepository.findById(obstacleId)
+                .orElseThrow(() -> new ObstacleNotFoundException("Obstacle not found with id: " + obstacleId));
+
+        if (obstaclePatchDTO.getStatus() != null) {
+            validateObstacleStatus(obstaclePatchDTO.getStatus());
+            obstacle.setStatus(ObstacleStatus.valueOf(obstaclePatchDTO.getStatus()));
+        }
+
+        if (obstaclePatchDTO.getRecipientAnswer() != null) {
+            obstacle.setRecipientAnswer(obstaclePatchDTO.getRecipientAnswer());
+        }
+
+        if (obstaclePatchDTO.getRecipientUserId() != null) {
+            boolean recipientUserExists = userService.existsById(obstaclePatchDTO.getRecipientUserId());
+            if (!recipientUserExists) {
+                throw new UserNotFoundException("User not found with id: " + obstaclePatchDTO.getRecipientUserId());
+            }
+
+            User recipientUser = new User();
+            recipientUser.setId(obstaclePatchDTO.getRecipientUserId());
+            obstacle.setRecipientUser(recipientUser);
+        }
+
+        obstacleRepository.save(obstacle);
+    }
+
     public void deleteObstacle(Long obstacleId) {
         obstacleRepository.deleteById(obstacleId);
     }
@@ -63,5 +98,14 @@ public class ObstacleService {
         if(!(fromDate.isBefore(toDate) || fromDate.isEqual(toDate))) {
             throw new IllegalArgumentException("Invalid dates. 'fromDate' must be before or equal to 'toDate'");
         }
+    }
+
+    private void validateObstacleStatus(String status) {
+        for (ObstacleStatus validStatus : ObstacleStatus.values()) {
+            if (validStatus.toString().equals(status)) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Invalid obstacle status: " + status);
     }
 }
