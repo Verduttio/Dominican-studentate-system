@@ -19,8 +19,6 @@ public class Schedule {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private int participantsNumber;
-
     private LocalDate date;
 
     // Getters and setters
@@ -48,14 +46,6 @@ public class Schedule {
         this.user = user;
     }
 
-    public int getParticipantsNumber() {
-        return participantsNumber;
-    }
-
-    public void setParticipantsNumber(int participantsNumber) {
-        this.participantsNumber = participantsNumber;
-    }
-
     public LocalDate getDate() {
         return date;
     }
@@ -68,10 +58,9 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(Task task, User user, int participantsNumber, LocalDate date) {
+    public Schedule(Task task, User user, LocalDate date) {
         this.task = task;
         this.user = user;
-        this.participantsNumber = participantsNumber;
         this.date = date;
     }
 
