@@ -11,7 +11,7 @@ Content-Type: application/json
 {
   "taskId": 1,
   "userId": 3,
-  "date": "2023-01-13"
+  "date": "2024-01-05"
 }
 
 #### Update an existing schedule by ID

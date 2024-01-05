@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.exception.ObstacleExistsException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
@@ -40,7 +41,7 @@ public class ScheduleController {
     public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         try {
             scheduleService.saveSchedule(scheduleDTO);
-        } catch (IllegalArgumentException | TaskNotFoundException | UserNotFoundException e) {
+        } catch (IllegalArgumentException | TaskNotFoundException | UserNotFoundException | ObstacleExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 

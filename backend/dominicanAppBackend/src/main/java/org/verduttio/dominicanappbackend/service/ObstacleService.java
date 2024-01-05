@@ -81,6 +81,20 @@ public class ObstacleService {
         obstacleRepository.deleteById(obstacleId);
     }
 
+    public List<Obstacle> findObstaclesByUserIdAndTaskId(Long userId, Long taskId) {
+        return obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
+    }
+
+    public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdForDate(Long userId, Long taskId, LocalDate date) {
+        List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
+        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> dateInRange(date, obstacle.getFromDate(), obstacle.getToDate())).toList();
+        return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
+    }
+
+    private boolean dateInRange(LocalDate date, LocalDate fromDate, LocalDate toDate) {
+        return (date.isAfter(fromDate) || date.isEqual(fromDate)) && (date.isBefore(toDate) || date.isEqual(toDate));
+    }
+
     private void validateObstacleRequestDTO(ObstacleRequestDTO obstacleRequestDTO) {
         Long userId = obstacleRequestDTO.getUserId();
         Long taskId = obstacleRequestDTO.getTaskId();

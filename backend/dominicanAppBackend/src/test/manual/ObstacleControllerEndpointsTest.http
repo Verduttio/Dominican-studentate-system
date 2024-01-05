@@ -9,22 +9,22 @@ POST {{host}}/api/obstacles
 Content-Type: application/json
 
 {
-  "userId": 1,
-  "taskId": 7,
-  "fromDate": "2023-01-01",
-  "toDate": "2023-01-10",
+  "userId": 3,
+  "taskId": 1,
+  "fromDate": "2024-01-01",
+  "toDate": "2024-01-10",
   "applicantDescription": "Some description"
 }
 
 ### Update Obstacle
-PATCH {{host}}/api/obstacles/5
+PATCH {{host}}/api/obstacles/1
 Content-Type: application/json
 
 {
 "status": "APPROVED",
 "recipientAnswer": "Agreed",
-"recipientUserId": 2
+"recipientUserId": 4
 }
 
 ### Delete Obstacle
-DELETE {{host}}/api/obstacles/1
+DELETE {{host}}/api/obstacles/4

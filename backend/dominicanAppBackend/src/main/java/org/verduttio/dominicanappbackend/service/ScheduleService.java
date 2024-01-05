@@ -8,6 +8,7 @@ import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
+import org.verduttio.dominicanappbackend.service.exception.ObstacleExistsException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
@@ -24,12 +25,14 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final TaskService taskService;
     private final UserService userService;
+    private final ObstacleService obstacleService;
 
     @Autowired
-    public ScheduleService(ScheduleRepository scheduleRepository, TaskService taskService, UserService userService) {
+    public ScheduleService(ScheduleRepository scheduleRepository, TaskService taskService, UserService userService, ObstacleService obstacleService) {
         this.scheduleRepository = scheduleRepository;
         this.taskService = taskService;
         this.userService = userService;
+        this.obstacleService = obstacleService;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -72,9 +75,12 @@ public class ScheduleService {
             throw new IllegalArgumentException("Task does not occur on given day of week: " + scheduleDayOfWeek.toString());
         }
 
-
         if(!userHasAllowedRoleForTask(user, task)) {
             throw new IllegalArgumentException("User does not have allowed role for task");
+        }
+
+        if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), scheduleDTO.getDate()).isEmpty()) {
+            throw new ObstacleExistsException("User has an approved obstacle for this task");
         }
     }
 
