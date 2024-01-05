@@ -1,0 +1,28 @@
+### Get all schedules
+GET http://localhost:8080/api/schedules
+
+### Get schedule by ID
+GET http://localhost:8080/api/schedules/1
+
+### Create a new schedule
+POST http://localhost:8080/api/schedules
+Content-Type: application/json
+
+{
+  "taskId": 1,
+  "userId": 3,
+  "date": "2023-01-13"
+}
+
+#### Update an existing schedule by ID
+#PUT http://localhost:8080/api/schedules/1
+#Content-Type: application/json
+#
+#{
+#  "taskId": 1,
+#  "userId": 2,
+#  "date": "2023-12-31"
+#}
+
+### Delete schedule by ID
+DELETE http://localhost:8080/api/schedules/1
