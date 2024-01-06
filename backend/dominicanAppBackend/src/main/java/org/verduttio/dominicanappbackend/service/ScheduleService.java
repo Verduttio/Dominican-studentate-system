@@ -27,13 +27,16 @@ public class ScheduleService {
     private final TaskService taskService;
     private final UserService userService;
     private final ObstacleService obstacleService;
+    private final ConflictService conflictService;
 
     @Autowired
-    public ScheduleService(ScheduleRepository scheduleRepository, TaskService taskService, UserService userService, ObstacleService obstacleService) {
+    public ScheduleService(ScheduleRepository scheduleRepository, TaskService taskService, UserService userService,
+                           ObstacleService obstacleService, ConflictService conflictService) {
         this.scheduleRepository = scheduleRepository;
         this.taskService = taskService;
         this.userService = userService;
         this.obstacleService = obstacleService;
+        this.conflictService = conflictService;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -83,6 +86,26 @@ public class ScheduleService {
         if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), scheduleDTO.getDate()).isEmpty()) {
             throw new ObstacleExistsException("User has an approved obstacle for this task");
         }
+
+        if(scheduleIsInConflictWithOtherSchedules(scheduleDTO.toSchedule())) {
+            throw new IllegalArgumentException("Schedule is in conflict with other schedules");
+        }
+
+
+    }
+
+    public List<Schedule> getSchedulesByUserIdAndDate(Long userId, LocalDate date) {
+        return scheduleRepository.findByUserIdAndDate(userId, date);
+    }
+
+    private boolean scheduleIsInConflictWithOtherSchedules(Schedule schedule) {
+        List<Schedule> schedules = getSchedulesByUserIdAndDate(schedule.getUser().getId(), schedule.getDate());
+        for(Schedule otherSchedule : schedules) {
+            if(conflictService.tasksAreInConflict(schedule.getTask().getId(), otherSchedule.getTask().getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void deleteSchedule(Long scheduleId) {

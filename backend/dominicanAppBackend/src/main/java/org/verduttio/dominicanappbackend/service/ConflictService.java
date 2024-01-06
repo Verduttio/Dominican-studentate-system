@@ -47,6 +47,10 @@ public class ConflictService {
         conflictRepository.deleteById(conflictId);
     }
 
+    public boolean tasksAreInConflict(Long task1Id, Long task2Id) {
+        return conflictRepository.existsByTaskIds(task1Id, task2Id);
+    }
+
     public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {
         Conflict conflict = updatedConflictDTO.onlyIdFieldsToConflict();
         conflict.setId(conflictId);
