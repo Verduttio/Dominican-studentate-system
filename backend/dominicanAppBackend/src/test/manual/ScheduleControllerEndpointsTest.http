@@ -1,6 +1,9 @@
 ### Get all schedules
 GET http://localhost:8080/api/schedules
 
+### Get current schedules
+GET http://localhost:8080/api/schedules/current
+
 ### Get schedule by ID
 GET http://localhost:8080/api/schedules/1
 

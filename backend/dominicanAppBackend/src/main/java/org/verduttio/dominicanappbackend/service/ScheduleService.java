@@ -13,6 +13,7 @@ import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -105,5 +106,9 @@ public class ScheduleService {
             throw new UserNotFoundException("User with given id does not exist");
         }
         return scheduleRepository.findByUserId(userId);
+    }
+
+    public List<Schedule> getCurrentSchedules() {
+        return scheduleRepository.findSchedulesLaterOrInDay(LocalDate.now());
     }
 }

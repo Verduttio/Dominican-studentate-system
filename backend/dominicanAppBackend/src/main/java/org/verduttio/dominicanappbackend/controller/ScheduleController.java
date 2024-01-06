@@ -49,6 +49,12 @@ public class ScheduleController {
         return new ResponseEntity<>(schedules, HttpStatus.OK);
     }
 
+    @GetMapping("/current")
+    public ResponseEntity<List<Schedule>> getCurrentSchedules() {
+        List<Schedule> schedules = scheduleService.getCurrentSchedules();
+        return new ResponseEntity<>(schedules, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         try {
