@@ -4,13 +4,16 @@ GET http://localhost:8080/api/schedules
 ### Get schedule by ID
 GET http://localhost:8080/api/schedules/1
 
+### Get schedules by userID
+GET http://localhost:8080/api/schedules/user/5
+
 ### Create a new schedule
 POST http://localhost:8080/api/schedules
 Content-Type: application/json
 
 {
-  "taskId": 1,
-  "userId": 3,
+  "taskId": 2,
+  "userId": 4,
   "date": "2024-01-05"
 }
 

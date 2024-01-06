@@ -100,4 +100,10 @@ public class ScheduleService {
     }
 
 
+    public List<Schedule> getAllSchedulesByUserId(Long userId) {
+        if (!userService.existsById(userId)) {
+            throw new UserNotFoundException("User with given id does not exist");
+        }
+        return scheduleRepository.findByUserId(userId);
+    }
 }

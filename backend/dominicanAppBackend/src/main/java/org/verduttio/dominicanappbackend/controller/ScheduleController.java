@@ -37,6 +37,18 @@ public class ScheduleController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getAllSchedulesByUserId(@PathVariable Long userId) {
+        List<Schedule> schedules;
+        try {
+            schedules = scheduleService.getAllSchedulesByUserId(userId);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(schedules, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         try {
