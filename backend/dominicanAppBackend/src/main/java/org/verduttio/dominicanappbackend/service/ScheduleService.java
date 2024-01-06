@@ -47,22 +47,22 @@ public class ScheduleService {
         return scheduleRepository.findById(scheduleId);
     }
 
-    public void saveSchedule(ScheduleDTO scheduleDTO) {
-        validateSchedule(scheduleDTO);
+    public void saveSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
+        validateSchedule(scheduleDTO, ignoreConflicts);
 
         Schedule schedule = scheduleDTO.toSchedule();
         scheduleRepository.save(schedule);
     }
 
-    public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO) {
-        validateSchedule(updatedScheduleDTO);
+    public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO, boolean ignoreConflicts) {
+        validateSchedule(updatedScheduleDTO, ignoreConflicts);
 
         Schedule schedule = updatedScheduleDTO.toSchedule();
         schedule.setId(scheduleId);
         scheduleRepository.save(schedule);
     }
 
-    private void validateSchedule(ScheduleDTO scheduleDTO) {
+    private void validateSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
         User user = userService.getUserById(scheduleDTO.getUserId()).orElse(null);
         if(user == null) {
             throw new UserNotFoundException("User with given id does not exist");
@@ -87,7 +87,7 @@ public class ScheduleService {
             throw new ObstacleExistsException("User has an approved obstacle for this task");
         }
 
-        if(scheduleIsInConflictWithOtherSchedules(scheduleDTO.toSchedule())) {
+        if(!ignoreConflicts && scheduleIsInConflictWithOtherSchedules(scheduleDTO.toSchedule())) {
             throw new IllegalArgumentException("Schedule is in conflict with other schedules");
         }
 

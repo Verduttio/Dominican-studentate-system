@@ -56,9 +56,10 @@ public class ScheduleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO,
+                                            @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
-            scheduleService.saveSchedule(scheduleDTO);
+            scheduleService.saveSchedule(scheduleDTO, ignoreConflicts);
         } catch (IllegalArgumentException | TaskNotFoundException | UserNotFoundException | ObstacleExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -67,9 +68,11 @@ public class ScheduleController {
     }
 
     @PutMapping("/{scheduleId}")
-    public ResponseEntity<Void> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleDTO updatedScheduleDTO) {
+    public ResponseEntity<Void> updateSchedule(@PathVariable Long scheduleId,
+                                               @RequestBody ScheduleDTO updatedScheduleDTO,
+                                               @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         if (scheduleService.existsById(scheduleId)) {
-            scheduleService.updateSchedule(scheduleId, updatedScheduleDTO);
+            scheduleService.updateSchedule(scheduleId, updatedScheduleDTO, ignoreConflicts);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
