@@ -1,11 +1,11 @@
 ### Get all conflicts
-GET http://localhost:8080/api/conflicts
+GET {{host}}/api/conflicts
 
 ### Get a conflict by a specific ID
-GET http://localhost:8080/api/conflicts/1
+GET {{host}}/api/conflicts/1
 
 ### Create a new conflict
-POST http://localhost:8080/api/conflicts
+POST {{host}}/api/conflicts
 Content-Type: application/json
 
 {
@@ -14,7 +14,7 @@ Content-Type: application/json
 }
 
 ### Update an existing conflict
-PUT http://localhost:8080/api/conflicts/1
+PUT {{host}}/api/conflicts/1
 Content-Type: application/json
 
 {
@@ -23,4 +23,4 @@ Content-Type: application/json
 }
 
 ### Delete an existing conflict
-DELETE http://localhost:8080/api/conflicts/1
+DELETE {{host}}/api/conflicts/1

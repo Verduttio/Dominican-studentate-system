@@ -1,17 +1,17 @@
 ### Get all schedules
-GET http://localhost:8080/api/schedules
+GET {{host}}/api/schedules
 
 ### Get current schedules
-GET http://localhost:8080/api/schedules/current
+GET {{host}}/api/schedules/current
 
 ### Get schedule by ID
-GET http://localhost:8080/api/schedules/1
+GET {{host}}/api/schedules/1
 
 ### Get schedules by userID
-GET http://localhost:8080/api/schedules/user/5
+GET {{host}}/api/schedules/user/5
 
 ### Create a new schedule
-POST http://localhost:8080/api/schedules
+POST {{host}}/api/schedules
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 #### Update an existing schedule by ID
-PUT http://localhost:8080/api/schedules/2
+PUT {{host}}/api/schedules/2
 Content-Type: application/json
 
 {
@@ -31,4 +31,4 @@ Content-Type: application/json
 }
 
 ### Delete schedule by ID
-DELETE http://localhost:8080/api/schedules/1
+DELETE {{host}}/api/schedules/1

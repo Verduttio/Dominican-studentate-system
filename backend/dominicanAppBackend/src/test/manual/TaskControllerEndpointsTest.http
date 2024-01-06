@@ -1,11 +1,11 @@
 ### Get all tasks
-GET http://localhost:8080/api/tasks
+GET {{host}}/api/tasks
 
 ### Get a task by a specific ID
-GET http://localhost:8080/api/tasks/1
+GET {{host}}/api/tasks/1
 
 ### Create a new task
-POST http://localhost:8080/api/tasks
+POST {{host}}/api/tasks
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### Update an existing task
-PUT http://localhost:8080/api/tasks/1
+PUT {{host}}/api/tasks/1
 Content-Type: application/json
 
 {
@@ -33,4 +33,4 @@ Content-Type: application/json
 }
 
 ### Delete an existing task
-DELETE http://localhost:8080/api/tasks/1
+DELETE {{host}}/api/tasks/1
