@@ -122,4 +122,11 @@ public class ObstacleService {
         }
         throw new IllegalArgumentException("Invalid obstacle status: " + status);
     }
+
+    public List<Obstacle> getAllObstaclesByUserId(Long userId) {
+        if (!userService.existsById(userId)) {
+            throw new UserNotFoundException("User with id " + userId + " does not exist");
+        }
+        return obstacleRepository.findAllByUserId(userId);
+    }
 }

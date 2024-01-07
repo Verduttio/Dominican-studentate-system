@@ -38,6 +38,18 @@ public class ObstacleController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getAllObstaclesByUserId(@PathVariable Long userId) {
+        List<Obstacle> obstacles;
+        try {
+            obstacles = obstacleService.getAllObstaclesByUserId(userId);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> createObstacle(@RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {

@@ -4,6 +4,9 @@ GET {{host}}/api/obstacles
 ### Get Obstacle by ID
 GET {{host}}/api/obstacles/1
 
+### Get Obstacles by User ID
+GET {{host}}/api/obstacles/user/3
+
 ### Create Obstacle
 POST {{host}}/api/obstacles
 Content-Type: application/json
