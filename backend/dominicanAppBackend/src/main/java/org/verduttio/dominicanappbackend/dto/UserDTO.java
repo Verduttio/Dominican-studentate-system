@@ -1,11 +1,18 @@
 package org.verduttio.dominicanappbackend.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.verduttio.dominicanappbackend.entity.User;
 
 import java.util.Set;
 
 public class UserDTO {
+    @Email(message="Please provide a valid email address")
+    @NotBlank(message="Email is mandatory")
     private String email;
+    @Size(min=8, message="Password with at least 8 characters is mandatory")
+    @NotBlank(message="Password is mandatory")
     private String password;
     private Set<String> roleNames;
 

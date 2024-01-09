@@ -51,9 +51,16 @@ public class RoleService {
         roleRepository.deleteById(roleId);
     }
 
+    /**
+     * Retrieves a set of roles based on the provided role names.
+     *
+     * @param roleNames A set of role names for which role objects should be retrieved.
+     * @return A set of role objects corresponding to the given role names. If a role with a particular name is not found,
+     *         an empty set is returned.
+     */
     public Set<Role> getRolesByRoleNames(Set<String> roleNames) {
         Set<Role> rolesDB = new HashSet<>();
-        if (roleNames == null) {
+        if (roleNames == null || roleNames.isEmpty()) {
             return rolesDB;
         }
 

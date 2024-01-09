@@ -32,7 +32,7 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public void saveUser(UserDTO userDTO) {
+    public void createUser(UserDTO userDTO) {
         if (existsByEmail(userDTO.getEmail())) {
             throw new UserAlreadyExistsException("User with given email already exists");
         }
