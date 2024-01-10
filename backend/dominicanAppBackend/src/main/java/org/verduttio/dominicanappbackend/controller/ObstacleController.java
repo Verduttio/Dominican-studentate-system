@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,7 @@ public class ObstacleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createObstacle(@RequestBody ObstacleRequestDTO obstacleRequestDTO) {
+    public ResponseEntity<?> createObstacle(@Valid @RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {
             obstacleService.saveObstacle(obstacleRequestDTO);
         } catch (TaskNotFoundException | UserNotFoundException | IllegalArgumentException e ) {
@@ -64,7 +65,7 @@ public class ObstacleController {
     @PatchMapping("/{obstacleId}")
     public ResponseEntity<?> updateObstacle(
             @PathVariable Long obstacleId,
-            @RequestBody ObstaclePatchDTO obstaclePatchDTO) {
+            @Valid @RequestBody ObstaclePatchDTO obstaclePatchDTO) {
         try {
             obstacleService.patchObstacle(obstacleId, obstaclePatchDTO);
         } catch (ObstacleNotFoundException | UserNotFoundException e) {

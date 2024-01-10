@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.Task;
@@ -8,9 +9,13 @@ import org.verduttio.dominicanappbackend.entity.User;
 import java.time.LocalDate;
 
 public class ObstacleRequestDTO {
+    @NotNull(message="User id is mandatory")
     private Long userId;
+    @NotNull(message="Task id is mandatory")
     private Long taskId;
+    @NotNull(message="From date is mandatory")
     private LocalDate fromDate;
+    @NotNull(message="To date is mandatory")
     private LocalDate toDate;
     private String applicantDescription;
 

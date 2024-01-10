@@ -1,11 +1,15 @@
 package org.verduttio.dominicanappbackend.dto;
 
-public class ObstaclePatchDTO {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+public class ObstaclePatchDTO {
+    @NotBlank(message="Status is mandatory")
     private String status;
 
     private String recipientAnswer;
 
+    @NotNull(message="Recipient user id is mandatory")
     private Long recipientUserId;
 
     // Getters and setters
