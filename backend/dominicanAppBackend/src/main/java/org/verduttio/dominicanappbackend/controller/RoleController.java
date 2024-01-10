@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class RoleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createRole(@RequestBody Role role) {
+    public ResponseEntity<?> createRole(@Valid @RequestBody Role role) {
         try {
             roleService.saveRole(role);
         } catch (RoleAlreadyExistsException e) {
@@ -46,7 +47,7 @@ public class RoleController {
     }
 
     @PutMapping("/{roleId}")
-    public ResponseEntity<?> updateRole(@PathVariable Long roleId, @RequestBody Role updatedRole) {
+    public ResponseEntity<?> updateRole(@PathVariable Long roleId, @Valid @RequestBody Role updatedRole) {
         Role existingRole = roleService.getRoleById(roleId);
         if (existingRole != null) {
             return updateRoleIfExist(updatedRole, existingRole);

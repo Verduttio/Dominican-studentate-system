@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "roles")
@@ -10,6 +11,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message="Role name is mandatory")
     private String name;
 
 
