@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +37,13 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createTask(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO taskDTO) {
         taskService.saveTask(taskDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{taskId}")
-    public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @RequestBody TaskDTO updatedTaskDTO) {
+    public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskDTO updatedTaskDTO) {
         Optional<Task> existingTask = taskService.getTaskById(taskId);
         if (existingTask.isPresent()) {
             taskService.updateTask(existingTask.get(), updatedTaskDTO);

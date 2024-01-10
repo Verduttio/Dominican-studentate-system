@@ -1,17 +1,27 @@
 package org.verduttio.dominicanappbackend.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Task;
 
 import java.time.DayOfWeek;
 import java.util.Set;
 
 public class TaskDTO {
+    @NotBlank(message="Name is mandatory")
     private String name;
+    @NotBlank(message="Category is mandatory")
     private String category;
+    @NotNull(message="Participants limit is mandatory")
     private int participantsLimit;
+    @NotNull(message="Permanent field is mandatory")
     private boolean permanent;
+    @NotNull(message="Participant for whole period is mandatory")
     private boolean participantForWholePeriod;
+    @NotEmpty(message="Allowed roles are mandatory")
     private Set<String> allowedRoleNames;
+    @NotEmpty(message="Days of week are mandatory")
     private Set<DayOfWeek> daysOfWeek;
 
     // Getters
