@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
@@ -7,8 +8,11 @@ import org.verduttio.dominicanappbackend.entity.User;
 import java.time.LocalDate;
 
 public class ScheduleDTO {
+    @NotNull(message="Task id is mandatory")
     private Long taskId;
+    @NotNull(message="User id is mandatory")
     private Long userId;
+    @NotNull(message="Date is mandatory")
     private LocalDate date;
 
     // Getters and setters

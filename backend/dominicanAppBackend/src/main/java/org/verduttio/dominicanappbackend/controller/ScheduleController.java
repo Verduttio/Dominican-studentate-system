@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class ScheduleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO,
+    public ResponseEntity<?> createSchedule(@Valid @RequestBody ScheduleDTO scheduleDTO,
                                             @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
             scheduleService.saveSchedule(scheduleDTO, ignoreConflicts);
@@ -69,7 +70,7 @@ public class ScheduleController {
 
     @PutMapping("/{scheduleId}")
     public ResponseEntity<Void> updateSchedule(@PathVariable Long scheduleId,
-                                               @RequestBody ScheduleDTO updatedScheduleDTO,
+                                               @Valid @RequestBody ScheduleDTO updatedScheduleDTO,
                                                @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         if (scheduleService.existsById(scheduleId)) {
             scheduleService.updateSchedule(scheduleId, updatedScheduleDTO, ignoreConflicts);
