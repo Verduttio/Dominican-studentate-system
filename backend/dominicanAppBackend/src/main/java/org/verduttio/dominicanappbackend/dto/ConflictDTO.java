@@ -1,10 +1,13 @@
 package org.verduttio.dominicanappbackend.dto;
 
+import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
 
 public class ConflictDTO {
+    @NotNull(message="Task 1 id is mandatory")
     private Long task1Id;
+    @NotNull(message="Task 2 id is mandatory")
     private Long task2Id;
 
     // Getters

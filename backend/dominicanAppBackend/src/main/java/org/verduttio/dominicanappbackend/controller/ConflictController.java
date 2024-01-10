@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class ConflictController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createConflict(@RequestBody ConflictDTO conflictDTO) {
+    public ResponseEntity<?> createConflict(@Valid @RequestBody ConflictDTO conflictDTO) {
         try {
             conflictService.saveConflict(conflictDTO);
         } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
@@ -49,7 +50,7 @@ public class ConflictController {
     }
 
     @PutMapping("/{conflictId}")
-    public ResponseEntity<?> updateConflict(@PathVariable Long conflictId, @RequestBody ConflictDTO updatedConflictDTO) {
+    public ResponseEntity<?> updateConflict(@PathVariable Long conflictId, @Valid @RequestBody ConflictDTO updatedConflictDTO) {
         boolean conflictExist = conflictService.existsById(conflictId);
         if (conflictExist) {
             return updateConflictIfExists(conflictId, updatedConflictDTO);
