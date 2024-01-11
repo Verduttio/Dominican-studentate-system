@@ -15,6 +15,10 @@ public class User {
 
     private String password;
 
+    private String name;
+
+    private String surname;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -62,10 +66,29 @@ public class User {
     public User() {
     }
 
-    public User(String email, String password, Set<Role> roles) {
+    public User(String email, String password, Set<Role> roles,
+                String name, String surname) {
         this.email = email;
         this.password = password;
         this.roles = roles;
+        this.name = name;
+        this.surname = surname;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
 

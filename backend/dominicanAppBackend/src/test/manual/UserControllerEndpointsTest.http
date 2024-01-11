@@ -13,6 +13,8 @@ Content-Type: application/json
 {
   "email": "new@example.com",
   "password": "password123",
+  "name": "John",
+  "surname": "Doe",
   "roleNames": ["ROLE_USER", "ROLE_ADMIN"]
 }
 
@@ -28,13 +30,15 @@ Content-Type: application/json
 
 
 ### Update an existing user
-PUT {{host}}/api/users/2
+PUT {{host}}/api/users/4
 Content-Type: application/json
 
 {
   "email": "new-email@example.com",
   "password": "new-password123",
-  "roleNames": ["ROLE_USER"]
+  "roleNames": ["ROLE_USER"],
+  "name": "New Name",
+  "surname": "New Surname"
 }
 
 
