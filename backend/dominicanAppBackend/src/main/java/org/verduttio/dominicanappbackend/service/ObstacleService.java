@@ -9,8 +9,8 @@ import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.service.exception.ObstacleNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,13 +21,14 @@ public class ObstacleService {
 
     private final ObstacleRepository obstacleRepository;
     private final UserService userService;
-    private final TaskService taskService;
+    private final ObstacleValidator obstacleValidator;
 
     @Autowired
-    public ObstacleService(ObstacleRepository obstacleRepository, UserService userService, TaskService taskService) {
+    public ObstacleService(ObstacleRepository obstacleRepository, UserService userService,
+                           ObstacleValidator obstacleValidator) {
         this.obstacleRepository = obstacleRepository;
         this.userService = userService;
-        this.taskService = taskService;
+        this.obstacleValidator = obstacleValidator;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -39,8 +40,8 @@ public class ObstacleService {
     }
 
     public void saveObstacle(ObstacleRequestDTO obstacleRequestDTO) {
-        validateObstacleRequestDTO(obstacleRequestDTO);
-        validateDates(obstacleRequestDTO.getFromDate(), obstacleRequestDTO.getToDate());
+        obstacleValidator.validateObstacleRequestDTO(obstacleRequestDTO);
+        obstacleValidator.ensureFromDateNotAfterToDate(obstacleRequestDTO.getFromDate(), obstacleRequestDTO.getToDate());
 
         Obstacle obstacle = obstacleRequestDTO.toObstacle();
         obstacleRepository.save(obstacle);
@@ -54,28 +55,12 @@ public class ObstacleService {
         Obstacle obstacle = obstacleRepository.findById(obstacleId)
                 .orElseThrow(() -> new ObstacleNotFoundException("Obstacle not found with id: " + obstacleId));
 
-        if (obstaclePatchDTO.getStatus() != null) {
-            validateObstacleStatus(obstaclePatchDTO.getStatus());
-            obstacle.setStatus(ObstacleStatus.valueOf(obstaclePatchDTO.getStatus()));
-        }
-
-        if (obstaclePatchDTO.getRecipientAnswer() != null) {
-            obstacle.setRecipientAnswer(obstaclePatchDTO.getRecipientAnswer());
-        }
-
-        if (obstaclePatchDTO.getRecipientUserId() != null) {
-            boolean recipientUserExists = userService.existsById(obstaclePatchDTO.getRecipientUserId());
-            if (!recipientUserExists) {
-                throw new UserNotFoundException("User not found with id: " + obstaclePatchDTO.getRecipientUserId());
-            }
-
-            User recipientUser = new User();
-            recipientUser.setId(obstaclePatchDTO.getRecipientUserId());
-            obstacle.setRecipientUser(recipientUser);
-        }
+        obstacleValidator.validateObstaclePatchDTO(obstaclePatchDTO);
+        updateObstacleFromPatchDTO(obstacle, obstaclePatchDTO);
 
         obstacleRepository.save(obstacle);
     }
+
 
     public void deleteObstacle(Long obstacleId) {
         obstacleRepository.deleteById(obstacleId);
@@ -87,40 +72,8 @@ public class ObstacleService {
 
     public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdForDate(Long userId, Long taskId, LocalDate date) {
         List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
-        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> dateInRange(date, obstacle.getFromDate(), obstacle.getToDate())).toList();
+        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> obstacleValidator.isDateInRange(date, obstacle.getFromDate(), obstacle.getToDate())).toList();
         return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
-    }
-
-    private boolean dateInRange(LocalDate date, LocalDate fromDate, LocalDate toDate) {
-        return (date.isAfter(fromDate) || date.isEqual(fromDate)) && (date.isBefore(toDate) || date.isEqual(toDate));
-    }
-
-    private void validateObstacleRequestDTO(ObstacleRequestDTO obstacleRequestDTO) {
-        Long userId = obstacleRequestDTO.getUserId();
-        Long taskId = obstacleRequestDTO.getTaskId();
-
-        if (!userService.existsById(userId)) {
-            throw new UserNotFoundException("User with id " + userId + " does not exist");
-        }
-
-        if (!taskService.existsById(taskId)) {
-            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
-        }
-    }
-
-    private void validateDates(LocalDate fromDate, LocalDate toDate) {
-        if(!(fromDate.isBefore(toDate) || fromDate.isEqual(toDate))) {
-            throw new IllegalArgumentException("Invalid dates. 'fromDate' must be before or equal to 'toDate'");
-        }
-    }
-
-    private void validateObstacleStatus(String status) {
-        for (ObstacleStatus validStatus : ObstacleStatus.values()) {
-            if (validStatus.toString().equals(status)) {
-                return;
-            }
-        }
-        throw new IllegalArgumentException("Invalid obstacle status: " + status);
     }
 
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {
@@ -129,4 +82,19 @@ public class ObstacleService {
         }
         return obstacleRepository.findAllByUserId(userId);
     }
+
+    private void updateObstacleFromPatchDTO(Obstacle obstacle, ObstaclePatchDTO obstaclePatchDTO) {
+        obstacle.setStatus(ObstacleStatus.valueOf(obstaclePatchDTO.getStatus()));
+
+        if (obstaclePatchDTO.getRecipientAnswer() != null) {
+            obstacle.setRecipientAnswer(obstaclePatchDTO.getRecipientAnswer());
+        }
+
+        if (obstaclePatchDTO.getRecipientUserId() != null) {
+            User recipientUser = new User();
+            recipientUser.setId(obstaclePatchDTO.getRecipientUserId());
+            obstacle.setRecipientUser(recipientUser);
+        }
+    }
+
 }
