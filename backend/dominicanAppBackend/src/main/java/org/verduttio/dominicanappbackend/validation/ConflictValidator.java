@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 @Component
 public class ConflictValidator {
@@ -24,14 +24,22 @@ public class ConflictValidator {
     public void validateConflictFields(Conflict conflict) {
         Long task1Id = conflict.getTask1().getId();
         Long task2Id = conflict.getTask2().getId();
-        boolean task1Exists = taskService.taskExistsById(task1Id);
-        boolean task2Exists = taskService.taskExistsById(task2Id);
-        if (!task1Exists || !task2Exists) {
-            throw new ConflictIdNotFoundException("Tasks' id not found");
-        }
 
-        if (conflictRepository.existsByTaskIds(task1Id, task2Id)) {
-            throw new ConflictAlreadyExistsException("Conflict with given tasks already exists");
+        checkTaskExistence(task1Id);
+        checkTaskExistence(task2Id);
+
+        checkConflictWithGivenTaskIdsExists(task1Id, task2Id);
+    }
+
+    private void checkTaskExistence(Long taskId) {
+        if (!taskService.taskExistsById(taskId)) {
+            throw new TaskNotFoundException("Task with id " + taskId + " not found");
+        }
+    }
+
+    private void checkConflictWithGivenTaskIdsExists(Long task1Id, Long task2Id) {
+        if (!conflictRepository.existsByTaskIds(task1Id, task2Id)) {
+            throw new ConflictIdNotFoundException("Conflict with given task ids not found");
         }
     }
 }

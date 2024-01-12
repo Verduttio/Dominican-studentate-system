@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundExc
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.service.ConflictService;
+import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class ConflictController {
     public ResponseEntity<?> createConflict(@Valid @RequestBody ConflictDTO conflictDTO) {
         try {
             conflictService.saveConflict(conflictDTO);
-        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
+        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException | TaskNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
@@ -68,7 +69,7 @@ public class ConflictController {
     private ResponseEntity<?> updateConflictIfExists(Long conflictId, ConflictDTO updatedConflictDTO) {
         try {
             conflictService.updateConflict(conflictId, updatedConflictDTO);
-        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException e) {
+        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException | TaskNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
         return new ResponseEntity<>(HttpStatus.OK);
