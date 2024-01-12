@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -24,6 +25,9 @@ class ObstacleServiceTest {
     @Mock
     private ObstacleRepository obstacleRepository;
 
+    @Mock
+    private ObstacleValidator obstacleValidator;
+
     @InjectMocks
     private ObstacleService obstacleService;
 
@@ -35,8 +39,9 @@ class ObstacleServiceTest {
 
         User user = new User();
         Task task = new Task();
-        LocalDate fromDate = LocalDate.now().minusDays(1);
-        LocalDate toDate = LocalDate.now().plusDays(1);
+        LocalDate fromDate = LocalDate.of(2024, 5, 10);
+        LocalDate toDate = LocalDate.of(2024, 6, 23);
+        LocalDate testDate = LocalDate.of(2024, 5, 18);
 
         Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
         Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
@@ -45,9 +50,10 @@ class ObstacleServiceTest {
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2, obstacle3);
 
         when(obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId)).thenReturn(obstacles);
+        when(obstacleValidator.isDateInRange(testDate, fromDate, toDate)).thenReturn(true);
 
         // Act
-        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, LocalDate.now());
+        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, testDate);
 
         // Assert
         assertEquals(2, result.size());
@@ -63,8 +69,9 @@ class ObstacleServiceTest {
 
         User user = new User();
         Task task = new Task();
-        LocalDate fromDate = LocalDate.now().minusDays(1);
-        LocalDate toDate = LocalDate.now().plusDays(1);
+        LocalDate fromDate = LocalDate.of(2024, 5, 10);
+        LocalDate toDate = LocalDate.of(2024, 6, 23);
+        LocalDate testDate = LocalDate.of(2024, 5, 18);
 
         Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
         Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
@@ -72,9 +79,10 @@ class ObstacleServiceTest {
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2);
 
         when(obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId)).thenReturn(obstacles);
+        when(obstacleValidator.isDateInRange(testDate, fromDate, toDate)).thenReturn(true);
 
         // Act
-        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, LocalDate.now());
+        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, testDate);
 
         // Assert
         assertEquals(0, result.size());
@@ -88,8 +96,9 @@ class ObstacleServiceTest {
 
         User user = new User();
         Task task = new Task();
-        LocalDate fromDate = LocalDate.now().minusDays(7);
-        LocalDate toDate = LocalDate.now().minusDays(3);
+        LocalDate fromDate = LocalDate.of(2024, 5, 10);
+        LocalDate toDate = LocalDate.of(2024, 6, 23);
+        LocalDate testDate = LocalDate.of(2024, 4, 18);
 
         Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
         Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
@@ -97,9 +106,10 @@ class ObstacleServiceTest {
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2);
 
         when(obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId)).thenReturn(obstacles);
+        when(obstacleValidator.isDateInRange(testDate, fromDate, toDate)).thenReturn(false);
 
         // Act
-        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, LocalDate.now());
+        List<Obstacle> result = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, testDate);
 
         // Assert
         assertEquals(0, result.size());
