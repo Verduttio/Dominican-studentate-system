@@ -1,24 +1,24 @@
-package org.verduttio.dominicanappbackend.service;
+package org.verduttio.dominicanappbackend.validation;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserValidatorTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserValidator userValidator;
 
     @Test
     void testExistsAnotherUserWithGivenEmail_WhenAnotherUserExists() {
@@ -26,13 +26,11 @@ class UserServiceTest {
         String newEmail = "new.email@example.com";
         String currentEmail = "current.email@example.com";
 
+        // When
         when(userRepository.existsByEmail(newEmail)).thenReturn(true);
 
-        // When
-        boolean result = userService.existsAnotherUserWithGivenEmail(newEmail, currentEmail);
-
         // Then
-        assertTrue(result);
+        Assertions.assertThrows(UserAlreadyExistsException.class, () ->userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
     }
 
     @Test
@@ -41,13 +39,11 @@ class UserServiceTest {
         String newEmail = "new.email@example.com";
         String currentEmail = "current.email@example.com";
 
+        // When
         when(userRepository.existsByEmail(newEmail)).thenReturn(false);
 
-        // When
-        boolean result = userService.existsAnotherUserWithGivenEmail(newEmail, currentEmail);
-
         // Then
-        assertFalse(result);
+        Assertions.assertDoesNotThrow(() -> userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
     }
 
     @Test
@@ -55,11 +51,7 @@ class UserServiceTest {
         // Given
         String email = "same.email@example.com";
 
-        // When
-        boolean result = userService.existsAnotherUserWithGivenEmail(email, email);
-
-        // Then
-        assertFalse(result);
+        Assertions.assertDoesNotThrow(() -> userValidator.validateEmailWhenUpdate(email, email));
     }
 }
 
