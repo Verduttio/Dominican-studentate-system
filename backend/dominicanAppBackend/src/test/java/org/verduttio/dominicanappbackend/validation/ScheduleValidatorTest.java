@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.service;
+package org.verduttio.dominicanappbackend.validation;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,10 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-class ScheduleServiceTest {
-
+class ScheduleValidatorTest {
     @InjectMocks
-    private ScheduleService scheduleService;
+    private ScheduleValidator scheduleValidator;
 
     @Mock
     private User mockUser;
@@ -40,7 +39,7 @@ class ScheduleServiceTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertTrue(result);
@@ -61,7 +60,7 @@ class ScheduleServiceTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertFalse(result);
@@ -86,7 +85,7 @@ class ScheduleServiceTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertFalse(result);
@@ -110,7 +109,7 @@ class ScheduleServiceTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertTrue(result);
