@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.validation;
+package org.verduttio.dominicanappbackend.unittest.validation;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -7,6 +7,7 @@ import org.mockito.MockitoAnnotations;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.validation.ScheduleValidator;
 
 import java.util.HashSet;
 import java.util.Set;

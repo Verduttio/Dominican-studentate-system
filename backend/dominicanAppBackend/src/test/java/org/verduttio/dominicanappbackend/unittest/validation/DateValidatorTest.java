@@ -1,7 +1,8 @@
-package org.verduttio.dominicanappbackend.validation;
+package org.verduttio.dominicanappbackend.unittest.validation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.verduttio.dominicanappbackend.validation.DateValidator;
 
 import java.time.LocalDate;
 

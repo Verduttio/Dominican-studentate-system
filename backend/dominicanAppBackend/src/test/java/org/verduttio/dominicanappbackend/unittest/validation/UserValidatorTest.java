@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.validation;
+package org.verduttio.dominicanappbackend.unittest.validation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
+import org.verduttio.dominicanappbackend.validation.UserValidator;
 
 import static org.mockito.Mockito.when;
 

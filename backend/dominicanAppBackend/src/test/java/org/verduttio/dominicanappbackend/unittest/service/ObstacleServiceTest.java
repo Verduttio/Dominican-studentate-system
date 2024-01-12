@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.service;
+package org.verduttio.dominicanappbackend.unittest.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.LocalDate;

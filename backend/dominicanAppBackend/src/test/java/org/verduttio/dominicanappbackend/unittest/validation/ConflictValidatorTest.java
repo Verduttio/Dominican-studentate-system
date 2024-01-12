@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.validation;
+package org.verduttio.dominicanappbackend.unittest.validation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
+import org.verduttio.dominicanappbackend.validation.ConflictValidator;
 
 import static org.mockito.Mockito.when;
 

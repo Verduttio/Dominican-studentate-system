@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.validation;
+package org.verduttio.dominicanappbackend.unittest.validation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 @ExtendWith(MockitoExtension.class)
 class ObstacleValidatorTest {
