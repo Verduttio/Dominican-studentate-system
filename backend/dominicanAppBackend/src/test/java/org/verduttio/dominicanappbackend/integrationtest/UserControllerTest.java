@@ -1,35 +1,88 @@
 package org.verduttio.dominicanappbackend.integrationtest;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.verduttio.dominicanappbackend.controller.UserController;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.service.UserService;
 
 import java.util.Set;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("integration_tests")
 public class UserControllerTest {
 
     @Autowired
-    private UserController userController;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private UserService userService;
 
     @Test
-    public void saveUser() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName("John");
-        userDTO.setSurname("Doe");
-        userDTO.setEmail("johnDoe@mymail.com");
-        userDTO.setPassword("password");
-        userDTO.setRoleNames(Set.of("ROLE_USER"));
+    public void postUser_WithEmptySurname_ShouldReturnBadRequest() throws Exception {
+        String userJson = "{"
+                + "\"name\":\"John\","
+                + "\"surname\":\"\","
+                + "\"email\":\"johnDoe@mymail.com\","
+                + "\"password\":\"password\","
+                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "}";
 
-        ResponseEntity<?> response = userController.createUser(userDTO);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson))
+                .andExpect(status().isBadRequest());
+    }
 
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    @Test
+    public void postUser_ShouldReturnCreated() throws Exception {
+        String userJson = "{"
+                + "\"name\":\"John\","
+                + "\"surname\":\"Doe\","
+                + "\"email\":\"johnDoe@mymail.com\","
+                + "\"password\":\"password\","
+                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson))
+                .andExpect(status().isCreated());
+    }
+
+    private void addUserFrankCadillac() {
+        UserDTO baseUser = new UserDTO();
+        baseUser.setName("Frank");
+        baseUser.setSurname("Cadillac");
+        baseUser.setEmail("funcadillac@mail.com");
+        baseUser.setPassword("password");
+        baseUser.setRoleNames(Set.of("ROLE_USER"));
+        userService.createUser(baseUser);
+    }
+
+    @Test
+    public void postUser_WithEmailTaken_ShouldReturnConflict() throws Exception {
+        addUserFrankCadillac();
+
+        String userJson = "{"
+                + "\"name\":\"John\","
+                + "\"surname\":\"Doe\","
+                + "\"email\":\"funcadillac@mail.com\","
+                + "\"password\":\"password\","
+                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson))
+                .andExpect(status().isConflict());
     }
 }
