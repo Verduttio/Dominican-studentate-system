@@ -78,7 +78,12 @@ public class ObstacleController {
 
     @DeleteMapping("/{obstacleId}")
     public ResponseEntity<Void> deleteObstacle(@PathVariable Long obstacleId) {
-        obstacleService.deleteObstacle(obstacleId);
+        try{
+            obstacleService.deleteObstacle(obstacleId);
+        } catch (ObstacleNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

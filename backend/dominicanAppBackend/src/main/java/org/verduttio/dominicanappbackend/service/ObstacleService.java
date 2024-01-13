@@ -63,6 +63,9 @@ public class ObstacleService {
 
 
     public void deleteObstacle(Long obstacleId) {
+        if(!obstacleRepository.existsById(obstacleId)) {
+            throw new ObstacleNotFoundException("Obstacle not found with id: " + obstacleId);
+        }
         obstacleRepository.deleteById(obstacleId);
     }
 
