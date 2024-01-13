@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.TaskDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +50,11 @@ public class TaskService {
     }
 
     public void deleteTask(Long taskId) {
-        taskRepository.deleteById(taskId);
+        if (taskRepository.existsById(taskId)) {
+            taskRepository.deleteById(taskId);
+        } else {
+            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+        }
     }
 
     private Task convertTaskDTOToTask(TaskDTO taskDTO) {

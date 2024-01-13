@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.TaskDTO;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.TaskService;
+import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,12 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
-        taskService.deleteTask(taskId);
+        try {
+            taskService.deleteTask(taskId);
+        } catch (TaskNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
