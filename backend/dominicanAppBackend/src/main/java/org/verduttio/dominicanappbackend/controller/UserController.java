@@ -9,6 +9,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,8 +60,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+        try {
+            userService.deleteUser(userId);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

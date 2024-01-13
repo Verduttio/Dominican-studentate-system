@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
 import java.util.List;
@@ -45,6 +46,9 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User with given id does not exist");
+        }
         userRepository.deleteById(userId);
     }
 

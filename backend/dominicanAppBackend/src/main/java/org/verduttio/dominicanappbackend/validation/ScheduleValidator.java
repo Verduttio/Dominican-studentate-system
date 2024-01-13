@@ -12,9 +12,7 @@ import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.service.ConflictService;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.ObstacleExistsException;
+import org.verduttio.dominicanappbackend.service.exception.*;
 
 import java.time.DayOfWeek;
 import java.util.Collections;
@@ -72,6 +70,12 @@ public class ScheduleValidator {
         return !Collections.disjoint(userRoleNames, allowedRoleNames);
     }
 
+    public void checkIfScheduleExists(Long scheduleId) {
+        if(!scheduleRepository.existsById(scheduleId)) {
+            throw new ScheduleNotFoundException("Schedule with given id does not exist");
+        }
+    }
+
     private void checkIfTaskOccursOnGivenDayOfWeek(ScheduleDTO scheduleDTO, Task task) {
         DayOfWeek scheduleDayOfWeek = scheduleDTO.getDate().getDayOfWeek();
         Set<DayOfWeek> taskDaysOfWeek = task.getDaysOfWeek();
@@ -94,7 +98,7 @@ public class ScheduleValidator {
 
     private void checkScheduleConflict(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
         if(!ignoreConflicts && isScheduleInConflictWithOtherSchedules(scheduleDTO.toSchedule())) {
-            throw new IllegalArgumentException("Schedule is in conflict with other schedules");
+            throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
         }
     }
 }

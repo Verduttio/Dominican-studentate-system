@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
-import org.verduttio.dominicanappbackend.service.exception.ObstacleExistsException;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.*;
 
 import java.util.List;
 
@@ -61,28 +59,42 @@ public class ScheduleController {
                                             @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
             scheduleService.saveSchedule(scheduleDTO, ignoreConflicts);
-        } catch (IllegalArgumentException | TaskNotFoundException | UserNotFoundException | ObstacleExistsException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (TaskNotFoundException | UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ObstacleExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{scheduleId}")
-    public ResponseEntity<Void> updateSchedule(@PathVariable Long scheduleId,
+    public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId,
                                                @Valid @RequestBody ScheduleDTO updatedScheduleDTO,
                                                @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
-        if (scheduleService.existsById(scheduleId)) {
+        try {
             scheduleService.updateSchedule(scheduleId, updatedScheduleDTO, ignoreConflicts);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (ScheduleNotFoundException | TaskNotFoundException | UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ScheduleIsInConflictException | ObstacleExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId) {
-        scheduleService.deleteSchedule(scheduleId);
+        try {
+            scheduleService.deleteSchedule(scheduleId);
+        } catch (ScheduleNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

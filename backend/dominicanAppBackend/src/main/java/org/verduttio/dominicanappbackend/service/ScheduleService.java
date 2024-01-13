@@ -43,6 +43,7 @@ public class ScheduleService {
     }
 
     public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO, boolean ignoreConflicts) {
+        scheduleValidator.checkIfScheduleExists(scheduleId);
         scheduleValidator.validateSchedule(updatedScheduleDTO, ignoreConflicts);
 
         Schedule schedule = updatedScheduleDTO.toSchedule();
@@ -55,6 +56,7 @@ public class ScheduleService {
     }
 
     public void deleteSchedule(Long scheduleId) {
+        scheduleValidator.checkIfScheduleExists(scheduleId);
         scheduleRepository.deleteById(scheduleId);
     }
 
