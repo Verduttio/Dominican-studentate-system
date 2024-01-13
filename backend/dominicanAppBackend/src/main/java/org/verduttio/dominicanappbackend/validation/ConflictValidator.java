@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 @Component
@@ -38,8 +38,8 @@ public class ConflictValidator {
     }
 
     private void checkConflictWithGivenTaskIdsExists(Long task1Id, Long task2Id) {
-        if (!conflictRepository.existsByTaskIds(task1Id, task2Id)) {
-            throw new ConflictIdNotFoundException("Conflict with given task ids not found");
+        if (conflictRepository.existsByTaskIds(task1Id, task2Id)) {
+            throw new ConflictAlreadyExistsException("Conflict with given task ids already exist");
         }
     }
 }

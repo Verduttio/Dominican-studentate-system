@@ -11,7 +11,7 @@ import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;
 
@@ -65,13 +65,13 @@ public class ConflictValidatorTest {
     }
 
     @Test
-    void validateConflictFields_shouldThrowExceptionWhenConflictDoesNotExist() {
+    void validateConflictFields_shouldThrowExceptionWhenConflictAlreadyExist() {
         // Arrange
         when(taskService.taskExistsById(1L)).thenReturn(true);
         when(taskService.taskExistsById(2L)).thenReturn(true);
-        when(conflictRepository.existsByTaskIds(1L, 2L)).thenReturn(false);
+        when(conflictRepository.existsByTaskIds(1L, 2L)).thenReturn(true);
 
         // Act & Assert
-        Assertions.assertThrows(ConflictIdNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(ConflictAlreadyExistsException.class, () -> conflictValidator.validateConflictFields(conflict));
     }
 }
