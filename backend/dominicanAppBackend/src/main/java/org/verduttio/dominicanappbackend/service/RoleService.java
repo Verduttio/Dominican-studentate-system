@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.service.exception.RoleAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.RoleNotFoundException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +49,9 @@ public class RoleService {
     }
 
     public void deleteRole(Long roleId) {
+        if (!roleRepository.existsById(roleId)) {
+            throw new RoleNotFoundException("Role with given id does not exist");
+        }
         roleRepository.deleteById(roleId);
     }
 
