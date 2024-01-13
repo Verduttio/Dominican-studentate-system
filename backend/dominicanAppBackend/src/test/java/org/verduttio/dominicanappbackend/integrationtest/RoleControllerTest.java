@@ -1,0 +1,107 @@
+package org.verduttio.dominicanappbackend.integrationtest;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.repository.RoleRepository;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("integration_tests")
+public class RoleControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Test
+    public void getAllRoles_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get("/api/roles"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(0))));
+    }
+
+    @Test
+    public void getRoleById_WithExistingId_ShouldReturnOk() throws Exception {
+        Role role = addTestRoleUser();
+
+        mockMvc.perform(get("/api/roles/" + role.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(role.getId().intValue())));
+
+        clearDb();
+    }
+
+    @Test
+    public void getRoleById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/api/roles/9999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void createRole_WithValidData_ShouldReturnCreated() throws Exception {
+        String roleJson = "{\"name\":\"New Role\"}";
+
+        mockMvc.perform(post("/api/roles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(roleJson))
+                .andExpect(status().isCreated());
+
+        List<Role> roles = roleRepository.findAll();
+        assertTrue(roles.stream().anyMatch(r -> "New Role".equals(r.getName())));
+
+        clearDb();
+    }
+
+    @Test
+    public void updateRole_WithExistingId_ShouldReturnOk() throws Exception {
+        Role role = addTestRoleUser();
+        String updatedRoleJson = "{\"name\":\"Updated Role\"}";
+
+        mockMvc.perform(put("/api/roles/" + role.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedRoleJson))
+                .andExpect(status().isOk());
+
+        Role updatedRole = roleRepository.findById(role.getId()).orElse(null);
+        assertNotNull(updatedRole);
+        assertEquals("Updated Role", updatedRole.getName());
+
+        clearDb();
+    }
+
+    @Test
+    public void deleteRole_WithExistingId_ShouldReturnNoContent() throws Exception {
+        Role role = addTestRoleUser();
+
+        mockMvc.perform(delete("/api/roles/" + role.getId()))
+                .andExpect(status().isNoContent());
+        assertFalse(roleRepository.existsById(role.getId()));
+
+        clearDb();
+    }
+
+    private Role addTestRoleUser() {
+        Role role = new Role();
+        role.setName("ROLE_USER");
+        return roleRepository.save(role);
+    }
+
+    private void clearDb() {
+        roleRepository.deleteAll();
+    }
+}
