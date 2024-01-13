@@ -42,6 +42,7 @@ public class ConflictService {
     }
 
     public void deleteConflict(Long conflictId) {
+        conflictValidator.checkIfConflictExists(conflictId);
         conflictRepository.deleteById(conflictId);
     }
 

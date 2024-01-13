@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
 
 @Component
@@ -29,6 +30,12 @@ public class ConflictValidator {
         checkTaskExistence(task2Id);
 
         checkConflictWithGivenTaskIdsExists(task1Id, task2Id);
+    }
+
+    public void checkIfConflictExists(Long conflictId) {
+        if (!conflictRepository.existsById(conflictId)) {
+            throw new ConflictNotFoundException("Conflict with id " + conflictId + " not found");
+        }
     }
 
     private void checkTaskExistence(Long taskId) {

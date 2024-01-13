@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.ConflictIdNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.ConflictNotFoundException;
 import org.verduttio.dominicanappbackend.dto.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.service.ConflictService;
@@ -43,8 +43,10 @@ public class ConflictController {
     public ResponseEntity<?> createConflict(@Valid @RequestBody ConflictDTO conflictDTO) {
         try {
             conflictService.saveConflict(conflictDTO);
-        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException | TaskNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (ConflictNotFoundException | TaskNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ConflictAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -62,15 +64,22 @@ public class ConflictController {
 
     @DeleteMapping("/{conflictId}")
     public ResponseEntity<Void> deleteConflict(@PathVariable Long conflictId) {
-        conflictService.deleteConflict(conflictId);
+        try {
+            conflictService.deleteConflict(conflictId);
+        } catch (ConflictNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private ResponseEntity<?> updateConflictIfExists(Long conflictId, ConflictDTO updatedConflictDTO) {
         try {
             conflictService.updateConflict(conflictId, updatedConflictDTO);
-        } catch (ConflictIdNotFoundException | ConflictAlreadyExistsException | TaskNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (ConflictNotFoundException | TaskNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ConflictAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

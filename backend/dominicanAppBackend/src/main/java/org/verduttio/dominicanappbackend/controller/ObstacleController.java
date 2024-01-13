@@ -55,8 +55,10 @@ public class ObstacleController {
     public ResponseEntity<?> createObstacle(@Valid @RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {
             obstacleService.saveObstacle(obstacleRequestDTO);
-        } catch (TaskNotFoundException | UserNotFoundException | IllegalArgumentException e ) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (TaskNotFoundException | UserNotFoundException e ) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -71,7 +73,7 @@ public class ObstacleController {
         } catch (ObstacleNotFoundException | UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
