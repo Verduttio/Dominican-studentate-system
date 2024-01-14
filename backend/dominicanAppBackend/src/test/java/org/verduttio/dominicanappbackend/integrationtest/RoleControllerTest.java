@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class RoleControllerTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private DatabaseInitializer databaseInitializer;
+
     @Test
     public void getAllRoles_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/api/roles"))
@@ -37,13 +41,13 @@ public class RoleControllerTest {
 
     @Test
     public void getRoleById_WithExistingId_ShouldReturnOk() throws Exception {
-        Role role = addTestRoleUser();
+        Role role = databaseInitializer.addRoleUser();
 
         mockMvc.perform(get("/api/roles/" + role.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(role.getId().intValue())));
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
     @Test
@@ -64,12 +68,12 @@ public class RoleControllerTest {
         List<Role> roles = roleRepository.findAll();
         assertTrue(roles.stream().anyMatch(r -> "New Role".equals(r.getName())));
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void updateRole_WithExistingId_ShouldReturnOk() throws Exception {
-        Role role = addTestRoleUser();
+        Role role = databaseInitializer.addRoleUser();
         String updatedRoleJson = "{\"name\":\"Updated Role\"}";
 
         mockMvc.perform(put("/api/roles/" + role.getId())
@@ -81,27 +85,17 @@ public class RoleControllerTest {
         assertNotNull(updatedRole);
         assertEquals("Updated Role", updatedRole.getName());
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void deleteRole_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Role role = addTestRoleUser();
+        Role role = databaseInitializer.addRoleUser();
 
         mockMvc.perform(delete("/api/roles/" + role.getId()))
                 .andExpect(status().isNoContent());
         assertFalse(roleRepository.existsById(role.getId()));
 
-        clearDb();
-    }
-
-    private Role addTestRoleUser() {
-        Role role = new Role();
-        role.setName("ROLE_USER");
-        return roleRepository.save(role);
-    }
-
-    private void clearDb() {
-        roleRepository.deleteAll();
+        databaseInitializer.clearDb();
     }
 }

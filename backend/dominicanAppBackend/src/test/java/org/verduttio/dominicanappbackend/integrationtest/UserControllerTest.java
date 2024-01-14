@@ -8,7 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.service.UserService;
 
 import java.util.Set;
@@ -26,6 +28,9 @@ public class UserControllerTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private DatabaseInitializer databaseInitializer;
+
     @Test
     public void postUser_WithEmptySurname_ShouldReturnBadRequest() throws Exception {
         String userJson = "{"
@@ -40,6 +45,8 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isBadRequest());
+
+        databaseInitializer.clearDb();
     }
 
     @Test
@@ -56,21 +63,14 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isCreated());
-    }
 
-    private void addUserFrankCadillac() {
-        UserDTO baseUser = new UserDTO();
-        baseUser.setName("Frank");
-        baseUser.setSurname("Cadillac");
-        baseUser.setEmail("funcadillac@mail.com");
-        baseUser.setPassword("password");
-        baseUser.setRoleNames(Set.of("ROLE_USER"));
-        userService.createUser(baseUser);
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void postUser_WithEmailTaken_ShouldReturnConflict() throws Exception {
-        addUserFrankCadillac();
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
 
         String userJson = "{"
                 + "\"name\":\"John\","
@@ -84,5 +84,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isConflict());
+
+        databaseInitializer.clearDb();
     }
 }

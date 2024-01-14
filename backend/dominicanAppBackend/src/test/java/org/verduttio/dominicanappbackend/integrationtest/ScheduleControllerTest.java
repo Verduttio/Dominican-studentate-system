@@ -11,12 +11,12 @@ import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -46,6 +46,9 @@ public class ScheduleControllerTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private DatabaseInitializer databaseInitializer;
+
     @Test
     public void getAllSchedules_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/api/schedules"))
@@ -53,81 +56,51 @@ public class ScheduleControllerTest {
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(0))));
     }
 
-    private void clearDb() {
-        scheduleRepository.deleteAll();
-        taskRepository.deleteAll();
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-    }
-
-    private User addUserFrankCadillac() {
-        User frankCadillac = new User();
-        frankCadillac.setName("Frank");
-        frankCadillac.setSurname("Cadillac");
-        frankCadillac.setEmail("funcadillac@mail.com");
-        frankCadillac.setPassword("password");
-        frankCadillac.setRoles(Set.of(roleRepository.save(new Role("ROLE_USER"))));
-        return userRepository.save(frankCadillac);
-    }
-
-    private Task addTestTask() {
-        Task task = new Task();
-        task.setName("Test Task");
-        task.setCategory("Test Category");
-        task.setParticipantsLimit(10);
-        task.setPermanent(false);
-        task.setParticipantForWholePeriod(true);
-        task.setAllowedRoles(Set.of(roleRepository.save(new Role("ROLE_USER"))));
-        task.setDaysOfWeek(Set.of(DayOfWeek.THURSDAY));
-        return taskRepository.save(task);
-    }
-
-    private Schedule addTestSchedule() {
-        User user = addUserFrankCadillac();
-        Task task = addTestTask();
-
-        Schedule schedule = new Schedule();
-        schedule.setUser(user);
-        schedule.setTask(task);
-        schedule.setDate(LocalDate.of(2024, 1, 1));
-        return scheduleRepository.save(schedule);
-    }
-
     @Test
     public void createSchedule_WithValidData_ShouldReturnCreated() throws Exception {
-        User user = addUserFrankCadillac();
-        Task task = addTestTask();
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-04\"}";
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isCreated());
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void updateSchedule_WithExistingId_ShouldReturnOk() throws Exception {
-        Schedule schedule = addTestSchedule();
-        String updatedScheduleJson = "{\"taskId\":" + schedule.getTask().getId() + ",\"userId\":" + schedule.getUser().getId() + ",\"date\":\"2024-01-04\"}";
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        LocalDate date = LocalDate.of(2024, 1, 3);
+        Schedule schedule = databaseInitializer.addSchedule(user, task, date);
+
+        String updatedScheduleJson = "{\"taskId\":" + schedule.getTask().getId() + ",\"userId\":" + schedule.getUser().getId() + ",\"date\":\"2024-01-08\"}";
 
         mockMvc.perform(put("/api/schedules/" + schedule.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedScheduleJson))
                 .andExpect(status().isOk());
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void deleteSchedule_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Schedule schedule = addTestSchedule();
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        LocalDate date = LocalDate.of(2024, 1, 4);
+        Schedule schedule = databaseInitializer.addSchedule(user, task, date);
 
         mockMvc.perform(delete("/api/schedules/" + schedule.getId()))
                 .andExpect(status().isNoContent());
 
-        clearDb();
+        databaseInitializer.clearDb();
     }
 
 }

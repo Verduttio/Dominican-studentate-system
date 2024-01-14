@@ -7,11 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +32,9 @@ public class TaskControllerTest {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private DatabaseInitializer databaseInitializer;
+
     @Test
     public void getAllTasks_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/api/tasks"))
@@ -39,11 +44,14 @@ public class TaskControllerTest {
 
     @Test
     public void getTaskById_WithExistingId_ShouldReturnOk() throws Exception {
-        Task task = addTestTask();
+        Role role = databaseInitializer.addRoleUser();
+        Task task = databaseInitializer.addWashDishesTask(Set.of(role));
 
         mockMvc.perform(get("/api/tasks/" + task.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(task.getId().intValue())));
+
+        databaseInitializer.clearDb();
     }
 
     @Test
@@ -54,6 +62,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_WithValidData_ShouldReturnCreated() throws Exception {
+        Role role = databaseInitializer.addRoleUser();
         String taskJson = "{\"name\":\"New Task\",\"category\":\"General\",\"participantsLimit\":10,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"ROLE_USER\"],\"daysOfWeek\":[\"MONDAY\",\"WEDNESDAY\"]}";
 
         mockMvc.perform(post("/api/tasks")
@@ -63,6 +72,8 @@ public class TaskControllerTest {
 
         List<Task> tasks = taskRepository.findAll();
         assertTrue(tasks.stream().anyMatch(t -> "New Task".equals(t.getName())));
+
+        databaseInitializer.clearDb();
     }
 
     @Test
@@ -73,11 +84,16 @@ public class TaskControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskJson))
                 .andExpect(status().isBadRequest());
+
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void updateTask_WithExistingId_ShouldReturnOk() throws Exception {
-        Task task = addTestTask();
+        Role roleUser = databaseInitializer.addRoleUser();
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser));
+
         String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"],\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
 
         mockMvc.perform(put("/api/tasks/" + task.getId())
@@ -88,6 +104,8 @@ public class TaskControllerTest {
         Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
         assert updatedTask != null;
         assertEquals("Updated Task", updatedTask.getName());
+
+        databaseInitializer.clearDb();
     }
 
     @Test
@@ -101,30 +119,21 @@ public class TaskControllerTest {
 
     @Test
     public void deleteTask_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Task task = addTestTask();
+        Role role = databaseInitializer.addRoleUser();
+        Task task = databaseInitializer.addWashDishesTask(Set.of(role));
 
         mockMvc.perform(delete("/api/tasks/" + task.getId()))
                 .andExpect(status().isNoContent());
 
         boolean exists = taskRepository.existsById(task.getId());
         assertFalse(exists);
+
+        databaseInitializer.clearDb();
     }
 
     @Test
     public void deleteTask_WithNonExistingId_ShouldReturnNotFound() throws Exception {
         mockMvc.perform(delete("/api/tasks/9999"))
                 .andExpect(status().isNotFound());
-    }
-
-    private Task addTestTask() {
-        Task task = new Task();
-        task.setName("Sample Task");
-        task.setCategory("Sample Category");
-        task.setParticipantsLimit(5);
-        task.setPermanent(false);
-        task.setParticipantForWholePeriod(true);
-        task.setAllowedRoles(Collections.emptySet());
-        task.setDaysOfWeek(Collections.emptySet());
-        return taskRepository.save(task);
     }
 }
