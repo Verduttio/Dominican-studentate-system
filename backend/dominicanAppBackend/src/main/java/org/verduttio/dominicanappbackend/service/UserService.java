@@ -81,6 +81,8 @@ public class UserService {
         User existingUser = userValidator.validateOptionalUserIsNotEmpty(user);
         userValidator.validateEmailWhenUpdate(updatedUserDTO.getEmail(), existingUser.getEmail());
 
+        existingUser.setName(updatedUserDTO.getName());
+        existingUser.setSurname(updatedUserDTO.getSurname());
         existingUser.setEmail(updatedUserDTO.getEmail());
         existingUser.setPassword(updatedUserDTO.getPassword());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedUserDTO.getRoleNames());

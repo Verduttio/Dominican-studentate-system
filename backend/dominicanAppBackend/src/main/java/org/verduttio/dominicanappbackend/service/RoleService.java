@@ -77,7 +77,9 @@ public class RoleService {
 
         for (String roleName : roleNames) {
             Role roleDB = getRoleByName(roleName);
-            rolesDB.add(roleDB);
+            if(roleDB != null) {
+                rolesDB.add(roleDB);
+            }
         }
 
         return rolesDB;

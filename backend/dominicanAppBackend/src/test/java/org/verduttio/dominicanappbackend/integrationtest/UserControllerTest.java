@@ -11,10 +11,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
-import org.verduttio.dominicanappbackend.service.UserService;
+import org.verduttio.dominicanappbackend.repository.UserRepository;
 
+import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -26,10 +32,34 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
     private DatabaseInitializer databaseInitializer;
+
+    @Test
+    public void getAllUsers_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(0))));
+    }
+
+    @Test
+    public void getUserById_WithExistingId_ShouldReturnOk() throws Exception {
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(databaseInitializer.addRoleUser()));
+
+        mockMvc.perform(get("/api/users/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void getUserById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/9999"))
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     public void postUser_WithEmptySurname_ShouldReturnBadRequest() throws Exception {
@@ -87,4 +117,69 @@ public class UserControllerTest {
 
         databaseInitializer.clearDb();
     }
+
+    @Test
+    public void postUser_WithInvalidEmail_ShouldReturnBadRequest() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+
+        String userJson = "{"
+                + "\"name\":\"John\","
+                + "\"surname\":\"Doe\","
+                + "\"email\":\"johnDoe\","
+                + "\"password\":\"password\","
+                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson))
+                .andExpect(status().isBadRequest());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void putUser_WithExistingId_ShouldReturnOk() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+
+        String updatedUserJson = "{"
+                + "\"name\":\"John\","
+                + "\"surname\":\"Doe\","
+                + "\"email\":\"john@mail.com\","
+                + "\"password\":\"password2\","
+                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/" + user.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedUserJson))
+                .andExpect(status().isNoContent());
+
+        User updatedUser = userRepository.findById(user.getId()).orElse(null);
+        List<User> users = userRepository.findAll();
+        for (User u : users) {
+            System.out.println(u.getName());
+        }
+        assertNotNull(updatedUser);
+        assertEquals("John", updatedUser.getName());
+        assertEquals("Doe", updatedUser.getSurname());
+        assertEquals("john@mail.com", updatedUser.getEmail());
+        assertEquals("password2", updatedUser.getPassword());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void deleteUser_WithExistingId_ShouldReturnNoContent() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+
+        mockMvc.perform(delete("/api/users/" + user.getId()))
+                .andExpect(status().isNoContent());
+        assertFalse(userRepository.existsById(user.getId()));
+
+        databaseInitializer.clearDb();
+    }
+
 }

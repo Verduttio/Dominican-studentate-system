@@ -60,6 +60,10 @@ public class TaskService {
     private Task convertTaskDTOToTask(TaskDTO taskDTO) {
         Task task = taskDTO.basicFieldsToTask();
         Set<Role> rolesDB = roleService.getRolesByRoleNames(taskDTO.getAllowedRoleNames());
+        if(rolesDB.isEmpty()) {
+            throw new IllegalArgumentException("No roles found for given role names");
+        }
+
         task.setAllowedRoles(rolesDB);
 
         return task;

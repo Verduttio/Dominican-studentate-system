@@ -38,8 +38,13 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO taskDTO) {
-        taskService.saveTask(taskDTO);
+    public ResponseEntity<?> createTask(@Valid @RequestBody TaskDTO taskDTO) {
+        try {
+            taskService.saveTask(taskDTO);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

@@ -89,6 +89,18 @@ public class RoleControllerTest {
     }
 
     @Test
+    public void updateRole_WithNotExistingId_ShouldReturnNotFound() throws Exception {
+        String updatedRoleJson = "{\"name\":\"Updated Role\"}";
+
+        mockMvc.perform(put("/api/roles/" + '0')
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatedRoleJson))
+                .andExpect(status().isNotFound());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void deleteRole_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role role = databaseInitializer.addRoleUser();
 

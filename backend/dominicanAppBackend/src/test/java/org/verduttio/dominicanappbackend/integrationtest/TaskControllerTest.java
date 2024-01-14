@@ -89,6 +89,30 @@ public class TaskControllerTest {
     }
 
     @Test
+    public void createTask_WithEmptyRoles_ShouldReturnBadRequest() throws Exception {
+        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[],\"daysOfWeek\":[MONDAY]}";
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(taskJson))
+                .andExpect(status().isBadRequest());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createTask_WithInvalidSoEmptyRoles_ShouldReturnBadRequest() throws Exception {
+        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"INVALID_ROLE\"],\"daysOfWeek\":[\"MONDAY\"]}";
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(taskJson))
+                .andExpect(status().isBadRequest());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void updateTask_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         Role roleAdmin = databaseInitializer.addRoleAdmin();

@@ -86,6 +86,22 @@ public class ConflictControllerTest {
     }
 
     @Test
+    public void createConflict_WhichAlreadyExists_ShouldReturnConflict() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
+
+        String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
+        mockMvc.perform(post("/api/conflicts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(conflictJson))
+                .andExpect(status().isConflict());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void updateConflict_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
