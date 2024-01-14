@@ -45,13 +45,13 @@ public class TaskController {
 
     @PutMapping("/{taskId}")
     public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskDTO updatedTaskDTO) {
-        Optional<Task> existingTask = taskService.getTaskById(taskId);
-        if (existingTask.isPresent()) {
-            taskService.updateTask(existingTask.get(), updatedTaskDTO);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
+        try {
+            taskService.updateTask(taskId, updatedTaskDTO);
+        } catch (TaskNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{taskId}")

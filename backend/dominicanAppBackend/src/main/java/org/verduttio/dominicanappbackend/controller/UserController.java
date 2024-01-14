@@ -12,7 +12,6 @@ import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsExce
 import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -51,12 +50,15 @@ public class UserController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO updatedUserDTO) {
-        Optional<User> existingUser = userService.getUserById(userId);
-        if(existingUser.isPresent()) {
-            return updateUserIfExists(existingUser.get(), updatedUserDTO);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            userService.updateUser(userId, updatedUserDTO);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{userId}")
@@ -68,15 +70,5 @@ public class UserController {
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    private ResponseEntity<?> updateUserIfExists(User existingUser, UserDTO updatedUserDTO) {
-        try {
-            userService.updateUser(existingUser, updatedUserDTO);
-        } catch (UserAlreadyExistsException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        }
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

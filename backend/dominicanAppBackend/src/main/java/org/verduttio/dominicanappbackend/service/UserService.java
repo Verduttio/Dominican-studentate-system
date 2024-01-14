@@ -76,7 +76,9 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(User existingUser, UserDTO updatedUserDTO) {
+    public void updateUser(Long userId, UserDTO updatedUserDTO) {
+        Optional<User> user = userRepository.findById(userId);
+        User existingUser = userValidator.validateOptionalUserIsNotEmpty(user);
         userValidator.validateEmailWhenUpdate(updatedUserDTO.getEmail(), existingUser.getEmail());
 
         existingUser.setEmail(updatedUserDTO.getEmail());

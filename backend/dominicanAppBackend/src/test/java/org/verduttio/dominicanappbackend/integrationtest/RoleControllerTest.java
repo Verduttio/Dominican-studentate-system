@@ -75,7 +75,7 @@ public class RoleControllerTest {
         mockMvc.perform(put("/api/roles/" + role.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedRoleJson))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Role updatedRole = roleRepository.findById(role.getId()).orElse(null);
         assertNotNull(updatedRole);

@@ -49,12 +49,15 @@ public class RoleController {
 
     @PutMapping("/{roleId}")
     public ResponseEntity<?> updateRole(@PathVariable Long roleId, @Valid @RequestBody Role updatedRole) {
-        Role existingRole = roleService.getRoleById(roleId);
-        if (existingRole != null) {
-            return updateRoleIfExist(updatedRole, existingRole);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            roleService.updateRole(roleId, updatedRole);
+        } catch (RoleAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (RoleNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{roleId}")
@@ -66,14 +69,5 @@ public class RoleController {
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    private ResponseEntity<?> updateRoleIfExist(Role updatedRole, Role existingRole) {
-        try {
-            roleService.updateRole(updatedRole, existingRole);
-        } catch (RoleAlreadyExistsException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(existingRole, HttpStatus.OK);
     }
 }

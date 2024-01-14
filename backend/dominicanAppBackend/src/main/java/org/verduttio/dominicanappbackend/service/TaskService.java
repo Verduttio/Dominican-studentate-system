@@ -65,7 +65,14 @@ public class TaskService {
         return task;
     }
 
-    public void updateTask(Task task, TaskDTO updatedTaskDTO) {
+    public void updateTask(Long taskId, TaskDTO updatedTaskDTO) {
+        Optional<Task> existingTask = taskRepository.findById(taskId);
+        if (existingTask.isEmpty()) {
+            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+        }
+
+        Task task = existingTask.get();
+
         task.setName(updatedTaskDTO.getName());
         task.setCategory(updatedTaskDTO.getCategory());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());

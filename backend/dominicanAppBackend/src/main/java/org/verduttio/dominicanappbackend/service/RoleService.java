@@ -9,6 +9,7 @@ import org.verduttio.dominicanappbackend.service.exception.RoleNotFoundException
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,7 +41,13 @@ public class RoleService {
         roleRepository.save(role);
     }
 
-    public void updateRole(Role updatedRole, Role existingRole) {
+    public void updateRole(Long roleId, Role updatedRole) {
+        Optional<Role> roleOptional = roleRepository.findById(roleId);
+        if (roleOptional.isEmpty()) {
+            throw new RoleNotFoundException("Role with given id does not exist");
+        }
+        Role existingRole = roleOptional.get();
+
         if (existsAnotherRoleWithGivenName(updatedRole.getName(), existingRole.getName())) {
             throw new RoleAlreadyExistsException("Another role with given name already exists");
         }

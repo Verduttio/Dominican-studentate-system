@@ -83,7 +83,7 @@ public class TaskControllerTest {
         mockMvc.perform(put("/api/tasks/" + task.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedTaskJson))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
         assert updatedTask != null;
