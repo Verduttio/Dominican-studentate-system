@@ -63,7 +63,7 @@ public class ScheduleController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (TaskNotFoundException | UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ObstacleExistsException e) {
+        } catch (ObstacleExistsException | RoleNotMeetRequirementsException | ScheduleIsInConflictException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 

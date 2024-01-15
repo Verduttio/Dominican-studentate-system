@@ -86,7 +86,7 @@ public class ScheduleValidator {
 
     private void checkIfUserHasAllowedRoleForTask(User user, Task task) {
         if(!userHasAllowedRoleForTask(user, task)) {
-            throw new IllegalArgumentException("User does not have allowed role for task");
+            throw new RoleNotMeetRequirementsException("User does not have allowed role for task");
         }
     }
 

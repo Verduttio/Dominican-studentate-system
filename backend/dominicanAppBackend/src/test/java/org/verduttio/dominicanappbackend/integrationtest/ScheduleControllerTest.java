@@ -7,21 +7,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.Schedule;
-import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
-import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
-import org.verduttio.dominicanappbackend.repository.TaskRepository;
-import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,15 +31,6 @@ public class ScheduleControllerTest {
 
     @Autowired
     private ScheduleRepository scheduleRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private DatabaseInitializer databaseInitializer;
@@ -70,6 +56,137 @@ public class ScheduleControllerTest {
 
         databaseInitializer.clearDb();
     }
+
+    @Test
+    public void createSchedule_WithTaskWhichIsInConflict_ShouldReturnConflict() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
+        Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isConflict());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithTaskWhichIsInConflictButOnOtherDay_ShouldReturnCreated() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
+        Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 11));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isCreated());
+
+        Schedule createdSchedule = scheduleRepository.findById(schedule.getId()+1).orElse(null);
+        assert createdSchedule != null;
+        assertEquals(task.getId(), createdSchedule.getTask().getId());
+        assertEquals(user.getId(), createdSchedule.getUser().getId());
+        assertEquals(LocalDate.of(2024, 1, 10), createdSchedule.getDate());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithTaskWhichIsInConflictWithIgnoreConflictsFlag_ShouldReturnCreated() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
+        Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules?ignoreConflicts=true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isCreated());
+
+        Schedule createdSchedule = scheduleRepository.findById(schedule.getId()+1).orElse(null);
+
+        assert createdSchedule != null;
+        assertEquals(task.getId(), createdSchedule.getTask().getId());
+        assertEquals(user.getId(), createdSchedule.getUser().getId());
+        assertEquals(LocalDate.of(2024, 1, 10), createdSchedule.getDate());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithUserWithObstacleForTask_ShouldReturnConflict() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(user, task);
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isConflict());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithUserWithoutAllowedRoleForTask_ShouldReturnConflict() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleAdmin));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isConflict());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithUserNotFound_ShouldReturnNotFound() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId()+1 + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isNotFound());
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void createSchedule_WithTaskNotFound_ShouldReturnNotFound() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        String scheduleJson = "{\"taskId\":" + task.getId()+1 + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+
+        mockMvc.perform(post("/api/schedules")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(scheduleJson))
+                .andExpect(status().isNotFound());
+
+        databaseInitializer.clearDb();
+    }
+
+
 
     @Test
     public void updateSchedule_WithExistingId_ShouldReturnOk() throws Exception {

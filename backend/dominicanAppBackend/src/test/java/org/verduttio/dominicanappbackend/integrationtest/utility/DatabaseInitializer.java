@@ -53,7 +53,7 @@ public class DatabaseInitializer {
         obstacle.setFromDate(LocalDate.of(2024, 1, 1));
         obstacle.setToDate(LocalDate.of(2024, 1, 20));
         obstacle.setApplicantDescription("Test Description");
-        obstacle.setStatus(ObstacleStatus.AWAITING);
+        obstacle.setStatus(ObstacleStatus.APPROVED);
         obstacle.setTask(task);
         obstacle.setUser(user);
         return obstacleRepository.save(obstacle);

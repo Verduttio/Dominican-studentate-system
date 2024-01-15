@@ -142,13 +142,14 @@ public class UserControllerTest {
     public void putUser_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
 
         String updatedUserJson = "{"
                 + "\"name\":\"John\","
                 + "\"surname\":\"Doe\","
                 + "\"email\":\"john@mail.com\","
                 + "\"password\":\"password2\","
-                + "\"roleNames\":[\"ROLE_USER\"]"
+                + "\"roleNames\":[\"ROLE_ADMIN\"]"
                 + "}";
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/users/" + user.getId())
@@ -166,6 +167,8 @@ public class UserControllerTest {
         assertEquals("Doe", updatedUser.getSurname());
         assertEquals("john@mail.com", updatedUser.getEmail());
         assertEquals("password2", updatedUser.getPassword());
+        assertEquals(1, updatedUser.getRoles().size());
+        assertTrue(updatedUser.getRoles().stream().anyMatch(r -> "ROLE_ADMIN".equals(r.getName())));
 
         databaseInitializer.clearDb();
     }

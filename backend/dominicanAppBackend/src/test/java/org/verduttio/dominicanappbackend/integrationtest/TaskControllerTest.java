@@ -12,6 +12,7 @@ import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Set;
 
@@ -128,6 +129,14 @@ public class TaskControllerTest {
         Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
         assert updatedTask != null;
         assertEquals("Updated Task", updatedTask.getName());
+        assertEquals("Updated Category", updatedTask.getCategory());
+        assertEquals(15, updatedTask.getParticipantsLimit());
+        assertTrue(updatedTask.isPermanent());
+        assertFalse(updatedTask.isParticipantForWholePeriod());
+        assertEquals(1, updatedTask.getAllowedRoles().size());
+        assertTrue(updatedTask.getAllowedRoles().stream().anyMatch(r -> r.getName().equals(roleAdmin.getName())));
+        assertEquals(2, updatedTask.getDaysOfWeek().size());
+        assertTrue(updatedTask.getDaysOfWeek().containsAll(Set.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)));
 
         databaseInitializer.clearDb();
     }
