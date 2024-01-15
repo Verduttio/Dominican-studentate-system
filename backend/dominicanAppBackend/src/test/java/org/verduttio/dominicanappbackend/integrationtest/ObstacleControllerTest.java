@@ -10,9 +10,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
-import org.verduttio.dominicanappbackend.repository.RoleRepository;
-import org.verduttio.dominicanappbackend.repository.TaskRepository;
-import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -33,15 +30,6 @@ public class ObstacleControllerTest {
 
     @Autowired
     private ObstacleRepository obstacleRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private DatabaseInitializer databaseInitializer;
@@ -73,7 +61,6 @@ public class ObstacleControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // POST /api/obstacles
     @Test
     public void createObstacle_WithValidData_ShouldReturnCreated() throws Exception {
         Role role = databaseInitializer.addRoleUser();
@@ -143,7 +130,6 @@ public class ObstacleControllerTest {
         databaseInitializer.clearDb();
     }
 
-    // PATCH /api/obstacles/{obstacleId}
     @Test
     public void updateObstacle_WithExistingId_ShouldReturnOk() throws Exception {
         Role role = databaseInitializer.addRoleUser();
@@ -200,7 +186,6 @@ public class ObstacleControllerTest {
         databaseInitializer.clearDb();
     }
 
-    // DELETE /api/obstacles/{obstacleId}
     @Test
     public void deleteObstacle_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role role = databaseInitializer.addRoleUser();

@@ -63,7 +63,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_WithValidData_ShouldReturnCreated() throws Exception {
-        Role role = databaseInitializer.addRoleUser();
+        databaseInitializer.addRoleUser();
         String taskJson = "{\"name\":\"New Task\",\"category\":\"General\",\"participantsLimit\":10,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"ROLE_USER\"],\"daysOfWeek\":[\"MONDAY\",\"WEDNESDAY\"]}";
 
         mockMvc.perform(post("/api/tasks")

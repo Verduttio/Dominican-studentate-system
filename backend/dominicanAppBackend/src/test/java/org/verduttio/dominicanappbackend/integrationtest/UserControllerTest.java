@@ -100,7 +100,7 @@ public class UserControllerTest {
     @Test
     public void postUser_WithEmailTaken_ShouldReturnConflict() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+        databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
 
         String userJson = "{"
                 + "\"name\":\"John\","
@@ -120,7 +120,7 @@ public class UserControllerTest {
 
     @Test
     public void postUser_WithInvalidEmail_ShouldReturnBadRequest() throws Exception {
-        Role roleUser = databaseInitializer.addRoleUser();
+        databaseInitializer.addRoleUser();
 
         String userJson = "{"
                 + "\"name\":\"John\","
@@ -142,7 +142,7 @@ public class UserControllerTest {
     public void putUser_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        databaseInitializer.addRoleAdmin();
 
         String updatedUserJson = "{"
                 + "\"name\":\"John\","

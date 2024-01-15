@@ -63,8 +63,8 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
-        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
-        Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
+        databaseInitializer.addConflict(task, prepareMeal);
+        databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
@@ -81,7 +81,7 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
-        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
+        databaseInitializer.addConflict(task, prepareMeal);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 11));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
@@ -105,7 +105,7 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
-        Conflict conflict = databaseInitializer.addConflict(task, prepareMeal);
+        databaseInitializer.addConflict(task, prepareMeal);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
@@ -129,7 +129,7 @@ public class ScheduleControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(user, task);
+        databaseInitializer.addObstacle_01_01_To_01_20(user, task);
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")

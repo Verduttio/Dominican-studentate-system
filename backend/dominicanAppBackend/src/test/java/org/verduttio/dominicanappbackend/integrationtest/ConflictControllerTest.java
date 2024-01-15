@@ -12,7 +12,6 @@ import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
-import org.verduttio.dominicanappbackend.repository.TaskRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -33,9 +32,6 @@ public class ConflictControllerTest {
 
     @Autowired
     private ConflictRepository conflictRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
 
     @Autowired
     private DatabaseInitializer databaseInitializer;
@@ -80,7 +76,7 @@ public class ConflictControllerTest {
                 .andExpect(status().isCreated());
 
         List<Conflict> conflicts = conflictRepository.findAll();
-        assertTrue(conflicts.stream().anyMatch(c -> c.getTask1().getId() == washDishes.getId() && c.getTask2().getId() == prepareMeal.getId()));
+        assertTrue(conflicts.stream().anyMatch(c -> c.getTask1().getId().equals(washDishes.getId()) && c.getTask2().getId().equals(prepareMeal.getId())));
 
         databaseInitializer.clearDb();
     }
@@ -90,7 +86,7 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
-        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
+        databaseInitializer.addConflict(washDishes, prepareMeal);
 
         String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
         mockMvc.perform(post("/api/conflicts")
