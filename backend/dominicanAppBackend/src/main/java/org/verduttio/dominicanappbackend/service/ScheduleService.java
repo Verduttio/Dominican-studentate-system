@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ScheduleValidator;
 
 import java.time.LocalDate;
@@ -66,7 +66,7 @@ public class ScheduleService {
 
     public List<Schedule> getAllSchedulesByUserId(Long userId) {
         if (!userService.existsById(userId)) {
-            throw new UserNotFoundException("User with given id does not exist");
+            throw new EntityNotFoundException("User with given id does not exist");
         }
         return scheduleRepository.findByUserId(userId);
     }

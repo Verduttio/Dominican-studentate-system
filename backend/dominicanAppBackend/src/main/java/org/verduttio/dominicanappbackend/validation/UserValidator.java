@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
-import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.Optional;
 
@@ -21,19 +21,19 @@ public class UserValidator {
 
     public void validateEmailWhenRegister(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExistsException("User with given email already exists");
+            throw new EntityAlreadyExistsException("User with given email already exists");
         }
     }
 
     public void validateEmailWhenUpdate(String newEmail, String currentEmail) {
         if(userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail)) {
-            throw new UserAlreadyExistsException("This email belongs to another user");
+            throw new EntityAlreadyExistsException("This email belongs to another user");
         }
     }
 
     public User validateOptionalUserIsNotEmpty(Optional<User> user) {
         if (user.isEmpty()) {
-            throw new UserNotFoundException("User not found");
+            throw new EntityNotFoundException("User not found");
         } else {
             return user.get();
         }

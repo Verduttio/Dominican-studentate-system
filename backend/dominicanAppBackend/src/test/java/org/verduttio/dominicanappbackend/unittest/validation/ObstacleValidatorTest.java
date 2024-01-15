@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.UserService;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +45,7 @@ class ObstacleValidatorTest {
 
         Mockito.when(userService.existsById(dto.getUserId())).thenReturn(false);
 
-        Assertions.assertThrows(UserNotFoundException.class,
+        Assertions.assertThrows(EntityNotFoundException.class,
                 () -> obstacleValidator.validateObstacleRequestDTO(dto));
     }
 }

@@ -41,10 +41,10 @@ public class ScheduleValidator {
 
     public void validateSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
         User user = userService.getUserById(scheduleDTO.getUserId()).orElseThrow(() ->
-                new UserNotFoundException("User with given id does not exist"));
+                new EntityNotFoundException("User with given id does not exist"));
 
         Task task = taskService.getTaskById(scheduleDTO.getTaskId()).orElseThrow(() ->
-                new TaskNotFoundException("Task with given id does not exist"));
+                new EntityNotFoundException("Task with given id does not exist"));
 
         checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
         checkIfUserHasAllowedRoleForTask(user, task);
@@ -72,7 +72,7 @@ public class ScheduleValidator {
 
     public void checkIfScheduleExists(Long scheduleId) {
         if(!scheduleRepository.existsById(scheduleId)) {
-            throw new ScheduleNotFoundException("Schedule with given id does not exist");
+            throw new EntityNotFoundException("Schedule with given id does not exist");
         }
     }
 
@@ -92,7 +92,7 @@ public class ScheduleValidator {
 
     private void checkIfUserHasValidApprovedObstacleForTask(ScheduleDTO scheduleDTO, User user, Task task) {
         if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), scheduleDTO.getDate()).isEmpty()) {
-            throw new ObstacleExistsException("User has an approved obstacle for this task");
+            throw new EntityAlreadyExistsException("User has an approved obstacle for this task");
         }
     }
 

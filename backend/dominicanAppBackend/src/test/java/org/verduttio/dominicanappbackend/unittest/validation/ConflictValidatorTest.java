@@ -11,8 +11,8 @@ import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.exception.ConflictAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;
 
 import static org.mockito.Mockito.when;
@@ -51,7 +51,7 @@ public class ConflictValidatorTest {
         when(taskService.taskExistsById(1L)).thenReturn(false);
 
         // Act & Assert
-        Assertions.assertThrows(TaskNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ConflictValidatorTest {
         when(taskService.taskExistsById(2L)).thenReturn(false);
 
         // Act & Assert
-        Assertions.assertThrows(TaskNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
     }
 
     @Test
@@ -72,6 +72,6 @@ public class ConflictValidatorTest {
         when(conflictRepository.existsByTaskIds(1L, 2L)).thenReturn(true);
 
         // Act & Assert
-        Assertions.assertThrows(ConflictAlreadyExistsException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityAlreadyExistsException.class, () -> conflictValidator.validateConflictFields(conflict));
     }
 }

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.UserService;
-import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
         try {
             userService.createUser(userDTO);
-        } catch (UserAlreadyExistsException e) {
+        } catch (EntityAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
@@ -52,9 +52,9 @@ public class UserController {
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO updatedUserDTO) {
         try {
             userService.updateUser(userId, updatedUserDTO);
-        } catch (UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (UserAlreadyExistsException e) {
+        } catch (EntityAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
@@ -65,7 +65,7 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         try {
             userService.deleteUser(userId);
-        } catch (UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 

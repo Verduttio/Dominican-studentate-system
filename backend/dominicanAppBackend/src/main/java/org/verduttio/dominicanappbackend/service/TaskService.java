@@ -6,7 +6,7 @@ import org.verduttio.dominicanappbackend.dto.TaskDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +53,7 @@ public class TaskService {
         if (taskRepository.existsById(taskId)) {
             taskRepository.deleteById(taskId);
         } else {
-            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+            throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
         }
     }
 
@@ -72,7 +72,7 @@ public class TaskService {
     public void updateTask(Long taskId, TaskDTO updatedTaskDTO) {
         Optional<Task> existingTask = taskRepository.findById(taskId);
         if (existingTask.isEmpty()) {
-            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+            throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
         }
 
         Task task = existingTask.get();

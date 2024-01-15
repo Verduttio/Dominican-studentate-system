@@ -9,9 +9,7 @@ import org.verduttio.dominicanappbackend.dto.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.service.ObstacleService;
-import org.verduttio.dominicanappbackend.service.exception.ObstacleNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -44,7 +42,7 @@ public class ObstacleController {
         List<Obstacle> obstacles;
         try {
             obstacles = obstacleService.getAllObstaclesByUserId(userId);
-        } catch (UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
@@ -55,7 +53,7 @@ public class ObstacleController {
     public ResponseEntity<?> createObstacle(@Valid @RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {
             obstacleService.saveObstacle(obstacleRequestDTO);
-        } catch (TaskNotFoundException | UserNotFoundException e ) {
+        } catch (EntityNotFoundException e ) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -70,7 +68,7 @@ public class ObstacleController {
             @Valid @RequestBody ObstaclePatchDTO obstaclePatchDTO) {
         try {
             obstacleService.patchObstacle(obstacleId, obstaclePatchDTO);
-        } catch (ObstacleNotFoundException | UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -82,7 +80,7 @@ public class ObstacleController {
     public ResponseEntity<Void> deleteObstacle(@PathVariable Long obstacleId) {
         try{
             obstacleService.deleteObstacle(obstacleId);
-        } catch (ObstacleNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

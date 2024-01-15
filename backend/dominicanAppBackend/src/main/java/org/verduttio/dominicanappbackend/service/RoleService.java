@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
-import org.verduttio.dominicanappbackend.service.exception.RoleAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.RoleNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +36,7 @@ public class RoleService {
 
     public void saveRole(Role role) {
         if (roleRepository.existsByName(role.getName())) {
-           throw new RoleAlreadyExistsException("Role with given name already exists");
+           throw new EntityAlreadyExistsException("Role with given name already exists");
         }
         roleRepository.save(role);
     }
@@ -44,12 +44,12 @@ public class RoleService {
     public void updateRole(Long roleId, Role updatedRole) {
         Optional<Role> roleOptional = roleRepository.findById(roleId);
         if (roleOptional.isEmpty()) {
-            throw new RoleNotFoundException("Role with given id does not exist");
+            throw new EntityNotFoundException("Role with given id does not exist");
         }
         Role existingRole = roleOptional.get();
 
         if (existsAnotherRoleWithGivenName(updatedRole.getName(), existingRole.getName())) {
-            throw new RoleAlreadyExistsException("Another role with given name already exists");
+            throw new EntityAlreadyExistsException("Another role with given name already exists");
         }
         existingRole.setName(updatedRole.getName());
         roleRepository.save(existingRole);
@@ -57,7 +57,7 @@ public class RoleService {
 
     public void deleteRole(Long roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new RoleNotFoundException("Role with given id does not exist");
+            throw new EntityNotFoundException("Role with given id does not exist");
         }
         roleRepository.deleteById(roleId);
     }

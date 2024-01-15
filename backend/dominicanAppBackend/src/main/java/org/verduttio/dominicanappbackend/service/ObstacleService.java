@@ -8,8 +8,7 @@ import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
-import org.verduttio.dominicanappbackend.service.exception.ObstacleNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.LocalDate;
@@ -53,7 +52,7 @@ public class ObstacleService {
 
     public void patchObstacle(Long obstacleId, ObstaclePatchDTO obstaclePatchDTO) {
         Obstacle obstacle = obstacleRepository.findById(obstacleId)
-                .orElseThrow(() -> new ObstacleNotFoundException("Obstacle not found with id: " + obstacleId));
+                .orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
 
         obstacleValidator.validateObstaclePatchDTO(obstaclePatchDTO);
         updateObstacleFromPatchDTO(obstacle, obstaclePatchDTO);
@@ -64,7 +63,7 @@ public class ObstacleService {
 
     public void deleteObstacle(Long obstacleId) {
         if(!obstacleRepository.existsById(obstacleId)) {
-            throw new ObstacleNotFoundException("Obstacle not found with id: " + obstacleId);
+            throw new EntityNotFoundException("Obstacle not found with id: " + obstacleId);
         }
         obstacleRepository.deleteById(obstacleId);
     }
@@ -81,7 +80,7 @@ public class ObstacleService {
 
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {
         if (!userService.existsById(userId)) {
-            throw new UserNotFoundException("User with id " + userId + " does not exist");
+            throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
         return obstacleRepository.findAllByUserId(userId);
     }

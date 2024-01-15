@@ -41,7 +41,7 @@ public class ScheduleController {
         List<Schedule> schedules;
         try {
             schedules = scheduleService.getAllSchedulesByUserId(userId);
-        } catch (UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
@@ -61,9 +61,9 @@ public class ScheduleController {
             scheduleService.saveSchedule(scheduleDTO, ignoreConflicts);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (TaskNotFoundException | UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ObstacleExistsException | RoleNotMeetRequirementsException | ScheduleIsInConflictException e) {
+        } catch (EntityAlreadyExistsException | RoleNotMeetRequirementsException | ScheduleIsInConflictException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
@@ -76,9 +76,9 @@ public class ScheduleController {
                                                @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
             scheduleService.updateSchedule(scheduleId, updatedScheduleDTO, ignoreConflicts);
-        } catch (ScheduleNotFoundException | TaskNotFoundException | UserNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ScheduleIsInConflictException | ObstacleExistsException e) {
+        } catch (ScheduleIsInConflictException | EntityAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -91,7 +91,7 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId) {
         try {
             scheduleService.deleteSchedule(scheduleId);
-        } catch (ScheduleNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

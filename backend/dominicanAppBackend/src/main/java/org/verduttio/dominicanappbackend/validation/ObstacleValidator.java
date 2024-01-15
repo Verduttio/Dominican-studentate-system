@@ -3,12 +3,11 @@ package org.verduttio.dominicanappbackend.validation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.dto.ObstaclePatchDTO;
-import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
-import org.verduttio.dominicanappbackend.service.exception.UserNotFoundException;
+import org.verduttio.dominicanappbackend.service.TaskService;
+import org.verduttio.dominicanappbackend.service.UserService;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.time.LocalDate;
 
@@ -31,11 +30,11 @@ public class ObstacleValidator {
         Long taskId = obstacleRequestDTO.getTaskId();
 
         if (!userService.existsById(userId)) {
-            throw new UserNotFoundException("User with id " + userId + " does not exist");
+            throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
 
         if (!taskService.existsById(taskId)) {
-            throw new TaskNotFoundException("Task with id " + taskId + " does not exist");
+            throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
         }
     }
 
@@ -60,7 +59,7 @@ public class ObstacleValidator {
         validateObstacleStatus(obstaclePatchDTO.getStatus());
 
         if (!userService.existsById(obstaclePatchDTO.getRecipientUserId())) {
-            throw new UserNotFoundException("User not found with id: " + obstaclePatchDTO.getRecipientUserId());
+            throw new EntityNotFoundException("User not found with id: " + obstaclePatchDTO.getRecipientUserId());
         }
     }
 }

@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
-import org.verduttio.dominicanappbackend.service.exception.UserAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
 import static org.mockito.Mockito.when;
@@ -31,7 +31,7 @@ class UserValidatorTest {
         when(userRepository.existsByEmail(newEmail)).thenReturn(true);
 
         // Then
-        Assertions.assertThrows(UserAlreadyExistsException.class, () ->userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
+        Assertions.assertThrows(EntityAlreadyExistsException.class, () ->userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
     }
 
     @Test

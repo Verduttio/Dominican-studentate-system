@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.TaskDTO;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.exception.TaskNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +52,7 @@ public class TaskController {
     public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskDTO updatedTaskDTO) {
         try {
             taskService.updateTask(taskId, updatedTaskDTO);
-        } catch (TaskNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -63,7 +63,7 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         try {
             taskService.deleteTask(taskId);
-        } catch (TaskNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

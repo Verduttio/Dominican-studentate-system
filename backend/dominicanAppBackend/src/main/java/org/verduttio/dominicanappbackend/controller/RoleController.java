@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.service.RoleService;
-import org.verduttio.dominicanappbackend.service.exception.RoleAlreadyExistsException;
-import org.verduttio.dominicanappbackend.service.exception.RoleNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class RoleController {
     public ResponseEntity<?> createRole(@Valid @RequestBody Role role) {
         try {
             roleService.saveRole(role);
-        } catch (RoleAlreadyExistsException e) {
+        } catch (EntityAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(role, HttpStatus.CREATED);
@@ -51,9 +51,9 @@ public class RoleController {
     public ResponseEntity<?> updateRole(@PathVariable Long roleId, @Valid @RequestBody Role updatedRole) {
         try {
             roleService.updateRole(roleId, updatedRole);
-        } catch (RoleAlreadyExistsException e) {
+        } catch (EntityAlreadyExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (RoleNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
@@ -64,7 +64,7 @@ public class RoleController {
     public ResponseEntity<Void> deleteRole(@PathVariable Long roleId) {
         try {
             roleService.deleteRole(roleId);
-        } catch (RoleNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
