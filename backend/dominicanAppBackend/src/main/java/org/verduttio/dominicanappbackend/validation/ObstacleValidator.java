@@ -57,9 +57,18 @@ public class ObstacleValidator {
 
     public void validateObstaclePatchDTO(ObstaclePatchDTO obstaclePatchDTO) {
         validateObstacleStatus(obstaclePatchDTO.getStatus());
+        validateUserExistence(obstaclePatchDTO.getRecipientUserId());
+    }
 
-        if (!userService.existsById(obstaclePatchDTO.getRecipientUserId())) {
-            throw new EntityNotFoundException("User not found with id: " + obstaclePatchDTO.getRecipientUserId());
+    public void validateUserExistence(Long userId) {
+        if (!userService.existsById(userId)) {
+            throw new EntityNotFoundException("User not found with id: " + userId);
+        }
+    }
+
+    public void validateTaskExistence(Long taskId) {
+        if (!taskService.existsById(taskId)) {
+            throw new EntityNotFoundException("Task not found with id: " + taskId);
         }
     }
 }

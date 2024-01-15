@@ -13,4 +13,6 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
     List<Obstacle> findObstaclesByUserIdAndTaskId(@Param("userId") Long userId, @Param("taskId") Long taskId);
 
     List<Obstacle> findAllByUserId(Long userId);
+
+    List<Obstacle> findAllByTaskId(Long taskId);
 }

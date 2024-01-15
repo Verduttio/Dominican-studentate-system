@@ -99,4 +99,8 @@ public class ObstacleService {
         }
     }
 
+    public List<Obstacle> getAllObstaclesByTaskId(Long taskId) {
+        obstacleValidator.validateTaskExistence(taskId);
+        return obstacleRepository.findAllByTaskId(taskId);
+    }
 }

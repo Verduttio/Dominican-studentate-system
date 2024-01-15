@@ -37,6 +37,18 @@ public class ObstacleController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/task/{taskId}")
+    public ResponseEntity<?> getAllObstaclesByTaskId(@PathVariable Long taskId) {
+        List<Obstacle> obstacles;
+        try {
+            obstacles = obstacleService.getAllObstaclesByTaskId(taskId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getAllObstaclesByUserId(@PathVariable Long userId) {
         List<Obstacle> obstacles;

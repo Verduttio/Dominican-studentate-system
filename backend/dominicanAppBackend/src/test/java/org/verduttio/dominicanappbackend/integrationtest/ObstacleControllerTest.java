@@ -56,6 +56,25 @@ public class ObstacleControllerTest {
     }
 
     @Test
+    public void getAllObstaclesByTaskId_ShouldReturnOk() throws Exception {
+        Role role = databaseInitializer.addRoleUser();
+        User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
+        User johnDoe = databaseInitializer.addUserJohnDoe(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task2 = databaseInitializer.addPrepareMealTask(Set.of(role));
+        databaseInitializer.addWashDishesTask(Set.of(role));
+        databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
+        databaseInitializer.addObstacle_01_01_To_01_20(johnDoe, task);
+        databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task2);
+
+        mockMvc.perform(get("/api/obstacles/task/" + task.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void getObstacleById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
         mockMvc.perform(get("/api/obstacles/9999"))
                 .andExpect(status().isNotFound());
