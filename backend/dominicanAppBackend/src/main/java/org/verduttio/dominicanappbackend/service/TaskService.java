@@ -88,4 +88,8 @@ public class TaskService {
 
         taskRepository.save(task);
     }
+
+    public List<Task> findTasksByRoleName(String roleName) {
+        return taskRepository.findTaskByRoleName(roleName);
+    }
 }

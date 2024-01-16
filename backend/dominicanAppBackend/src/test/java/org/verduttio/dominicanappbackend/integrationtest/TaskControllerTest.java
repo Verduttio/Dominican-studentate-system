@@ -56,6 +56,41 @@ public class TaskControllerTest {
     }
 
     @Test
+    public void getTaskByRoleName_ShouldReturnOk() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin));
+        Task task2 = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin));
+
+        mockMvc.perform(get("/api/tasks/byRole/" + roleUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", anyOf(is(task.getId().intValue()), is(task2.getId().intValue()))))
+                .andExpect(jsonPath("$[0].name", anyOf(is(task.getName()), is(task2.getName()))))
+                .andExpect(jsonPath("$[1].id", anyOf(is(task.getId().intValue()), is(task2.getId().intValue()))))
+                .andExpect(jsonPath("$[1].name", anyOf(is(task.getName()), is(task2.getName()))));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void getTaskByRoleName_ShouldReturnOkAndEmptySet() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        Role roleDev = databaseInitializer.addRoleDev();
+        databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin));
+        databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin));
+
+        mockMvc.perform(get("/api/tasks/byRole/" + roleDev.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void getTaskById_WithNonExistingId_ShouldReturnNotFound() throws Exception {
         mockMvc.perform(get("/api/tasks/9999"))
                 .andExpect(status().isNotFound());

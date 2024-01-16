@@ -133,4 +133,10 @@ public class DatabaseInitializer {
         role.setName("ROLE_ADMIN");
         return roleRepository.save(role);
     }
+
+    public Role addRoleDev() {
+        Role role = new Role();
+        role.setName("ROLE_DEV");
+        return roleRepository.save(role);
+    }
 }

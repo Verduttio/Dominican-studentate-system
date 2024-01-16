@@ -37,6 +37,12 @@ public class TaskController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/byRole/{roleName}")
+    public ResponseEntity<List<Task>> getTasksByRole(@PathVariable String roleName) {
+        List<Task> tasks = taskService.findTasksByRoleName(roleName);
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> createTask(@Valid @RequestBody TaskDTO taskDTO) {
         try {
