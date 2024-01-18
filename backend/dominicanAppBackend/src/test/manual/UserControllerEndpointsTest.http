@@ -1,3 +1,24 @@
+### POST login
+POST {{host}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "funcad@mail.com",
+  "password": "12345678"
+}
+
+### POST register
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Frank",
+  "surname": "Cadillac",
+  "email": "funcad@mail4.com",
+  "password": "12345678",
+  "roleNames": ["ROLE_USER", "ROLE_ADMIN"]
+}
+
 ### Get all users
 GET {{host}}/api/users
 

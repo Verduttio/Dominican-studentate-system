@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
@@ -19,12 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final UserValidator userValidator;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService, UserValidator userValidator) {
+    public UserService(UserRepository userRepository, RoleService roleService,
+                       UserValidator userValidator, UserDetailsServiceImpl userDetailsService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
+        this.userDetailsService = userDetailsService;
     }
 
     public List<User> getAllUsers() {
@@ -66,6 +70,12 @@ public class UserService {
 
     protected boolean existsAnotherUserWithGivenEmail(String newEmail, String currentEmail) {
         return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
+    }
+
+    public User register(UserDTO userDTO) {
+        userValidator.validateEmailWhenRegister(userDTO.getEmail());
+        User user = convertUserDTOToUser(userDTO);
+        return userDetailsService.signUpUser(user);
     }
 
     private User convertUserDTOToUser(UserDTO userDTO) {
