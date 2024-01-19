@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 
 @Configuration
@@ -43,6 +45,11 @@ public class TestSecurityConfig {
         authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
 
         return new ProviderManager(authenticationProvider);
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new NullSecurityContextRepository();
     }
 }
 
