@@ -44,6 +44,9 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                 )
+                .securityContext((securityContext) -> securityContext
+                        .securityContextRepository(securityContextRepository())
+                )
                 .logout((logout) -> logout
                         .logoutUrl("/api/users/logout")
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpStatus.OK.value()))
@@ -51,6 +54,9 @@ public class SecurityConfig {
                         .clearAuthentication(true)
                         .deleteCookies("SESSION")
                         .permitAll()
+                )
+                .exceptionHandling((exceptionHandling) -> exceptionHandling
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
                 .csrf(AbstractHttpConfigurer::disable);
 

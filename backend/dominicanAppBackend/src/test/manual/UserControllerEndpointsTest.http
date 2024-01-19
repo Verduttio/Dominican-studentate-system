@@ -3,12 +3,9 @@ POST {{host}}/api/users/login
 Content-Type: application/json
 
 {
-  "email": "funcad@mail5.com",
+  "email": "funcad@mail10.com",
   "password": "12345678"
 }
-
-### POST logout
-POST {{host}}/api/users/logout
 
 ### POST register
 POST {{host}}/api/users/register
@@ -17,10 +14,27 @@ Content-Type: application/json
 {
   "name": "Frank",
   "surname": "Cadillac",
-  "email": "funcad@mail6.com",
+  "email": "funcad@mail10.com",
+  "password": "12345678",
+  "roleNames": ["ROLE_USER"]
+}
+
+### POST register
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Frank",
+  "surname": "Cadillac",
+  "email": "funcad@mail9.com",
   "password": "12345678",
   "roleNames": ["ROLE_USER", "ROLE_ADMIN"]
 }
+
+### POST logout
+POST {{host}}/api/users/logout
+
+
 
 ### Get all users
 GET {{host}}/api/users
