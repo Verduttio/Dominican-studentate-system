@@ -9,11 +9,16 @@ function Home () {
         navigate('/tasks');
     };
 
+    const goToUserProfile = () => {
+        navigate('/user-profile');
+    };
+
     return (
         <div>
             <h1>Ekran domyślny</h1>
             <button onClick={goToTasksPage}>Tasks</button>
             <LogoutButton/>
+            <button onClick={goToUserProfile}>Strona Użytkownika</button>
         </div>
     );
 }

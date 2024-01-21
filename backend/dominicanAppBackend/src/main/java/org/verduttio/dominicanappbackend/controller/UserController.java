@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -62,6 +63,18 @@ public class UserController {
         securityContextRepository.saveContext(context, request, response);
 
         return ResponseEntity.ok("User authenticated successfully");
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            return new ResponseEntity<>(userDetails.getUser(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No user logged in", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping

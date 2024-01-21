@@ -34,7 +34,8 @@ Content-Type: application/json
 ### POST logout
 POST {{host}}/api/users/logout
 
-
+### GET Current user
+GET {{host}}/api/users/current
 
 ### Get all users
 GET {{host}}/api/users

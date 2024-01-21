@@ -24,15 +24,16 @@ function Login () {
             });
 
             if (response.status === 200 && response.data === 'User authenticated successfully') {
+                console.log('Zalogowano pomyślnie');
                 navigate('/home');
             } else {
-                setErrorMessage('Nieprawidłowe dane logowania.');
+                console.log('Błąd podczas logowania.');
             }
         } catch (error: any) {
             if (error.response && error.response.status === 401) {
-                setErrorMessage('Nieprawidłowe dane logowania.');
+                console.log('Nieprawidłowe dane logowania');
             } else {
-                setErrorMessage('Wystąpił błąd podczas logowania.');
+                setErrorMessage('Wystąpił nieznany błąd podczas logowania.');
             }
         }
     };
