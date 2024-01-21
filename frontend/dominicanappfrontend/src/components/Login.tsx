@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import useHttp from "../services/UseHttp";
 
 function Login () {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const { loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        request(null, () => navigate('/home'))
+            .then(() => {});
+    }, [request, navigate]);
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -37,6 +44,8 @@ function Login () {
             }
         }
     };
+
+    if (loading) return <div>Ładowanie...</div>;
 
     return (
         <div>

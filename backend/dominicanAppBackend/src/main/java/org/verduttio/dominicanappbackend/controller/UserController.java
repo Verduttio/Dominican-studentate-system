@@ -77,6 +77,17 @@ public class UserController {
         }
     }
 
+    @GetMapping("/current/check")
+    public ResponseEntity<?> checkIfUserIsLoggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            return new ResponseEntity<>("User is logged in", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No user logged in", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();

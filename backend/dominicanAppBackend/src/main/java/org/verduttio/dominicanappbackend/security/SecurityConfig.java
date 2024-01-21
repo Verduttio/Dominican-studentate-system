@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers("/api/users/current/**").permitAll()
                         .requestMatchers("api/users").hasRole("ADMIN")
                         .requestMatchers("api/tasks").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -55,6 +56,7 @@ public class SecurityConfig {
                 .securityContext((securityContext) -> securityContext
                         .securityContextRepository(securityContextRepository())
                 )
+                .anonymous(AbstractHttpConfigurer::disable)
                 .logout((logout) -> logout
                         .logoutUrl("/api/users/logout")
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpStatus.OK.value()))
