@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import LogoutButton from "./LogoutButton";
+import useHttp from "../services/UseHttp";
 
 function UserProfilePage () {
     const [user, setUser] = useState(null);
+    const { error, loading, request } = useHttp('http://localhost:8080/api/users/current', 'GET');
 
-        useEffect(() => {
-            const fetchUserData = async () => {
-                try {
-                    const response = await axios.get(`http://localhost:8080/api/users/current`, {
-                        withCredentials: true
-                    });
-                    setUser(response.data);
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                }
-            };
+    useEffect(() => {
+        request(null, (data) => setUser(data))
+            .then(() => {});
+    }, [request]);
 
-            fetchUserData().then(r => console.log('User data fetched'));
-        }, []);
+    if (loading) return <div>Ładowanie...</div>;
+    if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div>

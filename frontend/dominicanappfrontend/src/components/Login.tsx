@@ -31,7 +31,7 @@ function Login () {
             }
         } catch (error: any) {
             if (error.response && error.response.status === 401) {
-                console.log('Nieprawidłowe dane logowania');
+                setErrorMessage('Nieprawidłowe dane logowania');
             } else {
                 setErrorMessage('Wystąpił nieznany błąd podczas logowania.');
             }

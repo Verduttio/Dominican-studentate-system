@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import LogoutButton from "./LogoutButton";
+import useHttp from "../services/UseHttp";
 
 interface Role {
     id: number;
@@ -20,21 +20,15 @@ interface Task {
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const { error, loading, request } = useHttp('http://localhost:8080/api/tasks', 'GET');
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/tasks', {
-                    withCredentials: true
-                });
-                setTasks(response.data);
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-            }
-        };
+        request(null, (data) => setTasks(data))
+            .then(() => {});
+    }, [request]);
 
-        fetchTasks().then(r => console.log('Tasks fetched'));
-    }, []);
+    if (loading) return <div>Ładowanie...</div>;
+    if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div>
