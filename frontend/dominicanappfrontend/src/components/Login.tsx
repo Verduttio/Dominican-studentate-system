@@ -59,6 +59,7 @@ function Login () {
                 <button type="submit">Zaloguj</button>
                 {errorMessage && <p>{errorMessage}</p>}
             </form>
+            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home'}>Zarejestruj się poprzez Google</a>
         </div>
     );
 }

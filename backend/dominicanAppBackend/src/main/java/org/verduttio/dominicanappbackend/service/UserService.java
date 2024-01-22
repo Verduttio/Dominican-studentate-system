@@ -3,6 +3,7 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
@@ -41,7 +42,7 @@ public class UserService {
 
     public void createUser(UserDTO userDTO) {
         userValidator.validateEmailWhenRegister(userDTO.getEmail());
-        User user = convertUserDTOToUser(userDTO);
+        User user = convertUserDTOToUser(userDTO, AuthProvider.LOCAL);
         userRepository.save(user);
     }
 
@@ -72,16 +73,17 @@ public class UserService {
         return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
     }
 
-    public User register(UserDTO userDTO) {
+    public User register(UserDTO userDTO, AuthProvider authProvider) {
         userValidator.validateEmailWhenRegister(userDTO.getEmail());
-        User user = convertUserDTOToUser(userDTO);
+        User user = convertUserDTOToUser(userDTO, authProvider);
         return userDetailsService.signUpUser(user);
     }
 
-    private User convertUserDTOToUser(UserDTO userDTO) {
+    private User convertUserDTOToUser(UserDTO userDTO, AuthProvider authProvider) {
         User user = userDTO.basicFieldsToUser();
         Set<Role> rolesDB = roleService.getRolesByRoleNames(userDTO.getRoleNames());
         user.setRoles(rolesDB);
+        user.setProvider(authProvider);
 
         return user;
     }

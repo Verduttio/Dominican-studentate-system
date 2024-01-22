@@ -33,6 +33,9 @@ public class User implements Serializable {
     )
     private Set<Role> roles;
 
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
+
 
     // Getters and setters
     public Long getId() {
@@ -73,12 +76,13 @@ public class User implements Serializable {
     }
 
     public User(String email, String password, Set<Role> roles,
-                String name, String surname) {
+                String name, String surname, AuthProvider provider) {
         this.email = email;
         this.password = password;
         this.roles = roles;
         this.name = name;
         this.surname = surname;
+        this.provider = provider;
     }
 
     public String getName() {
@@ -97,6 +101,11 @@ public class User implements Serializable {
         this.surname = surname;
     }
 
+    public AuthProvider getProvider() {
+        return provider;
+    }
 
-    // Other methods
+    public void setProvider(AuthProvider provider) {
+        this.provider = provider;
+    }
 }

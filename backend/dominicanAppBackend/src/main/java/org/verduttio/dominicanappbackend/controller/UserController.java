@@ -15,6 +15,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
@@ -43,7 +44,7 @@ public class UserController {
     public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
         User user;
         try{
-            user = userService.register(userDTO);
+            user = userService.register(userDTO, AuthProvider.LOCAL);
         } catch (EntityAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -52,6 +53,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        // TODO: Check if user authentication provider is local
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),

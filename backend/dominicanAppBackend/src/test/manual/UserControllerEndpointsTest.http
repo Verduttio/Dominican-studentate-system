@@ -3,7 +3,7 @@ POST {{host}}/api/users/login
 Content-Type: application/json
 
 {
-  "email": "funcad@mail10.com",
+  "email": "funcad@mail9.com",
   "password": "12345678"
 }
 

@@ -19,6 +19,8 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
+import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,10 +32,13 @@ import java.util.List;
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder,
+                          CustomOAuth2UserService customOAuth2UserService) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
@@ -44,8 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/current/**").permitAll()
-                        .requestMatchers("api/users").hasRole("ADMIN")
-                        .requestMatchers("api/tasks").hasRole("ADMIN")
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("/api/tasks").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement
@@ -68,6 +74,12 @@ public class SecurityConfig {
                 .exceptionHandling((exceptionHandling) -> exceptionHandling
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
+                .oauth2Login((oauth2Login) -> oauth2Login
+                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                        .userInfoEndpoint((userInfoEndpoint) -> userInfoEndpoint
+                                .userService(customOAuth2UserService)
+                        )
+                        .permitAll())
                 .cors((cors) -> cors
                         .configurationSource(corsConfigurationSource())
                 )
@@ -79,6 +91,11 @@ public class SecurityConfig {
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(securityContextRepository());
     }
 
     @Bean
@@ -94,7 +111,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
