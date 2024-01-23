@@ -11,16 +11,30 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.session.Session;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
+import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationFailureHandler;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
+
+import org.springframework.session.jdbc.util.JdbcSchemaUtils;
+import org.springframework.session.jdbc.config.annotation.web.http.JdbcHttpSessionConfiguration;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,23 +42,26 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+//@EnableJdbcHttpSession
 @Profile({"!integration_tests"})   // To work tests
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
 
     public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder,
-                          CustomOAuth2UserService customOAuth2UserService) {
+                          CustomOAuth2UserService customOAuth2UserService, JdbcIndexedSessionRepository jdbcIndexedSessionRepository) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
@@ -54,14 +71,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/tasks").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement((sessionManagement) -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.NEVER)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
                 .securityContext((securityContext) -> securityContext
                         .securityContextRepository(securityContextRepository())
                 )
+                .sessionManagement((sessionManagement) -> sessionManagement
+                        .sessionAuthenticationStrategy(sessionAuthenticationStrategy())
+                        .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                )
+                .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
                 .anonymous(AbstractHttpConfigurer::disable)
                 .logout((logout) -> logout
                         .logoutUrl("/api/users/logout")
@@ -76,6 +93,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login((oauth2Login) -> oauth2Login
                         .successHandler(oAuth2AuthenticationSuccessHandler())
+                        .failureHandler(oAuth2AuthenticationFailureHandler())
                         .userInfoEndpoint((userInfoEndpoint) -> userInfoEndpoint
                                 .userService(customOAuth2UserService)
                         )
@@ -94,8 +112,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return new OAuth2AuthenticationSuccessHandler(securityContextRepository());
+    public SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry<>(jdbcIndexedSessionRepository);
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
     @Bean
@@ -120,6 +143,25 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(securityContextRepository());
+    }
+
+    @Bean
+    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
+        return new OAuth2AuthenticationFailureHandler();
+    }
+
+    @Bean
+    public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        ConcurrentSessionControlAuthenticationStrategy sessionControlAuthenticationStrategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+        sessionControlAuthenticationStrategy.setMaximumSessions(2);
+        //TODO: Catch exception and then remove last session to allow new login
+        sessionControlAuthenticationStrategy.setExceptionIfMaximumExceeded(false);
+        return sessionControlAuthenticationStrategy;
     }
 
 }

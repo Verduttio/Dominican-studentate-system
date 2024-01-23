@@ -31,6 +31,9 @@ Content-Type: application/json
   "roleNames": ["ROLE_USER", "ROLE_ADMIN"]
 }
 
+### GET active sessions
+GET {{host}}/api/users/activeSessions
+
 ### POST logout
 POST {{host}}/api/users/logout
 

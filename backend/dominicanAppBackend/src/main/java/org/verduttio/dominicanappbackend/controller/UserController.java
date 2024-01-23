@@ -1,7 +1,9 @@
 package org.verduttio.dominicanappbackend.controller;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +13,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.session.Session;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
@@ -23,6 +33,8 @@ import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsEx
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,14 +42,18 @@ public class UserController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final SpringSessionBackedSessionRegistry<? extends Session>  sessionRegistry;
     private final SecurityContextRepository securityContextRepository;
+    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
     @Autowired
-    public UserController(UserService userService, AuthenticationManager authenticationManager,
-                          SecurityContextRepository securityContextRepository) {
+    public UserController(UserService userService, AuthenticationManager authenticationManager, SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry,
+                          SecurityContextRepository securityContextRepository, SessionAuthenticationStrategy sessionAuthenticationStrategy) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.sessionRegistry = sessionRegistry;
         this.securityContextRepository = securityContextRepository;
+        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
     }
 
     @PostMapping("/register")
@@ -52,7 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws ServletException {
         // TODO: Check if user authentication provider is local
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -60,11 +76,34 @@ public class UserController {
                         loginRequest.getPassword()
                 )
         );
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        securityContextRepository.saveContext(context, request, response);
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authentication);
+        System.out.println("Session id: " + request.getSession().getId());
+        try {
+            sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
+            securityContextRepository.saveContext(securityContext, request, response);
+            sessionRegistry.registerNewSession(request.getSession().getId(), authentication.getPrincipal());
+        } catch (SessionAuthenticationException e) {
+            request.logout();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
         return ResponseEntity.ok("User authenticated successfully");
+    }
+
+    @GetMapping("/activeSessions")
+    public ResponseEntity<?> getActiveSessions() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<SessionInformation> principals = sessionRegistry.getAllSessions(principal, false);
+
+        for (SessionInformation p : principals) {
+            System.out.println("Principal: " + p.getPrincipal() + " Session ID: " + p.getSessionId());
+        }
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+
+        return ResponseEntity.ok("Active sessions for user: " + userDetails.getUsername() + " are: " + principals.size());
     }
 
     @GetMapping("/current")

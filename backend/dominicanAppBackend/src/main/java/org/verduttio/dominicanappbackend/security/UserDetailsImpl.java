@@ -73,6 +73,18 @@ public class UserDetailsImpl implements UserDetails, Serializable, OAuth2User {
         return attributes;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserDetailsImpl that)) return false;
+        return user.equals(that.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return user.hashCode();
+    }
+
     // Getters and setters
 
     public User getUser() {

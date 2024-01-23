@@ -13,6 +13,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
+import org.verduttio.dominicanappbackend.util.CookieUtils;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -24,20 +25,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public OAuth2AuthenticationSuccessHandler(SecurityContextRepository securityContextRepository) {
         this.securityContextRepository = securityContextRepository;
     }
-
-//    @Override
-//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//        String redirectUrl = "/api/users/current";
-//        if(authentication.getPrincipal() instanceof UserDetailsImpl) {
-//            SecurityContext context = SecurityContextHolder.createEmptyContext();
-//            context.setAuthentication(authentication);
-//            securityContextRepository.saveContext(context, request, response);
-//        } else {
-//            System.out.println("[ERROR]: Principal is not an instance of UserDetailsImpl");
-//        }
-//
-//        new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
-//    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -55,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Optional<String> redirectUri = getCookie(request, "redirect_uri")
+        Optional<String> redirectUri = CookieUtils.getCookie(request, "redirect_uri")
                 .map(Cookie::getValue);
 
         String targetUrl = "http://localhost:3000";
@@ -65,19 +52,5 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .build().toUriString();
-    }
-
-    private Optional<Cookie> getCookie(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return Optional.of(cookie);
-                }
-            }
-        }
-
-        return Optional.empty();
     }
 }

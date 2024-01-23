@@ -108,4 +108,16 @@ public class User implements Serializable {
     public void setProvider(AuthProvider provider) {
         this.provider = provider;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return user.getEmail().equals(this.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return email.hashCode();
+    }
 }
