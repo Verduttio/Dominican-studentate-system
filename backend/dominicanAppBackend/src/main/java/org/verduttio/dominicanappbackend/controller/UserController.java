@@ -3,7 +3,6 @@ package org.verduttio.dominicanappbackend.controller;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,13 +13,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.session.Session;
-import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
@@ -33,8 +29,6 @@ import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsEx
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -69,7 +63,6 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        // TODO: Check if user authentication provider is local
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -80,6 +73,11 @@ public class UserController {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(authentication);
         System.out.println("Session id: " + request.getSession().getId());
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        if(userDetails.getUser().getProvider() != AuthProvider.LOCAL) {
+            request.logout();
+            return ResponseEntity.badRequest().body("User is not registered with local authentication");
+        }
         try {
             sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
             securityContextRepository.saveContext(securityContext, request, response);
