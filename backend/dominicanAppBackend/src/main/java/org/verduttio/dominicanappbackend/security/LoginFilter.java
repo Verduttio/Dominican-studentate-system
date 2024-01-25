@@ -21,12 +21,13 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private final ObjectMapper mapper;
 
     public LoginFilter(ObjectMapper mapper, AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository,
-                       SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+                       SessionAuthenticationStrategy sessionAuthenticationStrategy, ApiAuthAuthenticationSuccessHandler successHandler) {
         super(new AntPathRequestMatcher("/api/users/login", "POST"));
         this.mapper = mapper;
         setAuthenticationManager(authenticationManager);
         setSecurityContextRepository(securityContextRepository);
         setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+        setAuthenticationSuccessHandler(successHandler);
     }
 
     @Override

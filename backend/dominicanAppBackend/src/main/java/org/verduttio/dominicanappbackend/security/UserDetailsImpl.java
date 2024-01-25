@@ -28,7 +28,6 @@ public class UserDetailsImpl implements UserDetails, Serializable, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        System.out.println("Roles size: " + user.getRoles().size());
         return user.getRoles().stream()
                 .map(RoleGrantedAuthorityAdapter::new)
                 .collect(Collectors.toSet());

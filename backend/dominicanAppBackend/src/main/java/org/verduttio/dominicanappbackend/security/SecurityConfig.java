@@ -29,6 +29,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
+import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationFailureHandler;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
 
 import java.util.Arrays;
@@ -88,7 +89,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login((oauth2Login) -> oauth2Login
                         .successHandler(oAuth2AuthenticationSuccessHandler())
-//                        .failureHandler(oAuth2AuthenticationFailureHandler())
+                        .failureHandler(oAuth2AuthenticationFailureHandler())
                         .userInfoEndpoint((userInfoEndpoint) -> userInfoEndpoint
                                 .userService(customOAuth2UserService)
                         )
@@ -103,12 +104,17 @@ public class SecurityConfig {
 
     @Bean
     public LoginFilter loginFilter() {
-        return new LoginFilter(mapper, authenticationManager(), securityContextRepository(), sessionAuthenticationStrategy());
+        return new LoginFilter(mapper, authenticationManager(), securityContextRepository(),
+                sessionAuthenticationStrategy(), apiAuthAuthenticationSuccessHandler());
     }
 
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
+        return new ApiAuthAuthenticationSuccessHandler();
     }
 
     @Bean
@@ -148,6 +154,11 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
         return new OAuth2AuthenticationSuccessHandler(securityContextRepository());
+    }
+
+    @Bean
+    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
+        return new OAuth2AuthenticationFailureHandler();
     }
 
     @Bean
