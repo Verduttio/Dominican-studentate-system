@@ -35,19 +35,19 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
+//    private final AuthenticationManager authenticationManager;
     private final SpringSessionBackedSessionRegistry<? extends Session>  sessionRegistry;
     private final SecurityContextRepository securityContextRepository;
-    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
+//    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
     @Autowired
-    public UserController(UserService userService, AuthenticationManager authenticationManager, SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry,
-                          SecurityContextRepository securityContextRepository, SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+    public UserController(UserService userService, SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry,
+                          SecurityContextRepository securityContextRepository) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
+//        this.authenticationManager = authenticationManager;
         this.sessionRegistry = sessionRegistry;
         this.securityContextRepository = securityContextRepository;
-        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
+//        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
     }
 
     @PostMapping("/register")
@@ -63,30 +63,6 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
-        System.out.println("Session id: " + request.getSession().getId());
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        if(userDetails.getUser().getProvider() != AuthProvider.LOCAL) {
-            request.logout();
-            return ResponseEntity.badRequest().body("User is not registered with local authentication");
-        }
-        try {
-            sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
-            securityContextRepository.saveContext(securityContext, request, response);
-            sessionRegistry.registerNewSession(request.getSession().getId(), authentication.getPrincipal());
-        } catch (SessionAuthenticationException e) {
-            request.logout();
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
         return ResponseEntity.ok("User authenticated successfully");
     }
 
