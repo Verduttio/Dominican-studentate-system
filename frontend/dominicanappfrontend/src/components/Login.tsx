@@ -12,6 +12,7 @@ function Login () {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const errorOAuth2 : string|null = queryParams.get('error_oauth2');
+    const errorOAuth2Message = queryParams.get('error_message') || 'nieznany błąd';
 
     const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ function Login () {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!email || !password) {
+        if (!email) {
             setErrorMessage('Email i hasło są wymagane!');
             return;
         }
@@ -43,9 +44,9 @@ function Login () {
             }
         } catch (error: any) {
             if (error.response && error.response.status === 401) {
-                setErrorMessage('Nieprawidłowe dane logowania');
+                setErrorMessage(error.response.data);
             } else {
-                setErrorMessage('Wystąpił nieznany błąd podczas logowania.');
+                setErrorMessage('Wystąpił nieznany błąd podczas logowania: ' + error.response.data);
             }
         }
     };
@@ -54,7 +55,7 @@ function Login () {
 
     return (
         <div>
-            {errorOAuth2 && <p>Błąd logowania przez Google.</p>}
+            {errorOAuth2 && <p>Błąd logowania przez Google: {decodeURIComponent(errorOAuth2Message)}</p>}
             <form onSubmit={handleLogin}>
                 <label>Email:</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}/>

@@ -7,6 +7,15 @@ Content-Type: application/json
   "password": "12345678"
 }
 
+### POST login
+POST {{host}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "bszwaja20@gmail.com",
+  "password": "7654745896978"
+}
+
 ### POST register
 POST {{host}}/api/users/register
 Content-Type: application/json
@@ -14,7 +23,7 @@ Content-Type: application/json
 {
   "name": "Frank",
   "surname": "Cadillac",
-  "email": "funcad@mail10.com",
+  "email": "bszwaja20@gmail.com",
   "password": "12345678",
   "roleNames": ["ROLE_USER"]
 }

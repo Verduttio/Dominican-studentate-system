@@ -28,6 +28,8 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.security.apiauth.ApiAuthAuthenticationFailureHandler;
 import org.verduttio.dominicanappbackend.security.apiauth.ApiAuthAuthenticationSuccessHandler;
 import org.verduttio.dominicanappbackend.security.apiauth.LoginFilter;
 import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
@@ -47,14 +49,16 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
     private final ObjectMapper mapper;
+    private final UserRepository userRepository;
 
     public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder,
-                          CustomOAuth2UserService customOAuth2UserService, JdbcIndexedSessionRepository jdbcIndexedSessionRepository, ObjectMapper mapper) {
+                          CustomOAuth2UserService customOAuth2UserService, JdbcIndexedSessionRepository jdbcIndexedSessionRepository, ObjectMapper mapper, UserRepository userRepository) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.customOAuth2UserService = customOAuth2UserService;
         this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
         this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -107,7 +111,8 @@ public class SecurityConfig {
     @Bean
     public LoginFilter loginFilter() {
         return new LoginFilter(mapper, authenticationManager(), securityContextRepository(),
-                sessionAuthenticationStrategy(), apiAuthAuthenticationSuccessHandler());
+                sessionAuthenticationStrategy(), apiAuthAuthenticationSuccessHandler(), apiAuthAuthenticationFailureHandler(),
+                userRepository);
     }
 
     @Bean
@@ -116,8 +121,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
+    public ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
         return new ApiAuthAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public ApiAuthAuthenticationFailureHandler apiAuthAuthenticationFailureHandler() {
+        return new ApiAuthAuthenticationFailureHandler();
     }
 
     @Bean

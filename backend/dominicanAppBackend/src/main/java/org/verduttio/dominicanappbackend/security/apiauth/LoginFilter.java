@@ -13,27 +13,48 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
+import org.verduttio.dominicanappbackend.entity.AuthProvider;
+import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.service.exception.ApiAuthAuthenticationProcessingException;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private final ObjectMapper mapper;
+    private final UserRepository userRepository;
 
     public LoginFilter(ObjectMapper mapper, AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository,
-                       SessionAuthenticationStrategy sessionAuthenticationStrategy, ApiAuthAuthenticationSuccessHandler successHandler) {
+                       SessionAuthenticationStrategy sessionAuthenticationStrategy, ApiAuthAuthenticationSuccessHandler successHandler,
+                       ApiAuthAuthenticationFailureHandler failureHandler, UserRepository userRepository) {
         super(new AntPathRequestMatcher("/api/users/login", "POST"));
         this.mapper = mapper;
+        this.userRepository = userRepository;
         setAuthenticationManager(authenticationManager);
         setSecurityContextRepository(securityContextRepository);
         setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
         setAuthenticationSuccessHandler(successHandler);
+        setAuthenticationFailureHandler(failureHandler);
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
         LoginRequest loginRequest = mapper.readValue(request.getInputStream(), LoginRequest.class);
+
+        Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
+        User user;
+        if (userOptional.isPresent()) {
+            user = userOptional.get();
+            if(!user.getProvider().equals(AuthProvider.LOCAL)) {
+                throw new ApiAuthAuthenticationProcessingException("Looks like you're signed up with " +
+                        user.getProvider() + " account. Please use your " + user.getProvider() +
+                        " account to login.");
+            }
+        }
+
         UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.getEmail(),
                 loginRequest.getPassword());
         // Allow subclasses to set the "details" property
