@@ -7,10 +7,7 @@ import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class RoleService {
@@ -83,6 +80,14 @@ public class RoleService {
         }
 
         return rolesDB;
+    }
+
+    public List<Role> getAllRolesWithout(String... roleNames) {
+        List<Role> allRoles = new LinkedList<Role>(getAllRoles());
+        for (String roleName : roleNames) {
+            allRoles.removeIf(role -> role.getName().equals(roleName));
+        }
+        return allRoles;
     }
 
     private boolean existsAnotherRoleWithGivenName(String newName, String currentName) {

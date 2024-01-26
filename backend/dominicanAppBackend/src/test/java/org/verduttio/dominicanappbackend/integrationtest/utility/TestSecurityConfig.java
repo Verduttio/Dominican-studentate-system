@@ -13,6 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.session.Session;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 
 @Configuration
@@ -21,10 +24,12 @@ import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 public class TestSecurityConfig {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
 
-    public TestSecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public TestSecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder, JdbcIndexedSessionRepository jdbcIndexedSessionRepository) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
     }
 
     @Bean
@@ -50,6 +55,11 @@ public class TestSecurityConfig {
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new NullSecurityContextRepository();
+    }
+
+    @Bean
+    public SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry<>(jdbcIndexedSessionRepository);
     }
 }
 

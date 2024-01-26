@@ -45,4 +45,24 @@ public class Role implements Serializable {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", name='" + name +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Role )) return false;
+        return name != null && name.equals(((Role) o).getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
 }

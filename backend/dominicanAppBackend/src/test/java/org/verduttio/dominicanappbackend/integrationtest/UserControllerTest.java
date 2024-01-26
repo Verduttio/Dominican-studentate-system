@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.session.Session;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -36,6 +38,9 @@ public class UserControllerTest {
 
     @Autowired
     private DatabaseInitializer databaseInitializer;
+
+    @Autowired
+    private SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry;
 
     @Test
     public void getAllUsers_ShouldReturnOk() throws Exception {

@@ -14,6 +14,7 @@ import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.LoginRequest;
+import org.verduttio.dominicanappbackend.dto.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
@@ -38,10 +39,21 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         User user;
         try{
-            user = userService.register(userDTO, AuthProvider.LOCAL);
+            user = userService.register(registerUserRequest, AuthProvider.LOCAL);
+        } catch (EntityAlreadyExistsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return new ResponseEntity<>("User registered successfully: " + user.getEmail(), HttpStatus.OK);
+    }
+
+    @PostMapping("/register-dev")
+    public ResponseEntity<?> registerDev(@Valid @RequestBody UserDTO userDTO) {
+        User user;
+        try{
+            user = userService.registerDev(userDTO, AuthProvider.LOCAL);
         } catch (EntityAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

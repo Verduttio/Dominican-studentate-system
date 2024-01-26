@@ -21,15 +21,14 @@ POST {{host}}/api/users/register
 Content-Type: application/json
 
 {
-  "name": "Frank",
-  "surname": "Cadillac",
-  "email": "bszwaja20@gmail.com",
-  "password": "12345678",
-  "roleNames": ["ROLE_USER"]
+  "name": "Joe",
+  "surname": "Black",
+  "email": "funcad@mail9.com",
+  "password": "12345678"
 }
 
-### POST register
-POST {{host}}/api/users/register
+### POST register-dev
+POST {{host}}/api/users/register-dev
 Content-Type: application/json
 
 {

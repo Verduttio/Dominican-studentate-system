@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.dto.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
@@ -11,6 +12,7 @@ import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -73,10 +75,28 @@ public class UserService {
         return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
     }
 
-    public User register(UserDTO userDTO, AuthProvider authProvider) {
+    public User register(RegisterUserRequest registerUserRequest, AuthProvider authProvider) {
+        userValidator.validateEmailWhenRegister(registerUserRequest.getEmail());
+        User user = convertRegisterUserRequestToUser(registerUserRequest, authProvider);
+        return userDetailsService.signUpUser(user);
+    }
+
+    public User registerDev(UserDTO userDTO, AuthProvider authProvider) {
         userValidator.validateEmailWhenRegister(userDTO.getEmail());
         User user = convertUserDTOToUser(userDTO, authProvider);
         return userDetailsService.signUpUser(user);
+    }
+
+    private User convertRegisterUserRequestToUser(RegisterUserRequest registerUserRequest, AuthProvider authProvider) {
+        User user = new User();
+        user.setEmail(registerUserRequest.getEmail());
+        user.setPassword(registerUserRequest.getPassword());
+        user.setName(registerUserRequest.getName());
+        user.setSurname(registerUserRequest.getSurname());
+        user.setProvider(authProvider);
+        List<Role> roles = roleService.getAllRolesWithout("ROLE_ADMIN");  // and other sensitive roles!  //TODO: make a variable in application properties for this???
+        user.setRoles(new HashSet<>(roles));
+        return user;
     }
 
     private User convertUserDTOToUser(UserDTO userDTO, AuthProvider authProvider) {
