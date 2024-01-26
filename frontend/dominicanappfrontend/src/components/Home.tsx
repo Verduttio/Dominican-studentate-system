@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import LogoutButton from "./LogoutButton";
+import useHttp from "../services/UseHttp";
 
 function Home () {
     const navigate = useNavigate();
@@ -12,6 +13,22 @@ function Home () {
     const goToUserProfile = () => {
         navigate('/user-profile');
     };
+
+    const { error, func, loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
+
+    useEffect(() => {
+        request()
+            .then(() => {});
+    }, [request]);
+
+    useEffect(() => {
+        if (func) {
+            func();
+        }
+    }, [func]);
+
+    if (loading) return <div>Ładowanie...</div>;
+    if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div>
