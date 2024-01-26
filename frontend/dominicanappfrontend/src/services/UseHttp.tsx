@@ -1,9 +1,12 @@
 import {useCallback, useState} from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function useHttp (url : string, method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [func, setFunc] = useState<Function | null>(null);
+    const navigate = useNavigate();
 
     const request = useCallback(async (requestData = null, onSuccess = (data: any) => {}) => {
         setLoading(true);
@@ -15,16 +18,21 @@ function useHttp (url : string, method : string = 'GET') {
             if (err.response && err.response.status === 403) {
                 setError("Nie posiadasz praw dostępu do tych danych");
             } else if (err.response && err.response.status === 401) {
-                setError("Sesja wygasła. Zaloguj się ponownie");
+                setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
+                setFunc(() => () => {
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 3000); // in ms
+                });
             } else {
                 setError("Wystąpił błąd: " + err.message);
             }
         } finally {
             setLoading(false);
         }
-    }, [url, method]);
+    }, [url, method, navigate]);
 
-    return { error, loading, request };
+    return { error, func, loading, request };
 }
 
 export default useHttp;

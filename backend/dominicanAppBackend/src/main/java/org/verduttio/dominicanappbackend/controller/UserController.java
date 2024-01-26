@@ -7,15 +7,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.web.authentication.session.SessionAuthenticationException;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
@@ -35,19 +29,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-//    private final AuthenticationManager authenticationManager;
     private final SpringSessionBackedSessionRegistry<? extends Session>  sessionRegistry;
-    private final SecurityContextRepository securityContextRepository;
-//    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
     @Autowired
-    public UserController(UserService userService, SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry,
-                          SecurityContextRepository securityContextRepository) {
+    public UserController(UserService userService, SpringSessionBackedSessionRegistry<? extends Session> sessionRegistry) {
         this.userService = userService;
-//        this.authenticationManager = authenticationManager;
         this.sessionRegistry = sessionRegistry;
-        this.securityContextRepository = securityContextRepository;
-//        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
     }
 
     @PostMapping("/register")
@@ -83,13 +70,9 @@ public class UserController {
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            return new ResponseEntity<>(userDetails.getUser(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("No user logged in", HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<>(userDetails.getUser(), HttpStatus.OK);
     }
 
     @GetMapping("/current/check")
