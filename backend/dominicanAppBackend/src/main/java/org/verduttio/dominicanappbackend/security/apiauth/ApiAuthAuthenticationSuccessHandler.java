@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.security;
+package org.verduttio.dominicanappbackend.security.apiauth;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

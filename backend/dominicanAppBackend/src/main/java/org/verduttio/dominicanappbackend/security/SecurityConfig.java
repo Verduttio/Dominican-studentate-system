@@ -28,6 +28,8 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.verduttio.dominicanappbackend.security.apiauth.ApiAuthAuthenticationSuccessHandler;
+import org.verduttio.dominicanappbackend.security.apiauth.LoginFilter;
 import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationFailureHandler;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -113,7 +115,8 @@ public class SecurityConfig {
         return new HttpSessionSecurityContextRepository();
     }
 
-    @Bean ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
+    @Bean
+    ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
         return new ApiAuthAuthenticationSuccessHandler();
     }
 

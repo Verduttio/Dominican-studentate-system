@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from "../services/UseHttp";
 
 function Login () {
@@ -8,6 +8,11 @@ function Login () {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const { loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const errorOAuth2 : string|null = queryParams.get('error_oauth2');
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -49,6 +54,7 @@ function Login () {
 
     return (
         <div>
+            {errorOAuth2 && <p>Błąd logowania przez Google.</p>}
             <form onSubmit={handleLogin}>
                 <label>Email:</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}/>
@@ -59,7 +65,7 @@ function Login () {
                 <button type="submit">Zaloguj</button>
                 {errorMessage && <p>{errorMessage}</p>}
             </form>
-            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home&failure_redirect_uri=http://localhost:3000/login'}>Zarejestruj się poprzez Google</a>
+            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home'}>Zarejestruj się poprzez Google</a>
         </div>
     );
 }

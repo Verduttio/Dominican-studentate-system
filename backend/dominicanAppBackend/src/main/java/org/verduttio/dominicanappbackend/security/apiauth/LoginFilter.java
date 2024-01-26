@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.security;
+package org.verduttio.dominicanappbackend.security.apiauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
