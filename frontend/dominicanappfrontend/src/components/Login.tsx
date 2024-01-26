@@ -16,6 +16,10 @@ function Login () {
 
     const navigate = useNavigate();
 
+    const goToRegisterPage = () => {
+        navigate('/register');
+    };
+
     useEffect(() => {
         request(null, () => navigate('/home'))
             .then(() => {});
@@ -55,7 +59,7 @@ function Login () {
 
     return (
         <div>
-            {errorOAuth2 && <p>Błąd logowania przez Google: {decodeURIComponent(errorOAuth2Message)}</p>}
+            {errorOAuth2 && <p>Błąd uwierzytelenienia poprzez Google: {decodeURIComponent(errorOAuth2Message)}</p>}
             <form onSubmit={handleLogin}>
                 <label>Email:</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}/>
@@ -66,7 +70,9 @@ function Login () {
                 <button type="submit">Zaloguj</button>
                 {errorMessage && <p>{errorMessage}</p>}
             </form>
-            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home'}>Zarejestruj się poprzez Google</a>
+            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home'}>Zaloguj
+                się poprzez Google</a>
+            <button onClick={goToRegisterPage}>Nie masz konta? Zarejestruj się!</button>
         </div>
     );
 }

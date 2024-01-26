@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import TasksPage from "./components/TaskPage";
 import UserProfilePage from "./components/UserProfilePage";
+import Register from "./components/Register";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
             <Route path="/home" Component={Home}/>
             <Route path="/login" Component={Login}/>
+            <Route path="/register" Component={Register}/>
             <Route path="/tasks" Component={TasksPage}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="*" element={<Navigate replace to="/login"/>}/>
