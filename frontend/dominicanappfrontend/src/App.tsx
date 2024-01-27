@@ -3,9 +3,10 @@ import './App.css';
 import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import TasksPage from "./pages/TaskPage";
+import TasksPage from "./pages/TasksPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import Register from "./pages/Register";
+import ObstaclePage from "./pages/ObstaclesPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/login" Component={Login}/>
             <Route path="/register" Component={Register}/>
             <Route path="/tasks" Component={TasksPage}/>
+            <Route path="/obstacles" Component={ObstaclePage}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="*" element={<Navigate replace to="/login"/>}/>
         </Routes>

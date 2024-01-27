@@ -14,6 +14,10 @@ function Home () {
         navigate('/user-profile');
     };
 
+    const goToObstaclesPage = () => {
+        navigate('/obstacles');
+    };
+
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
 
     useEffect(() => {
@@ -36,6 +40,7 @@ function Home () {
             <button onClick={goToTasksPage}>Tasks</button>
             <LogoutButton/>
             <button onClick={goToUserProfile}>Strona Użytkownika</button>
+            <button onClick={goToObstaclesPage}>Przeszkody</button>
         </div>
     );
 }

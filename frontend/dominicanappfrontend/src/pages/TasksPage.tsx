@@ -1,22 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
+import { Task } from "../models/interfaces";
 
-interface Role {
-    id: number;
-    name: string;
-}
-
-interface Task {
-    id: number;
-    name: string;
-    category: string;
-    participantsLimit: number;
-    permanent: boolean;
-    participantForWholePeriod: boolean;
-    allowedRoles: Role[];
-    daysOfWeek: string[];
-}
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
