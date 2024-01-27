@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
 
 function Home () {

@@ -49,7 +49,7 @@ function Register () {
         if (!validateForm()) return;
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users/register', formData);
+            const response = await axios.post(' http://localhost:8080/api/users/register', formData);
             console.log(response.data);
 
             if(response.status === 200) {

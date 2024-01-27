@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
 
 function UserProfilePage () {
