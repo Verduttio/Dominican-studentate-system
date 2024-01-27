@@ -2,16 +2,17 @@ import {useCallback, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function useHttp (url : string, method : string = 'GET') {
+function useHttp<T = any>(url : string, method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [func, setFunc] = useState<Function | null>(null);
     const navigate = useNavigate();
 
-    const request = useCallback(async (requestData = null, onSuccess = (data: any) => {}) => {
+    const request = useCallback(async (requestData: T | null = null, onSuccess = (data: any) => {}) => {
         setLoading(true);
         setError(null);
         try {
+            console.log(requestData)
             const response = await axios({ url, method, data: requestData, withCredentials: true});
             onSuccess(response.data);
         } catch (err : any) {
@@ -25,7 +26,7 @@ function useHttp (url : string, method : string = 'GET') {
                     }, 3000); // in ms
                 });
             } else {
-                setError("Wystąpił błąd: " + err.message);
+                setError("Wystąpił błąd: " + err.response.data);
             }
         } finally {
             setLoading(false);

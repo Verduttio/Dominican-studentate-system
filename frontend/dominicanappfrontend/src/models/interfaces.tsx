@@ -17,7 +17,6 @@ interface Task {
 interface User {
     id: number;
     email: string;
-    password: string;
     name: string;
     surname: string;
     roles: Role[];

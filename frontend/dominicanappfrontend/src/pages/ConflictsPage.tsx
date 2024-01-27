@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
 import { Conflict } from "../models/interfaces";
+import {useNavigate} from "react-router-dom";
 
 
 function ConflictsPage() {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/conflicts', 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setConflicts(data))
@@ -43,6 +45,7 @@ function ConflictsPage() {
                 ))}
                 </tbody>
             </table>
+            <button onClick={() => navigate("/add-conflict")}>Dodaj konflikt</button>
             <LogoutButton/>
         </div>
     );

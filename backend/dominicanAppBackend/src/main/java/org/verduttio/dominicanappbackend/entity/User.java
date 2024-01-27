@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class User implements Serializable {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private String name;

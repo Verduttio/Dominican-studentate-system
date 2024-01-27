@@ -22,6 +22,10 @@ function Home () {
         navigate('/conflicts');
     };
 
+    const goToUsersPage = () => {
+        navigate('/users');
+    };
+
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
 
     useEffect(() => {
@@ -46,6 +50,7 @@ function Home () {
             <button onClick={goToUserProfile}>Strona Użytkownika</button>
             <button onClick={goToObstaclesPage}>Przeszkody</button>
             <button onClick={goToConflictsPage}>Konflikty</button>
+            <button onClick={goToUsersPage}>Użytkownicy</button>
         </div>
     );
 }

@@ -71,7 +71,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/current/check").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/api/users").hasRole("ADMIN")
-                        .requestMatchers("/api/tasks").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement
