@@ -6,7 +6,8 @@ import Home from "./pages/Home";
 import TasksPage from "./pages/TasksPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import Register from "./pages/Register";
-import ObstaclePage from "./pages/ObstaclesPage";
+import ObstaclesPage from "./pages/ObstaclesPage";
+import ConflictsPage from "./pages/ConflictsPage";
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
             <Route path="/login" Component={Login}/>
             <Route path="/register" Component={Register}/>
             <Route path="/tasks" Component={TasksPage}/>
-            <Route path="/obstacles" Component={ObstaclePage}/>
+            <Route path="/obstacles" Component={ObstaclesPage}/>
+            <Route path="/conflicts" Component={ConflictsPage}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="*" element={<Navigate replace to="/login"/>}/>
         </Routes>

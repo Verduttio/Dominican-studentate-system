@@ -36,4 +36,10 @@ interface Obstacle {
     recipientUser: User;
 }
 
-export type {Role, Task, User, Obstacle}
+interface Conflict {
+    id: number;
+    task1: Task;
+    task2: Task;
+}
+
+export type {Role, Task, User, Obstacle, Conflict}

@@ -4,7 +4,7 @@ import useHttp from "../services/UseHttp";
 import {Obstacle} from "../models/interfaces";
 
 
-function ObstaclePage () {
+function ObstaclesPage () {
     const [obstacles, setObstacles] = useState<Obstacle[]>([]);
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/obstacles', 'GET');
 
@@ -60,4 +60,4 @@ function ObstaclePage () {
     );
 }
 
-export default ObstaclePage;
+export default ObstaclesPage;
