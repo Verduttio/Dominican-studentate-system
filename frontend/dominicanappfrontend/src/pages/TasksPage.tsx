@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
 import { Task } from "../models/interfaces";
+import {useNavigate} from "react-router-dom";
 
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/tasks', 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setTasks(data))
@@ -54,6 +56,7 @@ function TasksPage () {
                 </tbody>
             </table>
             <LogoutButton/>
+            <button onClick={() => navigate('/add-task')}>Dodaj taska!</button>
         </div>
     );
 }

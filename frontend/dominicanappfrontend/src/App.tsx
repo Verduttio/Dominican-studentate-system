@@ -10,6 +10,7 @@ import ObstaclesPage from "./pages/ObstaclesPage";
 import ConflictsPage from "./pages/ConflictsPage";
 import UsersPage from "./pages/UsersPage";
 import AddConflict from "./pages/AddConflict";
+import AddTask from "./pages/AddTask";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/users" Component={UsersPage}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="/add-conflict" Component={AddConflict}/>
+            <Route path="/add-task" Component={AddTask}/>
             <Route path="*" element={<Navigate replace to="/login"/>}/>
         </Routes>
       </Router>
