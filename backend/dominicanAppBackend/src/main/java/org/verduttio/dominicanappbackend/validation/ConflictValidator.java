@@ -7,6 +7,7 @@ import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.SameTasksForConflictException;
 
 @Component
 public class ConflictValidator {
@@ -25,10 +26,18 @@ public class ConflictValidator {
         Long task1Id = conflict.getTask1().getId();
         Long task2Id = conflict.getTask2().getId();
 
+        checkDifferentTaskIds(task1Id, task2Id);
+
         checkTaskExistence(task1Id);
         checkTaskExistence(task2Id);
 
         checkConflictWithGivenTaskIdsExists(task1Id, task2Id);
+    }
+
+    private void checkDifferentTaskIds(Long task1Id, Long task2Id) {
+        if (task1Id.equals(task2Id)) {
+            throw new SameTasksForConflictException("Task cannot be in conflict with itself");
+        }
     }
 
     public void checkIfConflictExists(Long conflictId) {

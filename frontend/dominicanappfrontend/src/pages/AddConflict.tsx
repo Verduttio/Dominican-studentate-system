@@ -18,6 +18,7 @@ function AddConflict() {
     const { task1Id, task2Id } = formData;
     const { error, func, loading, request } = useHttp('http://localhost:8080/api/tasks', 'GET');
     const postRequest = useHttp('http://localhost:8080/api/conflicts', 'POST');
+    const [submitError, setSubmitError] = useState<string>('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,11 +33,20 @@ function AddConflict() {
     }, [func]);
 
     const handleSubmit = () => {
+        if (task1Id === 0 || task2Id === 0) {
+            setSubmitError('Proszę wybrać oba zadania.');
+            return;
+        } else if (task1Id === task2Id) {
+            setSubmitError('Proszę wybrać dwa różne zadania.');
+            return;
+        }
+
         postRequest.request(formData, () => navigate('/conflicts')).then(r => {});
     };
 
     const onChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value ? parseInt(e.target.value) : 0 });
+        setSubmitError('');
     };
 
     if (loading) return <div>Ładowanie...</div>;
@@ -54,6 +64,7 @@ function AddConflict() {
             </select>
             <button onClick={handleSubmit}>Zapisz</button>
             {postRequest.error && <div className="error-message">{postRequest.error}</div>}
+            {submitError && <div className="error-message">{submitError}</div>}
         </div>
     );
 

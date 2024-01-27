@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.service.ConflictService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.SameTasksForConflictException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class ConflictController {
             conflictService.saveConflict(conflictDTO);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (EntityAlreadyExistsException e) {
+        } catch (EntityAlreadyExistsException | SameTasksForConflictException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
