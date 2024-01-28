@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
-import useHttp from "../services/UseHttp";
-import {Task} from "../models/interfaces";
+import useHttp from "../../services/UseHttp";
+import {Task} from "../../models/interfaces";
 
 
 interface FormData {

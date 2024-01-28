@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../components/LogoutButton";
-import useHttp from "../services/UseHttp";
+import LogoutButton from "../../components/LogoutButton";
+import useHttp from "../../services/UseHttp";
 
 function UserProfilePage () {
     const [user, setUser] = useState(null);

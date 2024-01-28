@@ -1,16 +1,16 @@
 import React from 'react';
 import './App.css';
 import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
-import Login from "./pages/Login";
+import Login from "./pages/auth/Login";
 import Home from "./pages/Home";
-import TasksPage from "./pages/TasksPage";
-import UserProfilePage from "./pages/UserProfilePage";
-import Register from "./pages/Register";
-import ObstaclesPage from "./pages/ObstaclesPage";
-import ConflictsPage from "./pages/ConflictsPage";
-import UsersPage from "./pages/UsersPage";
-import AddConflict from "./pages/AddConflict";
-import AddTask from "./pages/AddTask";
+import TasksPage from "./pages/task/TasksPage";
+import UserProfilePage from "./pages/user/UserProfilePage";
+import Register from "./pages/auth/Register";
+import ObstaclesPage from "./pages/obstacle/ObstaclesPage";
+import ConflictsPage from "./pages/conflict/ConflictsPage";
+import UsersPage from "./pages/user/UsersPage";
+import AddConflict from "./pages/conflict/AddConflict";
+import AddTask from "./pages/task/AddTask";
 
 function App() {
   return (

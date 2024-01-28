@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useNavigate } from "react-router-dom";
-import useHttp from "../services/UseHttp";
-import { Task, Role } from "../models/interfaces";
+import useHttp from "../../services/UseHttp";
+import { Task, Role } from "../../models/interfaces";
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles'> {
     allowedRoleNames: string[];

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../components/LogoutButton";
-import useHttp from "../services/UseHttp";
-import { User } from "../models/interfaces";
+import LogoutButton from "../../components/LogoutButton";
+import useHttp from "../../services/UseHttp";
+import { User } from "../../models/interfaces";
 
 
 function UsersPage () {
