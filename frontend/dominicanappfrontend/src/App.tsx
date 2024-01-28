@@ -10,7 +10,7 @@ import ObstaclesPage from "./pages/obstacle/ObstaclesPage";
 import ConflictsPage from "./pages/conflict/ConflictsPage";
 import UsersPage from "./pages/user/UsersPage";
 import AddConflict from "./pages/conflict/AddConflict";
-import AddTask from "./pages/task/AddTask";
+import AddTask from "./pages/task/addTask/AddTask";
 
 function App() {
   return (
