@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { User } from "../../models/interfaces";
+import {backendUrl} from "../../utils/constants";
 
 
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
-    const { error, func, loading, request } = useHttp('http://localhost:8080/api/users', 'GET');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
 
     useEffect(() => {
         request(null, (data) => setUsers(data))

@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import useHttp from "../services/UseHttp";
+import {backendUrl} from "../utils/constants";
 
 function Home () {
     const navigate = useNavigate();
@@ -26,7 +27,7 @@ function Home () {
         navigate('/users');
     };
 
-    const { error, func, loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     useEffect(() => {
         request()

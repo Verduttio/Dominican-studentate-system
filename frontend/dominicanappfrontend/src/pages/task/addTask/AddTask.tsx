@@ -1,9 +1,10 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../../services/UseHttp";
 import { Task, Role } from "../../../models/interfaces";
 import { RoleCheckboxList } from './RoleCheckboxList';
 import { DaysOfWeekCheckboxList } from './DaysOfWeekCheckboxList';
+import {backendUrl} from "../../../utils/constants";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles'> {
@@ -47,8 +48,8 @@ function AddTask() {
 
     const [taskData, setTaskData] = useState(initialTaskState);
     const [roles, setRoles] = useState<Role[]>([]);
-    const { request: fetchRoles, error: errorFetchRoles, loading: loadingRoles } = useHttp('http://localhost:8080/api/roles', 'GET');
-    const { error: postError, request: postTask } = useHttp('http://localhost:8080/api/tasks', 'POST');
+    const { request: fetchRoles, error: errorFetchRoles, loading: loadingRoles } = useHttp(`${backendUrl}/api/roles`, 'GET');
+    const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks`, 'POST');
     const [validationError, setValidationError] = useState<string>('');
     const navigate = useNavigate();
 

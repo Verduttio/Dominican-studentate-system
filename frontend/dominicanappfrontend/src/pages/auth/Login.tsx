@@ -2,12 +2,13 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
+import {backendUrl, frontendUrl} from "../../utils/constants";
 
 function Login () {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const { loading, request } = useHttp('http://localhost:8080/api/users/current/check', 'GET');
+    const { loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -33,7 +34,7 @@ function Login () {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users/login', {
+            const response = await axios.post(`${backendUrl}/api/users/login`, {
                 email,
                 password
             }, {
@@ -70,7 +71,7 @@ function Login () {
                 <button type="submit">Zaloguj</button>
                 {errorMessage && <p>{errorMessage}</p>}
             </form>
-            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home'}>Zaloguj
+            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}>Zaloguj
                 się poprzez Google</a>
             <button onClick={goToRegisterPage}>Nie masz konta? Zarejestruj się!</button>
         </div>

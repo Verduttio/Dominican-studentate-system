@@ -1,13 +1,14 @@
 import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {backendUrl} from "../utils/constants";
 
 function LogoutButton () {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/api/users/logout', {}, {
+            const response = await axios.post(`${backendUrl}/api/users/logout`, {}, {
                 withCredentials: true
             });
 

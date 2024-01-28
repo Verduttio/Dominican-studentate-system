@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import {Obstacle} from "../../models/interfaces";
+import {backendUrl} from "../../utils/constants";
 
 
 function ObstaclesPage () {
     const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-    const { error, func, loading, request } = useHttp('http://localhost:8080/api/obstacles', 'GET');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
 
     useEffect(() => {
         request(null, (data) => setObstacles(data))

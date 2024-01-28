@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import {useNavigate} from "react-router-dom";
+import {backendUrl, frontendUrl} from "../../utils/constants";
 
 interface FormData {
     name: string;
@@ -49,7 +50,7 @@ function Register () {
         if (!validateForm()) return;
 
         try {
-            const response = await axios.post(' http://localhost:8080/api/users/register', formData);
+            const response = await axios.post(`${backendUrl}/api/users/register`, formData);
             console.log(response.data);
 
             if(response.status === 200) {
@@ -77,7 +78,7 @@ function Register () {
                 <button type="submit">Zarejestruj</button>
             </form>
             <p>
-                Lub <a href="http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/home">zarejestruj się za pomocą Google</a>
+                Lub <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}>zarejestruj się za pomocą Google</a>
             </p>
         </div>
     );

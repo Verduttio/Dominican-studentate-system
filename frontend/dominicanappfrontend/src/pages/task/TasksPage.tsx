@@ -3,11 +3,12 @@ import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { Task } from "../../models/interfaces";
 import {useNavigate} from "react-router-dom";
+import {backendUrl} from "../../utils/constants";
 
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const { error, func, loading, request } = useHttp('http://localhost:8080/api/tasks', 'GET');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {

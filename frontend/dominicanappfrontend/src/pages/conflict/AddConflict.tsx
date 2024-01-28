@@ -2,6 +2,7 @@ import React, {ChangeEvent, useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import useHttp from "../../services/UseHttp";
 import {Task} from "../../models/interfaces";
+import {backendUrl} from "../../utils/constants";
 
 
 interface FormData {
@@ -16,8 +17,8 @@ function AddConflict() {
         task2Id: 0
     });
     const { task1Id, task2Id } = formData;
-    const { error, func, loading, request } = useHttp('http://localhost:8080/api/tasks', 'GET');
-    const postRequest = useHttp('http://localhost:8080/api/conflicts', 'POST');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
+    const postRequest = useHttp(`${backendUrl}/api/conflicts`, 'POST');
     const [submitError, setSubmitError] = useState<string>('');
     const navigate = useNavigate();
 
