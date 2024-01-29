@@ -3,11 +3,13 @@ import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import {Obstacle} from "../../models/interfaces";
 import {backendUrl} from "../../utils/constants";
+import {useNavigate} from "react-router-dom";
 
 
 function ObstaclesPage () {
     const [obstacles, setObstacles] = useState<Obstacle[]>([]);
     const { error, func, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setObstacles(data))
@@ -57,6 +59,7 @@ function ObstaclesPage () {
                 </tbody>
             </table>
             <LogoutButton/>
+            <button onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę</button>
         </div>
     );
 }

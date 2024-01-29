@@ -41,4 +41,14 @@ interface Conflict {
     task2: Task;
 }
 
+///Models for transferring data
+interface ObstacleData {
+    userId: number;
+    taskId: number;
+    fromDate: string;
+    toDate: string;
+    applicantDescription: string;
+}
+
 export type {Role, Task, User, Obstacle, Conflict}
+export type {ObstacleData}
