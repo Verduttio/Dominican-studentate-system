@@ -1,6 +1,9 @@
 ### Get all tasks
 GET {{host}}/api/tasks
 
+### Get all tasks short info
+GET {{host}}/api/tasks/shortInfo
+
 ### Get a task by a specific ID
 GET {{host}}/api/tasks/1
 

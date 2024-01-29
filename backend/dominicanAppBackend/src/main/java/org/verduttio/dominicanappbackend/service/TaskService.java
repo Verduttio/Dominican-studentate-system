@@ -3,6 +3,7 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.TaskDTO;
+import org.verduttio.dominicanappbackend.dto.TaskShortInfo;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
@@ -91,5 +92,9 @@ public class TaskService {
 
     public List<Task> findTasksByRoleName(String roleName) {
         return taskRepository.findTaskByRoleName(roleName);
+    }
+
+    public List<TaskShortInfo> getAllTasksShortInfo() {
+        return taskRepository.findAllTasksShortInfo();
     }
 }

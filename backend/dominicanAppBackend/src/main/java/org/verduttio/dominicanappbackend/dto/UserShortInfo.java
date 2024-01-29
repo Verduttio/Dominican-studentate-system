@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.entity;
+package org.verduttio.dominicanappbackend.dto;
 
 public class UserShortInfo {
     private Long id;

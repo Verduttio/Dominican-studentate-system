@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.TaskDTO;
+import org.verduttio.dominicanappbackend.dto.TaskShortInfo;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -27,6 +28,12 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
         List<Task> tasks = taskService.getAllTasks();
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
+    @GetMapping("/shortInfo")
+    public ResponseEntity<List<TaskShortInfo>> getAllTasksShortInfo() {
+        List<TaskShortInfo> tasks = taskService.getAllTasksShortInfo();
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 

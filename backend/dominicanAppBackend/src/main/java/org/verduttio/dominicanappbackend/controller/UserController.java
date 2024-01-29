@@ -18,7 +18,7 @@ import org.verduttio.dominicanappbackend.dto.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
-import org.verduttio.dominicanappbackend.entity.UserShortInfo;
+import org.verduttio.dominicanappbackend.dto.UserShortInfo;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
