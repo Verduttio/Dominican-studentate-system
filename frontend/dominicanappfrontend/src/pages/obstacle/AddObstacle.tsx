@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../services/UseHttp";
-import {ObstacleData, UserShortInfo} from "../../models/interfaces";
+import {ObstacleData, TaskShortInfo, UserShortInfo} from "../../models/interfaces";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
@@ -17,11 +17,14 @@ function AddObstacle() {
     const { request: postObstacle, error: postError } = useHttp('http://localhost:8080/api/obstacles', 'POST');
     const [users, setUsers] = useState<UserShortInfo[]>([]);
     const { request: fetchUsers, error: fetchUsersError, loading} = useHttp('http://localhost:8080/api/users/shortInfo', 'GET');
+    const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
+    const { request: fetchTasks, error: fetchTasksError } = useHttp('http://localhost:8080/api/tasks/shortInfo', 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchUsers(null, (data) => setUsers(data));
-    }, [fetchUsers]);
+        fetchTasks(null, (data) => setTasks(data));
+    }, [fetchUsers, fetchTasks]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,7 +49,13 @@ function AddObstacle() {
         setObstacleData({ ...obstacleData, userId: parseInt(e.target.value) });
     };
 
+    const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setValidationError('');
+        setObstacleData({ ...obstacleData, taskId: parseInt(e.target.value) });
+    }
+
     if(fetchUsersError) return <div className="error-message">{fetchUsersError}</div>;
+    if(fetchTasksError) return <div className="error-message">{fetchTasksError}</div>;
     if(loading) return <div>Ładowanie...</div>;
 
     return (
@@ -66,15 +75,26 @@ function AddObstacle() {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="taskId">ID Zadania:</label>
-                    <input
-                        type="number"
-                        id="taskId"
-                        name="taskId"
-                        value={obstacleData.taskId}
-                        onChange={handleChange}
-                    />
+                    <label htmlFor="taskId">Zadanie:</label>
+                    <select id="taskId" value={obstacleData.taskId} onChange={handleTaskChange}>
+                        <option value="">Wybierz zadanie</option>
+                        {tasks.map(task => (
+                            <option key={task.id} value={task.id}>
+                                {task.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+                {/*<div>*/}
+                {/*    <label htmlFor="taskId">ID Zadania:</label>*/}
+                {/*    <input*/}
+                {/*        type="number"*/}
+                {/*        id="taskId"*/}
+                {/*        name="taskId"*/}
+                {/*        value={obstacleData.taskId}*/}
+                {/*        onChange={handleChange}*/}
+                {/*    />*/}
+                {/*</div>*/}
                 <div>
                     <label htmlFor="fromDate">Data Początkowa:</label>
                     <input
