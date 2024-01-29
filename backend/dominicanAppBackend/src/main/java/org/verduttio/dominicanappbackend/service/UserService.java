@@ -7,6 +7,7 @@ import org.verduttio.dominicanappbackend.dto.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.entity.UserShortInfo;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -40,6 +41,10 @@ public class UserService {
 
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public List<UserShortInfo> getAllUsersShortInfo() {
+        return userRepository.findAllUsersShortInfo();
     }
 
     public void createUser(UserDTO userDTO) {

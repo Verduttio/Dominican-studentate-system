@@ -54,6 +54,8 @@ GET {{host}}/api/users/current
 ### Get all users
 GET {{host}}/api/users
 
+### Get all users short info
+GET {{host}}/api/users/shortInfo
 
 ### Get a user by a specific ID
 GET {{host}}/api/users/1
