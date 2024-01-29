@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import useHttp from "../../services/UseHttp";
-import {Task} from "../../models/interfaces";
+import {TaskShortInfo} from "../../models/interfaces";
 import {backendUrl} from "../../utils/constants";
 
 
@@ -11,13 +11,13 @@ interface FormData {
 }
 
 function AddConflict() {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
     const [formData, setFormData] = useState<FormData>({
         task1Id: 0,
         task2Id: 0
     });
     const { task1Id, task2Id } = formData;
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
+    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const postRequest = useHttp(`${backendUrl}/api/conflicts`, 'POST');
     const [submitError, setSubmitError] = useState<string>('');
     const navigate = useNavigate();
