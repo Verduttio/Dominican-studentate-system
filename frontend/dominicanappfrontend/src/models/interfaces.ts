@@ -23,6 +23,12 @@ interface User {
     provider: string;
 }
 
+interface UserShortInfo {
+    id: number;
+    name: string;
+    surname: string;
+}
+
 interface Obstacle {
     id: number;
     user: User;
@@ -50,5 +56,5 @@ interface ObstacleData {
     applicantDescription: string;
 }
 
-export type {Role, Task, User, Obstacle, Conflict}
+export type {Role, Task, User, UserShortInfo, Obstacle, Conflict}
 export type {ObstacleData}

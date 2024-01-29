@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../services/UseHttp";
-import { ObstacleData } from "../../models/interfaces";
+import {ObstacleData, UserShortInfo} from "../../models/interfaces";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
@@ -15,7 +15,13 @@ function AddObstacle() {
     const [obstacleData, setObstacleData] = useState<ObstacleData>(initialObstacleState);
     const [validationError, setValidationError] = useState<string>('');
     const { request: postObstacle, error: postError } = useHttp('http://localhost:8080/api/obstacles', 'POST');
+    const [users, setUsers] = useState<UserShortInfo[]>([]);
+    const { request: fetchUsers, error: fetchUsersError, loading} = useHttp('http://localhost:8080/api/users/shortInfo', 'GET');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchUsers(null, (data) => setUsers(data));
+    }, [fetchUsers]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +41,13 @@ function AddObstacle() {
         setObstacleData({ ...obstacleData, [e.target.name]: e.target.value });
     };
 
+    const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setValidationError('');
+        setObstacleData({ ...obstacleData, userId: parseInt(e.target.value) });
+    };
+
+    if(fetchUsersError) return <div className="error-message">{fetchUsersError}</div>;
+    if(loading) return <div>Ładowanie...</div>;
 
     return (
         <div>
@@ -42,14 +55,15 @@ function AddObstacle() {
             {validationError && <div className="error-message">{validationError}</div>}
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="userId">ID Użytkownika:</label>
-                    <input
-                        type="number"
-                        id="userId"
-                        name="userId"
-                        value={obstacleData.userId}
-                        onChange={handleChange}
-                    />
+                    <label htmlFor="userId">Użytkownik:</label>
+                    <select id="userId" value={obstacleData.userId} onChange={handleUserChange}>
+                        <option value="">Wybierz użytkownika</option>
+                        {users.map(user => (
+                            <option key={user.id} value={user.id}>
+                                {user.name} {user.surname}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label htmlFor="taskId">ID Zadania:</label>
