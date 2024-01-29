@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../services/UseHttp";
 import {ObstacleData, TaskShortInfo, UserShortInfo} from "../../models/interfaces";
+import {backendUrl} from "../../utils/constants";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
@@ -14,11 +15,11 @@ function AddObstacle() {
 
     const [obstacleData, setObstacleData] = useState<ObstacleData>(initialObstacleState);
     const [validationError, setValidationError] = useState<string>('');
-    const { request: postObstacle, error: postError } = useHttp('http://localhost:8080/api/obstacles', 'POST');
+    const { request: postObstacle, error: postError } = useHttp(`${backendUrl}/api/obstacles`, 'POST');
     const [users, setUsers] = useState<UserShortInfo[]>([]);
-    const { request: fetchUsers, error: fetchUsersError, loading} = useHttp('http://localhost:8080/api/users/shortInfo', 'GET');
+    const { request: fetchUsers, error: fetchUsersError, loading} = useHttp(`${backendUrl}/api/users/shortInfo`, 'GET');
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
-    const { request: fetchTasks, error: fetchTasksError } = useHttp('http://localhost:8080/api/tasks/shortInfo', 'GET');
+    const { request: fetchTasks, error: fetchTasksError } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,16 +86,6 @@ function AddObstacle() {
                         ))}
                     </select>
                 </div>
-                {/*<div>*/}
-                {/*    <label htmlFor="taskId">ID Zadania:</label>*/}
-                {/*    <input*/}
-                {/*        type="number"*/}
-                {/*        id="taskId"*/}
-                {/*        name="taskId"*/}
-                {/*        value={obstacleData.taskId}*/}
-                {/*        onChange={handleChange}*/}
-                {/*    />*/}
-                {/*</div>*/}
                 <div>
                     <label htmlFor="fromDate">Data Początkowa:</label>
                     <input
