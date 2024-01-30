@@ -2,6 +2,23 @@ import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
 import { Schedule } from '../../models/interfaces';
 import {backendUrl} from "../../utils/constants";
+import axios from "axios";
+
+function downloadPdf() {
+    axios({
+        url: `${backendUrl}/api/schedules/pdf`,
+        method: 'GET',
+        responseType: 'blob',
+        withCredentials: true
+    }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'schedules.pdf');
+        document.body.appendChild(link);
+        link.click();
+    });
+}
 
 function SchedulePage() {
     const [scheduleList, setScheduleList] = useState<Schedule[]>([]);
@@ -37,6 +54,7 @@ function SchedulePage() {
                 ))}
                 </tbody>
             </table>
+            <button onClick={downloadPdf}>Pobierz harmonogram</button>
         </div>
     );
 }
