@@ -17,9 +17,9 @@ function AddObstacle() {
     const [validationError, setValidationError] = useState<string>('');
     const { request: postObstacle, error: postError } = useHttp(`${backendUrl}/api/obstacles`, 'POST');
     const [users, setUsers] = useState<UserShortInfo[]>([]);
-    const { request: fetchUsers, error: fetchUsersError, loading} = useHttp(`${backendUrl}/api/users/shortInfo`, 'GET');
+    const { request: fetchUsers, error: fetchUsersError, loading: loadingFetchUser} = useHttp(`${backendUrl}/api/users/shortInfo`, 'GET');
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
-    const { request: fetchTasks, error: fetchTasksError } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
+    const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,7 +57,7 @@ function AddObstacle() {
 
     if(fetchUsersError) return <div className="error-message">{fetchUsersError}</div>;
     if(fetchTasksError) return <div className="error-message">{fetchTasksError}</div>;
-    if(loading) return <div>Ładowanie...</div>;
+    if(loadingFetchUser || loadingFetchTasks) return <div>Ładowanie...</div>;
 
     return (
         <div>
