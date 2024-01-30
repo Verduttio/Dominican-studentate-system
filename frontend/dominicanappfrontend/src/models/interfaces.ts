@@ -41,6 +41,13 @@ interface Conflict {
     task2: Task;
 }
 
+interface Schedule {
+    id: number;
+    task: Task;
+    user: User;
+    date: string;
+}
+
 ///Models for transferring data
 interface ObstacleData {
     userId: number;
@@ -61,5 +68,5 @@ interface TaskShortInfo {
     name: string;
 }
 
-export type {Role, Task, User, Obstacle, Conflict}
+export type {Role, Task, User, Obstacle, Conflict, Schedule}
 export type {ObstacleData, UserShortInfo, TaskShortInfo}
