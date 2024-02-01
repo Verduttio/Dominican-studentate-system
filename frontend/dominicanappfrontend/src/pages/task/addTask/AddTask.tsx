@@ -7,8 +7,9 @@ import { DaysOfWeekCheckboxList } from './DaysOfWeekCheckboxList';
 import {backendUrl} from "../../../utils/constants";
 
 
-interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles'> {
-    allowedRoleNames: string[];
+interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRoles'> {
+    allowedRoleNames: string[],
+    supervisorRoleNames: string[]
 }
 
 function validateTaskData(data: TaskFormData) : string {
@@ -21,7 +22,11 @@ function validateTaskData(data: TaskFormData) : string {
     }
 
     if (data.allowedRoleNames.length === 0) {
-        return('Proszę wybrać przynajmniej jedną rolę.');
+        return('Proszę wybrać przynajmniej jedną rolę osoby wykonującej.');
+    }
+
+    if (data.supervisorRoleNames.length === 0) {
+        return('Proszę wybrać przynajmniej jedną rolę osoby wyznaczającej.');
     }
 
     if (data.daysOfWeek.length === 0) {
@@ -38,6 +43,7 @@ function AddTask() {
         permanent: false,
         participantForWholePeriod: false,
         allowedRoleNames: [],
+        supervisorRoleNames: [],
         daysOfWeek: []
     };
 
@@ -67,6 +73,17 @@ function AddTask() {
         });
     };
 
+    const handleSupervisorRoleChange = (roleName: string, checked: boolean) => {
+        const updatedRoles = checked
+            ? [...taskData.supervisorRoleNames, roleName]
+            : taskData.supervisorRoleNames.filter(roleNameValue => roleNameValue !== roleName);
+        setTaskData({
+            ...taskData,
+            supervisorRoleNames: updatedRoles
+        });
+    };
+
+
     const handleDayChange = (dayEnglish: string, checked: boolean) => {
         const updatedDays = checked
             ? [...taskData.daysOfWeek, dayEnglish]
@@ -77,7 +94,7 @@ function AddTask() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
-        if (type === "checkbox" && name !== "allowedRoles" && name !== "daysOfWeek") {
+        if (type === "checkbox" && name !== "allowedRoles" && name !== "daysOfWeek" && name !== "supervisorRoles") {
             const checked = (e.target as HTMLInputElement).checked;
             setTaskData({ ...taskData, [name]: checked });
         } else {
@@ -118,8 +135,20 @@ function AddTask() {
                     <input name="participantForWholePeriod" type="checkbox" checked={taskData.participantForWholePeriod} onChange={handleChange} />
                 </label>
             </div>
-            <RoleCheckboxList roles={roles} selectedRoles={taskData.allowedRoleNames} onRoleChange={handleRoleChange} />
-            <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange} />
+            <div>
+                <label>Dozwolone role osoby wykonującej:</label>
+                <RoleCheckboxList roles={roles} selectedRoles={taskData.allowedRoleNames}
+                                  onRoleChange={handleRoleChange}/>
+            </div>
+            <div>
+                <label>Dozwolone role osoby wyznaczającej:</label>
+                <RoleCheckboxList roles={roles} selectedRoles={taskData.supervisorRoleNames}
+                                  onRoleChange={handleSupervisorRoleChange}/>
+            </div>
+            <div>
+                <label>Dni tygodnia:</label>
+                <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange} />
+            </div>
             {postError && <div className="error-message">{postError}</div>}
             <button onClick={handleSubmit}>Dodaj</button>
         </div>

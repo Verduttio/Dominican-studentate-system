@@ -10,6 +10,7 @@ interface Task {
     permanent: boolean;
     participantForWholePeriod: boolean;
     allowedRoles: Role[];
+    supervisorRoles: Role[];
     daysOfWeek: string[];
 }
 

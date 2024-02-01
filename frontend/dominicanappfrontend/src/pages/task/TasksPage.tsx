@@ -37,6 +37,7 @@ function TasksPage () {
                     <th>Stały</th>
                     <th>Cały okres</th>
                     <th>Dozwolone role</th>
+                    <th>Wyznaczający</th>
                     <th>Dni tygodnia</th>
                 </tr>
                 </thead>
@@ -49,6 +50,7 @@ function TasksPage () {
                         <td>{task.permanent ? 'Tak' : 'Nie'}</td>
                         <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                         <td>{task.allowedRoles.map(role => role.name).join(', ')}</td>
+                        <td>{task.supervisorRoles.map(role => role.name).join(', ')}</td>
                         <td>{task.daysOfWeek.join(', ')}</td>
                     </tr>
                 ))}
