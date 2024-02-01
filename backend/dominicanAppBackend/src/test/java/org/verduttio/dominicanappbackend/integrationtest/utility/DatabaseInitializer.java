@@ -142,4 +142,18 @@ public class DatabaseInitializer {
         role.setType(RoleType.SYSTEM);
         return roleRepository.save(role);
     }
+
+    public Role addRoleSinger() {
+        Role role = new Role();
+        role.setName("ROLE_SINGER");
+        role.setType(RoleType.TASK_PERFORMER);
+        return roleRepository.save(role);
+    }
+
+    public Role addRoleCantor() {
+        Role role = new Role();
+        role.setName("ROLE_CANTOR");
+        role.setType(RoleType.SUPERVISOR);
+        return roleRepository.save(role);
+    }
 }

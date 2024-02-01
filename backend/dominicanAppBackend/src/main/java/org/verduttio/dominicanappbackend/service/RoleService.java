@@ -3,6 +3,7 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -95,4 +96,7 @@ public class RoleService {
         return roleRepository.existsByName(newName) && !newName.equals(currentName);
     }
 
+    public List<Role> getRolesByType(RoleType roleType) {
+        return roleRepository.findByType(roleType);
+    }
 }

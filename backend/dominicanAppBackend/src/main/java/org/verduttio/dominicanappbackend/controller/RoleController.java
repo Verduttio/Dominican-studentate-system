@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.service.RoleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -26,6 +27,12 @@ public class RoleController {
     @GetMapping
     public ResponseEntity<List<Role>> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
+        return new ResponseEntity<>(roles, HttpStatus.OK);
+    }
+
+    @GetMapping("/types/{roleType}")
+    public ResponseEntity<List<Role>> getRolesByType(@PathVariable RoleType roleType) {
+        List<Role> roles = roleService.getRolesByType(roleType);
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 

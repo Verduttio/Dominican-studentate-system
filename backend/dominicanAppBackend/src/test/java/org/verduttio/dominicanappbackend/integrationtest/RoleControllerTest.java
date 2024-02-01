@@ -33,6 +33,23 @@ public class RoleControllerTest {
     private DatabaseInitializer databaseInitializer;
 
     @Test
+    public void getRolesBySystemType_RolesWithOtherTypeExists() throws Exception {
+        Role roleAdmin = databaseInitializer.addRoleAdmin();
+        Role roleUser = databaseInitializer.addRoleUser();
+        Role roleCantor = databaseInitializer.addRoleCantor();
+        Role roleSinger = databaseInitializer.addRoleSinger();
+
+
+        mockMvc.perform(get("/api/roles/types/SYSTEM"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(equalTo(2))))
+                .andExpect(jsonPath("$[0].id", is(roleAdmin.getId().intValue())))
+                .andExpect(jsonPath("$[1].id", is(roleUser.getId().intValue())));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
     public void getAllRoles_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/api/roles"))
                 .andExpect(status().isOk())

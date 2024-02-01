@@ -1,6 +1,9 @@
 ### Get all roles
 GET {{host}}/api/roles
 
+### GET roles by type
+GET {{host}}/api/roles/types/SYSTEM
+
 ### Get a role by a specific ID
 GET {{host}}/api/roles/1
 
