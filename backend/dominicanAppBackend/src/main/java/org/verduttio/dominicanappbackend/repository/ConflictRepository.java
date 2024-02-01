@@ -1,7 +1,9 @@
 package org.verduttio.dominicanappbackend.repository;
 
 import jakarta.annotation.Nonnull;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.entity.Conflict;
@@ -12,4 +14,9 @@ public interface ConflictRepository extends JpaRepository<Conflict, Long> {
     boolean existsByTaskIds(@Param("taskId1") Long taskId1, @Param("taskId2") Long taskId2);
 
     boolean existsById(@Nonnull Long id);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Conflict c WHERE c.task1.id = :taskId OR c.task2.id = :taskId")
+    void deleteAllByTaskId(Long taskId);
 }

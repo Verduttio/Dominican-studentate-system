@@ -8,11 +8,14 @@ import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
-import org.verduttio.dominicanappbackend.service.TaskService;
-import org.verduttio.dominicanappbackend.service.UserService;
-import org.verduttio.dominicanappbackend.service.ObstacleService;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.ConflictService;
-import org.verduttio.dominicanappbackend.service.exception.*;
+import org.verduttio.dominicanappbackend.service.ObstacleService;
+import org.verduttio.dominicanappbackend.service.UserService;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
+import org.verduttio.dominicanappbackend.service.exception.ScheduleIsInConflictException;
 
 import java.time.DayOfWeek;
 import java.util.Collections;
@@ -25,16 +28,16 @@ public class ScheduleValidator {
 
     private final ScheduleRepository scheduleRepository;
     private final UserService userService;
-    private final TaskService taskService;
+    private final TaskRepository taskRepository;
     private final ObstacleService obstacleService;
     private final ConflictService conflictService;
 
     @Autowired
-    public ScheduleValidator(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService,
+    public ScheduleValidator(ScheduleRepository scheduleRepository, UserService userService, TaskRepository taskRepository,
                              ObstacleService obstacleService, ConflictService conflictService) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
-        this.taskService = taskService;
+        this.taskRepository = taskRepository;
         this.obstacleService = obstacleService;
         this.conflictService = conflictService;
     }
@@ -43,7 +46,7 @@ public class ScheduleValidator {
         User user = userService.getUserById(scheduleDTO.getUserId()).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
-        Task task = taskService.getTaskById(scheduleDTO.getTaskId()).orElseThrow(() ->
+        Task task = taskRepository.findById(scheduleDTO.getTaskId()).orElseThrow(() ->
                 new EntityNotFoundException("Task with given id does not exist"));
 
         checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);

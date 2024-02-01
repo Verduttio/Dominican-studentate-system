@@ -18,11 +18,17 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final RoleService roleService;
+    private final ConflictService conflictService;
+    private final ObstacleService obstacleService;
+    private final ScheduleService scheduleService;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, RoleService roleService) {
+    public TaskService(TaskRepository taskRepository, RoleService roleService, ConflictService conflictService, ObstacleService obstacleService, ScheduleService scheduleService) {
         this.taskRepository = taskRepository;
         this.roleService = roleService;
+        this.conflictService = conflictService;
+        this.obstacleService = obstacleService;
+        this.scheduleService = scheduleService;
     }
 
     public List<Task> getAllTasks() {
@@ -52,6 +58,9 @@ public class TaskService {
 
     public void deleteTask(Long taskId) {
         if (taskRepository.existsById(taskId)) {
+            scheduleService.deleteAllSchedulesByTaskId(taskId);
+            obstacleService.deleteAllObstaclesByTaskId(taskId);
+            conflictService.deleteAllConflictsByTaskId(taskId);
             taskRepository.deleteById(taskId);
         } else {
             throw new EntityNotFoundException("Task with id " + taskId + " does not exist");

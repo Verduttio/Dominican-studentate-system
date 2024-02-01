@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
-import org.verduttio.dominicanappbackend.service.TaskService;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.SameTasksForConflictException;
@@ -12,13 +12,13 @@ import org.verduttio.dominicanappbackend.service.exception.SameTasksForConflictE
 @Component
 public class ConflictValidator {
 
-    private final TaskService taskService;
+    private final TaskRepository taskRepository;
 
     private final ConflictRepository conflictRepository;
 
     @Autowired
-    public ConflictValidator(TaskService taskService, ConflictRepository conflictRepository) {
-        this.taskService = taskService;
+    public ConflictValidator(TaskRepository taskRepository, ConflictRepository conflictRepository) {
+        this.taskRepository = taskRepository;
         this.conflictRepository = conflictRepository;
     }
 
@@ -47,7 +47,7 @@ public class ConflictValidator {
     }
 
     private void checkTaskExistence(Long taskId) {
-        if (!taskService.taskExistsById(taskId)) {
+        if (!taskRepository.existsById(taskId)) {
             throw new EntityNotFoundException("Task with id " + taskId + " not found");
         }
     }

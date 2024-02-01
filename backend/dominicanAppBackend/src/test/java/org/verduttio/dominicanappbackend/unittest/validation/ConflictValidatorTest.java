@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
-import org.verduttio.dominicanappbackend.service.TaskService;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;
@@ -23,7 +23,7 @@ public class ConflictValidatorTest {
     private ConflictValidator conflictValidator;
 
     @Mock
-    private TaskService taskService;
+    private TaskRepository taskRepository;
 
     @Mock
     private ConflictRepository conflictRepository;
@@ -48,7 +48,7 @@ public class ConflictValidatorTest {
     @Test
     void validateConflictFields_shouldThrowExceptionWhenTask1DoesNotExist() {
         // Arrange
-        when(taskService.taskExistsById(1L)).thenReturn(false);
+        when(taskRepository.existsById(1L)).thenReturn(false);
 
         // Act & Assert
         Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
@@ -57,8 +57,8 @@ public class ConflictValidatorTest {
     @Test
     void validateConflictFields_shouldThrowExceptionWhenTask2DoesNotExist() {
         // Arrange
-        when(taskService.taskExistsById(1L)).thenReturn(true);
-        when(taskService.taskExistsById(2L)).thenReturn(false);
+        when(taskRepository.existsById(1L)).thenReturn(true);
+        when(taskRepository.existsById(2L)).thenReturn(false);
 
         // Act & Assert
         Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
@@ -67,8 +67,8 @@ public class ConflictValidatorTest {
     @Test
     void validateConflictFields_shouldThrowExceptionWhenConflictAlreadyExist() {
         // Arrange
-        when(taskService.taskExistsById(1L)).thenReturn(true);
-        when(taskService.taskExistsById(2L)).thenReturn(true);
+        when(taskRepository.existsById(1L)).thenReturn(true);
+        when(taskRepository.existsById(2L)).thenReturn(true);
         when(conflictRepository.existsByTaskIds(1L, 2L)).thenReturn(true);
 
         // Act & Assert

@@ -103,4 +103,8 @@ public class ObstacleService {
         obstacleValidator.validateTaskExistence(taskId);
         return obstacleRepository.findAllByTaskId(taskId);
     }
+
+    public void deleteAllObstaclesByTaskId(Long taskId) {
+        obstacleRepository.deleteAllByTaskId(taskId);
+    }
 }

@@ -60,4 +60,8 @@ public class ConflictService {
     public boolean existsById(Long conflictId) {
         return conflictRepository.existsById(conflictId);
     }
+
+    public void deleteAllConflictsByTaskId(Long taskId) {
+        conflictRepository.deleteAllByTaskId(taskId);
+    }
 }

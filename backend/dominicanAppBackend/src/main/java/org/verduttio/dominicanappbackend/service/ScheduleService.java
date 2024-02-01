@@ -74,4 +74,8 @@ public class ScheduleService {
     public List<Schedule> getCurrentSchedules() {
         return scheduleRepository.findSchedulesLaterOrInDay(LocalDate.now());
     }
+
+    public void deleteAllSchedulesByTaskId(Long taskId) {
+        scheduleRepository.deleteAllByTaskId(taskId);
+    }
 }
