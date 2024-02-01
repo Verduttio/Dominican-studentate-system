@@ -14,8 +14,6 @@ public class Task {
 
     private String name;
 
-    private String category;
-
     private int participantsLimit;
 
     private boolean permanent;
@@ -54,14 +52,6 @@ public class Task {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     public int getParticipantsLimit() {
@@ -108,10 +98,9 @@ public class Task {
     public Task() {
     }
 
-    public Task(String name, String category, int participantsLimit, boolean permanent,
+    public Task(String name, int participantsLimit, boolean permanent,
                 boolean participantForWholePeriod, Set<Role> allowedRoles, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
-        this.category = category;
         this.participantsLimit = participantsLimit;
         this.permanent = permanent;
         this.participantForWholePeriod = participantForWholePeriod;

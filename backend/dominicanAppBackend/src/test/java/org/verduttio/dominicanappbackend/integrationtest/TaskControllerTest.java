@@ -164,7 +164,6 @@ public class TaskControllerTest {
         Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
         assert updatedTask != null;
         assertEquals("Updated Task", updatedTask.getName());
-        assertEquals("Updated Category", updatedTask.getCategory());
         assertEquals(15, updatedTask.getParticipantsLimit());
         assertTrue(updatedTask.isPermanent());
         assertFalse(updatedTask.isParticipantForWholePeriod());

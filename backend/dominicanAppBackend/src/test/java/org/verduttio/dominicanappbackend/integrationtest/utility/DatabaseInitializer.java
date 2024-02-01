@@ -69,7 +69,6 @@ public class DatabaseInitializer {
     public Task addWashDishesTask(Set<Role> allowedRoles) {
         Task task = new Task();
         task.setName("Wash dishes");
-        task.setCategory("Kitchen");
         task.setParticipantsLimit(5);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);
@@ -81,7 +80,6 @@ public class DatabaseInitializer {
     public Task addPrepareMealTask(Set<Role> allowedRoles) {
         Task task = new Task();
         task.setName("Prepare meal");
-        task.setCategory("Kitchen");
         task.setParticipantsLimit(15);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);
@@ -93,7 +91,6 @@ public class DatabaseInitializer {
     public Task addDryDishesTask(Set<Role> allowedRoles) {
         Task task = new Task();
         task.setName("Dry dishes");
-        task.setCategory("Kitchen");
         task.setParticipantsLimit(12);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);

@@ -11,8 +11,6 @@ import java.util.Set;
 public class TaskDTO {
     @NotBlank(message="Name is mandatory")
     private String name;
-    @NotBlank(message="Category is mandatory")
-    private String category;
     @NotNull(message="Participants limit is mandatory")
     private int participantsLimit;
     @NotNull(message="Permanent field is mandatory")
@@ -27,10 +25,6 @@ public class TaskDTO {
     // Getters
     public String getName() {
         return name;
-    }
-
-    public String getCategory() {
-        return category;
     }
 
     public int getParticipantsLimit() {
@@ -53,9 +47,8 @@ public class TaskDTO {
     public TaskDTO() {
     }
 
-    public TaskDTO(String name, String category, int participantsLimit, boolean permanent, boolean participantForWholePeriod, Set<String> allowedRoleNames, Set<DayOfWeek> daysOfWeek) {
+    public TaskDTO(String name, int participantsLimit, boolean permanent, boolean participantForWholePeriod, Set<String> allowedRoleNames, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
-        this.category = category;
         this.participantsLimit = participantsLimit;
         this.permanent = permanent;
         this.participantForWholePeriod = participantForWholePeriod;
@@ -71,7 +64,6 @@ public class TaskDTO {
     public Task basicFieldsToTask() {
         Task task = new Task();
         task.setName(this.name);
-        task.setCategory(this.category);
         task.setParticipantsLimit(this.participantsLimit);
         task.setPermanent(this.permanent);
         task.setParticipantForWholePeriod(this.participantForWholePeriod);

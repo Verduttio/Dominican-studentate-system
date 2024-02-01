@@ -6,7 +6,6 @@ interface Role {
 interface Task {
     id: number;
     name: string;
-    category: string;
     participantsLimit: number;
     permanent: boolean;
     participantForWholePeriod: boolean;

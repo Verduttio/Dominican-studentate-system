@@ -33,7 +33,6 @@ function TasksPage () {
                 <tr>
                     <th>ID</th>
                     <th>Nazwa</th>
-                    <th>Kategoria</th>
                     <th>Limit uczestników</th>
                     <th>Stały</th>
                     <th>Cały okres</th>
@@ -46,7 +45,6 @@ function TasksPage () {
                     <tr key={task.id}>
                         <td>{task.id}</td>
                         <td>{task.name}</td>
-                        <td>{task.category}</td>
                         <td>{task.participantsLimit}</td>
                         <td>{task.permanent ? 'Tak' : 'Nie'}</td>
                         <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>

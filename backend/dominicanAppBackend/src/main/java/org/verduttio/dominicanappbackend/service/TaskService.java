@@ -88,7 +88,6 @@ public class TaskService {
         Task task = existingTask.get();
 
         task.setName(updatedTaskDTO.getName());
-        task.setCategory(updatedTaskDTO.getCategory());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
         task.setPermanent(updatedTaskDTO.isPermanent());
         task.setParticipantForWholePeriod(updatedTaskDTO.isParticipantForWholePeriod());

@@ -16,10 +16,6 @@ function validateTaskData(data: TaskFormData) : string {
         return('Proszę wypełnić nazwę zadania.');
     }
 
-    if (!data.category) {
-        return('Proszę wypełnić kategorię zadania.');
-    }
-
     if (data.participantsLimit == null || data.participantsLimit < 1) {
         return('Limit uczestników musi być większy niż 0.');
     }
@@ -38,7 +34,6 @@ function validateTaskData(data: TaskFormData) : string {
 function AddTask() {
     const initialTaskState: TaskFormData = {
         name: '',
-        category: '',
         participantsLimit: 0,
         permanent: false,
         participantForWholePeriod: false,
@@ -100,7 +95,6 @@ function AddTask() {
         <div>
             {validationError && <div className="error-message">{validationError}</div>}
             <input name="name" value={taskData.name} onChange={handleChange} placeholder="Nazwa zadania" />
-            <input name="category" value={taskData.category} onChange={handleChange} placeholder="Kategoria" />
             <div>
                 <label htmlFor="participantsLimit">Limit uczestników:</label>
                 <input
