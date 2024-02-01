@@ -48,15 +48,18 @@ function AddTask() {
     };
 
     const [taskData, setTaskData] = useState(initialTaskState);
-    const [roles, setRoles] = useState<Role[]>([]);
-    const { request: fetchRoles, error: errorFetchRoles, loading: loadingRoles } = useHttp(`${backendUrl}/api/roles`, 'GET');
+    const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
+    const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
+    const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks`, 'POST');
     const [validationError, setValidationError] = useState<string>('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchRoles(null, (data: Role[]) => setRoles(data));
-    }, [fetchRoles]);
+        fetchSupervisorRoles(null, (data: Role[]) => setRolesSupervisor(data));
+        fetchTaskPerformerRoles(null, (data: Role[]) => setRolesTaskPerformer(data));
+    }, [fetchSupervisorRoles, fetchTaskPerformerRoles]);
 
     const handleSubmit = () => {
         setValidationError(validateTaskData(taskData));
@@ -105,8 +108,8 @@ function AddTask() {
     };
 
 
-    if (loadingRoles) return <div>Ładowanie...</div>;
-    if (errorFetchRoles) return <div className="error-message">{errorFetchRoles}</div>;
+    if (loadingSupervisorRoles || loadingTaskPerformerRoles) return <div>Ładowanie...</div>;
+    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="error-message">{errorFetchSupervisorRoles}</div>;
 
     return (
         <div>
@@ -136,13 +139,13 @@ function AddTask() {
                 </label>
             </div>
             <div>
-                <label>Dozwolone role osoby wykonującej:</label>
-                <RoleCheckboxList roles={roles} selectedRoles={taskData.allowedRoleNames}
+                <label>Kto może wykonać zadanie:</label>
+                <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
                                   onRoleChange={handleRoleChange}/>
             </div>
             <div>
-                <label>Dozwolone role osoby wyznaczającej:</label>
-                <RoleCheckboxList roles={roles} selectedRoles={taskData.supervisorRoleNames}
+                <label>Kto może wyznaczyć do tego zadania:</label>
+                <RoleCheckboxList roles={rolesSupervisor} selectedRoles={taskData.supervisorRoleNames}
                                   onRoleChange={handleSupervisorRoleChange}/>
             </div>
             <div>
