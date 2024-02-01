@@ -28,6 +28,14 @@ public class Task {
     )
     private Set<Role> allowedRoles;
 
+    @ManyToMany
+    @JoinTable(
+            name = "task_supervisor_roles",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> supervisorRoles;
+
     @ElementCollection(targetClass = DayOfWeek.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
@@ -86,6 +94,14 @@ public class Task {
         this.allowedRoles = allowedRoles;
     }
 
+    public Set<Role> getSupervisorRoles() {
+        return supervisorRoles;
+    }
+
+    public void setSupervisorRoles(Set<Role> supervisorRoles) {
+        this.supervisorRoles = supervisorRoles;
+    }
+
     public Set<DayOfWeek> getDaysOfWeek() {
         return daysOfWeek;
     }
@@ -99,12 +115,14 @@ public class Task {
     }
 
     public Task(String name, int participantsLimit, boolean permanent,
-                boolean participantForWholePeriod, Set<Role> allowedRoles, Set<DayOfWeek> daysOfWeek) {
+                boolean participantForWholePeriod, Set<Role> allowedRoles,
+                Set<Role> supervisorRoles, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.participantsLimit = participantsLimit;
         this.permanent = permanent;
         this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoles = allowedRoles;
+        this.supervisorRoles = supervisorRoles;
         this.daysOfWeek = daysOfWeek;
     }
 

@@ -46,7 +46,7 @@ public class TaskControllerTest {
     @Test
     public void getTaskById_WithExistingId_ShouldReturnOk() throws Exception {
         Role role = databaseInitializer.addRoleUser();
-        Task task = databaseInitializer.addWashDishesTask(Set.of(role));
+        Task task = databaseInitializer.addWashDishesTask(Set.of(role), Set.of(role));
 
         mockMvc.perform(get("/api/tasks/" + task.getId()))
                 .andExpect(status().isOk())
@@ -59,9 +59,9 @@ public class TaskControllerTest {
     public void getTaskByRoleName_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         Role roleAdmin = databaseInitializer.addRoleAdmin();
-        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin));
-        Task task2 = databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin));
+        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin), Set.of(roleUser));
+        Task task2 = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
+        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin), Set.of(roleUser));
 
         mockMvc.perform(get("/api/tasks/byRole/" + roleUser.getName()))
                 .andExpect(status().isOk())
@@ -79,9 +79,9 @@ public class TaskControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Role roleAdmin = databaseInitializer.addRoleAdmin();
         Role roleDev = databaseInitializer.addRoleDev();
-        databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin));
-        databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin));
+        databaseInitializer.addWashDishesTask(Set.of(roleUser, roleAdmin), Set.of(roleUser));
+        databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
+        databaseInitializer.addPrepareMealTask(Set.of(roleAdmin), Set.of(roleUser));
 
         mockMvc.perform(get("/api/tasks/byRole/" + roleDev.getName()))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ public class TaskControllerTest {
     @Test
     public void createTask_WithValidData_ShouldReturnCreated() throws Exception {
         databaseInitializer.addRoleUser();
-        String taskJson = "{\"name\":\"New Task\",\"category\":\"General\",\"participantsLimit\":10,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"ROLE_USER\"],\"daysOfWeek\":[\"MONDAY\",\"WEDNESDAY\"]}";
+        String taskJson = "{\"name\":\"New Task\",\"category\":\"General\",\"participantsLimit\":10,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"ROLE_USER\"], \"supervisorRoleNames\":[\"ROLE_USER\"], \"daysOfWeek\":[\"MONDAY\",\"WEDNESDAY\"]}";
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +114,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_WithInvalidData_ShouldReturnBadRequest() throws Exception {
-        String taskJson = "{\"name\":\"\",\"category\":\"\",\"participantsLimit\":-1,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[],\"daysOfWeek\":[]}";
+        String taskJson = "{\"name\":\"\",\"category\":\"\",\"participantsLimit\":-1,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[], \"supervisorRoleNames\":[], \"daysOfWeek\":[]}";
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -126,7 +126,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_WithEmptyRoles_ShouldReturnBadRequest() throws Exception {
-        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[],\"daysOfWeek\":[MONDAY]}";
+        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[], \"supervisorRoleNames\":[], \"daysOfWeek\":[MONDAY]}";
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +138,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_WithInvalidSoEmptyRoles_ShouldReturnBadRequest() throws Exception {
-        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"INVALID_ROLE\"],\"daysOfWeek\":[\"MONDAY\"]}";
+        String taskJson = "{\"name\":\"Wash dishes\",\"category\":\"kitchen\",\"participantsLimit\":12,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"INVALID_ROLE\"], \"supervisorRoleNames\":[\"INVALID_ROLE\"], \"daysOfWeek\":[\"MONDAY\"]}";
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -152,9 +152,9 @@ public class TaskControllerTest {
     public void updateTask_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         Role roleAdmin = databaseInitializer.addRoleAdmin();
-        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
 
-        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"],\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
+        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleNames\":[\"ROLE_ADMIN\"],\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
 
         mockMvc.perform(put("/api/tasks/" + task.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +177,7 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_WithNonExistingId_ShouldReturnNotFound() throws Exception {
-        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"],\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
+        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleNames\":[\"ROLE_ADMIN\"], \"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
         mockMvc.perform(put("/api/tasks/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedTaskJson))
@@ -187,7 +187,7 @@ public class TaskControllerTest {
     @Test
     public void deleteTask_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role role = databaseInitializer.addRoleUser();
-        Task task = databaseInitializer.addWashDishesTask(Set.of(role));
+        Task task = databaseInitializer.addWashDishesTask(Set.of(role), Set.of(role));
 
         mockMvc.perform(delete("/api/tasks/" + task.getId()))
                 .andExpect(status().isNoContent());

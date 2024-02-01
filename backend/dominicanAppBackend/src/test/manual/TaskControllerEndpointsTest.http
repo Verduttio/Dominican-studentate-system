@@ -17,6 +17,7 @@ Content-Type: application/json
   "permanent": true,
   "participantForWholePeriod": false,
   "allowedRoleNames": ["ROLE_USER"],
+  "supervisorRoleNames": ["ROLE_USER"],
   "daysOfWeek": ["MONDAY", "WEDNESDAY", "FRIDAY"]
 }
 
@@ -30,6 +31,7 @@ Content-Type: application/json
   "permanent": false,
   "participantForWholePeriod": true,
   "allowedRoleNames": ["ROLE_USER", "ROLE_ADMIN"],
+  "supervisorRoleNames": ["ROLE_ADMIN"],
   "daysOfWeek": ["TUESDAY", "THURSDAY"]
 }
 

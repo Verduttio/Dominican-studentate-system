@@ -45,7 +45,7 @@ public class ObstacleControllerTest {
     public void getObstacleById_WithExistingId_ShouldReturnOk() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
 
         mockMvc.perform(get("/api/obstacles/" + obstacle.getId()))
@@ -60,9 +60,9 @@ public class ObstacleControllerTest {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
         User johnDoe = databaseInitializer.addUserJohnDoe(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
-        Task task2 = databaseInitializer.addPrepareMealTask(Set.of(role));
-        databaseInitializer.addWashDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
+        Task task2 = databaseInitializer.addPrepareMealTask(Set.of(role), Set.of(role));
+        databaseInitializer.addWashDishesTask(Set.of(role), Set.of(role));
         databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
         databaseInitializer.addObstacle_01_01_To_01_20(johnDoe, task);
         databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task2);
@@ -84,7 +84,7 @@ public class ObstacleControllerTest {
     public void createObstacle_WithValidData_ShouldReturnCreated() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
 
 
         String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"taskId\":"+task.getId()+",\"fromDate\":\"2024-01-01\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
@@ -104,7 +104,7 @@ public class ObstacleControllerTest {
     public void createObstacle_WithInvalidDates_ShouldReturnBadRequest() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
 
 
         String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"taskId\":"+task.getId()+",\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
@@ -120,7 +120,7 @@ public class ObstacleControllerTest {
     @Test
     public void createObstacle_WithNotExistingUser_ShouldReturnNotFound() throws Exception {
         Role role = databaseInitializer.addRoleUser();
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
 
 
         String obstacleJson = "{\"userId\":"+'0'+",\"taskId\":"+task.getId()+",\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
@@ -153,7 +153,7 @@ public class ObstacleControllerTest {
     public void updateObstacle_WithExistingId_ShouldReturnOk() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
         User johnDoe = databaseInitializer.addUserJohnDoe(Set.of(role));
 
@@ -175,7 +175,7 @@ public class ObstacleControllerTest {
     public void updateObstacle_WithNotExistingRecipientUserId_ShouldReturnNotFound() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
 
         String updatedObstacleJson = "{\"status\":\"APPROVED\",\"recipientAnswer\":\"Approved\",\"recipientUserId\":"+'0'+"}";
@@ -192,7 +192,7 @@ public class ObstacleControllerTest {
     public void updateObstacle_WithInvalidStatus_ShouldReturnBadRequest() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
 
         String updatedObstacleJson = "{\"status\":\"APROVED\",\"recipientAnswer\":\"Approved\",\"recipientUserId\":"+frankCadillac.getId()+"}";
@@ -209,7 +209,7 @@ public class ObstacleControllerTest {
     public void deleteObstacle_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role role = databaseInitializer.addRoleUser();
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(role), Set.of(role));
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
 
         mockMvc.perform(delete("/api/obstacles/" + obstacle.getId()))

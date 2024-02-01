@@ -46,7 +46,7 @@ public class ScheduleControllerTest {
     public void createSchedule_WithValidData_ShouldReturnCreated() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
@@ -61,8 +61,8 @@ public class ScheduleControllerTest {
     public void createSchedule_WithTaskWhichIsInConflict_ShouldReturnConflict() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         databaseInitializer.addConflict(task, prepareMeal);
         databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
@@ -79,8 +79,8 @@ public class ScheduleControllerTest {
     public void createSchedule_WithTaskWhichIsInConflictButOnOtherDay_ShouldReturnCreated() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         databaseInitializer.addConflict(task, prepareMeal);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 11));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
@@ -103,8 +103,8 @@ public class ScheduleControllerTest {
     public void createSchedule_WithTaskWhichIsInConflictWithIgnoreConflictsFlag_ShouldReturnCreated() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         databaseInitializer.addConflict(task, prepareMeal);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
@@ -128,7 +128,7 @@ public class ScheduleControllerTest {
     public void createSchedule_WithUserWithObstacleForTask_ShouldReturnConflict() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         databaseInitializer.addObstacle_01_01_To_01_20(user, task);
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
@@ -145,7 +145,7 @@ public class ScheduleControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Role roleAdmin = databaseInitializer.addRoleAdmin();
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleAdmin));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleAdmin), Set.of(roleUser));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
@@ -160,7 +160,7 @@ public class ScheduleControllerTest {
     public void createSchedule_WithUserNotFound_ShouldReturnNotFound() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId()+1 + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
@@ -175,7 +175,7 @@ public class ScheduleControllerTest {
     public void createSchedule_WithTaskNotFound_ShouldReturnNotFound() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         String scheduleJson = "{\"taskId\":" + task.getId()+1 + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
 
         mockMvc.perform(post("/api/schedules")
@@ -192,7 +192,7 @@ public class ScheduleControllerTest {
     public void updateSchedule_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         LocalDate date = LocalDate.of(2024, 1, 3);
         Schedule schedule = databaseInitializer.addSchedule(user, task, date);
 
@@ -210,7 +210,7 @@ public class ScheduleControllerTest {
     public void deleteSchedule_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
         LocalDate date = LocalDate.of(2024, 1, 4);
         Schedule schedule = databaseInitializer.addSchedule(user, task, date);
 

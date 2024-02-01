@@ -66,35 +66,38 @@ public class DatabaseInitializer {
         return conflictRepository.save(conflict);
     }
 
-    public Task addWashDishesTask(Set<Role> allowedRoles) {
+    public Task addWashDishesTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
         Task task = new Task();
         task.setName("Wash dishes");
         task.setParticipantsLimit(5);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
+        task.setSupervisorRoles(supervisorRoles);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
         return taskRepository.save(task);
     }
 
-    public Task addPrepareMealTask(Set<Role> allowedRoles) {
+    public Task addPrepareMealTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
         Task task = new Task();
         task.setName("Prepare meal");
         task.setParticipantsLimit(15);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
+        task.setSupervisorRoles(supervisorRoles);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY));
         return taskRepository.save(task);
     }
 
-    public Task addDryDishesTask(Set<Role> allowedRoles) {
+    public Task addDryDishesTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
         Task task = new Task();
         task.setName("Dry dishes");
         task.setParticipantsLimit(12);
         task.setPermanent(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
+        task.setSupervisorRoles(supervisorRoles);
         task.setDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY));
         return taskRepository.save(task);
     }

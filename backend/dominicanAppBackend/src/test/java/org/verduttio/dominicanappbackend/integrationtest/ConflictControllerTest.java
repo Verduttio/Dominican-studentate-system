@@ -46,8 +46,8 @@ public class ConflictControllerTest {
     @Test
     public void getConflictById_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
 
         mockMvc.perform(get("/api/conflicts/" + conflict.getId()))
@@ -66,8 +66,8 @@ public class ConflictControllerTest {
     @Test
     public void createConflict_WithValidData_ShouldReturnCreated() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
 
         String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
         mockMvc.perform(post("/api/conflicts")
@@ -84,8 +84,8 @@ public class ConflictControllerTest {
     @Test
     public void createConflict_WhichAlreadyExists_ShouldReturnConflict() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         databaseInitializer.addConflict(washDishes, prepareMeal);
 
         String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
@@ -100,10 +100,10 @@ public class ConflictControllerTest {
     @Test
     public void updateConflict_WithExistingId_ShouldReturnOk() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
-        Task dryDishes = databaseInitializer.addDryDishesTask(Set.of(roleUser));
+        Task dryDishes = databaseInitializer.addDryDishesTask(Set.of(roleUser), Set.of(roleUser));
 
         String updatedConflictJson = "{\"task1Id\":"+conflict.getTask1().getId()+", \"task2Id\":"+dryDishes.getId()+"}";
         mockMvc.perform(put("/api/conflicts/" + conflict.getId())
@@ -121,8 +121,8 @@ public class ConflictControllerTest {
     @Test
     public void deleteConflict_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
-        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser));
-        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser));
+        Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), Set.of(roleUser));
+        Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), Set.of(roleUser));
         Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
 
         mockMvc.perform(delete("/api/conflicts/" + conflict.getId()))
