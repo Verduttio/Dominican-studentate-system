@@ -1,6 +1,7 @@
 interface Role {
     id: number;
     name: string;
+    type: string;
 }
 
 interface Task {

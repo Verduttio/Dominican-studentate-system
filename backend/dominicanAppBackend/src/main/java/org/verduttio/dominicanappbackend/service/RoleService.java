@@ -49,6 +49,7 @@ public class RoleService {
             throw new EntityAlreadyExistsException("Another role with given name already exists");
         }
         existingRole.setName(updatedRole.getName());
+        existingRole.setType(updatedRole.getType());
         roleRepository.save(existingRole);
     }
 

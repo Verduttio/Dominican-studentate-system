@@ -19,6 +19,9 @@ public class Role implements Serializable {
     @NotBlank(message="Role name is mandatory")
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    private RoleType type;
+
 
     // Getters and setters
     public Long getId() {
@@ -37,12 +40,21 @@ public class Role implements Serializable {
         this.name = name;
     }
 
+    public RoleType getType() {
+        return type;
+    }
+
+    public void setType(RoleType type) {
+        this.type = type;
+    }
+
     // Constructors
     public Role() {
     }
 
-    public Role(String name) {
+    public Role(String name, RoleType type) {
         this.name = name;
+        this.type = type;
     }
 
     @Override
@@ -50,6 +62,7 @@ public class Role implements Serializable {
         return "Role{" +
                 "id=" + id +
                 ", name='" + name +
+                ", type='" + type +
                 '}';
     }
 

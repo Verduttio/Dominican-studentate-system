@@ -5,6 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.validation.ScheduleValidator;
@@ -32,7 +33,7 @@ class ScheduleValidatorTest {
         MockitoAnnotations.openMocks(this);
         Set<Role> userRoles = new HashSet<>();
         Set<Role> allowedRoles = new HashSet<>();
-        Role commonRole = new Role("A");
+        Role commonRole = new Role("A", RoleType.SYSTEM);
         userRoles.add(commonRole);
         allowedRoles.add(commonRole);
 
@@ -52,8 +53,8 @@ class ScheduleValidatorTest {
         MockitoAnnotations.openMocks(this);
         Set<Role> userRoles = new HashSet<>();
         Set<Role> allowedRoles = new HashSet<>();
-        Role userRole = new Role("A");
-        Role allowedRole = new Role("B");
+        Role userRole = new Role("A", RoleType.SYSTEM);
+        Role allowedRole = new Role("B", RoleType.SYSTEM);
         userRoles.add(userRole);
         allowedRoles.add(allowedRole);
 
@@ -73,10 +74,10 @@ class ScheduleValidatorTest {
         MockitoAnnotations.openMocks(this);
         Set<Role> userRoles = new HashSet<>();
         Set<Role> allowedRoles = new HashSet<>();
-        Role roleA = new Role("A");
-        Role roleB = new Role("B");
-        Role roleC = new Role("C");
-        Role roleD = new Role("D");
+        Role roleA = new Role("A", RoleType.SYSTEM);
+        Role roleB = new Role("B", RoleType.SYSTEM);
+        Role roleC = new Role("C", RoleType.SYSTEM);
+        Role roleD = new Role("D", RoleType.SYSTEM);
         userRoles.add(roleA);
         userRoles.add(roleB);
         allowedRoles.add(roleC);
@@ -98,9 +99,9 @@ class ScheduleValidatorTest {
         MockitoAnnotations.openMocks(this);
         Set<Role> userRoles = new HashSet<>();
         Set<Role> allowedRoles = new HashSet<>();
-        Role roleA = new Role("A");
-        Role roleB = new Role("B");
-        Role roleC = new Role("C");
+        Role roleA = new Role("A", RoleType.SYSTEM);
+        Role roleB = new Role("B", RoleType.SYSTEM);
+        Role roleC = new Role("C", RoleType.SYSTEM);
         userRoles.add(roleA);
         userRoles.add(roleB);
         allowedRoles.add(roleB);

@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.service.RoleService;
 
@@ -26,15 +27,15 @@ class RoleServiceTest {
 
     @BeforeEach
     void setup() {
-        Role roleAdmin = new Role("ROLE_ADMIN");
-        Role roleUser = new Role("ROLE_USER");
-        Role roleGuest = new Role("ROLE_GUEST");
+        Role roleAdmin = new Role("ROLE_ADMIN", RoleType.SYSTEM);
+        Role roleUser = new Role("ROLE_USER", RoleType.SYSTEM);
+        Role roleGuest = new Role("ROLE_GUEST", RoleType.SYSTEM);
         when(roleRepository.findAll()).thenReturn(Arrays.asList(roleAdmin, roleUser, roleGuest));
     }
 
     @Test
     void getAllRolesWithout_NoExcludedRoles_ReturnsAllRoles() {
-        List<Role> expectedRoles = Arrays.asList(new Role("ROLE_ADMIN"), new Role("ROLE_USER"), new Role("ROLE_GUEST"));
+        List<Role> expectedRoles = Arrays.asList(new Role("ROLE_ADMIN", RoleType.SYSTEM), new Role("ROLE_USER", RoleType.SYSTEM), new Role("ROLE_GUEST", RoleType.SYSTEM));
         List<Role> rolesWithoutExclusions = roleService.getAllRolesWithout();
         assertEquals(expectedRoles, rolesWithoutExclusions);
     }
@@ -42,21 +43,21 @@ class RoleServiceTest {
     @Test
     void getAllRolesWithout_OneExcludedRole_ExcludesThatRole() {
         List<Role> roles = roleService.getAllRolesWithout("ROLE_ADMIN");
-        assertFalse(roles.contains(new Role("ROLE_ADMIN")));
-        assertTrue(roles.containsAll(Arrays.asList(new Role("ROLE_USER"), new Role("ROLE_GUEST"))));
+        assertFalse(roles.contains(new Role("ROLE_ADMIN", RoleType.SYSTEM)));
+        assertTrue(roles.containsAll(Arrays.asList(new Role("ROLE_USER", RoleType.SYSTEM), new Role("ROLE_GUEST", RoleType.SYSTEM))));
     }
 
     @Test
     void getAllRolesWithout_MultipleExcludedRoles_ExcludesThoseRoles() {
         List<Role> roles = roleService.getAllRolesWithout("ROLE_ADMIN", "ROLE_USER");
-        assertFalse(roles.contains(new Role("ROLE_ADMIN")));
-        assertFalse(roles.contains(new Role("ROLE_USER")));
-        assertTrue(roles.contains(new Role("ROLE_GUEST")));
+        assertFalse(roles.contains(new Role("ROLE_ADMIN", RoleType.SYSTEM)));
+        assertFalse(roles.contains(new Role("ROLE_USER", RoleType.SYSTEM)));
+        assertTrue(roles.contains(new Role("ROLE_GUEST", RoleType.SYSTEM)));
     }
 
     @Test
     void getAllRolesWithout_NonExistingRoles_ReturnsAllRoles() {
-        List<Role> allRoles = Arrays.asList(new Role("ROLE_ADMIN"), new Role("ROLE_USER"), new Role("ROLE_GUEST"));
+        List<Role> allRoles = Arrays.asList(new Role("ROLE_ADMIN", RoleType.SYSTEM), new Role("ROLE_USER", RoleType.SYSTEM), new Role("ROLE_GUEST", RoleType.SYSTEM));
         List<Role> roles = roleService.getAllRolesWithout("ROLE_FAKE1", "ROLE_FAKE2");
         assertEquals(allRoles, roles);
     }

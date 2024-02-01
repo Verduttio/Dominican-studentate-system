@@ -125,18 +125,21 @@ public class DatabaseInitializer {
     public Role addRoleUser() {
         Role role = new Role();
         role.setName("ROLE_USER");
+        role.setType(RoleType.SYSTEM);
         return roleRepository.save(role);
     }
 
     public Role addRoleAdmin() {
         Role role = new Role();
         role.setName("ROLE_ADMIN");
+        role.setType(RoleType.SYSTEM);
         return roleRepository.save(role);
     }
 
     public Role addRoleDev() {
         Role role = new Role();
         role.setName("ROLE_DEV");
+        role.setType(RoleType.SYSTEM);
         return roleRepository.save(role);
     }
 }
