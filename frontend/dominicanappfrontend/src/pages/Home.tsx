@@ -31,6 +31,10 @@ function Home () {
         navigate('/schedule');
     }
 
+    const goToRolesPage = () => {
+        navigate('/roles');
+    }
+
     const { error, func, loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     useEffect(() => {
@@ -57,6 +61,7 @@ function Home () {
             <button onClick={goToConflictsPage}>Konflikty</button>
             <button onClick={goToUsersPage}>Użytkownicy</button>
             <button onClick={goToSchedulePage}>Harmonogram</button>
+            <button onClick={goToRolesPage}>Role</button>
         </div>
     );
 }
