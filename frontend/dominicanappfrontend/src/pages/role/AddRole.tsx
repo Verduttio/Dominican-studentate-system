@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import { RoleType } from '../../models/interfaces';
+import {Role, RoleType} from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useNavigate} from "react-router-dom";
 
+interface RoleFormData extends Omit<Role, 'id'> {}
+
 function AddRole() {
-    const [roleName, setRoleName] = useState('');
-    const [roleType, setRoleType] = useState<RoleType | ''>('');
+    const initialRoleState : RoleFormData = {
+        name: '',
+        type: ''
+    }
+
+    const [roleData, setRoleData] = useState(initialRoleState);
     const [validationError, setValidationError] = useState<string>('');
     const { request, error } = useHttp(`${backendUrl}/api/roles`, 'POST');
     const navigate = useNavigate();
@@ -16,21 +22,19 @@ function AddRole() {
 
         setValidationError('');
 
-        if (name === 'roleName') {
-            setRoleName(value);
-        } else if (name === 'roleType') {
-            setRoleType(value as RoleType);
-        }
+        setRoleData({
+            ...roleData,
+            [name]: value
+        });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!roleName || !roleType) {
+        if (!roleData.name || !roleData.type) {
             setValidationError("Wszystkie pola muszą być wypełnione.");
             return;
         }
 
-        const roleData = { name: roleName, type: roleType };
         request(roleData, () => {
             navigate('/roles');
         });
@@ -46,9 +50,9 @@ function AddRole() {
                     <label htmlFor="roleName">Nazwa roli:</label>
                     <input
                         id="roleName"
-                        name="roleName"
+                        name="name"
                         type="text"
-                        value={roleName}
+                        value={roleData.name}
                         onChange={handleChange}
                     />
                 </div>
@@ -56,8 +60,8 @@ function AddRole() {
                     <label htmlFor="roleType">Typ roli:</label>
                     <select
                         id="roleType"
-                        name="roleType"
-                        value={roleType}
+                        name="type"
+                        value={roleData.type}
                         onChange={handleChange}
                     >
                         <option value="">Wybierz typ roli</option>
