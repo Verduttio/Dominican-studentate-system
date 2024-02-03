@@ -23,4 +23,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Modifying
     @Query("DELETE FROM Schedule s WHERE s.task.id = :taskId")
     void deleteAllByTaskId(Long taskId);
+
+    List<Schedule> findByDateBetween(LocalDate from, LocalDate to);
 }

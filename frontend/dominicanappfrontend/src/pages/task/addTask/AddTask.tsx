@@ -139,7 +139,7 @@ function AddTask() {
                 </label>
             </div>
             <div>
-                <label>Kto może wykonać zadanie:</label>
+                <label>Role potrzebne do wykonania zadania:</label>
                 <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
                                   onRoleChange={handleRoleChange}/>
             </div>

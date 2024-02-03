@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,11 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
+import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.PdfService;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.*;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -78,6 +83,26 @@ public class ScheduleController {
         List<Schedule> schedules = scheduleService.getCurrentSchedules();
         return new ResponseEntity<>(schedules, HttpStatus.OK);
     }
+
+    @GetMapping("/available-tasks")
+    public ResponseEntity<?> getAvailableTasks(@RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+                                               @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            if (!from.getDayOfWeek().equals(DayOfWeek.MONDAY) || !to.getDayOfWeek().equals(DayOfWeek.SUNDAY)
+                    || ChronoUnit.DAYS.between(from, to) != 6) {
+                throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+            }
+
+            System.out.println("from: " + from);
+            System.out.println("to: " + to);
+
+            List<Task> availableTasks = scheduleService.getAvailableTasks(from, to);
+            return new ResponseEntity<>(availableTasks, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<?> createSchedule(@Valid @RequestBody ScheduleDTO scheduleDTO,
