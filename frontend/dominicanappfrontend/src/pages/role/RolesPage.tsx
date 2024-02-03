@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
+import {useNavigate} from "react-router-dom";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data: Role[]) => setRoles(data));
@@ -35,6 +37,7 @@ function ViewRoles() {
                 ))}
                 </tbody>
             </table>
+            <button onClick={() => navigate('/add-role')}>Dodaj rolę</button>
         </div>
     );
 }

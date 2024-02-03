@@ -49,6 +49,13 @@ interface Schedule {
     date: string;
 }
 
+export enum RoleType {
+    SYSTEM = "SYSTEM",
+    SUPERVISOR = "SUPERVISOR",
+    TASK_PERFORMER = "TASK_PERFORMER",
+    OTHER = "OTHER"
+}
+
 ///Models for transferring data
 interface ObstacleData {
     userId: number;

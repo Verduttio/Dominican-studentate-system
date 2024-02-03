@@ -14,6 +14,7 @@ import AddTask from "./pages/task/addTask/AddTask";
 import AddObstacle from "./pages/obstacle/AddObstacle";
 import SchedulePage from "./pages/schedule/SchedulePage";
 import ViewRoles from "./pages/role/RolesPage";
+import AddRole from "./pages/role/AddRole";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/conflicts" Component={ConflictsPage}/>
             <Route path="/users" Component={UsersPage}/>
             <Route path="/roles" Component={ViewRoles} />
+            <Route path="/add-role" Component={AddRole} />
             <Route path="/schedule" Component={SchedulePage}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="/add-conflict" Component={AddConflict}/>
