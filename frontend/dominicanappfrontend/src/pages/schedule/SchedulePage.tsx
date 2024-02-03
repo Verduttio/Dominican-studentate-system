@@ -3,6 +3,7 @@ import useHttp from '../../services/UseHttp';
 import { Schedule } from '../../models/interfaces';
 import {backendUrl} from "../../utils/constants";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 function downloadPdf() {
     axios({
@@ -23,6 +24,7 @@ function downloadPdf() {
 function SchedulePage() {
     const [scheduleList, setScheduleList] = useState<Schedule[]>([]);
     const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules`, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleList(data));
@@ -55,6 +57,7 @@ function SchedulePage() {
                 </tbody>
             </table>
             <button onClick={downloadPdf}>Pobierz harmonogram</button>
+            <button onClick={() => navigate('/add-schedule')}>Dodaj harmonogram</button>
         </div>
     );
 }
