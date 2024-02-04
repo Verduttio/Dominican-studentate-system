@@ -1,5 +1,6 @@
 import React from 'react';
 import {useNavigate} from "react-router-dom";
+import WeekSelector from "../../components/WeekSelector";
 
 
 function AddSchedule() {
@@ -7,8 +8,9 @@ function AddSchedule() {
 
     return (
         <div>
-            <button onClick={() => {}}>Dodaj harmonogram na cały tydzień</button>
-            <button onClick={() => {}}>Dodaj pojedyncze zadanie do harmonogramu</button>
+            <WeekSelector />
+            <button onClick={() => {}}>Kreator harmonogramu</button>
+            <button onClick={() => {}}>Wybierz jedno zadanie i wyznacz osobę</button>
         </div>
     );
 }
