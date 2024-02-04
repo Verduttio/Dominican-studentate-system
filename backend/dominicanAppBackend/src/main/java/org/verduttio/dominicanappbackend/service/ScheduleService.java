@@ -3,8 +3,11 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
+import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -23,14 +26,16 @@ public class ScheduleService {
     private final UserService userService;
     private final ScheduleValidator scheduleValidator;
     private final TaskRepository taskRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService,
-                           ScheduleValidator scheduleValidator, TaskRepository taskRepository) {
+                           ScheduleValidator scheduleValidator, TaskRepository taskRepository, RoleRepository roleRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.scheduleValidator = scheduleValidator;
         this.taskRepository = taskRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -89,6 +94,20 @@ public class ScheduleService {
         List<Task> allTasks = taskRepository.findAll();
         List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetween(from, to);
 
+        return getNotFullyAssignedTasks(allTasks, schedulesInPeriod);
+    }
+
+    public List<Task> getAvailableTasksBySupervisorRole(String supervisor, LocalDate from, LocalDate to) {
+        Role supervisorRole = roleRepository.findByNameAndType(supervisor, RoleType.SUPERVISOR)
+                .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
+
+        List<Task> allTasks = taskRepository.findTasksBySupervisorRoleName(supervisorRole.getName());
+        List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetween(from, to);
+
+        return getNotFullyAssignedTasks(allTasks, schedulesInPeriod);
+    }
+
+    private List<Task> getNotFullyAssignedTasks(List<Task> allTasks, List<Schedule> schedulesInPeriod) {
         Map<Long, Long> taskOccurrences = schedulesInPeriod.stream()
                 .collect(Collectors.groupingBy(schedule -> schedule.getTask().getId(), Collectors.counting()));
 
@@ -102,6 +121,4 @@ public class ScheduleService {
             }
         }).collect(Collectors.toList());
     }
-
-
 }

@@ -93,13 +93,32 @@ public class ScheduleController {
                 throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
             }
 
-            System.out.println("from: " + from);
-            System.out.println("to: " + to);
-
             List<Task> availableTasks = scheduleService.getAvailableTasks(from, to);
             return new ResponseEntity<>(availableTasks, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/available-tasks/by-supervisor/{supervisor}")
+    public ResponseEntity<?> getAvailableTasksBySupervisorRole(
+            @PathVariable String supervisor,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            if (!from.getDayOfWeek().equals(DayOfWeek.MONDAY) || !to.getDayOfWeek().equals(DayOfWeek.SUNDAY)
+                    || ChronoUnit.DAYS.between(from, to) != 6) {
+                throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+            }
+
+            List<Task> availableTasks = scheduleService.getAvailableTasksBySupervisorRole(supervisor, from, to);
+            return new ResponseEntity<>(availableTasks, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

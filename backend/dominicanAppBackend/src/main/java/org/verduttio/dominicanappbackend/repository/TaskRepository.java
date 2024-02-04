@@ -17,4 +17,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT new org.verduttio.dominicanappbackend.dto.TaskShortInfo(t.id, t.name) FROM Task t")
     List<TaskShortInfo> findAllTasksShortInfo();
+
+    @Query("SELECT t FROM Task t JOIN t.supervisorRoles sr WHERE sr.name IN :supervisorName")
+    List<Task> findTasksBySupervisorRoleName(String supervisorName);
 }
