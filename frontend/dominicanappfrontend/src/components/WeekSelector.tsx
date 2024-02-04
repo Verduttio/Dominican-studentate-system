@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { format, startOfWeek, endOfWeek, addDays, subDays } from 'date-fns';
 
-function WeekSelector () {
-    const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
+interface WeekSelectorProps {
+    currentWeek: Date;
+    setCurrentWeek: React.Dispatch<React.SetStateAction<Date>>;
+}
 
-    const startOfWeekDate: Date = startOfWeek(currentWeek, { weekStartsOn: 1 });
-    const endOfWeekDate: Date = endOfWeek(currentWeek, { weekStartsOn: 1 });
+const WeekSelector: React.FC<WeekSelectorProps> = ({ currentWeek, setCurrentWeek }) => {
+    const startOfWeekDate = startOfWeek(currentWeek, { weekStartsOn: 1 });
+    const endOfWeekDate = endOfWeek(currentWeek, { weekStartsOn: 1 });
 
-    const handlePreviousWeek = (): void => {
+    const handlePreviousWeek = () => {
         setCurrentWeek(subDays(startOfWeekDate, 7));
     };
 
-    const handleNextWeek = (): void => {
+    const handleNextWeek = () => {
         setCurrentWeek(addDays(endOfWeekDate, 1));
     };
 
@@ -19,7 +22,7 @@ function WeekSelector () {
         <div>
             <button onClick={handlePreviousWeek}>&lt;</button>
             <span>
-                {format(startOfWeekDate, 'dd-MM-yyyy')} : {format(endOfWeekDate, 'dd-MM-yyyy')}
+                {format(startOfWeekDate, 'dd-MM-yyyy')} - {format(endOfWeekDate, 'dd-MM-yyyy')}
             </span>
             <button onClick={handleNextWeek}>&gt;</button>
         </div>
