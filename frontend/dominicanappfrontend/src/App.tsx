@@ -16,7 +16,8 @@ import SchedulePage from "./pages/schedule/SchedulePage";
 import ViewRoles from "./pages/role/RolesPage";
 import AddRole from "./pages/role/AddRole";
 import AddSchedule from "./pages/schedule/AddSchedule";
-import ScheduleCreator from "./pages/schedule/ScheduleCreator";
+import ScheduleCreatorRoleSelection from "./pages/schedule/ScheduleCreatorRoleSelection";
+import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSelection";
 
 function App() {
   return (
@@ -33,7 +34,8 @@ function App() {
             <Route path="/add-role" Component={AddRole} />
             <Route path="/schedule" Component={SchedulePage}/>
             <Route path="/add-schedule" Component={AddSchedule}/>
-            <Route path="/schedule-creator" Component={ScheduleCreator}/>
+            <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
+            <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="/add-conflict" Component={AddConflict}/>
             <Route path="/add-task" Component={AddTask}/>

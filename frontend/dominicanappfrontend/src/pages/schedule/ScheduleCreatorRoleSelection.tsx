@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 
-const ScheduleCreator: React.FC = () => {
+const ScheduleCreatorRoleSelection: React.FC = () => {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, setSupervisorRoles);
@@ -36,6 +37,11 @@ const ScheduleCreator: React.FC = () => {
                     <tr key={role.id}>
                         <td>{role.id}</td>
                         <td>{role.name}</td>
+                        <td>
+                            <button onClick={() => navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}>
+                                Zobacz zadania
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
@@ -44,4 +50,4 @@ const ScheduleCreator: React.FC = () => {
     );
 };
 
-export default ScheduleCreator;
+export default ScheduleCreatorRoleSelection;
