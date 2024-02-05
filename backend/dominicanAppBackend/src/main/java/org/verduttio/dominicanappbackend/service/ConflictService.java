@@ -64,4 +64,8 @@ public class ConflictService {
     public void deleteAllConflictsByTaskId(Long taskId) {
         conflictRepository.deleteAllByTaskId(taskId);
     }
+
+    public List<Conflict> findAllByTaskId(Long taskId) {
+        return conflictRepository.findAllByTaskId(taskId);
+    }
 }

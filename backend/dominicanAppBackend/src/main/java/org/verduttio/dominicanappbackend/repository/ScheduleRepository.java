@@ -9,6 +9,7 @@ import org.verduttio.dominicanappbackend.entity.Schedule;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
@@ -25,4 +26,18 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     void deleteAllByTaskId(Long taskId);
 
     List<Schedule> findByDateBetween(LocalDate from, LocalDate to);
+
+    List<Schedule> findByTaskIdAndDateBetween(Long taskId, LocalDate from, LocalDate to);
+
+    List<Schedule> findByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to);
+
+    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.user.id = :userId AND s.task.id = :taskId AND s.date BETWEEN :startDate AND :endDate")
+    long countByUserIdAndTaskIdInLastNDays(@Param("userId") Long userId,
+                                           @Param("taskId") Long taskId,
+                                           @Param("startDate") LocalDate startDate,
+                                           @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT MAX(s.date) FROM Schedule s WHERE s.user.id = :userId AND s.task.id = :taskId")
+    Optional<LocalDate> findLatestTaskCompletionDateByUserIdAndTaskId(@Param("userId") Long userId,
+                                                                      @Param("taskId") Long taskId);
 }

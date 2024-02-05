@@ -8,7 +8,7 @@ import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
-import org.verduttio.dominicanappbackend.validation.ScheduleValidator;
+import org.verduttio.dominicanappbackend.service.ScheduleService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 class ScheduleValidatorTest {
     @InjectMocks
-    private ScheduleValidator scheduleValidator;
+    private ScheduleService scheduleService;
 
     @Mock
     private User mockUser;
@@ -41,7 +41,7 @@ class ScheduleValidatorTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertTrue(result);
@@ -62,7 +62,7 @@ class ScheduleValidatorTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertFalse(result);
@@ -87,7 +87,7 @@ class ScheduleValidatorTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertFalse(result);
@@ -111,7 +111,7 @@ class ScheduleValidatorTest {
         when(mockTask.getAllowedRoles()).thenReturn(allowedRoles);
 
         // Act
-        boolean result = scheduleValidator.userHasAllowedRoleForTask(mockUser, mockTask);
+        boolean result = scheduleService.userHasAllowedRoleForTask(mockUser, mockTask);
 
         // Assert
         assertTrue(result);

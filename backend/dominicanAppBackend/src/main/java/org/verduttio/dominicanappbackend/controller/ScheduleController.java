@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
+import org.verduttio.dominicanappbackend.dto.UserTaskDependencyDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.PdfService;
@@ -121,6 +122,27 @@ public class ScheduleController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/task/{taskId}/user-dependencies")
+    public ResponseEntity<List<UserTaskDependencyDTO>> getUserDependenciesForTask(
+            @PathVariable Long taskId,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            if (!from.getDayOfWeek().equals(DayOfWeek.MONDAY) || !to.getDayOfWeek().equals(DayOfWeek.SUNDAY)
+                    || ChronoUnit.DAYS.between(from, to) != 6) {
+                throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+            }
+
+            List<UserTaskDependencyDTO> dependencies = scheduleService.getAllUserDependenciesForTask(taskId, from, to);
+            return ResponseEntity.ok(dependencies);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 
     @PostMapping

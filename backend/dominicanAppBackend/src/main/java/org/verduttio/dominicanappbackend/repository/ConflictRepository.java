@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 
+import java.util.List;
+
 
 public interface ConflictRepository extends JpaRepository<Conflict, Long> {
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Conflict c WHERE (c.task1.id = :taskId1 AND c.task2.id = :taskId2) OR (c.task1.id = :taskId2 AND c.task2.id = :taskId1)")
@@ -19,4 +21,8 @@ public interface ConflictRepository extends JpaRepository<Conflict, Long> {
     @Modifying
     @Query("DELETE FROM Conflict c WHERE c.task1.id = :taskId OR c.task2.id = :taskId")
     void deleteAllByTaskId(Long taskId);
+
+    @Transactional
+    @Query("SELECT c FROM Conflict c WHERE c.task1.id = :taskId OR c.task2.id = :taskId")
+    List<Conflict> findAllByTaskId(Long taskId);
 }

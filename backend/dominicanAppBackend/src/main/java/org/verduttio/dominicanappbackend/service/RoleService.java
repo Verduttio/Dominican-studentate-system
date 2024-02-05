@@ -84,6 +84,10 @@ public class RoleService {
         return rolesDB;
     }
 
+    public Optional<Role> findByNameAndType(String roleName, RoleType roleType) {
+        return roleRepository.findByNameAndType(roleName, roleType);
+    }
+
     public List<Role> getAllRolesWithout(String... roleNames) {
         List<Role> allRoles = new LinkedList<Role>(getAllRoles());
         for (String roleName : roleNames) {

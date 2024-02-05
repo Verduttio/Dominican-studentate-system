@@ -107,4 +107,8 @@ public class ObstacleService {
     public void deleteAllObstaclesByTaskId(Long taskId) {
         obstacleRepository.deleteAllByTaskId(taskId);
     }
+
+    public List<Obstacle> findAllByTaskId(Long taskId) {
+        return obstacleRepository.findAllByTaskId(taskId);
+    }
 }

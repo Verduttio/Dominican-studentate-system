@@ -6,6 +6,9 @@ import org.verduttio.dominicanappbackend.dto.TaskDTO;
 import org.verduttio.dominicanappbackend.dto.TaskShortInfo;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.repository.ConflictRepository;
+import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
@@ -18,17 +21,18 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final RoleService roleService;
-    private final ConflictService conflictService;
-    private final ObstacleService obstacleService;
-    private final ScheduleService scheduleService;
+    private final ConflictRepository conflictRepository;
+    private final ObstacleRepository obstacleRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, RoleService roleService, ConflictService conflictService, ObstacleService obstacleService, ScheduleService scheduleService) {
+    public TaskService(TaskRepository taskRepository, RoleService roleService, ConflictRepository conflictRepository,
+                       ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository) {
         this.taskRepository = taskRepository;
         this.roleService = roleService;
-        this.conflictService = conflictService;
-        this.obstacleService = obstacleService;
-        this.scheduleService = scheduleService;
+        this.conflictRepository = conflictRepository;
+        this.obstacleRepository = obstacleRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<Task> getAllTasks() {
@@ -58,9 +62,9 @@ public class TaskService {
 
     public void deleteTask(Long taskId) {
         if (taskRepository.existsById(taskId)) {
-            scheduleService.deleteAllSchedulesByTaskId(taskId);
-            obstacleService.deleteAllObstaclesByTaskId(taskId);
-            conflictService.deleteAllConflictsByTaskId(taskId);
+            scheduleRepository.deleteAllByTaskId(taskId);
+            obstacleRepository.deleteAllByTaskId(taskId);
+            conflictRepository.deleteAllByTaskId(taskId);
             taskRepository.deleteById(taskId);
         } else {
             throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
@@ -112,5 +116,9 @@ public class TaskService {
 
     public List<TaskShortInfo> getAllTasksShortInfo() {
         return taskRepository.findAllTasksShortInfo();
+    }
+
+    public List<Task> findTasksBySupervisorRoleName(String supervisorName){
+        return taskRepository.findTasksBySupervisorRoleName(supervisorName);
     }
 }
