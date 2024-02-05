@@ -150,7 +150,7 @@ public class ScheduleService {
         boolean isConflict = tasks.stream().anyMatch(t -> conflictService.tasksAreInConflict(taskId, t.getId()));
 
         // Czy użytkownik posiada aktualną przeszkodę dla zadanego taska
-        List<Obstacle> validObstacles = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(1L, taskId, from);
+        List<Obstacle> validObstacles = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, from);
         boolean hasObstacle = !validObstacles.isEmpty();
 
 
