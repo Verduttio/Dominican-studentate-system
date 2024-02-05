@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/interfaces';
 import {backendUrl} from "../../utils/constants";
@@ -13,6 +13,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/schedules/available-tasks/by-supervisor/${roleName}?from=${from}&to=${to}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data: Task[]) => setTasks(data))
@@ -27,7 +28,13 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
             {tasks.length > 0 ? (
                 <ul>
                     {tasks.map(task => (
-                        <li key={task.id}>{task.id} - {task.name}</li>
+                        <li key={task.id}>
+                            {task.id} - {task.name}
+                            <button
+                                onClick={() => navigate(`/schedule-creator/task/assign?taskId=${task.id}&from=${from}&to=${to}`)}>Zobacz
+                                zależności
+                            </button>
+                        </li>
                     ))}
                 </ul>
             ) : <p>Brak zadań dla wybranej roli.</p>}

@@ -49,6 +49,15 @@ interface Schedule {
     date: string;
 }
 
+interface UserTaskDependency {
+    userName: string;
+    lastAssigned: string;
+    numberOfAssignsInLastYear: number;
+    assignedTasks: string[];
+    isInConflict: boolean;
+    hasObstacle: boolean;
+}
+
 export enum RoleType {
     SYSTEM = "SYSTEM",
     SUPERVISOR = "SUPERVISOR",
@@ -76,5 +85,5 @@ interface TaskShortInfo {
     name: string;
 }
 
-export type {Role, Task, User, Obstacle, Conflict, Schedule}
+export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependency}
 export type {ObstacleData, UserShortInfo, TaskShortInfo}
