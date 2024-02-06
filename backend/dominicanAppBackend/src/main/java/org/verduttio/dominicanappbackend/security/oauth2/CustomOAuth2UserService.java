@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.security.oauth2;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -63,6 +64,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         user.getProvider() + " account. Please use your " + user.getProvider() +
                         " account to login.");
             }
+
+            if (!user.isEnabled()) {
+                throw new DisabledException("User account is not verified yet");
+            }
         } else {
             System.out.println("Creating new user");
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
@@ -82,6 +87,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Set<Role> roles = new HashSet<>();
         roleUser.ifPresent(roles::add);
         user.setRoles(roles);
+        user.setEnabled(false);
 
         return userRepository.save(user);
     }

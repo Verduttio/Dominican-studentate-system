@@ -60,7 +60,7 @@ public class UserDetailsImpl implements UserDetails, Serializable, OAuth2User {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isEnabled();
     }
 
     @Override

@@ -38,6 +38,9 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
+    @Column(name = "is_enabled", nullable = false, columnDefinition = "boolean default false")
+    private boolean isEnabled;
+
 
     // Getters and setters
     public Long getId() {
@@ -72,19 +75,12 @@ public class User implements Serializable {
         this.roles = roles;
     }
 
-
-    // Constructors
-    public User() {
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
-    public User(String email, String password, Set<Role> roles,
-                String name, String surname, AuthProvider provider) {
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-        this.name = name;
-        this.surname = surname;
-        this.provider = provider;
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
     public String getName() {
@@ -109,6 +105,23 @@ public class User implements Serializable {
 
     public void setProvider(AuthProvider provider) {
         this.provider = provider;
+    }
+
+
+    // Constructors
+    public User() {
+    }
+
+    public User(String email, String password, Set<Role> roles,
+                String name, String surname, AuthProvider provider,
+                boolean isEnabled) {
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+        this.name = name;
+        this.surname = surname;
+        this.provider = provider;
+        this.isEnabled = isEnabled;
     }
 
     @Override
