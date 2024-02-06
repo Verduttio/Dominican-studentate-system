@@ -37,7 +37,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
                                            @Param("startDate") LocalDate startDate,
                                            @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT MAX(s.date) FROM Schedule s WHERE s.user.id = :userId AND s.task.id = :taskId")
+    @Query("SELECT MAX(s.date) FROM Schedule s WHERE s.user.id = :userId AND s.task.id = :taskId AND s.date < :upToDate")
     Optional<LocalDate> findLatestTaskCompletionDateByUserIdAndTaskId(@Param("userId") Long userId,
-                                                                      @Param("taskId") Long taskId);
+                                                                      @Param("taskId") Long taskId,
+                                                                      @Param("upToDate") LocalDate upToDate);
 }

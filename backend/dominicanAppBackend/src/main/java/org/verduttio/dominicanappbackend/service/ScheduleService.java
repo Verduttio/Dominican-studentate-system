@@ -159,7 +159,7 @@ public class ScheduleService {
 
 
         long count = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
-        LocalDate lastDate = getLastTaskCompletionDateForUser(userId, taskId).orElse(null);
+        LocalDate lastDate = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
         List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
         List<String> taskNames = makeUsersTasksInWeekInfoString(schedules);
@@ -236,8 +236,8 @@ public class ScheduleService {
         return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, startDate, date);
     }
 
-    public Optional<LocalDate> getLastTaskCompletionDateForUser(Long userId, Long taskId) {
-        return scheduleRepository.findLatestTaskCompletionDateByUserIdAndTaskId(userId, taskId);
+    public Optional<LocalDate> getLastTaskCompletionDateForUser(Long userId, Long taskId, LocalDate upToDate) {
+        return scheduleRepository.findLatestTaskCompletionDateByUserIdAndTaskId(userId, taskId, upToDate);
     }
 
     public List<Schedule> getSchedulesByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to) {
