@@ -3,19 +3,8 @@ import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
 import {UserTaskDependency} from "../../models/interfaces";
-import {format, parse} from "date-fns";
+import {DateFormatter} from "../../utils/DateFormatter";
 
-function formatDate(inputDate: string, inputFormat: string, outputFormat: string): string | null {
-    try {
-        const parsedDate = parse(inputDate, inputFormat, new Date());
-        return format(parsedDate, outputFormat);
-    } catch (error) {
-        return null;
-    }
-}
-
-const inputFormat = "dd-MM-yyyy";
-const outputFormat = "yyyy-MM-dd";
 
 const ScheduleCreatorAssignToTask = () => {
     const [userDependencies, setUserDependencies] = useState<UserTaskDependency[]>([]);
@@ -29,6 +18,7 @@ const ScheduleCreatorAssignToTask = () => {
         `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=true`, 'POST');
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
 
     useEffect(() => {
         request(null, (data) => setUserDependencies(data));
@@ -39,8 +29,8 @@ const ScheduleCreatorAssignToTask = () => {
             const requestData = {
                 userId: userId,
                 taskId: parseInt(taskId),
-                fromDate: formatDate(from, inputFormat, outputFormat),
-                toDate: formatDate(to, inputFormat, outputFormat)
+                fromDate: dateFormatter.formatDate(from),
+                toDate: dateFormatter.formatDate(to)
             };
 
             console.log(requestData);
