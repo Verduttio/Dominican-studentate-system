@@ -136,12 +136,8 @@ public class ScheduleService {
 
         return allTasks.stream().filter(task -> {
             Long occurrences = taskOccurrences.getOrDefault(task.getId(), 0L);
-            if (task.isParticipantForWholePeriod()) {
-                return occurrences < task.getParticipantsLimit();
-            } else {
-                int requiredOccurrences = task.getParticipantsLimit() * task.getDaysOfWeek().size();
-                return occurrences < requiredOccurrences;
-            }
+            int requiredOccurrences = task.getParticipantsLimit() * task.getDaysOfWeek().size();
+            return occurrences < requiredOccurrences;
         }).collect(Collectors.toList());
     }
 
