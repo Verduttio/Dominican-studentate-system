@@ -2,14 +2,16 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.ScheduleDTO;
-import org.verduttio.dominicanappbackend.dto.UserTaskDependencyDTO;
+import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
+import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
 import org.verduttio.dominicanappbackend.service.exception.ScheduleIsInConflictException;
+import org.verduttio.dominicanappbackend.validation.DateValidator;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -49,6 +51,29 @@ public class ScheduleService {
 
         Schedule schedule = scheduleDTO.toSchedule();
         scheduleRepository.save(schedule);
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public void createScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleDTO, boolean ignoreConflicts) {
+        LocalDate from = addScheduleDTO.getFromDate();
+        LocalDate to = addScheduleDTO.getToDate();
+
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        validateAddScheduleForWholePeriodTask(addScheduleDTO, ignoreConflicts, from, to);
+
+        LocalDate date = from;
+        while(date.isBefore(to) || date.isEqual(to)) {
+            Schedule schedule = new Schedule();
+            schedule.setTask(taskService.getTaskById(addScheduleDTO.getTaskId()).get());
+            schedule.setUser(userService.getUserById(addScheduleDTO.getUserId()).get());
+            schedule.setDate(date);
+            scheduleRepository.save(schedule);
+            date = date.plusDays(1);
+        }
+
     }
 
     public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO, boolean ignoreConflicts) {
@@ -147,14 +172,14 @@ public class ScheduleService {
         List<String> taskNames = tasks.stream().map(Task::getName).toList();
 
         // Czy zadany task jest w konflikcie z którymś z tasków pobranych
-        boolean isConflict = tasks.stream().anyMatch(t -> conflictService.tasksAreInConflict(taskId, t.getId()));
+        boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, tasks);
 
         // Czy użytkownik posiada aktualną przeszkodę dla zadanego taska
         List<Obstacle> validObstacles = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, from);
         boolean hasObstacle = !validObstacles.isEmpty();
 
 
-        return new UserTaskDependencyDTO(user.getName()+" "+user.getSurname(), lastDate, (int) count, taskNames, isConflict, hasObstacle);
+        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), lastDate, (int) count, taskNames, isConflict, hasObstacle);
     }
 
     public long getTaskCompletionCountForUserInLastNDays(Long userId, Long taskId, int days) {
@@ -186,8 +211,25 @@ public class ScheduleService {
 
         checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
         checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO, user, task);
+        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
         checkScheduleConflict(scheduleDTO, ignoreConflicts);
+    }
+
+    public void validateAddScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate from, LocalDate to) {
+        User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
+                new EntityNotFoundException("Task with given id does not exist"));
+
+        checkIfUserHasAllowedRoleForTask(user, task);
+        checkIfUserHasValidApprovedObstacleForTask(from, user, task);
+        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
+        List<Task> tasks = getTasksFromSchedules(schedules);
+        if(checkIfTaskIsInConflictWithGivenTasks(addScheduleDTO.getTaskId(), tasks) && !ignoreConflicts) {
+            throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
+        }
+
     }
 
     public boolean isScheduleInConflictWithOtherSchedules(Schedule schedule) {
@@ -214,6 +256,10 @@ public class ScheduleService {
         }
     }
 
+    public boolean checkIfTaskIsInConflictWithGivenTasks(Long taskId, List<Task> tasks) {
+        return tasks.stream().anyMatch(t -> conflictService.tasksAreInConflict(taskId, t.getId()));
+    }
+
     private void checkIfTaskOccursOnGivenDayOfWeek(ScheduleDTO scheduleDTO, Task task) {
         DayOfWeek scheduleDayOfWeek = scheduleDTO.getDate().getDayOfWeek();
         Set<DayOfWeek> taskDaysOfWeek = task.getDaysOfWeek();
@@ -228,8 +274,8 @@ public class ScheduleService {
         }
     }
 
-    private void checkIfUserHasValidApprovedObstacleForTask(ScheduleDTO scheduleDTO, User user, Task task) {
-        if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), scheduleDTO.getDate()).isEmpty()) {
+    private void checkIfUserHasValidApprovedObstacleForTask(LocalDate date, User user, Task task) {
+        if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), date).isEmpty()) {
             throw new EntityAlreadyExistsException("User has an approved obstacle for this task");
         }
     }

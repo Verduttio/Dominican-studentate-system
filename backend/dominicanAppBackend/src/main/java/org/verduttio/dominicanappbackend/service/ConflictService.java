@@ -2,7 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.ConflictDTO;
+import org.verduttio.dominicanappbackend.dto.conflict.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;

@@ -2,8 +2,8 @@ package org.verduttio.dominicanappbackend.validation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.verduttio.dominicanappbackend.dto.ObstaclePatchDTO;
-import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
+import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
+import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.UserService;
@@ -13,14 +13,11 @@ import java.time.LocalDate;
 
 @Component
 public class ObstacleValidator {
-
-    private final DateValidator dateValidator;
     private final UserService userService;
     private final TaskRepository taskRepository;
 
     @Autowired
-    public ObstacleValidator(DateValidator dateValidator, UserService userService, TaskRepository taskRepository) {
-        this.dateValidator = dateValidator;
+    public ObstacleValidator(UserService userService, TaskRepository taskRepository) {
         this.userService = userService;
         this.taskRepository = taskRepository;
     }
@@ -39,11 +36,11 @@ public class ObstacleValidator {
     }
 
     public void ensureFromDateNotAfterToDate(LocalDate fromDate, LocalDate toDate) {
-        dateValidator.ensureFromDateNotAfterToDate(fromDate, toDate);
+        DateValidator.ensureFromDateNotAfterToDate(fromDate, toDate);
     }
 
     public boolean isDateInRange(LocalDate date, LocalDate fromDate, LocalDate toDate) {
-        return dateValidator.isDateInRange(date, fromDate, toDate);
+        return DateValidator.isDateInRange(date, fromDate, toDate);
     }
 
     public void validateObstacleStatus(String status) {

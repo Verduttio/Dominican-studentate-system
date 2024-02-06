@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.dto;
+package org.verduttio.dominicanappbackend.dto.auth;
 
 public class LoginRequest {
     private String email;

@@ -7,15 +7,12 @@ import org.verduttio.dominicanappbackend.validation.DateValidator;
 import java.time.LocalDate;
 
 class DateValidatorTest {
-
-    private final DateValidator dateValidator = new DateValidator();
-
     @Test
     void ensureFromDateNotAfterToDate_WhenValid_ShouldPass() {
         LocalDate fromDate = LocalDate.of(2022, 1, 1);
         LocalDate toDate = LocalDate.of(2022, 1, 2);
 
-        Assertions.assertDoesNotThrow(() -> dateValidator.ensureFromDateNotAfterToDate(fromDate, toDate));
+        Assertions.assertDoesNotThrow(() -> DateValidator.ensureFromDateNotAfterToDate(fromDate, toDate));
     }
 
     @Test
@@ -24,7 +21,7 @@ class DateValidatorTest {
         LocalDate toDate = LocalDate.of(2022, 1, 2);
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> dateValidator.ensureFromDateNotAfterToDate(fromDate, toDate));
+                () -> DateValidator.ensureFromDateNotAfterToDate(fromDate, toDate));
     }
 
     @Test
@@ -33,7 +30,7 @@ class DateValidatorTest {
         LocalDate fromDate = LocalDate.of(2022, 1, 1);
         LocalDate toDate = LocalDate.of(2022, 1, 3);
 
-        Assertions.assertTrue(dateValidator.isDateInRange(date, fromDate, toDate));
+        Assertions.assertTrue(DateValidator.isDateInRange(date, fromDate, toDate));
     }
 
     @Test
@@ -42,6 +39,6 @@ class DateValidatorTest {
         LocalDate fromDate = LocalDate.of(2022, 1, 1);
         LocalDate toDate = LocalDate.of(2022, 1, 3);
 
-        Assertions.assertFalse(dateValidator.isDateInRange(date, fromDate, toDate));
+        Assertions.assertFalse(DateValidator.isDateInRange(date, fromDate, toDate));
     }
 }

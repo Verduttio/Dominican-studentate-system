@@ -50,6 +50,7 @@ interface Schedule {
 }
 
 interface UserTaskDependency {
+    userId: number;
     userName: string;
     lastAssigned: string;
     numberOfAssignsInLastYear: number;

@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
+import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;

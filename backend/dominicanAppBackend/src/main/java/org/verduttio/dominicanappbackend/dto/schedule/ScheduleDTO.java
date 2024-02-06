@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.dto;
+package org.verduttio.dominicanappbackend.dto.schedule;
 
 import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Schedule;

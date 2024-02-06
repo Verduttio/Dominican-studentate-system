@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.dto;
+package org.verduttio.dominicanappbackend.dto.obstacle;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

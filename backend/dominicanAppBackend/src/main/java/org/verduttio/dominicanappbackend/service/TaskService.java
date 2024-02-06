@@ -2,8 +2,8 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.TaskDTO;
-import org.verduttio.dominicanappbackend.dto.TaskShortInfo;
+import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
+import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;

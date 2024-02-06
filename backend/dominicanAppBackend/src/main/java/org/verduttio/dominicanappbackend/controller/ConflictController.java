@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.dto.ConflictDTO;
+import org.verduttio.dominicanappbackend.dto.conflict.ConflictDTO;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.service.ConflictService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;

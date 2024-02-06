@@ -32,11 +32,11 @@ POST {{host}}/api/users/register-dev
 Content-Type: application/json
 
 {
-  "name": "Frank",
+  "name": "Frank99",
   "surname": "Cadillac",
-  "email": "funcad@mail9.com",
+  "email": "funcad@mail99.com",
   "password": "12345678",
-  "roleNames": ["ROLE_USER", "ROLE_ADMIN"]
+  "roleNames": ["ROLE_USER", "ROLE_ADMIN", "ROLE_SPIEWAJACY"]
 }
 
 ### GET active sessions

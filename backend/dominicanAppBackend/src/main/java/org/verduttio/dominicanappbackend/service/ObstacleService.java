@@ -2,8 +2,8 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.ObstaclePatchDTO;
-import org.verduttio.dominicanappbackend.dto.ObstacleRequestDTO;
+import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
+import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.User;

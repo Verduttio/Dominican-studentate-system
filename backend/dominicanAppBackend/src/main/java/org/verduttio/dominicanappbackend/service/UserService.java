@@ -2,12 +2,12 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.RegisterUserRequest;
-import org.verduttio.dominicanappbackend.dto.UserDTO;
+import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
+import org.verduttio.dominicanappbackend.dto.user.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.User;
-import org.verduttio.dominicanappbackend.dto.UserShortInfo;
+import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;

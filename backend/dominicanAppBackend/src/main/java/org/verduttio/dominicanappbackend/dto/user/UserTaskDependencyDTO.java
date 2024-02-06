@@ -1,9 +1,10 @@
-package org.verduttio.dominicanappbackend.dto;
+package org.verduttio.dominicanappbackend.dto.user;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class UserTaskDependencyDTO {
+    private Long userId;
     private String userName;
     private LocalDate lastAssigned;
     private int numberOfAssignsInLastYear;
@@ -60,8 +61,17 @@ public class UserTaskDependencyDTO {
         this.hasObstacle = hasObstacle;
     }
 
-    public UserTaskDependencyDTO(String userName, LocalDate lastAssigned, int numberOfAssignsInLastYear,
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public UserTaskDependencyDTO(Long userId, String userName, LocalDate lastAssigned, int numberOfAssignsInLastYear,
                                  List<String> assignedTasks, boolean isInConflict, boolean hasObstacle) {
+        this.userId = userId;
         this.userName = userName;
         this.lastAssigned = lastAssigned;
         this.numberOfAssignsInLastYear = numberOfAssignsInLastYear;
