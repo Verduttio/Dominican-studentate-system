@@ -161,13 +161,11 @@ public class ScheduleService {
         long count = getTaskCompletionCountForUserInLastNDays(userId, taskId, 365);
         LocalDate lastDate = getLastTaskCompletionDateForUser(userId, taskId).orElse(null);
 
-        // Pobierz inne taski wykonywane przez danego użytkownika w danym czasie
         List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
-        List<Task> tasks = getTasksFromSchedules(schedules);
-        // Utwórz listę stringów z nazwami tasków
-        List<String> taskNames = tasks.stream().map(Task::getName).toList();
+        List<String> taskNames = makeUsersTasksInWeekInfoString(schedules);
 
         // Czy zadany task jest w konflikcie z którymś z tasków pobranych
+        List<Task> tasks = getTasksFromSchedules(schedules);
         boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, tasks);
 
         // Czy użytkownik posiada aktualną przeszkodę dla zadanego taska
@@ -176,6 +174,59 @@ public class ScheduleService {
 
 
         return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), lastDate, (int) count, taskNames, isConflict, hasObstacle);
+    }
+
+    private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
+        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
+        return getTasksFromSchedules(schedules);
+    }
+
+    public List<String> makeUsersTasksInWeekInfoString(List<Schedule> schedules) {
+        // If task appears in the list n times, where n is the task occurrence in the week,
+        // then it will be converted to "task.name" only string.
+        // If task appears less than n times, then it will be converted to "task.name (P, W, Ś)" string,
+        // where P, W, Ś are the days of the week when the task occurs.
+
+        // Possible days of the week
+        // Dictionary of DayOfWeek enum and its abbreviation in polish
+        Map<DayOfWeek, String> dayOfWeekAbbreviations = new HashMap<>();
+        dayOfWeekAbbreviations.put(DayOfWeek.MONDAY, "Pn");
+        dayOfWeekAbbreviations.put(DayOfWeek.TUESDAY, "Wt");
+        dayOfWeekAbbreviations.put(DayOfWeek.WEDNESDAY, "Śr");
+        dayOfWeekAbbreviations.put(DayOfWeek.THURSDAY, "Cz");
+        dayOfWeekAbbreviations.put(DayOfWeek.FRIDAY, "Pt");
+        dayOfWeekAbbreviations.put(DayOfWeek.SATURDAY, "So");
+        dayOfWeekAbbreviations.put(DayOfWeek.SUNDAY, "Nd");
+
+        // Create a map of tasks and their DaysOfWeek assigns from task.date
+        // Example: {task: [MONDAY, WEDNESDAY, FRIDAY], task2: [TUESDAY, THURSDAY]}
+        Map<Task, Set<DayOfWeek>> taskDaysWhenItIsAssignedInSchedule = schedules.stream()
+                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.mapping(Schedule::getDate, Collectors.toSet())))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(LocalDate::getDayOfWeek).collect(Collectors.toSet())));
+
+
+
+        // Create a list of strings with task names and their occurrences
+        List<String> taskInfoStrings = new ArrayList<>();
+        for (Map.Entry<Task, Set<DayOfWeek>> entry : taskDaysWhenItIsAssignedInSchedule.entrySet()) {
+            Task task = entry.getKey();
+            Set<DayOfWeek> occurrences = entry.getValue();
+            int requiredOccurrences = task.getDaysOfWeek().size();
+            if (occurrences.size() < requiredOccurrences) {
+                // If task occurs less than required, then add the days of the week when it occurs
+                String daysOfWeekString = occurrences.stream()
+                        .sorted()
+                        .map(dayOfWeekAbbreviations::get)
+                        .collect(Collectors.joining(", "));
+                taskInfoStrings.add(task.getName() + " (" + daysOfWeekString + ")");
+            } else {
+                // If task occurs exactly as required, then add only the task name
+                taskInfoStrings.add(task.getName());
+            }
+        }
+
+        return taskInfoStrings;
     }
 
     public long getTaskCompletionCountForUserInLastNDays(Long userId, Long taskId, int days) {
