@@ -158,7 +158,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
 
-        long count = getTaskCompletionCountForUserInLastNDays(userId, taskId, 365);
+        long count = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
         LocalDate lastDate = getLastTaskCompletionDateForUser(userId, taskId).orElse(null);
 
         List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
@@ -229,11 +229,11 @@ public class ScheduleService {
         return taskInfoStrings;
     }
 
-    public long getTaskCompletionCountForUserInLastNDays(Long userId, Long taskId, int days) {
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(days);
-
-        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, startDate, endDate);
+    public long getTaskCompletionCountForUserInLastNDaysFromDate(Long userId, Long taskId, LocalDate date, int days) {
+        LocalDate startDate = date.minusDays(days);
+        // We start counting from the day before the given date
+        date = date.minusDays(1);
+        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, startDate, date);
     }
 
     public Optional<LocalDate> getLastTaskCompletionDateForUser(Long userId, Long taskId) {
