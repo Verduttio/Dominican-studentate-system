@@ -8,19 +8,13 @@ import {useNavigate} from "react-router-dom";
 
 function ObstaclesPage () {
     const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setObstacles(data))
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;

@@ -8,19 +8,13 @@ import {backendUrl} from "../../utils/constants";
 
 function ConflictsPage() {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/conflicts`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/conflicts`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setConflicts(data))
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;

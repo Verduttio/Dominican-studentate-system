@@ -17,7 +17,7 @@ function AddConflict() {
         task2Id: 0
     });
     const { task1Id, task2Id } = formData;
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const postRequest = useHttp(`${backendUrl}/api/conflicts`, 'POST');
     const [submitError, setSubmitError] = useState<string>('');
     const navigate = useNavigate();
@@ -26,12 +26,6 @@ function AddConflict() {
         request(null, (data) => setTasks(data))
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     const handleSubmit = () => {
         if (task1Id === 0 || task2Id === 0) {

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 function useHttp<T = any>(url : string, method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [func, setFunc] = useState<Function | null>(null);
     const navigate = useNavigate();
 
     const request = useCallback(async (requestData: T | null = null, onSuccess = (data: any) => {}) => {
@@ -31,7 +30,7 @@ function useHttp<T = any>(url : string, method : string = 'GET') {
         }
     }, [url, method, navigate]);
 
-    return { error, func, loading, request };
+    return { error, loading, request };
 }
 
 export default useHttp;

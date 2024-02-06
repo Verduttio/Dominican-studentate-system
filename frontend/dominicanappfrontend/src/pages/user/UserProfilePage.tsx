@@ -5,18 +5,12 @@ import {backendUrl} from "../../utils/constants";
 
 function UserProfilePage () {
     const [user, setUser] = useState(null);
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/users/current`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/users/current`, 'GET');
 
     useEffect(() => {
         request(null, (data) => setUser(data))
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;

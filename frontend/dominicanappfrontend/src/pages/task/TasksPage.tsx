@@ -8,19 +8,13 @@ import {backendUrl} from "../../utils/constants";
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
     const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setTasks(data))
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;

@@ -35,18 +35,12 @@ function Home () {
         navigate('/roles');
     }
 
-    const { error, func, loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
+    const { error, loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     useEffect(() => {
         request()
             .then(() => {});
     }, [request]);
-
-    useEffect(() => {
-        if (func) {
-            func();
-        }
-    }, [func]);
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;
