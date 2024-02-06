@@ -20,11 +20,9 @@ function useHttp<T = any>(url : string, method : string = 'GET') {
                 setError("Nie posiadasz praw dostępu do tych danych");
             } else if (err.response && err.response.status === 401) {
                 setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
-                setFunc(() => () => {
-                    setTimeout(() => {
-                        navigate('/login');
-                    }, 3000); // in ms
-                });
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000); // in ms
             } else {
                 setError("Wystąpił błąd: " + err.response.data);
             }
