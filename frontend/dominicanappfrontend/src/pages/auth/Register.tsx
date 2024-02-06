@@ -1,7 +1,8 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, {useState, ChangeEvent, FormEvent, useEffect} from 'react';
 import axios from 'axios';
 import {useNavigate} from "react-router-dom";
 import {backendUrl, frontendUrl} from "../../utils/constants";
+import useHttp from "../../services/UseHttp";
 
 interface FormData {
     name: string;
@@ -20,10 +21,15 @@ function Register () {
         confirmPassword: ''
     });
     const [error, setError] = useState<string>('');
-
     const { name, surname, email, password, confirmPassword } = formData;
+    const { loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        request(null, () => navigate('/home'))
+            .then(() => {});
+    }, [request, navigate]);
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -63,6 +69,7 @@ function Register () {
         }
     };
 
+    if (loading) return <div>Ładowanie...</div>;
     return (
         <div>
             <h2>Rejestracja</h2>
