@@ -166,7 +166,6 @@ public class ScheduleController {
     public ResponseEntity<?> createScheduleForWholePeriod(@Valid @RequestBody AddScheduleForWholePeriodTaskDTO addScheduleForWholePeriodTaskDTO,
                                                           @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
-            System.out.println(addScheduleForWholePeriodTaskDTO);
             scheduleService.createScheduleForWholePeriodTask(addScheduleForWholePeriodTaskDTO, ignoreConflicts);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

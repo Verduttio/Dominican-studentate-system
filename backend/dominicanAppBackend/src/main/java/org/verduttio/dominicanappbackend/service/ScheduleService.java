@@ -277,10 +277,19 @@ public class ScheduleService {
         checkIfUserHasValidApprovedObstacleForTask(from, user, task);
         List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
         List<Task> tasks = getTasksFromSchedules(schedules);
+
+        if(checkIfTaskIsInTaskList(tasks, task)) {
+            throw new EntityAlreadyExistsException("User is already assigned to the task");
+        }
+
         if(checkIfTaskIsInConflictWithGivenTasks(addScheduleDTO.getTaskId(), tasks) && !ignoreConflicts) {
             throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
         }
 
+    }
+
+    private boolean checkIfTaskIsInTaskList(List<Task> tasks, Task task) {
+        return tasks.stream().anyMatch(t -> t.getId().equals(task.getId()));
     }
 
     public boolean isScheduleInConflictWithOtherSchedules(Schedule schedule) {
