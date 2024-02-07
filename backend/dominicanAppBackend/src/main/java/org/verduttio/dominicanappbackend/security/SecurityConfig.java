@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/current/check").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/api/users").hasRole("ADMIN")
+                        .requestMatchers("api/users/{userId}/verification/assignRoles").hasRole("FUNKCYJNY")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement

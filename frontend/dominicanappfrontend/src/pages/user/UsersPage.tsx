@@ -3,11 +3,13 @@ import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { User } from "../../models/interfaces";
 import {backendUrl} from "../../utils/constants";
+import {useNavigate} from "react-router-dom";
 
 
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setUsers(data))
@@ -29,6 +31,8 @@ function UsersPage () {
                     <th>Email</th>
                     <th>Role</th>
                     <th>Provider</th>
+                    <th>Zweryfikowany</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -40,6 +44,10 @@ function UsersPage () {
                         <td>{user.email}</td>
                         <td>{user.roles.map(role => role.name).join(', ')}</td>
                         <td>{user.provider}</td>
+                        <td>{user.enabled ? "Tak" : "Nie"}</td>
+                        <td>
+                            <button onClick={() => navigate(`/users/${user.id}/verify`)}>Zweryfikuj</button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>

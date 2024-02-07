@@ -25,6 +25,7 @@ import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsEx
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -127,6 +128,17 @@ public class UserController {
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{userId}/verification/assignRoles")
+    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody Set<String> roleNames) {
+        try {
+            userService.assignRolesOnVerificationAndVerifyUser(userId, roleNames);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")

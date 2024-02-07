@@ -22,6 +22,7 @@ interface User {
     surname: string;
     roles: Role[];
     provider: string;
+    enabled: boolean;
 }
 
 interface Obstacle {
