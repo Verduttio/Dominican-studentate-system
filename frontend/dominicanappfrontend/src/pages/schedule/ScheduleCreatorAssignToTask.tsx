@@ -4,6 +4,7 @@ import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
 import {UserTaskDependency} from "../../models/interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
+import TaskInfo from "../task/TaskInfo";
 
 
 const ScheduleCreatorAssignToTask = () => {
@@ -15,7 +16,7 @@ const ScheduleCreatorAssignToTask = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/schedules/task/${taskId}/user-dependencies?from=${from}&to=${to}`;
     const { error: assignToTaskError, request: assignToTaskRequest, loading: assignToTaskLoading } = useHttp(
-        `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=true`, 'POST');
+        `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=false`, 'POST');
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
@@ -48,6 +49,7 @@ const ScheduleCreatorAssignToTask = () => {
     return (
         <div>
             <h1>Zależności użytkowników dla zadania {taskId}</h1>
+            <TaskInfo taskId={taskId} />
             <p>Tworzysz harmonogram od: {from}, do: {to}</p>
             {assignToTaskError && <div className="error-message">{assignToTaskError}</div>}
             <table>
