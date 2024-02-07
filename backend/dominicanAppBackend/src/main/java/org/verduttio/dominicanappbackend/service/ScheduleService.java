@@ -320,6 +320,10 @@ public class ScheduleService {
         Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
                 new EntityNotFoundException("Task with given id does not exist"));
 
+        if(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek())) {
+            throw new IllegalArgumentException("Task does not occur on given day of week");
+        }
+
         if(task.isParticipantForWholePeriod()) {
             throw new IllegalArgumentException("Task does not allow assigning participants for daily period");
         }

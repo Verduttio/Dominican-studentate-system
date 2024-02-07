@@ -15,6 +15,12 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const navigate = useNavigate();
 
+    const getTaskUrl = (task: Task) => {
+        const base = `/schedule-creator/task/${task.participantForWholePeriod ? 'assignWeekly' : 'assignDaily'}`;
+        const params = `?taskId=${task.id}&from=${from}&to=${to}`;
+        return base + params;
+    }
+
     useEffect(() => {
         request(null, (data: Task[]) => setTasks(data))
     }, [request]);
@@ -31,7 +37,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
                         <li key={task.id}>
                             {task.id} - {task.name}
                             <button
-                                onClick={() => navigate(`/schedule-creator/task/assign?taskId=${task.id}&from=${from}&to=${to}`)}>Zobacz
+                                onClick={() => navigate(getTaskUrl(task))}>Zobacz
                                 zależności
                             </button>
                         </li>

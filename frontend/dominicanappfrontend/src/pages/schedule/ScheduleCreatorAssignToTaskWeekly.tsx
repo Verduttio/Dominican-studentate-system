@@ -7,7 +7,7 @@ import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 
 
-const ScheduleCreatorAssignToTask = () => {
+const ScheduleCreatorAssignToTaskWeekly = () => {
     const [userDependencies, setUserDependencies] = useState<UserTaskDependency[]>([]);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -88,4 +88,4 @@ const ScheduleCreatorAssignToTask = () => {
     );
 };
 
-export default ScheduleCreatorAssignToTask;
+export default ScheduleCreatorAssignToTaskWeekly;

@@ -18,8 +18,9 @@ import AddRole from "./pages/role/AddRole";
 import AddSchedule from "./pages/schedule/AddSchedule";
 import ScheduleCreatorRoleSelection from "./pages/schedule/ScheduleCreatorRoleSelection";
 import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSelection";
-import ScheduleCreatorAssignToTask from "./pages/schedule/ScheduleCreatorAssignToTask";
+import ScheduleCreatorAssignToTaskWeekly from "./pages/schedule/ScheduleCreatorAssignToTaskWeekly";
 import VerifyUserPage from "./pages/user/VerifyUserPage";
+import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAssignToTaskDaily";
 
 function App() {
   return (
@@ -39,7 +40,8 @@ function App() {
             <Route path="/add-schedule" Component={AddSchedule}/>
             <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
             <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
-            <Route path="/schedule-creator/task/assign" Component={ScheduleCreatorAssignToTask}/>
+            <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
+            <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
             <Route path="/user-profile" Component={UserProfilePage} />
             <Route path="/add-conflict" Component={AddConflict}/>
             <Route path="/add-task" Component={AddTask}/>
