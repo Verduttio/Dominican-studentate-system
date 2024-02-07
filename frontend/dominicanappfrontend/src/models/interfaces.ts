@@ -58,6 +58,7 @@ interface UserTaskDependency {
     assignedTasks: string[];
     isInConflict: boolean;
     hasObstacle: boolean;
+    assignedToTheTask: boolean;
 }
 
 export enum RoleType {

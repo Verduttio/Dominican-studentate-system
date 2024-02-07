@@ -60,12 +60,13 @@ const ScheduleCreatorAssignToTask = () => {
                     <th>Aktualne taski</th>
                     <th>Konflikt</th>
                     <th>Przeszkoda</th>
+                    <th>Już wyznaczony</th>
                     <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
                 {userDependencies.map((dep, index) => (
-                    <tr key={index} style={{ backgroundColor: dep.hasObstacle ? 'blue' : dep.isInConflict ? 'orange' : 'grey' }}>
+                    <tr key={index} style={{ backgroundColor: dep.assignedToTheTask ? 'green' : dep.hasObstacle ? 'blue' : dep.isInConflict ? 'orange' : 'grey' }}>
                         <td>{dep.userId}</td>
                         <td>{dep.userName}</td>
                         <td>{dep.lastAssigned}</td>
@@ -73,6 +74,7 @@ const ScheduleCreatorAssignToTask = () => {
                         <td>{dep.assignedTasks.join(', ')}</td>
                         <td>{dep.isInConflict ? 'Tak' : 'Nie'}</td>
                         <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
+                        <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                         <td>
                             <button onClick={() => handleSubmit(dep.userId)} disabled={assignToTaskLoading}>Przypisz</button>
                         </td>

@@ -172,8 +172,12 @@ public class ScheduleService {
         List<Obstacle> validObstacles = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, from);
         boolean hasObstacle = !validObstacles.isEmpty();
 
+        // Is already assigned to the task
+        boolean assignedToTheTask = tasks.stream().anyMatch(t -> t.getId().equals(taskId));
 
-        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), lastDate, (int) count, taskNames, isConflict, hasObstacle);
+
+        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), lastDate, (int) count,
+                taskNames, isConflict, hasObstacle, assignedToTheTask);
     }
 
     private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {

@@ -11,6 +11,7 @@ public class UserTaskDependencyDTO {
     private List<String> assignedTasks;
     private boolean isInConflict;
     private boolean hasObstacle;
+    private boolean assignedToTheTask;
 
     // Getters i Setters
     public String getUserName() {
@@ -70,7 +71,7 @@ public class UserTaskDependencyDTO {
     }
 
     public UserTaskDependencyDTO(Long userId, String userName, LocalDate lastAssigned, int numberOfAssignsInLastYear,
-                                 List<String> assignedTasks, boolean isInConflict, boolean hasObstacle) {
+                                 List<String> assignedTasks, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask) {
         this.userId = userId;
         this.userName = userName;
         this.lastAssigned = lastAssigned;
@@ -78,5 +79,14 @@ public class UserTaskDependencyDTO {
         this.assignedTasks = assignedTasks;
         this.isInConflict = isInConflict;
         this.hasObstacle = hasObstacle;
+        this.assignedToTheTask = assignedToTheTask;
+    }
+
+    public boolean isAssignedToTheTask() {
+        return assignedToTheTask;
+    }
+
+    public void setAssignedToTheTask(boolean assignedToTheTask) {
+        this.assignedToTheTask = assignedToTheTask;
     }
 }

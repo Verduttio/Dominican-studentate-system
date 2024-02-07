@@ -28,7 +28,6 @@ function VerifyUserPage() {
     };
 
     const handleSubmit = () => {
-        console.log(selectedRoles);
         verifyUserRequest(selectedRoles, () => {
             navigate('/users');
         });
@@ -69,7 +68,7 @@ function VerifyUserPage() {
                     </li>
                 ))}
             </ul>
-            <button onClick={handleSubmit}>Zweryfikuj</button>
+            <button onClick={handleSubmit} disabled={requestLoading}>Zweryfikuj</button>
         </div>
     );
 }
