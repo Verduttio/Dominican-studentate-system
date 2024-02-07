@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
@@ -99,8 +100,8 @@ public class UserService {
         user.setName(registerUserRequest.getName());
         user.setSurname(registerUserRequest.getSurname());
         user.setProvider(authProvider);
-        List<Role> roles = roleService.getAllRolesWithout("ROLE_ADMIN");  // and other sensitive roles!  //TODO: make a variable in application properties for this???
-        user.setRoles(new HashSet<>(roles));
+        Role roles = roleService.getRoleByName("ROLE_USER");
+        user.setRoles(Set.of(roles));
         return user;
     }
 
@@ -124,6 +125,32 @@ public class UserService {
         existingUser.setPassword(updatedUserDTO.getPassword());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedUserDTO.getRoleNames());
         existingUser.setRoles(rolesDB);
+
+        userRepository.save(existingUser);
+    }
+
+    public void assignRolesOnVerificationAndVerifyUser(Long userId, Set<String> roles) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new EntityNotFoundException("User with given id does not exist");
+        }
+        User existingUser = user.get();
+
+        Set<Role> rolesDB = roleService.getRolesByRoleNames(new HashSet<>(roles));
+
+        // Check if rolesDB contains role with type SUPERVISOR
+        boolean supervisorRoleIsIn = rolesDB.stream().anyMatch(role -> role.getType().equals(RoleType.SUPERVISOR));
+        if(supervisorRoleIsIn) {
+            rolesDB.add(roleService.getRoleByName("ROLE_FUNKCYJNY"));
+        }
+
+        Set<Role> userRoles = existingUser.getRoles();
+        userRoles.addAll(rolesDB);
+
+        existingUser.setRoles(userRoles);
+
+        // Verify user
+        existingUser.setEnabled(true);
 
         userRepository.save(existingUser);
     }

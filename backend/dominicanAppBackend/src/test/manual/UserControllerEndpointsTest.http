@@ -39,6 +39,12 @@ Content-Type: application/json
   "roleNames": ["ROLE_USER", "ROLE_ADMIN", "ROLE_SPIEWAJACY"]
 }
 
+### Verify and assign roles to user
+PUT {{host}}/api/users/34/verification/assignRoles
+Content-Type: application/json
+
+["ROLE_DZIEKAN", "ROLE_SPIEWAJACY"]
+
 ### GET active sessions
 GET {{host}}/api/users/activeSessions
 
