@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
@@ -74,6 +75,26 @@ public class ScheduleService {
             date = date.plusDays(1);
         }
 
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public void createScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts) {
+        LocalDate weekStartDate = addScheduleDTO.getWeekStartDate();
+        LocalDate weekEndDate = addScheduleDTO.getWeekEndDate();
+        LocalDate taskDate = addScheduleDTO.getTaskDate();
+
+        if(!DateValidator.dateStartsMondayEndsSunday(weekStartDate, weekEndDate)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        validateAddScheduleForDailyPeriodTask(addScheduleDTO, ignoreConflicts, weekStartDate, weekEndDate, taskDate);
+
+
+        Schedule schedule = new Schedule();
+        schedule.setTask(taskService.getTaskById(addScheduleDTO.getTaskId()).get());
+        schedule.setUser(userService.getUserById(addScheduleDTO.getUserId()).get());
+        schedule.setDate(taskDate);
+        scheduleRepository.save(schedule);
     }
 
     public void updateSchedule(Long scheduleId, ScheduleDTO updatedScheduleDTO, boolean ignoreConflicts) {
@@ -273,6 +294,10 @@ public class ScheduleService {
         Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
                 new EntityNotFoundException("Task with given id does not exist"));
 
+        if(!task.isParticipantForWholePeriod()) {
+            throw new IllegalArgumentException("Task does not allow assigning participants for whole period");
+        }
+
         checkIfUserHasAllowedRoleForTask(user, task);
         checkIfUserHasValidApprovedObstacleForTask(from, user, task);
         List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
@@ -286,6 +311,41 @@ public class ScheduleService {
             throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
         }
 
+    }
+
+    public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate) {
+        User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
+                new EntityNotFoundException("Task with given id does not exist"));
+
+        if(task.isParticipantForWholePeriod()) {
+            throw new IllegalArgumentException("Task does not allow assigning participants for daily period");
+        }
+
+        checkIfUserHasAllowedRoleForTask(user, task);
+        checkIfUserHasValidApprovedObstacleForTask(taskDate, user, task);
+        List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
+        List<Task> userWeekAssignedTasks = getTasksFromSchedules(userWeekSchedules);
+
+        if(checkIfUserIsAlreadyAssignedToDailyTask(user, task, taskDate)) {
+            throw new EntityAlreadyExistsException("User is already assigned to the task on given day");
+        }
+
+        if(checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(task, userWeekSchedules, taskDate) && !ignoreConflicts) {
+            throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
+        }
+
+    }
+
+    private boolean checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(Task task, List<Schedule> schedules, LocalDate date) {
+        return schedules.stream().anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId()) && s.getDate().equals(date));
+    }
+
+    private boolean checkIfUserIsAlreadyAssignedToDailyTask(User user, Task task, LocalDate date) {
+        List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+        return schedules.stream().anyMatch(s -> s.getTask().getId().equals(task.getId()));
     }
 
     private boolean checkIfTaskIsInTaskList(List<Task> tasks, Task task) {

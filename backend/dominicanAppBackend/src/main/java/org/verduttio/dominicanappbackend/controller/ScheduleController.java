@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
@@ -167,6 +168,22 @@ public class ScheduleController {
                                                           @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
         try {
             scheduleService.createScheduleForWholePeriodTask(addScheduleForWholePeriodTaskDTO, ignoreConflicts);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (EntityAlreadyExistsException | RoleNotMeetRequirementsException | ScheduleIsInConflictException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/forDailyPeriod")
+    public ResponseEntity<?> createScheduleForDailyPeriod(@Valid @RequestBody AddScheduleForDailyPeriodTaskDTO addScheduleForDailyPeriodTaskDTO,
+                                                          @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
+        try {
+            scheduleService.createScheduleForDailyPeriodTask(addScheduleForDailyPeriodTaskDTO, ignoreConflicts);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException e) {

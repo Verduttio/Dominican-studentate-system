@@ -50,6 +50,18 @@ Content-Type: application/json
   "toDate": "2024-01-10"
 }
 
+### Create a new schedule for task for daily period
+POST {{host}}/api/schedules/forDailyPeriod?ignoreConflicts=false
+Content-Type: application/json
+
+{
+  "taskId": 13,
+  "userId": 19,
+  "weekStartDate": "2024-02-05",
+  "weekEndDate": "2024-02-11",
+  "taskDate": "2024-02-07"
+}
+
 #### Update an existing schedule by ID
 PUT {{host}}/api/schedules/2
 Content-Type: application/json
