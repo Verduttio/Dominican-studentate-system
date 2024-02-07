@@ -19,6 +19,7 @@ import AddSchedule from "./pages/schedule/AddSchedule";
 import ScheduleCreatorRoleSelection from "./pages/schedule/ScheduleCreatorRoleSelection";
 import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSelection";
 import ScheduleCreatorAssignToTask from "./pages/schedule/ScheduleCreatorAssignToTask";
+import VerifyUserPage from "./pages/user/VerifyUserPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/obstacles" Component={ObstaclesPage}/>
             <Route path="/conflicts" Component={ConflictsPage}/>
             <Route path="/users" Component={UsersPage}/>
+            <Route path="/users/:id/verify" Component={VerifyUserPage}/>
             <Route path="/roles" Component={ViewRoles} />
             <Route path="/add-role" Component={AddRole} />
             <Route path="/schedule" Component={SchedulePage}/>
