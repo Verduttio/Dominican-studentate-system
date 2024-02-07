@@ -12,6 +12,7 @@ import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.UserAlreadyVerifiedException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
 import java.util.HashSet;
@@ -135,6 +136,10 @@ public class UserService {
             throw new EntityNotFoundException("User with given id does not exist");
         }
         User existingUser = user.get();
+
+        if (existingUser.isEnabled()) {
+            throw new UserAlreadyVerifiedException("User is already verified");
+        }
 
         Set<Role> rolesDB = roleService.getRolesByRoleNames(new HashSet<>(roles));
 

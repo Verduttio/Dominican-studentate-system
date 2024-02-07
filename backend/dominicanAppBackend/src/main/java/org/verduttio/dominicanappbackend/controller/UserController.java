@@ -23,6 +23,7 @@ import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.UserAlreadyVerifiedException;
 
 import java.util.List;
 import java.util.Set;
@@ -136,6 +137,8 @@ public class UserController {
             userService.assignRolesOnVerificationAndVerifyUser(userId, roleNames);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserAlreadyVerifiedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
