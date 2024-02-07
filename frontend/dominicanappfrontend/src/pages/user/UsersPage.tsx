@@ -29,6 +29,7 @@ function UsersPage () {
                     <th>Email</th>
                     <th>Role</th>
                     <th>Provider</th>
+                    <th>Zweryfikowany</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -40,6 +41,7 @@ function UsersPage () {
                         <td>{user.email}</td>
                         <td>{user.roles.map(role => role.name).join(', ')}</td>
                         <td>{user.provider}</td>
+                        <td>{user.enabled ? "Tak" : "Nie"}</td>
                     </tr>
                 ))}
                 </tbody>
