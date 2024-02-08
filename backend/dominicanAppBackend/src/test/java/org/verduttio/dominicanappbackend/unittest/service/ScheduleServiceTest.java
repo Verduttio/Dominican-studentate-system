@@ -45,7 +45,7 @@ public class ScheduleServiceTest {
 
         List<Schedule> schedules = List.of(schedule1, schedule2, schedule3, schedule4);
 
-        List<String> testResult = scheduleService.makeUsersTasksInWeekInfoString(schedules);
+        List<String> testResult = scheduleService.createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
         List<String> expectedResult = List.of("Cooking (Wt)", "Washing");
 
         assertEquals(expectedResult, testResult);

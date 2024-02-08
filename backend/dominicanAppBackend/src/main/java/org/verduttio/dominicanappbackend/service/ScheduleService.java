@@ -285,7 +285,7 @@ public class ScheduleService {
     public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate)
         throws IllegalArgumentException, EntityNotFoundException, RoleNotMeetRequirementsException, EntityAlreadyExistsException, ScheduleIsInConflictException {
         validate(!DateValidator.dateStartsMondayEndsSunday(dateStartWeek, dateEndWeek), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
-        validate(!DateValidator.isDateInRange(dateStartWeek, dateEndWeek, taskDate), new IllegalArgumentException("Task date is not in the date range"));
+        validate(!DateValidator.isDateInRange(taskDate, dateStartWeek, dateEndWeek), new IllegalArgumentException("Task date is not in the date range"));
 
         User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
@@ -402,4 +402,7 @@ public class ScheduleService {
         checkScheduleConflict(scheduleDTO, ignoreConflicts);
     }
 
+    public void save(Schedule existingSchedule) {
+        scheduleRepository.save(existingSchedule);
+    }
 }

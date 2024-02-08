@@ -34,6 +34,33 @@ class DateValidatorTest {
     }
 
     @Test
+    void isDateInRange_WhenInRange_1_ShouldReturnTrue() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        LocalDate fromDate = LocalDate.of(2022, 1, 1);
+        LocalDate toDate = LocalDate.of(2022, 1, 3);
+
+        Assertions.assertTrue(DateValidator.isDateInRange(date, fromDate, toDate));
+    }
+
+    @Test
+    void isDateInRange_WhenInRange_2_ShouldReturnTrue() {
+        LocalDate date = LocalDate.of(2022, 1, 3);
+        LocalDate fromDate = LocalDate.of(2022, 1, 1);
+        LocalDate toDate = LocalDate.of(2022, 1, 3);
+
+        Assertions.assertTrue(DateValidator.isDateInRange(date, fromDate, toDate));
+    }
+
+    @Test
+    void isDateInRange_WhenInRange_3_ShouldReturnTrue() {
+        LocalDate date = LocalDate.of(2022, 1, 3);
+        LocalDate fromDate = LocalDate.of(2022, 1, 1);
+        LocalDate toDate = LocalDate.of(2022, 1, 7);
+
+        Assertions.assertTrue(DateValidator.isDateInRange(date, fromDate, toDate));
+    }
+
+    @Test
     void isDateInRange_WhenOutOfRange_ShouldReturnFalse() {
         LocalDate date = LocalDate.of(2022, 1, 4);
         LocalDate fromDate = LocalDate.of(2022, 1, 1);
