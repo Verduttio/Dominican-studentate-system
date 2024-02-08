@@ -79,12 +79,7 @@ public class ScheduleService {
         LocalDate weekEndDate = addScheduleDTO.getWeekEndDate();
         LocalDate taskDate = addScheduleDTO.getTaskDate();
 
-        if(!DateValidator.dateStartsMondayEndsSunday(weekStartDate, weekEndDate)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
-        }
-
         validateAddScheduleForDailyPeriodTask(addScheduleDTO, ignoreConflicts, weekStartDate, weekEndDate, taskDate);
-
 
         Schedule schedule = new Schedule();
         schedule.setTask(taskService.getTaskById(addScheduleDTO.getTaskId()).get());
@@ -166,35 +161,28 @@ public class ScheduleService {
     }
 
     public UserTaskDependencyDTO getUserDependenciesForTask(Long taskId, Long userId, LocalDate from, LocalDate to) {
-        // Sprawdz czy zadanie istnieje
-        Task task = taskService.getTaskById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
+        validate(!taskService.existsById(taskId), new EntityNotFoundException("Task with given id does not exist"));
 
-        // Sprawdz czy użytkownik istnieje
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
+        List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
+        List<Task> userAssignedTasksForWeek = getTasksFromSchedules(userSchedulesForWeek);
 
-        long count = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
-        LocalDate lastDate = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
+        long numberOfTaskCompletionByUserInLast365days = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
 
-        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
-        List<String> taskNames = makeUsersTasksInWeekInfoString(schedules);
+        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
-        // Czy zadany task jest w konflikcie z którymś z tasków pobranych
-        List<Task> tasks = getTasksFromSchedules(schedules);
-        boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, tasks);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
-        // Czy użytkownik posiada aktualną przeszkodę dla zadanego taska
-        List<Obstacle> validObstacles = obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, from);
-        boolean hasObstacle = !validObstacles.isEmpty();
+        boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, userAssignedTasksForWeek);
 
-        // Is already assigned to the task
-        boolean assignedToTheTask = tasks.stream().anyMatch(t -> t.getId().equals(taskId));
+        boolean hasObstacleForTaskOnDate = checkIfUserHasValidApprovedObstacleForTaskAtDate(from, userId, taskId);
 
+        boolean alreadyAssignedToTheTask = userAssignedTasksForWeek.stream().anyMatch(t -> t.getId().equals(taskId));
 
-        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), lastDate, (int) count,
-                taskNames, isConflict, hasObstacle, assignedToTheTask);
+        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
+                userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnDate, alreadyAssignedToTheTask);
     }
 
     private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
@@ -202,7 +190,7 @@ public class ScheduleService {
         return getTasksFromSchedules(schedules);
     }
 
-    public List<String> makeUsersTasksInWeekInfoString(List<Schedule> schedules) {
+    public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules) {
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
         // If task appears less than n times, then it will be converted to "task.name (P, W, Ś)" string,
@@ -385,6 +373,10 @@ public class ScheduleService {
         if(!obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), date).isEmpty()) {
             throw new EntityAlreadyExistsException("User has an approved obstacle for this task");
         }
+    }
+
+    private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, Long userId, Long taskId) {
+        return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, date).isEmpty();
     }
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, User user, Task task) {
