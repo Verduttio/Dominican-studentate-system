@@ -59,10 +59,6 @@ public class ScheduleService {
         LocalDate from = addScheduleDTO.getFromDate();
         LocalDate to = addScheduleDTO.getToDate();
 
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
-        }
-
         validateAddScheduleForWholePeriodTask(addScheduleDTO, ignoreConflicts, from, to);
 
         LocalDate date = from;
@@ -273,74 +269,61 @@ public class ScheduleService {
         return schedules.stream().map(Schedule::getTask).collect(Collectors.toList());
     }
 
-    ////////////////////WALIDACJA
-    public void validateSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
-        User user = userService.getUserById(scheduleDTO.getUserId()).orElseThrow(() ->
-                new EntityNotFoundException("User with given id does not exist"));
+    public void validateAddScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate from, LocalDate to)
+        throws IllegalArgumentException, EntityNotFoundException, RoleNotMeetRequirementsException, EntityAlreadyExistsException, ScheduleIsInConflictException {
+        validate(!DateValidator.dateStartsMondayEndsSunday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
 
-        Task task = taskService.getTaskById(scheduleDTO.getTaskId()).orElseThrow(() ->
-                new EntityNotFoundException("Task with given id does not exist"));
-
-        checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
-        checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
-        checkScheduleConflict(scheduleDTO, ignoreConflicts);
-    }
-
-    public void validateAddScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate from, LocalDate to) {
         User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
         Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
                 new EntityNotFoundException("Task with given id does not exist"));
 
-        if(!task.isParticipantForWholePeriod()) {
-            throw new IllegalArgumentException("Task does not allow assigning participants for whole period");
-        }
-
-        checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(from, user, task);
-        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
-        List<Task> tasks = getTasksFromSchedules(schedules);
-
-        if(checkIfTaskIsInTaskList(tasks, task)) {
-            throw new EntityAlreadyExistsException("User is already assigned to the task");
-        }
-
-        if(checkIfTaskIsInConflictWithGivenTasks(addScheduleDTO.getTaskId(), tasks) && !ignoreConflicts) {
-            throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
-        }
-
-    }
-
-    public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate) {
-        User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
-                new EntityNotFoundException("User with given id does not exist"));
-
-        Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
-                new EntityNotFoundException("Task with given id does not exist"));
-
-        if(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek())) {
-            throw new IllegalArgumentException("Task does not occur on given day of week");
-        }
-
-        if(task.isParticipantForWholePeriod()) {
-            throw new IllegalArgumentException("Task does not allow assigning participants for daily period");
-        }
-
-        checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(taskDate, user, task);
-        List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
+        List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
         List<Task> userWeekAssignedTasks = getTasksFromSchedules(userWeekSchedules);
 
-        if(checkIfUserIsAlreadyAssignedToDailyTask(user, task, taskDate)) {
-            throw new EntityAlreadyExistsException("User is already assigned to the task on given day");
-        }
+        validate(!task.isParticipantForWholePeriod(), new IllegalArgumentException("Task does not allow assigning participants for whole period"));
 
-        if(checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(task, userWeekSchedules, taskDate) && !ignoreConflicts) {
-            throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
-        }
+        validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(from, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+
+        validate(checkIfTaskIsInTaskList(userWeekAssignedTasks, task), new EntityAlreadyExistsException("User is already assigned to the task"));
+
+        validate(checkIfTaskIsInConflictWithGivenTasks(addScheduleDTO.getTaskId(), userWeekAssignedTasks) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
+
+    }
+
+    public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate)
+        throws IllegalArgumentException, EntityNotFoundException, RoleNotMeetRequirementsException, EntityAlreadyExistsException, ScheduleIsInConflictException {
+        validate(!DateValidator.dateStartsMondayEndsSunday(dateStartWeek, dateEndWeek), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+        validate(!DateValidator.isDateInRange(dateStartWeek, dateEndWeek, taskDate), new IllegalArgumentException("Task date is not in the date range"));
+
+        User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).orElseThrow(() ->
+                new EntityNotFoundException("Task with given id does not exist"));
+
+        List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
+
+        validate(task.isParticipantForWholePeriod(), new IllegalArgumentException("Task does not allow assigning participants for daily period"));
+
+        validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
+
+        validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
+
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+
+        validate(checkIfUserIsAlreadyAssignedToDailyTask(user, task, taskDate), new EntityAlreadyExistsException("User is already assigned to the task on given day"));
+
+        validate(checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(task, userWeekSchedules, taskDate) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
+    }
+
+    private void validate(boolean condition, RuntimeException exception) {
+        if (condition) {
+            throw exception;
+        }
     }
 
     private boolean checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(Task task, List<Schedule> schedules, LocalDate date) {
@@ -404,10 +387,27 @@ public class ScheduleService {
         }
     }
 
+    private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, User user, Task task) {
+        return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), date).isEmpty();
+    }
+
     private void checkScheduleConflict(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
         if(!ignoreConflicts && isScheduleInConflictWithOtherSchedules(scheduleDTO.toSchedule())) {
             throw new ScheduleIsInConflictException("Schedule is in conflict with other schedules");
         }
+    }
+
+    public void validateSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
+        User user = userService.getUserById(scheduleDTO.getUserId()).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        Task task = taskService.getTaskById(scheduleDTO.getTaskId()).orElseThrow(() ->
+                new EntityNotFoundException("Task with given id does not exist"));
+
+        checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
+        checkIfUserHasAllowedRoleForTask(user, task);
+        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
+        checkScheduleConflict(scheduleDTO, ignoreConflicts);
     }
 
 }
