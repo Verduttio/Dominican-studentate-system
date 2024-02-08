@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Table(name = "users")
@@ -68,7 +70,9 @@ public class User implements Serializable {
     }
 
     public Set<Role> getRoles() {
-        return roles;
+        TreeSet<Role> sortedRoles = new TreeSet<>(Comparator.comparing(Role::getName));
+        sortedRoles.addAll(this.roles);
+        return sortedRoles;
     }
 
     public void setRoles(Set<Role> roles) {

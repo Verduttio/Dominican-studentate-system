@@ -2,7 +2,9 @@ package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Table(name = "tasks")
@@ -103,7 +105,9 @@ public class Task {
     }
 
     public Set<DayOfWeek> getDaysOfWeek() {
-        return daysOfWeek;
+        TreeSet<DayOfWeek> sortedDays = new TreeSet<>(Comparator.comparingInt(DayOfWeek::getValue));
+        sortedDays.addAll(this.daysOfWeek);
+        return sortedDays;
     }
 
     public void setDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
