@@ -3,6 +3,9 @@ import axios from 'axios';
 import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
 import {backendUrl, frontendUrl} from "../../utils/constants";
+import './Login.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 
 function Login () {
     const [email, setEmail] = useState('');
@@ -16,11 +19,6 @@ function Login () {
     const errorOAuth2Message = queryParams.get('error_message') || 'nieznany błąd';
 
     const navigate = useNavigate();
-
-    const goToRegisterPage = () => {
-        navigate('/register');
-    };
-
     useEffect(() => {
         request(null, () => navigate('/home'))
             .then(() => {});
@@ -28,7 +26,7 @@ function Login () {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!email) {
+        if (!email || !password) {
             setErrorMessage('Email i hasło są wymagane!');
             return;
         }
@@ -59,21 +57,37 @@ function Login () {
     if (loading) return <div>Ładowanie...</div>;
 
     return (
-        <div>
-            {errorOAuth2 && <p>Błąd uwierzytelenienia poprzez Google: {decodeURIComponent(errorOAuth2Message)}</p>}
-            <form onSubmit={handleLogin}>
-                <label>Email:</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)}/>
-                <br/>
-                <label>Hasło:</label>
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)}/>
-                <br/>
-                <button type="submit">Zaloguj</button>
-                {errorMessage && <p>{errorMessage}</p>}
-            </form>
-            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}>Zaloguj
-                się poprzez Google</a>
-            <button onClick={goToRegisterPage}>Nie masz konta? Zarejestruj się!</button>
+        <div className="login-background">
+            <div className="container">
+                <div className="row justify-content-center">
+                    <div className="col-md-6 login-box">
+                        <h2 className="text-center mb-4">Logowanie</h2>
+                        {errorOAuth2 && <p className="text-danger">{decodeURIComponent(errorOAuth2Message)}</p>}
+                        <form onSubmit={handleLogin}>
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">Email:</label>
+                                <input type="email" className="form-control" id="email" value={email} onChange={e => setEmail(e.target.value)} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="password" className="form-label">Hasło:</label>
+                                <input type="password" className="form-control" id="password" value={password} onChange={e => setPassword(e.target.value)} />
+                            </div>
+                            {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
+                            <button type="submit" className="btn btn-primary w-100">Zaloguj</button>
+                        </form>
+                        <div className="text-center mt-3">
+                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`} className="google-login">
+                                <FontAwesomeIcon icon={faGoogle} /> Zaloguj się poprzez Google
+                            </a>
+                        </div>
+                        <div className="text-center mt-2">
+                            <button onClick={() => navigate('/register')} className="btn btn-warning w-100">
+                                Nie masz konta? Zarejestruj się!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

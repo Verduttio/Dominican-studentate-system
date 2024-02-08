@@ -1,0 +1,54 @@
+.login-background {
+    background: linear-gradient(to right, #bdc3c7, #2c3e50); /* Efekt metalicznego tła */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 100%;
+}
+
+.google-login {
+    display: inline-block;
+    background-color: #e3454c;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-top: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.google-login:hover {
+    background-color: #da0005;
+}
+
+.google-login svg {
+    margin-right: 10px;
+    vertical-align: bottom;
+}
+
+.btn-register {
+    display: inline-block;
+    background-color: #e3454c;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-top: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-register:hover {
+    background-color: #cde4e8;
+    border-color: #dae0e5;
+    /*color: #212529;*/
+}
+

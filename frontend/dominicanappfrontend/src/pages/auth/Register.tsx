@@ -22,12 +22,12 @@ function Register () {
     });
     const [error, setError] = useState<string>('');
     const { name, surname, email, password, confirmPassword } = formData;
-    const { loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
+    const { loading, request  } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        request(null, () => navigate('/home'))
+        request("REGISTER", () => navigate('/home'))
             .then(() => {});
     }, [request, navigate]);
 
