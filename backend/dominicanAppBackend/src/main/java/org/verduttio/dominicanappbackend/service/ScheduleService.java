@@ -198,44 +198,45 @@ public class ScheduleService {
 
         // Possible days of the week
         // Dictionary of DayOfWeek enum and its abbreviation in polish
-        Map<DayOfWeek, String> dayOfWeekAbbreviations = new HashMap<>();
-        dayOfWeekAbbreviations.put(DayOfWeek.MONDAY, "Pn");
-        dayOfWeekAbbreviations.put(DayOfWeek.TUESDAY, "Wt");
-        dayOfWeekAbbreviations.put(DayOfWeek.WEDNESDAY, "Śr");
-        dayOfWeekAbbreviations.put(DayOfWeek.THURSDAY, "Cz");
-        dayOfWeekAbbreviations.put(DayOfWeek.FRIDAY, "Pt");
-        dayOfWeekAbbreviations.put(DayOfWeek.SATURDAY, "So");
-        dayOfWeekAbbreviations.put(DayOfWeek.SUNDAY, "Nd");
+        Map<DayOfWeek, String> dayOfWeekAbbreviations = Map.of(
+                DayOfWeek.MONDAY, "Pn",
+                DayOfWeek.TUESDAY, "Wt",
+                DayOfWeek.WEDNESDAY, "Śr",
+                DayOfWeek.THURSDAY, "Cz",
+                DayOfWeek.FRIDAY, "Pt",
+                DayOfWeek.SATURDAY, "So",
+                DayOfWeek.SUNDAY, "Nd"
+        );
 
         // Create a map of tasks and their DaysOfWeek assigns from task.date
         // Example: {task: [MONDAY, WEDNESDAY, FRIDAY], task2: [TUESDAY, THURSDAY]}
         Map<Task, Set<DayOfWeek>> taskDaysWhenItIsAssignedInSchedule = schedules.stream()
-                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.mapping(Schedule::getDate, Collectors.toSet())))
-                .entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(LocalDate::getDayOfWeek).collect(Collectors.toSet())));
+                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.mapping(
+                        schedule -> schedule.getDate().getDayOfWeek(),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> {
+                                    Collections.sort(list);
+                                    return new LinkedHashSet<>(list);
+                                })
+                )));
 
 
-
-        // Create a list of strings with task names and their occurrences
-        List<String> taskInfoStrings = new ArrayList<>();
-        for (Map.Entry<Task, Set<DayOfWeek>> entry : taskDaysWhenItIsAssignedInSchedule.entrySet()) {
-            Task task = entry.getKey();
-            Set<DayOfWeek> occurrences = entry.getValue();
-            int requiredOccurrences = task.getDaysOfWeek().size();
-            if (occurrences.size() < requiredOccurrences) {
-                // If task occurs less than required, then add the days of the week when it occurs
-                String daysOfWeekString = occurrences.stream()
-                        .sorted()
-                        .map(dayOfWeekAbbreviations::get)
-                        .collect(Collectors.joining(", "));
-                taskInfoStrings.add(task.getName() + " (" + daysOfWeekString + ")");
-            } else {
-                // If task occurs exactly as required, then add only the task name
-                taskInfoStrings.add(task.getName());
-            }
-        }
-
-        return taskInfoStrings;
+        return taskDaysWhenItIsAssignedInSchedule.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Task::getName)))
+                .map(entry -> {
+                    Task task = entry.getKey();
+                    Set<DayOfWeek> occurrences = entry.getValue();
+                    if (occurrences.size() < task.getDaysOfWeek().size()) {
+                        String daysOfWeekString = occurrences.stream()
+                                .map(dayOfWeekAbbreviations::get)
+                                .collect(Collectors.joining(", "));
+                        return task.getName() + " (" + daysOfWeekString + ")";
+                    } else {
+                        return task.getName();
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     public long getTaskCompletionCountForUserInLastNDaysFromDate(Long userId, Long taskId, LocalDate date, int days) {

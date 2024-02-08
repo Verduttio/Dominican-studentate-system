@@ -26,14 +26,16 @@ public class ScheduleServiceTest {
                 Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
         Task task2 = new Task("Cooking", 2, true, true, null, null,
                 Set.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY));
+        Task task3 = new Task("Drying", 2, true, true, null, null,
+                Set.of(DayOfWeek.THURSDAY, DayOfWeek.SATURDAY));
 
         Schedule schedule1 = new Schedule();
         schedule1.setTask(task1);
         schedule1.setDate(LocalDate.parse("2024-02-05"));
 
         Schedule schedule2 = new Schedule();
-        schedule2.setTask(task1);
-        schedule2.setDate(LocalDate.parse("2024-02-07"));
+        schedule2.setTask(task3);
+        schedule2.setDate(LocalDate.parse("2024-02-10"));
 
         Schedule schedule3 = new Schedule();
         schedule3.setTask(task1);
@@ -43,10 +45,14 @@ public class ScheduleServiceTest {
         schedule4.setTask(task2);
         schedule4.setDate(LocalDate.parse("2024-02-06"));
 
-        List<Schedule> schedules = List.of(schedule1, schedule2, schedule3, schedule4);
+        Schedule schedule5 = new Schedule();
+        schedule5.setTask(task2);
+        schedule5.setDate(LocalDate.parse("2024-02-08"));
+
+        List<Schedule> schedules = List.of(schedule1, schedule2, schedule3, schedule4, schedule5);
 
         List<String> testResult = scheduleService.createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
-        List<String> expectedResult = List.of("Cooking (Wt)", "Washing");
+        List<String> expectedResult = List.of("Cooking", "Drying (So)", "Washing (Pn, Pt)");
 
         assertEquals(expectedResult, testResult);
     }
