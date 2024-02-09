@@ -18,7 +18,7 @@ function Login () {
 
     const navigate = useNavigate();
     useEffect(() => {
-        request(null, () => navigate('/home'))
+        request(null, () => navigate('/home'), true)
             .then(() => {});
     }, [request, navigate]);
 
