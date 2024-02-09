@@ -4,8 +4,6 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
 import {backendUrl, frontendUrl} from "../../utils/constants";
 import './Login.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 
 function Login () {
     const [email, setEmail] = useState('');
@@ -57,26 +55,35 @@ function Login () {
     if (loading) return <div>Ładowanie...</div>;
 
     return (
-        <div className="login-background">
-            <div className="container">
-                <div className="row justify-content-center">
+    <div className="login-background">
+        <div className="container">
+            <div className="row justify-content-center">
+                <div className="d-flex align-items-center justify-content-center">
+                    <div className="login-image col-md-6">
+                        <img src={`${process.env.PUBLIC_URL}/Seal_of_the_Dominican_Order.svg`} alt="Opis zdjęcia" className="img-fluid"/>
+                        <h3 className="text-center mt-3">Dominikański system studentatu</h3>
+                    </div>
+
                     <div className="col-md-6 login-box">
                         <h2 className="text-center mb-4">Logowanie</h2>
                         {errorOAuth2 && <p className="text-danger">{decodeURIComponent(errorOAuth2Message)}</p>}
                         <form onSubmit={handleLogin}>
                             <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email:</label>
-                                <input type="email" className="form-control" id="email" value={email} onChange={e => setEmail(e.target.value)} />
+                                <input type="email" className="form-control" id="email" value={email}
+                                       onChange={e => setEmail(e.target.value)}/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Hasło:</label>
-                                <input type="password" className="form-control" id="password" value={password} onChange={e => setPassword(e.target.value)} />
+                                <input type="password" className="form-control" id="password" value={password}
+                                       onChange={e => setPassword(e.target.value)}/>
                             </div>
                             {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
                             <button type="submit" className="btn btn-primary w-100">Zaloguj</button>
                         </form>
                         <div className="text-center mt-3">
-                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`} className="google-login">
+                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}
+                               className="google-login">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24"
                                      viewBox="0 0 48 48">
                                     <path fill="#FFC107"
@@ -101,6 +108,7 @@ function Login () {
                 </div>
             </div>
         </div>
+    </div>
     );
 }
 

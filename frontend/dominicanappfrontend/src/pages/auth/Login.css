@@ -7,13 +7,26 @@
     overflow: auto;
 }
 
-.login-box {
+.login-box, .login-image {
+    flex: 1;
+    margin: 10px 70px;
     background: white;
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     max-width: 400px;
     width: 100%;
+}
+
+.d-flex {
+    display: flex;
+    align-items: center; /* Wyrównanie pionowe do środka */
+    justify-content: center; /* Wyrównanie poziome do środka */
+}
+
+.login-image img {
+    max-width: 100%; /* Sprawia, że obraz jest responsywny */
+    height: auto; /* Zachowuje proporcje obrazu */
 }
 
 .google-login {
@@ -39,4 +52,18 @@
 .btn-register {
     margin-top: 40px;
 }
+
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column; /* Zmienia układ elementów na pionowy */
+        align-items: stretch; /* Rozciąga elementy, aby zajmowały całą dostępną szerokość */
+    }
+
+    .login-box, .login-image {
+        max-width: 100%; /* Pozwala boxom na zajęcie całej dostępnej szerokości */
+        flex-basis: auto; /* Resetuje bazową wielkość boxów, aby mogły się dostosować */
+        margin: 10px 0; /* Dostosowuje marginesy dla układu pionowego */
+    }
+}
+
 
