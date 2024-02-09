@@ -14,7 +14,9 @@ function useHttp<T = any>(url : string, method : string = 'GET') {
             console.log(requestData)
             console.log(url)
             const response = await axios({ url, method, data: requestData, withCredentials: true});
-            onSuccess(response.data);
+            if(response !== undefined) {
+                onSuccess(response.data);
+            }
         } catch (err : any) {
             if (err.response && err.response.status === 403) {
                 setError("Nie posiadasz praw dostępu do tych danych");
@@ -24,7 +26,11 @@ function useHttp<T = any>(url : string, method : string = 'GET') {
                     navigate('/login');
                 }, 3000); // in ms
             } else {
-                setError("Wystąpił błąd: " + err.response.data);
+                if(err.response && err.response.data) {
+                    setError("Wystąpił błąd: " + err.response.data);
+                } else {
+                    setError("Wystąpił błąd: " + err.response);
+                }
             }
         } finally {
             setLoading(false);

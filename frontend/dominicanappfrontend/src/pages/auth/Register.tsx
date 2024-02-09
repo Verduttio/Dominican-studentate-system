@@ -96,37 +96,36 @@ function Register () {
                                 </button>
                                 <h2 className="mb-0">Rejestracja</h2>
                             </div>
-                            {error && <div className="alert alert-danger" role="alert">{error}</div>}
                             <form onSubmit={onSubmit}>
                                 <div className="mb-3">
                                     <label htmlFor="name" className="form-label">Imię:</label>
                                     <input type="text" className="form-control" id="name" name="name" value={name}
-                                           onChange={onChange} placeholder="Imię"/>
+                                           onChange={onChange}/>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="surname" className="form-label">Nazwisko:</label>
                                     <input type="text" className="form-control" id="surname" name="surname"
                                            value={surname}
-                                           onChange={onChange} placeholder="Nazwisko"/>
+                                           onChange={onChange}/>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Email:</label>
                                     <input type="email" className="form-control" id="email" name="email" value={email}
-                                           onChange={onChange} placeholder="Email"/>
+                                           onChange={onChange}/>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="password" className="form-label">Hasło:</label>
                                     <input type="password" className="form-control" id="password" name="password"
                                            value={password}
-                                           onChange={onChange} placeholder="Hasło"/>
+                                           onChange={onChange}/>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="confirmPassword" className="form-label">Powtórz hasło:</label>
                                     <input type="password" className="form-control" id="confirmPassword"
                                            name="confirmPassword"
-                                           value={confirmPassword} onChange={onChange} placeholder="Powtórz hasło"
-                                    />
+                                           value={confirmPassword} onChange={onChange}/>
                                 </div>
+                                {error && <div className="alert alert-danger" role="alert">{error}</div>}
                                 <button type="submit" className="btn btn-primary w-100">Zarejestruj</button>
                             </form>
                             <div className="text-center mt-3">
@@ -143,7 +142,7 @@ function Register () {
                                         <path fill="#1976D2"
                                               d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
                                     </svg>
-                                    Zarejestruj się za pomocą Google
+                                    Zarejestruj się przez Google
                                 </a>
                             </div>
                         </div>
