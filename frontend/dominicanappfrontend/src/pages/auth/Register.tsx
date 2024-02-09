@@ -4,6 +4,8 @@ import {useNavigate} from "react-router-dom";
 import {backendUrl, frontendUrl} from "../../utils/constants";
 import useHttp from "../../services/UseHttp";
 import './Login.css';
+import LoadingSpinner from "../../components/LoadingScreen";
+import '../../components/Common.css';
 
 interface FormData {
     name: string;
@@ -73,10 +75,10 @@ function Register () {
         }
     };
 
-    if (loading) return <div>Ładowanie...</div>;
+    if (loading) return <LoadingSpinner />;
     return (
         <div className="login-background">
-            <div className="container">
+            <div className="container fade-in">
                 <div className="row justify-content-center">
                     <div className="d-flex align-items-center justify-content-center">
                         <div className="login-image col-md-6">
