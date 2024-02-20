@@ -26,6 +26,7 @@ function Register () {
     const [error, setError] = useState<string>('');
     const { name, surname, email, password, confirmPassword } = formData;
     const { loading, request  } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
+    const [registerSuccess, setRegisterSuccess] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
@@ -67,7 +68,8 @@ function Register () {
 
             if(response.status === 200) {
                 console.log('Zarejestrowano pomyślnie');
-                navigate('/login')
+                setRegisterSuccess(true);
+                // navigate('/login')
             }
         } catch (err: any) {
             console.error(err.response.data);
@@ -125,9 +127,17 @@ function Register () {
                                        value={confirmPassword} onChange={onChange}/>
                             </div>
                             {error && <div className="alert alert-danger" role="alert">{error}</div>}
-                            <button type="submit" className="btn btn-primary w-100">Zarejestruj</button>
+                            {registerSuccess &&
+                                <>
+                                    <div className="alert alert-success" role="alert">
+                                        Zarejestrowano pomyślnie. Możesz się teraz zalogować
+                                    </div>
+                                    <button className={"btn btn-success w-100"} onClick={() => navigate('/login')}>Zaloguj się</button>
+                                </>
+                            }
+                            <button type="submit" className="btn btn-primary w-100" hidden={registerSuccess}>Zarejestruj</button>
                         </form>
-                        <div className="text-center mt-3">
+                        <div className="text-center mt-3" hidden={registerSuccess}>
                             <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}
                                className="google-login">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24"
