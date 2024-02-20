@@ -9,6 +9,7 @@ import {useNavigate} from "react-router-dom";
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
+    const {error: deleteUserError, loading: deleteUserLoading, request: deleteUserRequest} = useHttp();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,12 +17,22 @@ function UsersPage () {
             .then(() => {});
     }, [request]);
 
+    const handleDelete = (userId: number) => {
+        deleteUserRequest(null, () => {
+                request(null, (data) => setUsers(data))
+                    .then(() => {});
+            },
+            false, `${backendUrl}/api/users/${userId}`, 'DELETE')
+            .then(r => {});
+    }
+
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div>
             <h2>Lista użytkowników</h2>
+            {deleteUserError && <div className="error-message">{deleteUserError}</div>}
             <table>
                 <thead>
                 <tr>
@@ -47,6 +58,9 @@ function UsersPage () {
                         <td>{user.enabled ? "Tak" : "Nie"}</td>
                         <td>
                             <button onClick={() => navigate(`/users/${user.id}/verify`)}>Zweryfikuj</button>
+                        </td>
+                        <td>
+                            <button className="btn btn-danger" disabled={deleteUserLoading} onClick={() => handleDelete(user.id)}>Usuń</button>
                         </td>
                     </tr>
                 ))}
