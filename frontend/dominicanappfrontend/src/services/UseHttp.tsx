@@ -2,12 +2,19 @@ import {useCallback, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function useHttp<T = any>(url : string, method : string = 'GET') {
+function useHttp<T = any>(url : string = "", method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const request = useCallback(async (requestData: T | null = null, onSuccess = (data: any) => {}, skipRedirect: boolean = false) => {
+    const request = useCallback(async (requestData: T | null = null, onSuccess = (data: any) => {}, skipRedirect: boolean = false, newUrl: string ="", newMethod: string ="") => {
+        if(newUrl !== "" && newMethod !== "") {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            url = newUrl;
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            method = newMethod;
+        }
+
         setLoading(true);
         setError(null);
         try {
