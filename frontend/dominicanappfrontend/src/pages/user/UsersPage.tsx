@@ -30,7 +30,7 @@ function UsersPage () {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h2>Lista użytkowników</h2>
             {deleteUserError && <div className="error-message">{deleteUserError}</div>}
             <table>
@@ -60,7 +60,9 @@ function UsersPage () {
                             <button onClick={() => navigate(`/users/${user.id}/verify`)}>Zweryfikuj</button>
                         </td>
                         <td>
-                            <button className="btn btn-danger" disabled={deleteUserLoading} onClick={() => handleDelete(user.id)}>Usuń</button>
+                            <button className="btn btn-danger" disabled={deleteUserLoading}
+                                    onClick={() => handleDelete(user.id)}>Usuń
+                            </button>
                         </td>
                     </tr>
                 ))}

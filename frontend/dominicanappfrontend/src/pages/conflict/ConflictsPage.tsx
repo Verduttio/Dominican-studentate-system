@@ -20,7 +20,7 @@ function ConflictsPage() {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h2>Lista konfliktów</h2>
             <table>
                 <thead>

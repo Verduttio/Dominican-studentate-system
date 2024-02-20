@@ -41,7 +41,7 @@ function AddRole() {
     };
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Dodaj Rolę</h1>
             {error && <div className="error-message">{error}</div>}
             {validationError && <div className="error-message">{validationError}</div>}

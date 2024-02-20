@@ -79,9 +79,9 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     if (error || fetchTaskError) return <div className="error-message">{error || fetchTaskError}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Zależności użytkowników dla zadania {taskId}</h1>
-            <TaskInfo taskId={taskId} />
+            <TaskInfo taskId={taskId}/>
             <p>Tworzysz harmonogram od: {from}, do: {to}</p>
             {assignToTaskError && <div className="error-message">{assignToTaskError}</div>}
             <table>

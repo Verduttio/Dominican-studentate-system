@@ -14,10 +14,12 @@ function AddSchedule() {
     };
 
     return (
-        <div>
-            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek} />
+        <div className="fade-in">
+            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             <button onClick={handleScheduleCreator}>Kreator harmonogramu</button>
-            <button onClick={() => {}}>Wybierz jedno zadanie i wyznacz osobę</button>
+            <button onClick={() => {
+            }}>Wybierz jedno zadanie i wyznacz osobę
+            </button>
         </div>
     );
 }

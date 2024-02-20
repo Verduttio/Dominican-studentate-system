@@ -16,7 +16,7 @@ function UserProfilePage () {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h2>Profil Użytkownika</h2>
             {user && (
                 <table>

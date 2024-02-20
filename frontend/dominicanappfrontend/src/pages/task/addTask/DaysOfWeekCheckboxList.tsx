@@ -8,7 +8,7 @@ interface DaysOfWeekCheckboxListProps {
 
 export const DaysOfWeekCheckboxList: React.FC<DaysOfWeekCheckboxListProps> = ({ selectedDays, onDayChange }) => {
     return (
-        <div>
+        <div className="fade-in">
             {Object.entries(daysOfWeekMap).map(([polishDay, englishDay]) => (
                 <label key={polishDay}>
                     <input

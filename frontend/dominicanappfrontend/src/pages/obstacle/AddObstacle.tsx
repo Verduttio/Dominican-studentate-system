@@ -60,7 +60,7 @@ function AddObstacle() {
     if(loadingFetchUser || loadingFetchTasks) return <div>Ładowanie...</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             {postError && <div className="error-message">{postError}</div>}
             {validationError && <div className="error-message">{validationError}</div>}
             <form onSubmit={handleSubmit}>

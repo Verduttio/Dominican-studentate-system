@@ -9,7 +9,7 @@ interface RoleCheckboxListProps {
 
 export const RoleCheckboxList: React.FC<RoleCheckboxListProps> = ({ roles, selectedRoles, onRoleChange }) => {
     return (
-        <div>
+        <div className="fade-in">
             {roles.map(role => (
                 <label key={role.id}>
                     <input

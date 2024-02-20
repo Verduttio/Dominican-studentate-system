@@ -20,7 +20,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
     if (!task) return <div>Nie znaleziono zadania.</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h2>Szczegóły Zadania:</h2>
             <p>ID: {task.id}</p>
             <p>Nazwa: {task.name}</p>

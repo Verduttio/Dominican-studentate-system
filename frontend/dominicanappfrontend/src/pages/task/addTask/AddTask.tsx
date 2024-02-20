@@ -112,9 +112,9 @@ function AddTask() {
     if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="error-message">{errorFetchSupervisorRoles}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             {validationError && <div className="error-message">{validationError}</div>}
-            <input name="name" value={taskData.name} onChange={handleChange} placeholder="Nazwa zadania" />
+            <input name="name" value={taskData.name} onChange={handleChange} placeholder="Nazwa zadania"/>
             <div>
                 <label htmlFor="participantsLimit">Limit uczestników:</label>
                 <input
@@ -129,13 +129,14 @@ function AddTask() {
             <div>
                 <label>
                     Stały task:
-                    <input name="permanent" type="checkbox" checked={taskData.permanent} onChange={handleChange} />
+                    <input name="permanent" type="checkbox" checked={taskData.permanent} onChange={handleChange}/>
                 </label>
             </div>
             <div>
                 <label>
                     Uczestnik na cały okres np. tydzień (przeciwieństwo do: codziennie inny uczestnik):
-                    <input name="participantForWholePeriod" type="checkbox" checked={taskData.participantForWholePeriod} onChange={handleChange} />
+                    <input name="participantForWholePeriod" type="checkbox" checked={taskData.participantForWholePeriod}
+                           onChange={handleChange}/>
                 </label>
             </div>
             <div>
@@ -150,7 +151,7 @@ function AddTask() {
             </div>
             <div>
                 <label>Dni tygodnia:</label>
-                <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange} />
+                <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange}/>
             </div>
             {postError && <div className="error-message">{postError}</div>}
             <button onClick={handleSubmit}>Dodaj</button>

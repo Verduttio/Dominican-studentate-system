@@ -37,7 +37,7 @@ function VerifyUserPage() {
     if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="error-message">{errorFetchSupervisorRoles || errorFetchTaskPerformerRoles}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Verify User Page</h1>
             {requestError && <div className="error-message">{requestError}</div>}
             <p>Supervisor Roles:</p>
@@ -48,7 +48,7 @@ function VerifyUserPage() {
                             <input
                                 type="checkbox"
                                 checked={selectedRoles.includes(role.name)}
-                                onChange={(e) => handleRoleChange(role.name, e.target.checked)} />
+                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
                             {role.name}
                         </label>
                     </li>
@@ -62,7 +62,7 @@ function VerifyUserPage() {
                             <input
                                 type="checkbox"
                                 checked={selectedRoles.includes(role.name)}
-                                onChange={(e) => handleRoleChange(role.name, e.target.checked)} />
+                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
                             {role.name}
                         </label>
                     </li>

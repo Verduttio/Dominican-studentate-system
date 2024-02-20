@@ -29,7 +29,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Zadania dla roli: {roleName}</h1>
             {tasks.length > 0 ? (
                 <ul>

@@ -17,7 +17,7 @@ function ViewRoles() {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Role</h1>
             <table>
                 <thead>

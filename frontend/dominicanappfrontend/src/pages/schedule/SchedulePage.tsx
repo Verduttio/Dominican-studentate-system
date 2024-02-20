@@ -34,7 +34,7 @@ function SchedulePage() {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Harmonogram</h1>
             <table>
                 <thead>

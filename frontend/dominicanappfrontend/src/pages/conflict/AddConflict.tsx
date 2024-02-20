@@ -48,7 +48,7 @@ function AddConflict() {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <select name="task1Id" value={task1Id.toString()} onChange={onChange}>
                 <option value="">Wybierz Task 1</option>
                 {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}

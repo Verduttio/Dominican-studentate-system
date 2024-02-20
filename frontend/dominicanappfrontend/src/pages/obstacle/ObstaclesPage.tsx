@@ -20,7 +20,7 @@ function ObstaclesPage () {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h2>Lista przeszkód</h2>
             <table>
                 <thead>

@@ -47,9 +47,9 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Zależności użytkowników dla zadania {taskId}</h1>
-            <TaskInfo taskId={taskId} />
+            <TaskInfo taskId={taskId}/>
             <p>Tworzysz harmonogram od: {from}, do: {to}</p>
             {assignToTaskError && <div className="error-message">{assignToTaskError}</div>}
             <table>
@@ -68,7 +68,8 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                 </thead>
                 <tbody>
                 {userDependencies.map((dep, index) => (
-                    <tr key={index} style={{ backgroundColor: dep.assignedToTheTask ? 'green' : dep.hasObstacle ? 'blue' : dep.isInConflict ? 'orange' : 'grey' }}>
+                    <tr key={index}
+                        style={{backgroundColor: dep.assignedToTheTask ? 'green' : dep.hasObstacle ? 'blue' : dep.isInConflict ? 'orange' : 'grey'}}>
                         <td>{dep.userId}</td>
                         <td>{dep.userName}</td>
                         <td>{dep.lastAssigned}</td>
@@ -78,7 +79,8 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                         <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
                         <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                         <td>
-                            <button onClick={() => handleSubmit(dep.userId)} disabled={assignToTaskLoading}>Przypisz</button>
+                            <button onClick={() => handleSubmit(dep.userId)} disabled={assignToTaskLoading}>Przypisz
+                            </button>
                         </td>
                     </tr>
                 ))}

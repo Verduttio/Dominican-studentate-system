@@ -22,7 +22,7 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
     if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div>
+        <div className="fade-in">
             <h1>Wybierz rolę, aby przejść do tasków przypisanych do niej</h1>
             <p>Tworzysz harmonogram od: {from}, do: {to}</p>
             <table>
@@ -38,7 +38,8 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
                         <td>{role.id}</td>
                         <td>{role.name}</td>
                         <td>
-                            <button onClick={() => navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}>
+                            <button
+                                onClick={() => navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}>
                                 Zobacz zadania
                             </button>
                         </td>
