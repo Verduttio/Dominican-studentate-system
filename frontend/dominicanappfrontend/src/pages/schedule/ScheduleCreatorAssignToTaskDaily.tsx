@@ -30,8 +30,18 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     }, [fetchTaskRequest]);
 
     useEffect(() => {
-        request(null, (data) => setUserDependencies(data));
-    }, [request]);
+        request(null, (data) => {
+            setUserDependencies(data);
+            // Initialize selectedDays with the first day of task.daysOfWeek for each user
+            if (task && task.daysOfWeek.length > 0) {
+                const initialSelectedDays: { [userId: number]: string } = {};
+                data.forEach((dep: UserTaskDependency) => {
+                    initialSelectedDays[dep.userId] = task.daysOfWeek[0];
+                });
+                setSelectedDays(initialSelectedDays);
+            }
+        });
+    }, [request, task]);
 
     const handleDayChange = (userId: number, selectedDay: string) => {
         setSelectedDays(prev => ({
@@ -58,6 +68,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
 
             assignToTaskRequest(requestData, () => {});
         } else {
+            console.log("selected day: ", selectedDays[userId]);
             console.log("taskId, from, to or selected day is null")
         }
     }
