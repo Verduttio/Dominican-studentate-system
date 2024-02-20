@@ -57,7 +57,6 @@ function Login () {
     if (loading) return <LoadingSpinner />;
 
     return (
-    <div className="login-background">
         <div className="container fade-in">
             <div className="row justify-content-center">
                 <div className="d-flex align-items-center justify-content-center">
@@ -110,7 +109,6 @@ function Login () {
                 </div>
             </div>
         </div>
-    </div>
     );
 }
 

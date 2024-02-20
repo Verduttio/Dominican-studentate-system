@@ -1,7 +1,8 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import './components/Common.css';
+import {BrowserRouter as Router, Navigate, Route, Routes, useLocation} from 'react-router-dom';
 import Login from "./pages/auth/Login";
 import Home from "./pages/Home";
 import TasksPage from "./pages/task/TasksPage";
@@ -22,33 +23,52 @@ import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSe
 import ScheduleCreatorAssignToTaskWeekly from "./pages/schedule/ScheduleCreatorAssignToTaskWeekly";
 import VerifyUserPage from "./pages/user/VerifyUserPage";
 import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAssignToTaskDaily";
+import NavigationBar from "./components/NavigationBar";
+
+const AppContent = () => {
+    const location = useLocation();
+    const hideBarPaths = ['/login', '/register'];
+    const backgroundStyle = hideBarPaths.includes(location.pathname) ?
+        { minHeight: '100vh' } : {};
+
+    return (
+        <>
+            {hideBarPaths.includes(location.pathname) ? null : <NavigationBar/>}
+            <div className="background" style={backgroundStyle}>
+                <Routes>
+                    <Route path="/home" Component={Home}/>
+                    <Route path="/login" Component={Login}/>
+                    <Route path="/register" Component={Register}/>
+                    <Route path="/tasks" Component={TasksPage}/>
+                    <Route path="/obstacles" Component={ObstaclesPage}/>
+                    <Route path="/conflicts" Component={ConflictsPage}/>
+                    <Route path="/users" Component={UsersPage}/>
+                    <Route path="/users/:id/verify" Component={VerifyUserPage}/>
+                    <Route path="/roles" Component={ViewRoles}/>
+                    <Route path="/add-role" Component={AddRole}/>
+                    <Route path="/schedule" Component={SchedulePage}/>
+                    <Route path="/add-schedule" Component={AddSchedule}/>
+                    <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
+                    <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
+                    <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
+                    <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
+                    <Route path="/user-profile" Component={UserProfilePage}/>
+                    <Route path="/add-conflict" Component={AddConflict}/>
+                    <Route path="/add-task" Component={AddTask}/>
+                    <Route path="/add-obstacle" Component={AddObstacle}/>
+                    <Route path="*" element={<Navigate replace to="/login"/>}/>
+                </Routes>
+            </div>
+        </>
+    );
+}
+
 
 function App() {
-  return (
+
+    return (
       <Router>
-        <Routes>
-            <Route path="/home" Component={Home}/>
-            <Route path="/login" Component={Login}/>
-            <Route path="/register" Component={Register}/>
-            <Route path="/tasks" Component={TasksPage}/>
-            <Route path="/obstacles" Component={ObstaclesPage}/>
-            <Route path="/conflicts" Component={ConflictsPage}/>
-            <Route path="/users" Component={UsersPage}/>
-            <Route path="/users/:id/verify" Component={VerifyUserPage}/>
-            <Route path="/roles" Component={ViewRoles} />
-            <Route path="/add-role" Component={AddRole} />
-            <Route path="/schedule" Component={SchedulePage}/>
-            <Route path="/add-schedule" Component={AddSchedule}/>
-            <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
-            <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
-            <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
-            <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
-            <Route path="/user-profile" Component={UserProfilePage} />
-            <Route path="/add-conflict" Component={AddConflict}/>
-            <Route path="/add-task" Component={AddTask}/>
-            <Route path="/add-obstacle" Component={AddObstacle}/>
-            <Route path="*" element={<Navigate replace to="/login"/>}/>
-        </Routes>
+          <AppContent />
       </Router>
   );
 }
