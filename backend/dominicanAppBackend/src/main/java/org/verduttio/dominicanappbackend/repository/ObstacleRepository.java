@@ -22,4 +22,14 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
     @Modifying
     @Query("DELETE FROM Obstacle o WHERE o.task.id = :taskId")
     void deleteAllByTaskId(Long taskId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Obstacle o WHERE o.user.id = :userId")
+    void deleteAllByApplicantUserId(Long userId);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Obstacle o SET o.recipientUser = NULL WHERE o.recipientUser.id = :userId")
+    void updateAllByRecipientUserIdToNull(Long userId);
 }

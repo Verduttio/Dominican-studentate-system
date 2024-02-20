@@ -15,21 +15,21 @@ import java.util.Optional;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByUserId(Long userId);
 
-    @Query("SELECT s FROM Schedule s WHERE s.date >= :targetDate")
-    List<Schedule> findSchedulesLaterOrInDay(@Param("targetDate") LocalDate targetDate);
-
-    List<Schedule> findByUserIdAndDate(Long userId, LocalDate date);
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM Schedule s WHERE s.task.id = :taskId")
-    void deleteAllByTaskId(Long taskId);
-
     List<Schedule> findByDateBetween(LocalDate from, LocalDate to);
 
     List<Schedule> findByTaskIdAndDateBetween(Long taskId, LocalDate from, LocalDate to);
 
     List<Schedule> findByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to);
+
+    List<Schedule> findByUserIdAndDate(Long userId, LocalDate date);
+
+    @Query("SELECT s FROM Schedule s WHERE s.date >= :targetDate")
+    List<Schedule> findSchedulesLaterOrInDay(@Param("targetDate") LocalDate targetDate);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Schedule s WHERE s.task.id = :taskId")
+    void deleteAllByTaskId(Long taskId);
 
     @Query("SELECT COUNT(s) FROM Schedule s WHERE s.user.id = :userId AND s.task.id = :taskId AND s.date BETWEEN :startDate AND :endDate")
     long countByUserIdAndTaskIdInLastNDays(@Param("userId") Long userId,
@@ -41,4 +41,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Optional<LocalDate> findLatestTaskCompletionDateByUserIdAndTaskId(@Param("userId") Long userId,
                                                                       @Param("taskId") Long taskId,
                                                                       @Param("upToDate") LocalDate upToDate);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Schedule s WHERE s.user.id = :userId")
+    void deleteAllByUserId(Long userId);
+
 }

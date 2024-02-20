@@ -9,6 +9,8 @@ import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
+import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -27,14 +29,18 @@ public class UserService {
     private final RoleService roleService;
     private final UserValidator userValidator;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ObstacleRepository obstacleRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Autowired
     public UserService(UserRepository userRepository, RoleService roleService,
-                       UserValidator userValidator, UserDetailsServiceImpl userDetailsService) {
+                       UserValidator userValidator, UserDetailsServiceImpl userDetailsService, ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
         this.userDetailsService = userDetailsService;
+        this.obstacleRepository = obstacleRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<User> getAllUsers() {
@@ -60,10 +66,14 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
+        if (userRepository.existsById(userId)) {
+            obstacleRepository.deleteAllByApplicantUserId(userId);
+            obstacleRepository.updateAllByRecipientUserIdToNull(userId);
+            scheduleRepository.deleteAllByUserId(userId);
+            userRepository.deleteById(userId);
+        } else {
             throw new EntityNotFoundException("User with given id does not exist");
         }
-        userRepository.deleteById(userId);
     }
 
     public Optional<User> getUserByEmail(String email) {
