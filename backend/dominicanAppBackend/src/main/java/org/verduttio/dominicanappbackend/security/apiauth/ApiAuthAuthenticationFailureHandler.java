@@ -21,7 +21,7 @@ public class ApiAuthAuthenticationFailureHandler implements AuthenticationFailur
         } else if (exception instanceof DisabledException) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("text/plain");
-            response.getWriter().write("User account is not verified yet");
+            response.getWriter().write("Konto pomyslnie zarejestrowane. Czeka na weryfikacje przez funkcyjnego.");
         } else {
             response.setContentType("text/plain");
             response.getWriter().write(exception.getLocalizedMessage());

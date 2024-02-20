@@ -65,12 +65,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         " account to login.");
             }
 
-            if (!user.isEnabled()) {
-                throw new DisabledException("User account is not verified yet");
-            }
         } else {
             System.out.println("Creating new user");
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
+        }
+
+        if (!user.isEnabled()) {
+            System.out.println("Not verified user");
+            throw new DisabledException("Konto pomyslnie zarejestrowane. Czeka na weryfikacje przez funkcyjnego.");
         }
 
         return new UserDetailsImpl(user, oAuth2User.getAttributes());
