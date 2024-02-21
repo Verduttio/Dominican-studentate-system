@@ -4,7 +4,7 @@ import {Role} from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useNavigate} from "react-router-dom";
 import RoleFormFields from "./RoleFormFields";
-import './EditRole.css';
+import '../../components/AddEditForm.css';
 
 function AddRole() {
     const initialRoleState : Role= {
@@ -15,7 +15,7 @@ function AddRole() {
 
     const [roleData, setRoleData] = useState<Role | null>(initialRoleState);
     const [validationError, setValidationError] = useState<string>('');
-    const { request, error } = useHttp(`${backendUrl}/api/roles`, 'POST');
+    const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'POST');
     const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ function AddRole() {
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData}/>
                     <div className="d-flex justify-content-center">
-                        <button className="btn btn-success" type="submit">Dodaj</button>
+                        <button className="btn btn-success" type="submit" disabled={loading}>Dodaj</button>
                     </div>
                 </form>
             </div>

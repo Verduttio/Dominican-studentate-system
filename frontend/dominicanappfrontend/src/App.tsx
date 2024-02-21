@@ -25,6 +25,7 @@ import VerifyUserPage from "./pages/user/VerifyUserPage";
 import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAssignToTaskDaily";
 import NavigationBar from "./components/NavigationBar";
 import EditRole from "./pages/role/EditRole";
+import EditConflict from "./pages/conflict/EditConflict";
 
 const AppContent = () => {
     const location = useLocation();
@@ -43,6 +44,8 @@ const AppContent = () => {
                     <Route path="/tasks" Component={TasksPage}/>
                     <Route path="/obstacles" Component={ObstaclesPage}/>
                     <Route path="/conflicts" Component={ConflictsPage}/>
+                    <Route path="/add-conflict" Component={AddConflict}/>
+                    <Route path="/edit-conflict/:conflictId" Component={EditConflict}/>
                     <Route path="/users" Component={UsersPage}/>
                     <Route path="/users/:id/verify" Component={VerifyUserPage}/>
                     <Route path="/roles" Component={ViewRoles}/>
@@ -55,7 +58,6 @@ const AppContent = () => {
                     <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
                     <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
-                    <Route path="/add-conflict" Component={AddConflict}/>
                     <Route path="/add-task" Component={AddTask}/>
                     <Route path="/add-obstacle" Component={AddObstacle}/>
                     <Route path="*" element={<Navigate replace to="/login"/>}/>

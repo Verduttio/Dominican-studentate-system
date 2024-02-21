@@ -1,33 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { Conflict } from "../../models/interfaces";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 
 function ConflictsPage() {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/conflicts`, 'GET');
     const navigate = useNavigate();
+    const location = useLocation();
+    const locationStateMessage = location.state?.message;
 
     useEffect(() => {
         request(null, (data) => setConflicts(data))
             .then(() => {});
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h2>Lista konfliktów</h2>
-            <table>
-                <thead>
+            <div className="d-flex justify-content-center">
+                <div>
+                    <h1 className="role-header">Konflikty</h1>
+                </div>
+            </div>
+            <div className="d-flex justify-content-center">
+                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+            </div>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Task1</th>
-                    <th>Task2</th>
+                    <th>Zadanie 1</th>
+                    <th>Zadanie 2</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,12 +46,18 @@ function ConflictsPage() {
                         <td>{conflict.id}</td>
                         <td>{conflict.task1.name}</td>
                         <td>{conflict.task2.name}</td>
+                        <td>
+                            <button className="btn btn-sm btn-warning"
+                                    onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <button onClick={() => navigate("/add-conflict")}>Dodaj konflikt</button>
-            <LogoutButton/>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-conflict')}>Dodaj konflikt</button>
+            </div>
         </div>
     );
 }

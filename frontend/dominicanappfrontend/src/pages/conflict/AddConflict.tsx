@@ -3,6 +3,9 @@ import {useNavigate} from "react-router-dom";
 import useHttp from "../../services/UseHttp";
 import {TaskShortInfo} from "../../models/interfaces";
 import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
+import '../../components/AddEditForm.css';
+import ConflictFormFields from "./ConflictFormFields";
 
 
 interface FormData {
@@ -36,7 +39,9 @@ function AddConflict() {
             return;
         }
 
-        postRequest.request(formData, () => navigate('/conflicts')).then(r => {});
+        postRequest.request(formData, () => {
+            navigate('/conflicts', { state: { message: 'Pomyślnie dodano konflikt' } })
+        });
     };
 
     const onChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -44,22 +49,26 @@ function AddConflict() {
         setSubmitError('');
     };
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">
-            <select name="task1Id" value={task1Id.toString()} onChange={onChange}>
-                <option value="">Wybierz Task 1</option>
-                {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
-            </select>
-            <select name="task2Id" value={task2Id.toString()} onChange={onChange}>
-                <option value="">Wybierz Task 2</option>
-                {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
-            </select>
-            <button onClick={handleSubmit}>Zapisz</button>
-            {postRequest.error && <div className="error-message">{postRequest.error}</div>}
-            {submitError && <div className="error-message">{submitError}</div>}
+            <div className="page-header">
+                <h1>Dodaj konflikt</h1>
+            </div>
+            <div className="edit-role-container">
+                {postRequest.error && <div className="alert alert-danger">{postRequest.error}</div>}
+                {submitError && <div className="alert alert-danger">{submitError}</div>}
+                <ConflictFormFields
+                    tasks={tasks}
+                    formData={formData}
+                    onChange={onChange}
+                />
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-success" onClick={handleSubmit}>Dodaj</button>
+                </div>
+            </div>
         </div>
     );
 
