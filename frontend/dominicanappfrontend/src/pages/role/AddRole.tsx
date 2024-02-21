@@ -26,7 +26,7 @@ function AddRole() {
         }
 
         request(roleData, () => {
-            navigate('/roles');
+            navigate('/roles', { state: { message: 'Pomyślnie dodano rolę' } });
         });
     };
 
@@ -35,9 +35,9 @@ function AddRole() {
             <div className="page-header">
                 <h1>Dodaj Rolę</h1>
             </div>
-            {error && <div className="alert alert-danger">{error}</div>}
-            {validationError && <div className="alert alert-danger">{validationError}</div>}
             <div className="edit-role-container">
+                {error && <div className="alert alert-danger">{error}</div>}
+                {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData}/>
                     <div className="d-flex justify-content-center">

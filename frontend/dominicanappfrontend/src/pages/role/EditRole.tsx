@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import { Role, RoleType } from '../../models/interfaces';
+import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -32,7 +32,7 @@ function EditRole() {
         }
 
         updateRole(roleData, () => {
-            navigate('/roles');
+            navigate('/roles', { state: { message: 'Pomyślnie zaktualizowano rolę' } });
         });
     };
 

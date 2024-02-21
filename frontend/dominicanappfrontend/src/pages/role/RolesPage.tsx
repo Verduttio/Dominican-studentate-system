@@ -2,24 +2,19 @@ import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import './RolesPage.css';
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
-    const {error: deleteRoleError, loading: deleteRoleLoading, request: deleteRoleRequest} = useHttp();
     const navigate = useNavigate();
+    const location = useLocation();
+    const locationStateMessage = location.state?.message;
 
     useEffect(() => {
         request(null, (data: Role[]) => setRoles(data));
     }, [request]);
-
-    const handleDelete = (id: number) => {
-        deleteRoleRequest(null, () => {
-                request(null, (data: Role[]) => setRoles(data));
-        }, false, `${backendUrl}/api/roles/${id}`, 'DELETE');
-    }
 
     if (loading) return <div>Ładowanie...</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -31,7 +26,9 @@ function ViewRoles() {
                     <h1 className="role-header">Role</h1>
                 </div>
             </div>
-            {deleteRoleError && <div className="error-message">{deleteRoleError}</div>}
+            <div className="d-flex justify-content-center">
+                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+            </div>
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <thead className="table-dark">
                 <tr>
