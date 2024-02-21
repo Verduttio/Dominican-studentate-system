@@ -1,36 +1,26 @@
 import React, { useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import {Role, RoleType} from '../../models/interfaces';
+import {Role} from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useNavigate} from "react-router-dom";
-
-interface RoleFormData extends Omit<Role, 'id'> {}
+import RoleFormFields from "./RoleFormFields";
+import './EditRole.css';
 
 function AddRole() {
-    const initialRoleState : RoleFormData = {
+    const initialRoleState : Role= {
+        id: 0,
         name: '',
         type: ''
     }
 
-    const [roleData, setRoleData] = useState(initialRoleState);
+    const [roleData, setRoleData] = useState<Role | null>(initialRoleState);
     const [validationError, setValidationError] = useState<string>('');
     const { request, error } = useHttp(`${backendUrl}/api/roles`, 'POST');
     const navigate = useNavigate();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-
-        setValidationError('');
-
-        setRoleData({
-            ...roleData,
-            [name]: value
-        });
-    };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!roleData.name || !roleData.type) {
+        if (!roleData?.name || !roleData?.type) {
             setValidationError("Wszystkie pola muszą być wypełnione.");
             return;
         }
@@ -42,36 +32,19 @@ function AddRole() {
 
     return (
         <div className="fade-in">
-            <h1>Dodaj Rolę</h1>
-            {error && <div className="error-message">{error}</div>}
-            {validationError && <div className="error-message">{validationError}</div>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="roleName">Nazwa roli:</label>
-                    <input
-                        id="roleName"
-                        name="name"
-                        type="text"
-                        value={roleData.name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="roleType">Typ roli:</label>
-                    <select
-                        id="roleType"
-                        name="type"
-                        value={roleData.type}
-                        onChange={handleChange}
-                    >
-                        <option value="">Wybierz typ roli</option>
-                        {Object.values(RoleType).map((type) => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-                </div>
-                <button type="submit">Zapisz Rolę</button>
-            </form>
+            <div className="page-header">
+                <h1>Dodaj Rolę</h1>
+            </div>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {validationError && <div className="alert alert-danger">{validationError}</div>}
+            <div className="edit-role-container">
+                <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                    <RoleFormFields roleData={roleData} setRoleData={setRoleData}/>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-success" type="submit">Dodaj</button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

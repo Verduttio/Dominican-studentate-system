@@ -5,6 +5,7 @@ import { backendUrl } from '../../utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from "../../components/LoadingScreen";
 import './EditRole.css';
+import RoleFormFields from "./RoleFormFields";
 
 function EditRole() {
     const { roleId } = useParams();
@@ -22,14 +23,6 @@ function EditRole() {
             });
         }
     }, [roleId, fetchRole]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setRoleData(prev => ({
-            ...prev,
-            [name]: value
-        } as Role));
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,34 +55,7 @@ function EditRole() {
             {validationError && <div className="alert alert-danger">{validationError}</div>}
             <div className="edit-role-container">
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
-                    <div className="mb-3">
-                        <label htmlFor="roleName" className="form-label">Nazwa roli:</label>
-                        <input
-                            id="roleName"
-                            name="name"
-                            type="text"
-                            className="form-control"
-                            value={roleData ? roleData.name : ''}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="roleType" className="form-label">Typ roli:</label>
-                        <select
-                            id="roleType"
-                            name="type"
-                            className="form-select"
-                            value={roleData ? roleData.type : ''}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="">Wybierz typ roli</option>
-                            {Object.values(RoleType).map((type) => (
-                                <option key={type} value={type}>{type}</option>
-                            ))}
-                        </select>
-                    </div>
+                    <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
                     <div className="d-flex justify-content-between">
                         <button className="btn btn-success" type="submit">Zaktualizuj</button>
                         <button type="button" onClick={handleDelete} className="btn btn-danger">Usuń</button>
