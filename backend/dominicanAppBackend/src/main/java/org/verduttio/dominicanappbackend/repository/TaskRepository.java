@@ -1,7 +1,10 @@
 package org.verduttio.dominicanappbackend.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
 import org.verduttio.dominicanappbackend.entity.Task;
 
@@ -20,4 +23,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t JOIN t.supervisorRoles sr WHERE sr.name IN :supervisorName")
     List<Task> findTasksBySupervisorRoleName(String supervisorName);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM task_allowed_roles WHERE role_id = :roleId", nativeQuery = true)
+    void removeRoleFromAllTasks(@Param("roleId") Long roleId);
 }

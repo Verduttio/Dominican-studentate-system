@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
@@ -14,10 +16,14 @@ import java.util.*;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository) {
+    public RoleService(RoleRepository roleRepository, TaskRepository taskRepository, UserRepository userRepository) {
         this.roleRepository = roleRepository;
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Role> getAllRoles() {
@@ -55,10 +61,14 @@ public class RoleService {
     }
 
     public void deleteRole(Long roleId) {
-        if (!roleRepository.existsById(roleId)) {
+        if (roleRepository.existsById(roleId)) {
+            taskRepository.removeRoleFromAllTasks(roleId);
+            userRepository.removeRoleFromAllUsers(roleId);
+            roleRepository.deleteById(roleId);
+        } else {
             throw new EntityNotFoundException("Role with given id does not exist");
         }
-        roleRepository.deleteById(roleId);
+
     }
 
     /**

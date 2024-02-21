@@ -1,7 +1,9 @@
 package org.verduttio.dominicanappbackend.repository;
 
 import jakarta.annotation.Nonnull;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
@@ -19,4 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT new org.verduttio.dominicanappbackend.dto.user.UserShortInfo(u.id, u.name, u.surname) FROM User u")
     List<UserShortInfo> findAllUsersShortInfo();
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM user_roles WHERE role_id = :roleId", nativeQuery = true)
+    void removeRoleFromAllUsers(Long roleId);
 }
