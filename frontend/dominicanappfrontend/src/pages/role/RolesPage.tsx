@@ -4,6 +4,7 @@ import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
 import './RolesPage.css';
+import LoadingSpinner from "../../components/LoadingScreen";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -16,7 +17,7 @@ function ViewRoles() {
         request(null, (data: Role[]) => setRoles(data));
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
+    if (loading) return <LoadingSpinner/>;
     if (error) return <div className="error-message">{error}</div>;
 
     return (

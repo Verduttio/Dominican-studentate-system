@@ -10,7 +10,7 @@ import RoleFormFields from "./RoleFormFields";
 function EditRole() {
     const { roleId } = useParams();
     const navigate = useNavigate();
-    const { request: fetchRole, error: fetchError, loading: fetchLoading } = useHttp(`${backendUrl}/api/roles/${roleId}`, 'GET');
+    const { request: fetchRole, error: fetchError} = useHttp(`${backendUrl}/api/roles/${roleId}`, 'GET');
     const { request: updateRole, error: updateError } = useHttp(`${backendUrl}/api/roles/${roleId}`, 'PUT');
     const { request: deleteRole, error: deleteError } = useHttp(`${backendUrl}/api/roles/${roleId}`, 'DELETE');
     const [roleData, setRoleData] = useState<Role | null>(null);

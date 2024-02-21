@@ -27,7 +27,9 @@ public class RoleService {
     }
 
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        List<Role> roles = roleRepository.findAll();
+        roles.sort(Comparator.comparing(Role::getType));
+        return roles;
     }
 
     public Role getRoleById(Long roleId) {
