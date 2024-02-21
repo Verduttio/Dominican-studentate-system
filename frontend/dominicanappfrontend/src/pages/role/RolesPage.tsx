@@ -3,6 +3,7 @@ import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useNavigate} from "react-router-dom";
+import './RolesPage.css';
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -25,10 +26,14 @@ function ViewRoles() {
 
     return (
         <div className="fade-in">
-            <h1>Role</h1>
+            <div className="d-flex justify-content-center">
+                <div>
+                    <h1 className="role-header">Role</h1>
+                </div>
+            </div>
             {deleteRoleError && <div className="error-message">{deleteRoleError}</div>}
-            <table>
-                <thead>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Nazwa</th>
@@ -43,13 +48,23 @@ function ViewRoles() {
                         <td>{role.id}</td>
                         <td>{role.name}</td>
                         <td>{role.type}</td>
-                        <td><button className="btn btn-warning" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button></td>
-                        <td><button className="btn btn-danger" onClick={() => {handleDelete(role.id)}} disabled={deleteRoleLoading}>Usuń</button></td>
+                        <td>
+                            <button className="btn btn-sm btn-warning"
+                                    onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj
+                            </button>
+                        </td>
+                        <td>
+                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(role.id)}
+                                    disabled={deleteRoleLoading}>Usuń
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <button onClick={() => navigate('/add-role')}>Dodaj rolę</button>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
+            </div>
         </div>
     );
 }
