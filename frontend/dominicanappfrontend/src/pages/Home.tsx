@@ -12,7 +12,7 @@ function Home () {
     }, [request]);
 
     if (loading) return <LoadingSpinner />
-    if (error) return <div>{error}</div>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">

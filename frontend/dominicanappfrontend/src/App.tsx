@@ -24,6 +24,7 @@ import ScheduleCreatorAssignToTaskWeekly from "./pages/schedule/ScheduleCreatorA
 import VerifyUserPage from "./pages/user/VerifyUserPage";
 import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAssignToTaskDaily";
 import NavigationBar from "./components/NavigationBar";
+import EditRole from "./pages/role/EditRole";
 
 const AppContent = () => {
     const location = useLocation();
@@ -46,6 +47,7 @@ const AppContent = () => {
                     <Route path="/users/:id/verify" Component={VerifyUserPage}/>
                     <Route path="/roles" Component={ViewRoles}/>
                     <Route path="/add-role" Component={AddRole}/>
+                    <Route path="/edit-role/:roleId" Component={EditRole}/>
                     <Route path="/schedule" Component={SchedulePage}/>
                     <Route path="/add-schedule" Component={AddSchedule}/>
                     <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>

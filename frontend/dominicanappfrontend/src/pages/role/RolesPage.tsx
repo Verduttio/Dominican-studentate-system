@@ -38,8 +38,7 @@ function ViewRoles() {
                     <th>ID</th>
                     <th>Nazwa</th>
                     <th>Typ</th>
-                    <th>Edytuj</th>
-                    <th>Usuń</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -51,11 +50,6 @@ function ViewRoles() {
                         <td>
                             <button className="btn btn-sm btn-warning"
                                     onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj
-                            </button>
-                        </td>
-                        <td>
-                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(role.id)}
-                                    disabled={deleteRoleLoading}>Usuń
                             </button>
                         </td>
                     </tr>
