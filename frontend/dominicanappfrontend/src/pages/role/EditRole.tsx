@@ -4,6 +4,7 @@ import { Role, RoleType } from '../../models/interfaces';
 import { backendUrl } from '../../utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from "../../components/LoadingScreen";
+import './EditRole.css';
 
 function EditRole() {
     const { roleId } = useParams();
@@ -55,36 +56,46 @@ function EditRole() {
 
     return (
         <div className="fade-in">
-            <h1>Edytuj Rolę</h1>
-            {validationError && <div className="error-message">{validationError}</div>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="roleName">Nazwa roli:</label>
-                    <input
-                        id="roleName"
-                        name="name"
-                        type="text"
-                        value={roleData.name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="roleType">Typ roli:</label>
-                    <select
-                        id="roleType"
-                        name="type"
-                        value={roleData.type}
-                        onChange={handleChange}
-                    >
-                        <option value="">Wybierz typ roli</option>
-                        {Object.values(RoleType).map((type) => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-                </div>
-                <button className="btn btn-success m-2" type="submit">Zaktualizuj rolę</button>
-                <button type="button" onClick={handleDelete} className="btn btn-danger">Usuń rolę</button>
-            </form>
+            <div className="page-header">
+                <h1>Edytuj Rolę</h1>
+            </div>
+            {validationError && <div className="alert alert-danger">{validationError}</div>}
+            <div className="edit-role-container">
+                <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                    <div className="mb-3">
+                        <label htmlFor="roleName" className="form-label">Nazwa roli:</label>
+                        <input
+                            id="roleName"
+                            name="name"
+                            type="text"
+                            className="form-control"
+                            value={roleData ? roleData.name : ''}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="roleType" className="form-label">Typ roli:</label>
+                        <select
+                            id="roleType"
+                            name="type"
+                            className="form-select"
+                            value={roleData ? roleData.type : ''}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">Wybierz typ roli</option>
+                            {Object.values(RoleType).map((type) => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                        <button className="btn btn-success" type="submit">Zaktualizuj</button>
+                        <button type="button" onClick={handleDelete} className="btn btn-danger">Usuń</button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

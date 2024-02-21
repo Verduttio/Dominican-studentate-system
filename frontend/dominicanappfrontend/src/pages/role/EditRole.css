@@ -1,0 +1,31 @@
+.edit-role-container {
+    min-width: 300px;
+    padding: 20px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.edit-role-container h1 {
+    color: #333;
+}
+
+.btn-success, .btn-danger {
+    width: 48%; /* Aby przyciski zajmowały mniej więcej połowę szerokości kontenera */
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.form-control, .form-select {
+    border-radius: 5px;
+}
+
+.page-header h1 {
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
