@@ -3,6 +3,8 @@ import {backendUrl} from "../../utils/constants";
 import {Role} from "../../models/Interfaces";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
+import LoadingSpinner from "../../components/LoadingScreen";
+import "./VerifyUsersPage.css";
 
 function VerifyUserPage() {
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
@@ -33,42 +35,48 @@ function VerifyUserPage() {
         });
     }
 
-    if(loadingSupervisorRoles || loadingTaskPerformerRoles) return <div>Ładowanie...</div>;
-    if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="error-message">{errorFetchSupervisorRoles || errorFetchTaskPerformerRoles}</div>;
+    if(loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
+    if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="alert alert-danger">{errorFetchSupervisorRoles || errorFetchTaskPerformerRoles}</div>;
 
     return (
         <div className="fade-in">
-            <h1>Verify User Page</h1>
-            {requestError && <div className="error-message">{requestError}</div>}
-            <p>Supervisor Roles:</p>
-            <ul>
-                {rolesSupervisor.map((role) => (
-                    <li key={role.id}>
-                        <label>
+            <div className="page-header">
+                <h1>Weryfikacja użytkownika</h1>
+            </div>
+            {requestError && <div className="alert alert-danger">{requestError}</div>}
+            <div className="edit-entity-container">
+                <div className="mb-3">
+                    <label className="form-label">Role funkcyjnych:</label>
+                    {rolesSupervisor.map((role) => (
+                        <label className="form-check custom-checkbox">
                             <input
+                                className={"form-check-input"}
+                                type="checkbox"
+                                checked={selectedRoles.includes(role.name)}
+                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}
+                            />
+                            {role.name}
+                        </label>
+                    ))}
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Role wykonujących:</label>
+                    {rolesTaskPerformer.map((role) => (
+                        <label className="form-check custom-checkbox">
+                            <input
+                                className="form-check-input"
                                 type="checkbox"
                                 checked={selectedRoles.includes(role.name)}
                                 onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
                             {role.name}
                         </label>
-                    </li>
-                ))}
-            </ul>
-            <p>Task Performer Roles:</p>
-            <ul>
-                {rolesTaskPerformer.map((role) => (
-                    <li key={role.id}>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={selectedRoles.includes(role.name)}
-                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
-                            {role.name}
-                        </label>
-                    </li>
-                ))}
-            </ul>
-            <button onClick={handleSubmit} disabled={requestLoading}>Zweryfikuj</button>
+                    ))}
+                </div>
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-success" onClick={handleSubmit} disabled={requestLoading}>Zweryfikuj
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
