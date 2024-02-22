@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useHttp from "../../services/UseHttp";
-import {Obstacle} from "../../models/interfaces";
+import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -52,7 +52,8 @@ function ObstaclesPage () {
                         <td>{obstacle.fromDate}</td>
                         <td>{obstacle.toDate}</td>
                         <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "brak"}</td>
-                        <td>{obstacle.status}</td>
+                        <td style={{ backgroundColor:
+                            obstacle.status === ObstacleStatus.AWAITING ? 'yellow' : ''}}>{obstacle.status}</td>
                         <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "brak"}</td>
                         <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "brak"}</td>
                     </tr>

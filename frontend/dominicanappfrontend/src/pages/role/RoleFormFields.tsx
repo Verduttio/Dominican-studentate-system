@@ -1,5 +1,5 @@
 import React from 'react';
-import {Role, RoleType} from '../../models/interfaces';
+import {Role, RoleType} from '../../models/Interfaces';
 
 interface RoleFormFieldsProps {
     roleData: Role | null;

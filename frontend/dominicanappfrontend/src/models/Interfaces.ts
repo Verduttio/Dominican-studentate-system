@@ -61,6 +61,12 @@ interface UserTaskDependency {
     assignedToTheTask: boolean;
 }
 
+export enum ObstacleStatus {
+    AWAITING = "AWAITING",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED"
+}
+
 export enum RoleType {
     SYSTEM = "SYSTEM",
     SUPERVISOR = "SUPERVISOR",

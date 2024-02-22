@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import { Schedule } from '../../models/interfaces';
+import { Schedule } from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";

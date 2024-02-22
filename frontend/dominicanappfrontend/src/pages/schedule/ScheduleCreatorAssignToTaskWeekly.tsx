@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
-import {UserTaskDependency} from "../../models/interfaces";
+import {UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 

@@ -1,6 +1,6 @@
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
-import {Role} from "../../models/interfaces";
+import {Role} from "../../models/Interfaces";
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 

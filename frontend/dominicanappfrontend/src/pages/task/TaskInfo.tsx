@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
 import { backendUrl } from "../../utils/constants";
-import { Task } from "../../models/interfaces";
+import { Task } from "../../models/Interfaces";
 
 interface TaskInfoProps {
     taskId: string | null

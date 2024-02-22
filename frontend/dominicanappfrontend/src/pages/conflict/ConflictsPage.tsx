@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useHttp from "../../services/UseHttp";
-import { Conflict } from "../../models/interfaces";
+import { Conflict } from "../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";

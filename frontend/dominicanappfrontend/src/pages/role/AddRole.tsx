@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import {Role} from '../../models/interfaces';
+import {Role} from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useNavigate} from "react-router-dom";
 import RoleFormFields from "./RoleFormFields";

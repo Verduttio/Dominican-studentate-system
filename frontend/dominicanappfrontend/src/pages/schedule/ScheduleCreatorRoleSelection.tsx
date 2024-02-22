@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
-import { Role } from '../../models/interfaces';
+import { Role } from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 
 const ScheduleCreatorRoleSelection: React.FC = () => {

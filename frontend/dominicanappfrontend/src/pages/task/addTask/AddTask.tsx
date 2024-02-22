@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../../services/UseHttp";
-import { Task, Role } from "../../../models/interfaces";
+import { Task, Role } from "../../../models/Interfaces";
 import { RoleCheckboxList } from './RoleCheckboxList';
 import { DaysOfWeekCheckboxList } from './DaysOfWeekCheckboxList';
 import {backendUrl} from "../../../utils/constants";

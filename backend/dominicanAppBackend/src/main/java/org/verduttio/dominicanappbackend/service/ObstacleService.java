@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
@@ -12,6 +13,7 @@ import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundExcepti
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +33,9 @@ public class ObstacleService {
     }
 
     public List<Obstacle> getAllObstacles() {
-        return obstacleRepository.findAll();
+        List<Obstacle> obstacles = obstacleRepository.findAll();
+        obstacles.sort(Comparator.comparingInt(o -> o.getStatus().ordinal()));
+        return obstacles;
     }
 
     public Optional<Obstacle> getObstacleById(Long obstacleId) {

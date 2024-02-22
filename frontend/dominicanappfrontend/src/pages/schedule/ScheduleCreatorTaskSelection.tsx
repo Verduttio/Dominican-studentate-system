@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
-import {Task} from '../../models/interfaces';
+import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 
 const ScheduleCreatorTaskSelection: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaskShortInfo } from "../../models/interfaces";
+import { TaskShortInfo } from "../../models/Interfaces";
 
 interface ConflictFormFieldsProps {
     tasks: TaskShortInfo[];

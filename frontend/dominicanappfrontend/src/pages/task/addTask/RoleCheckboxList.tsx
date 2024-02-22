@@ -1,5 +1,5 @@
 import React from 'react';
-import { Role } from "../../../models/interfaces";
+import { Role } from "../../../models/Interfaces";
 
 interface RoleCheckboxListProps {
     roles: Role[];

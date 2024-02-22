@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import useHttp from "../../services/UseHttp";
-import {ObstacleData, TaskShortInfo, UserShortInfo} from "../../models/interfaces";
+import {ObstacleData, TaskShortInfo, UserShortInfo} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 

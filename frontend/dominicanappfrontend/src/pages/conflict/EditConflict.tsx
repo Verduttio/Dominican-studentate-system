@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
-import {Conflict, TaskShortInfo} from "../../models/interfaces";
+import {Conflict, TaskShortInfo} from "../../models/Interfaces";
 import { backendUrl } from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ConflictFormFields from './ConflictFormFields';

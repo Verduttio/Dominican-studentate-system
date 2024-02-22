@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
-import { User } from "../../models/interfaces";
+import { User } from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import {useNavigate} from "react-router-dom";
 

@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import useHttp from "../../services/UseHttp";
-import {TaskShortInfo} from "../../models/interfaces";
+import {TaskShortInfo} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/AddEditForm.css';
