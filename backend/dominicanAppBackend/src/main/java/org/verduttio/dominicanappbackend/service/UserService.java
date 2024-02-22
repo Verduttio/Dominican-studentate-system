@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
@@ -44,7 +45,7 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "isEnabled"));
     }
 
     public Optional<User> getUserById(Long userId) {
