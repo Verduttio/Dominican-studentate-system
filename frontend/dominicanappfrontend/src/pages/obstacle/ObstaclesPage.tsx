@@ -42,6 +42,7 @@ function ObstaclesPage () {
                     <th>Status</th>
                     <th>Funkcyjny</th>
                     <th>Odpowiedź funkcyjnego</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -52,14 +53,19 @@ function ObstaclesPage () {
                         <td>{obstacle.task.name}</td>
                         <td>{obstacle.fromDate}</td>
                         <td>{obstacle.toDate}</td>
-                        <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "brak"}</td>
+                        <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                         <td>
                             <span className={obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text' : ''}>
                             {obstacle.status}
                           </span>
                         </td>
-                        <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "brak"}</td>
-                        <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "brak"}</td>
+                        <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
+                        <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
+                        <td>
+                            <button className="btn btn-sm btn-info"
+                                    onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Modyfikuj
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>

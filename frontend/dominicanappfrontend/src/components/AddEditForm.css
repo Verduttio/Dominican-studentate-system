@@ -12,7 +12,7 @@
     color: #333;
 }
 
-.btn-success, .btn-danger {
+.btn-success .btn-danger .btn-warning {
     width: 48%; /* Aby przyciski zajmowały mniej więcej połowę szerokości kontenera */
 }
 

@@ -26,6 +26,7 @@ import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAs
 import NavigationBar from "./components/NavigationBar";
 import EditRole from "./pages/role/EditRole";
 import EditConflict from "./pages/conflict/EditConflict";
+import EditObstacle from "./pages/obstacle/EditObstacle";
 
 const AppContent = () => {
     const location = useLocation();
@@ -43,6 +44,8 @@ const AppContent = () => {
                     <Route path="/register" Component={Register}/>
                     <Route path="/tasks" Component={TasksPage}/>
                     <Route path="/obstacles" Component={ObstaclesPage}/>
+                    <Route path="/add-obstacle" Component={AddObstacle}/>
+                    <Route path="/edit-obstacle/:obstacleId" Component={EditObstacle} />
                     <Route path="/conflicts" Component={ConflictsPage}/>
                     <Route path="/add-conflict" Component={AddConflict}/>
                     <Route path="/edit-conflict/:conflictId" Component={EditConflict}/>
@@ -59,7 +62,6 @@ const AppContent = () => {
                     <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/add-task" Component={AddTask}/>
-                    <Route path="/add-obstacle" Component={AddObstacle}/>
                     <Route path="*" element={<Navigate replace to="/login"/>}/>
                 </Routes>
             </div>
