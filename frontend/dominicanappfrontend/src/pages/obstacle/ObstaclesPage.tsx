@@ -1,39 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import {Obstacle} from "../../models/interfaces";
 import {backendUrl} from "../../utils/constants";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 
 function ObstaclesPage () {
     const [obstacles, setObstacles] = useState<Obstacle[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
     const navigate = useNavigate();
+    const location = useLocation();
+    const locationStateMessage = location.state?.message;
 
     useEffect(() => {
         request(null, (data) => setObstacles(data))
             .then(() => {});
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
+    if (loading) return <LoadingSpinner/>;
     if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h2>Lista przeszkód</h2>
-            <table>
-                <thead>
+            <div className="d-flex justify-content-center">
+                <h1 className="role-header">Przeszkody</h1>
+            </div>
+            <div className="d-flex justify-content-center">
+                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+            </div>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Proszący</th>
-                    <th>Task</th>
+                    <th>Zadanie</th>
                     <th>Od</th>
                     <th>Do</th>
                     <th>Opis</th>
                     <th>Status</th>
-                    <th>Akceptant</th>
-                    <th>Odpowiedź akceptanta</th>
+                    <th>Funkcyjny</th>
+                    <th>Odpowiedź funkcyjnego</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -52,8 +59,9 @@ function ObstaclesPage () {
                 ))}
                 </tbody>
             </table>
-            <LogoutButton/>
-            <button onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę</button>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę</button>
+            </div>
         </div>
     );
 }
