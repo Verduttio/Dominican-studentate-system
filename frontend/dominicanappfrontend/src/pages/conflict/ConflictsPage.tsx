@@ -47,7 +47,7 @@ function ConflictsPage() {
                         <td>{conflict.task1.name}</td>
                         <td>{conflict.task2.name}</td>
                         <td>
-                            <button className="btn btn-sm btn-warning"
+                            <button className="btn btn-sm btn-dark"
                                     onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj
                             </button>
                         </td>

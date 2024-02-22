@@ -66,8 +66,8 @@ function ObstaclesPage () {
                         <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
                         <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
                         <td>
-                            <button className="btn btn-sm btn-info"
-                                    onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Modyfikuj
+                            <button className="btn btn-sm btn-dark"
+                                    onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Akcja
                             </button>
                         </td>
                     </tr>

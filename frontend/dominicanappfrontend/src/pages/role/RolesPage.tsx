@@ -45,7 +45,7 @@ function ViewRoles() {
                         <td>{role.name}</td>
                         <td>{role.type}</td>
                         <td>
-                            <button className="btn btn-sm btn-warning"
+                            <button className="btn btn-sm btn-dark"
                                     onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj
                             </button>
                         </td>
