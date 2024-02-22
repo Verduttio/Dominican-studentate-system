@@ -8,15 +8,18 @@ import "./VerifyUsersPage.css";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
+
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { request: fetchUser, error: errorFetchUser, loading: loadingUser} = useHttp(`${backendUrl}/api/users/${userId}`, 'GET');
     const { request: deleteUserRequest, error: deleteUserError, loading: deleteUserLoading} = useHttp(`${backendUrl}/api/users/${userId}`, 'DELETE');
+    const { request: verifyUserRequest, error: requestError, loading: requestLoading} = useHttp(`${backendUrl}/api/users/${userId}/verification/assignRoles`, 'PUT');
+    const { request: updateRolesRequest, error: updateRolesError, loading: updateRolesLoading } = useHttp(`${backendUrl}/api/users/${userId}/roles`, 'PATCH');
+
     const [user, setUser] = useState<User | null>(null);
     const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
     const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-    const {error: requestError, loading: requestLoading, request: verifyUserRequest} = useHttp(`${backendUrl}/api/users/${userId}/verification/assignRoles`, 'PUT');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,7 +43,13 @@ function VerifyUserPage() {
         verifyUserRequest(selectedRoles, () => {
             navigate('/users', { state: { message: 'Użytkownik został zweryfikowany' } });
         });
-    }
+    };
+
+    const handleUpdateRoles = () => {
+        updateRolesRequest(selectedRoles, () => {
+            navigate('/users', { state: { message: 'Role użytkownika zostały zaktualizowane' } });
+        });
+    };
 
     const handleDelete = () => {
         deleteUserRequest(null, () => {
@@ -90,6 +99,7 @@ function VerifyUserPage() {
                 <div className="edit-entity-container">
                     {requestError && <div className="alert alert-danger">{requestError}</div>}
                     {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}
+                    {updateRolesError && <div className="alert alert-danger">{updateRolesError}</div>}
                     <div className="mb-3">
                         <label className="form-label">Role funkcyjne:</label>
                         {rolesSupervisor.map((role) => (
@@ -120,18 +130,19 @@ function VerifyUserPage() {
                     <div className="d-flex justify-content-between">
                         {user.enabled ?
                             <button className="btn btn-success"
-                                    disabled={requestLoading || deleteUserLoading}>Zapisz zmiany
+                                    onClick={handleUpdateRoles}
+                                    disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
                             </button>
                             :
                             <button className="btn btn-success" onClick={handleSubmit}
                                     disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                             </button>
                         }
-                        <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading}>
+                        <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}>
                             Zmień hasło
                         </button>
                         <button className="btn btn-danger" onClick={handleDelete}
-                                disabled={requestLoading || deleteUserLoading}>Usuń użytkownika
+                                disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                         </button>
                     </div>
                 </div>

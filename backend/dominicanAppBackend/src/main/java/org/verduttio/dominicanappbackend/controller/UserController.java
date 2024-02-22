@@ -131,6 +131,17 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PatchMapping("/{userId}/roles")
+    public ResponseEntity<?> updateUserRolesSupervisorAndTaskPerformer(@PathVariable Long userId, @RequestBody Set<String> roleNames) {
+        try {
+            userService.updateUserRolesSupervisorAndTaskPerformer(userId, roleNames);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping("/{userId}/verification/assignRoles")
     public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody Set<String> roleNames) {
         try {

@@ -141,6 +141,27 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
+    public void updateUserRolesSupervisorAndTaskPerformer(Long userId, Set<String> roleNames) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new EntityNotFoundException("User with given id does not exist");
+        }
+        User existingUser = user.get();
+
+        Set<Role> rolesDB = roleService.getRolesByRoleNames(new HashSet<>(roleNames));
+
+        boolean anySupervisorRole = rolesDB.stream().anyMatch(role -> role.getType().equals(RoleType.SUPERVISOR));
+        if(anySupervisorRole) {
+            rolesDB.add(roleService.getRoleByName("ROLE_FUNKCYJNY"));
+        } else {
+            rolesDB.remove(roleService.getRoleByName("ROLE_FUNKCYJNY"));
+        }
+
+        existingUser.setRoles(rolesDB);
+
+        userRepository.save(existingUser);
+    }
+
     public void assignRolesOnVerificationAndVerifyUser(Long userId, Set<String> roles) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
