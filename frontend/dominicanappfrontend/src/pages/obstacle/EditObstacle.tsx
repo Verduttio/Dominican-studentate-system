@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
-import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
+import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
@@ -12,19 +12,23 @@ function EditObstacle() {
     const {request: getRequest, error: getError, loading: getLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'GET');
     const {request: patchRequest, error: patchError, loading: patchLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'PATCH');
     const {request: deleteRequest, error: deleteError, loading: deleteLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
+    const {request: getCurrent, error: getCurrentError, loading: getCurrentLoading} = useHttp(`${backendUrl}/api/users/current`, 'GET');
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [recipientAnswer, setRecipientAnswer] = useState<string>('');
 
     useEffect(() => {
         getRequest( null, setObstacle);
-    }, [getRequest]);
+        getCurrent(null, setCurrentUser);
+    }, [getRequest, getCurrent]);
 
     const approveObstacle = () => {
-        patchRequest({status: 'APPROVED'}, () => {
+        patchRequest({status: 'APPROVED', recipientAnswer: recipientAnswer, recipientUserId: currentUser?.id}, () => {
             navigate('/obstacles', {state: {message: 'Pomyślnie zatwierdzono przeszkodę'}});
         });
     };
 
     const rejectObstacle = () => {
-        patchRequest({status: 'REJECTED'}, () => {
+        patchRequest({status: 'REJECTED', recipientAnswer: recipientAnswer, recipientUserId: currentUser?.id}, () => {
             navigate('/obstacles', {state: {message: 'Pomyślnie odrzucono przeszkodę'}});
         });
     };
@@ -78,8 +82,10 @@ function EditObstacle() {
                 </table>
             </div>
             <div className="edit-entity-container">
+                {deleteError && <div className="alert alert-danger">{deleteError}</div>}
                 {obstacle.status === ObstacleStatus.AWAITING ? (
                     <>
+                        {patchError && <div className="alert alert-danger">{patchError}</div>}
                         <div className="mb-3">
                             <label htmlFor="applicantDescription" className="form-label">Twoja argumentacja
                                 (opcjonalnie):</label>
@@ -87,8 +93,8 @@ function EditObstacle() {
                                 className="form-control"
                                 id="applicantDescription"
                                 name="applicantDescription"
-                                // value={obstacleData.applicantDescription}
-                                // onChange={handleChange}
+                                value={recipientAnswer}
+                                onChange={event => setRecipientAnswer(event.target.value)}
                             />
                         </div>
                         <div className="d-flex justify-content-between">
