@@ -4,6 +4,7 @@ import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
+import "./ObstaclesPage.css";
 
 
 function ObstaclesPage () {
@@ -52,8 +53,11 @@ function ObstaclesPage () {
                         <td>{obstacle.fromDate}</td>
                         <td>{obstacle.toDate}</td>
                         <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "brak"}</td>
-                        <td style={{ backgroundColor:
-                            obstacle.status === ObstacleStatus.AWAITING ? 'yellow' : ''}}>{obstacle.status}</td>
+                        <td>
+                            <span className={obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text' : ''}>
+                            {obstacle.status}
+                          </span>
+                        </td>
                         <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "brak"}</td>
                         <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "brak"}</td>
                     </tr>
