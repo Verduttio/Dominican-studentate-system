@@ -55,7 +55,11 @@ function ObstaclesPage () {
                         <td>{obstacle.toDate}</td>
                         <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                         <td>
-                            <span className={obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text' : ''}>
+                            <span className={
+                                obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                    obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                        obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                            }>
                             {obstacle.status}
                           </span>
                         </td>

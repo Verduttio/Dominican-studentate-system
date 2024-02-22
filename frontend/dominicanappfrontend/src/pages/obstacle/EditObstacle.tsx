@@ -9,12 +9,14 @@ function EditObstacle() {
     const { obstacleId } = useParams();
     const navigate = useNavigate();
     const [obstacle, setObstacle] = useState<Obstacle | null>(null);
-    const {request: getRequest, error: getError, loading: getLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'GET');
+    const {request: getRequest, error: getError} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'GET');
     const {request: patchRequest, error: patchError, loading: patchLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'PATCH');
     const {request: deleteRequest, error: deleteError, loading: deleteLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
     const {request: getCurrent, error: getCurrentError, loading: getCurrentLoading} = useHttp(`${backendUrl}/api/users/current`, 'GET');
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [recipientAnswer, setRecipientAnswer] = useState<string>('');
+
+    let loading = patchLoading || deleteLoading || getCurrentLoading;
 
     useEffect(() => {
         getRequest( null, setObstacle);
@@ -40,7 +42,7 @@ function EditObstacle() {
     };
 
     if (!obstacle) return <LoadingSpinner/>;
-    if (getError) return <div className="alert alert-danger">{getError}</div>;
+    if (getError || getCurrentError) return <div className="alert alert-danger">{getError || getCurrentError}</div>;
 
     return (
         <div className="fade-in">
@@ -71,7 +73,11 @@ function EditObstacle() {
                             <td>{obstacle.toDate}</td>
                             <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                             <td>
-                            <span className={obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text' : ''}>
+                            <span className={
+                                obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                            }>
                             {obstacle.status}
                           </span>
                             </td>
@@ -98,9 +104,9 @@ function EditObstacle() {
                             />
                         </div>
                         <div className="d-flex justify-content-between">
-                            <button className="btn btn-success" onClick={approveObstacle}>Zatwierdź</button>
-                            <button className="btn btn-warning" onClick={rejectObstacle}>Odrzuć</button>
-                            <button className="btn btn-danger" onClick={deleteObstacle}>Usuń z bazy</button>
+                            <button className="btn btn-success" onClick={approveObstacle} disabled={loading}>Zatwierdź</button>
+                            <button className="btn btn-warning" onClick={rejectObstacle} disabled={loading}>Odrzuć</button>
+                            <button className="btn btn-danger" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
                         </div>
                     </>
                 ) : (
@@ -110,7 +116,7 @@ function EditObstacle() {
                             usuń aktualną i dodaj nową.
                         </div>
                         <div className="d-flex justify-content-center">
-                            <button className="btn btn-danger" onClick={deleteObstacle}>Usuń z bazy</button>
+                            <button className="btn btn-danger" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
                         </div>
                     </>
                 )}
