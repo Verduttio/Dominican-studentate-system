@@ -24,7 +24,7 @@ function ViewRoles() {
         <div className="fade-in">
             <div className="d-flex justify-content-center">
                 <div>
-                    <h1 className="role-header">Role</h1>
+                    <h1 className="entity-header">Role</h1>
                 </div>
             </div>
             <div className="d-flex justify-content-center">

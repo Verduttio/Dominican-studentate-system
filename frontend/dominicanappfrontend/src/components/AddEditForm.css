@@ -1,4 +1,4 @@
-.edit-role-container {
+.edit-entity-container {
     min-width: 300px;
     padding: 20px;
     margin: 2rem auto;
@@ -8,7 +8,7 @@
 }
 
 
-.edit-role-container h1 {
+.edit-entity-container h1 {
     color: #333;
 }
 

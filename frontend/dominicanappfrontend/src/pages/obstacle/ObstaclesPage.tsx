@@ -24,7 +24,7 @@ function ObstaclesPage () {
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
-                <h1 className="role-header">Przeszkody</h1>
+                <h1 className="entity-header">Przeszkody</h1>
             </div>
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}

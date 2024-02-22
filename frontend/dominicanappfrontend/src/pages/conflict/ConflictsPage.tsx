@@ -25,7 +25,7 @@ function ConflictsPage() {
         <div className="fade-in">
             <div className="d-flex justify-content-center">
                 <div>
-                    <h1 className="role-header">Konflikty</h1>
+                    <h1 className="entity-header">Konflikty</h1>
                 </div>
             </div>
             <div className="d-flex justify-content-center">

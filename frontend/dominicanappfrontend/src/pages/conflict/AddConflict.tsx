@@ -57,7 +57,7 @@ function AddConflict() {
             <div className="page-header">
                 <h1>Dodaj konflikt</h1>
             </div>
-            <div className="edit-role-container">
+            <div className="edit-entity-container">
                 {postRequest.error && <div className="alert alert-danger">{postRequest.error}</div>}
                 {submitError && <div className="alert alert-danger">{submitError}</div>}
                 <ConflictFormFields

@@ -17,3 +17,20 @@
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
+
+.table-rounded {
+    border-radius: 15px;
+    overflow: hidden; /* Zapobiega wystawaniu zawartości poza zaokrąglone rogi */
+}
+
+.table-shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Dodaje subtelny cień */
+}
+
+.entity-header {
+    margin: 1rem 0;
+    text-align: center;
+    font-size: 2.0rem;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}

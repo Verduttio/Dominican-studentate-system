@@ -35,7 +35,7 @@ function AddRole() {
             <div className="page-header">
                 <h1>Dodaj Rolę</h1>
             </div>
-            <div className="edit-role-container">
+            <div className="edit-entity-container">
                 {error && <div className="alert alert-danger">{error}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
