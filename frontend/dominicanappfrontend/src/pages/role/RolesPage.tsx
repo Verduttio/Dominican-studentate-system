@@ -3,7 +3,6 @@ import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
-import './RolesPage.css';
 import LoadingSpinner from "../../components/LoadingScreen";
 
 function ViewRoles() {
@@ -18,7 +17,7 @@ function ViewRoles() {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">

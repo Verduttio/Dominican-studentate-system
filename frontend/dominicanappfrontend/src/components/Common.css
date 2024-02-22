@@ -34,3 +34,8 @@
     color: #ffffff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
+
+.max-column-width{
+    max-width: 250px;
+    word-wrap: break-word;
+}

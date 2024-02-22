@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { User } from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import {useNavigate} from "react-router-dom";
+import LoadingSpinner from "../../components/LoadingScreen";
+import "./UsersPage.css";
 
 
 function UsersPage () {
@@ -26,15 +27,17 @@ function UsersPage () {
             .then(r => {});
     }
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h2>Lista użytkowników</h2>
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Użytkownicy</h1>
+            </div>
             {deleteUserError && <div className="error-message">{deleteUserError}</div>}
-            <table>
-                <thead>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Imię</th>
@@ -53,22 +56,27 @@ function UsersPage () {
                         <td>{user.name}</td>
                         <td>{user.surname}</td>
                         <td>{user.email}</td>
-                        <td>{user.roles.map(role => role.name).join(', ')}</td>
+                        <td className="max-column-width">{user.roles.map(role => role.name).join(', ')}</td>
                         <td>{user.provider}</td>
-                        <td>{user.enabled ? "Tak" : "Nie"}</td>
                         <td>
-                            <button onClick={() => navigate(`/users/${user.id}/verify`)}>Zweryfikuj</button>
+                            <span className={
+                                user.enabled ? '' : 'highlighted-text-not-verified'}
+                            >
+                            {user.enabled ? "Tak" : "Nie"}
+                            </span>
                         </td>
                         <td>
-                            <button className="btn btn-danger" disabled={deleteUserLoading}
-                                    onClick={() => handleDelete(user.id)}>Usuń
-                            </button>
+                            <button className="btn btn-dark" onClick={() => navigate(`/users/${user.id}/verify`)}>Akcja</button>
                         </td>
+                        {/*<td>*/}
+                        {/*    <button className="btn btn-danger" disabled={deleteUserLoading}*/}
+                        {/*            onClick={() => handleDelete(user.id)}>Usuń*/}
+                        {/*    </button>*/}
+                        {/*</td>*/}
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <LogoutButton/>
         </div>
     );
 }
