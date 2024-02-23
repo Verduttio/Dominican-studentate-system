@@ -4,6 +4,7 @@ import useHttp from "../../services/UseHttp";
 import { Task } from "../../models/Interfaces";
 import {useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 
 function TasksPage () {
@@ -16,23 +17,24 @@ function TasksPage () {
             .then(() => {});
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-error">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h2>Lista Tasków</h2>
-            <table>
-                <thead>
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Zadania</h1>
+            </div>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
                     <th>Nazwa</th>
                     <th>Limit uczestników</th>
-                    <th>Stały</th>
                     <th>Cały okres</th>
                     <th>Dozwolone role</th>
                     <th>Wyznaczający</th>
-                    <th>Dni tygodnia</th>
+                    <th>Akcja</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -41,17 +43,19 @@ function TasksPage () {
                         <td>{task.id}</td>
                         <td>{task.name}</td>
                         <td>{task.participantsLimit}</td>
-                        <td>{task.permanent ? 'Tak' : 'Nie'}</td>
                         <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
-                        <td>{task.allowedRoles.map(role => role.name).join(', ')}</td>
-                        <td>{task.supervisorRoles.map(role => role.name).join(', ')}</td>
-                        <td>{task.daysOfWeek.join(', ')}</td>
+                        <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
+                        <td className="max-column-width">{task.supervisorRoles.map(role => role.name).join(', ')}</td>
+                        <td>
+                            <button className="btn btn-dark">Akcja</button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <LogoutButton/>
-            <button onClick={() => navigate('/add-task')}>Dodaj taska!</button>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-task')}>Dodaj taska!</button>
+            </div>
         </div>
     );
 }
