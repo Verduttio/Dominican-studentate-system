@@ -5,6 +5,7 @@ import { Task, Role } from "../../../models/Interfaces";
 import { RoleCheckboxList } from './RoleCheckboxList';
 import { DaysOfWeekCheckboxList } from './DaysOfWeekCheckboxList';
 import {backendUrl} from "../../../utils/constants";
+import LoadingSpinner from "../../../components/LoadingScreen";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRoles'> {
@@ -62,8 +63,13 @@ function AddTask() {
     }, [fetchSupervisorRoles, fetchTaskPerformerRoles]);
 
     const handleSubmit = () => {
-        setValidationError(validateTaskData(taskData));
-        postTask(taskData, () => navigate('/tasks'));
+        let error = validateTaskData(taskData)
+        if (error !== "") {
+            setValidationError(error);
+            return;
+        } else {
+            postTask(taskData, () => navigate('/tasks', { state: { message: 'Pomyślnie dodano zadanie' } }));
+        }
     };
 
     const handleRoleChange = (roleName: string, checked: boolean) => {
@@ -108,53 +114,81 @@ function AddTask() {
     };
 
 
-    if (loadingSupervisorRoles || loadingTaskPerformerRoles) return <div>Ładowanie...</div>;
-    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="error-message">{errorFetchSupervisorRoles}</div>;
+    if (loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
+    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="aler alert-danger">{errorFetchSupervisorRoles}</div>;
 
     return (
         <div className="fade-in">
-            {validationError && <div className="error-message">{validationError}</div>}
-            <input name="name" value={taskData.name} onChange={handleChange} placeholder="Nazwa zadania"/>
-            <div>
-                <label htmlFor="participantsLimit">Limit uczestników:</label>
-                <input
-                    id="participantsLimit"
-                    name="participantsLimit"
-                    type="number"
-                    value={taskData.participantsLimit.toString()}
-                    onChange={handleChange}
-                    placeholder="Limit uczestników"
-                />
+            <div className="page-header">
+                <h1>Dodaj zadanie</h1>
             </div>
-            <div>
-                <label>
-                    Stały task:
-                    <input name="permanent" type="checkbox" checked={taskData.permanent} onChange={handleChange}/>
-                </label>
+            {validationError && <div className="alert alert-danger">{validationError}</div>}
+            {postError && <div className="alert alert-danger">{postError}</div>}
+            <div className="edit-entity-container">
+                <div className="mb-3">
+                    <label htmlFor="name" className="form-label">
+                        Nazwa zadania:
+                    </label>
+                    <input
+                        className="form-control-sm"
+                        name="name"
+                        value={taskData.name}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="participantsLimit" className="form-label">Limit uczestników:</label>
+                    <input
+                        className="form-control-sm"
+                        id="participantsLimit"
+                        name="participantsLimit"
+                        type="number"
+                        value={taskData.participantsLimit.toString()}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="form-label custom-checkbox">
+                        Stały task:
+                        <input
+                            className="form-check-input"
+                            name="permanent"
+                            type="checkbox"
+                            checked={taskData.permanent}
+                            onChange={handleChange}
+                        />
+                    </label>
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Role potrzebne do wykonania zadania:</label>
+                    <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
+                                      onRoleChange={handleRoleChange}/>
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Kto może wyznaczyć do tego zadania:</label>
+                    <RoleCheckboxList roles={rolesSupervisor} selectedRoles={taskData.supervisorRoleNames}
+                                      onRoleChange={handleSupervisorRoleChange}/>
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Dni tygodnia:</label>
+                    <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange}/>
+                </div>
+                <div className="mb-3">
+                    <label className="form-label custom-checkbox">
+                        Uczestnik na cały okres:
+                        <input
+                            className="form-check-input"
+                            name="participantForWholePeriod"
+                            type="checkbox"
+                            checked={taskData.participantForWholePeriod}
+                            onChange={handleChange}
+                        />
+                    </label>
+                </div>
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-success" onClick={handleSubmit}>Dodaj</button>
+                </div>
             </div>
-            <div>
-                <label>
-                    Uczestnik na cały okres np. tydzień (przeciwieństwo do: codziennie inny uczestnik):
-                    <input name="participantForWholePeriod" type="checkbox" checked={taskData.participantForWholePeriod}
-                           onChange={handleChange}/>
-                </label>
-            </div>
-            <div>
-                <label>Role potrzebne do wykonania zadania:</label>
-                <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
-                                  onRoleChange={handleRoleChange}/>
-            </div>
-            <div>
-                <label>Kto może wyznaczyć do tego zadania:</label>
-                <RoleCheckboxList roles={rolesSupervisor} selectedRoles={taskData.supervisorRoleNames}
-                                  onRoleChange={handleSupervisorRoleChange}/>
-            </div>
-            <div>
-                <label>Dni tygodnia:</label>
-                <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange}/>
-            </div>
-            {postError && <div className="error-message">{postError}</div>}
-            <button onClick={handleSubmit}>Dodaj</button>
         </div>
     );
 }

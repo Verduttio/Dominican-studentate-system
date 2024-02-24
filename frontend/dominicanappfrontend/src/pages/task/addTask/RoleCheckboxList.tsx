@@ -11,8 +11,9 @@ export const RoleCheckboxList: React.FC<RoleCheckboxListProps> = ({ roles, selec
     return (
         <div className="fade-in">
             {roles.map(role => (
-                <label key={role.id}>
+                <label className="form-check custom-checkbox" key={role.id}>
                     <input
+                        className="form-check-input"
                         type="checkbox"
                         value={role.id}
                         checked={selectedRoles.includes(role.name)}

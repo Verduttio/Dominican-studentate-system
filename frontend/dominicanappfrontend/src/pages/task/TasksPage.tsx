@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { Task } from "../../models/Interfaces";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 
@@ -11,6 +11,8 @@ function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
     const navigate = useNavigate();
+    const location = useLocation();
+    const locationStateMessage = location.state?.message;
 
     useEffect(() => {
         request(null, (data) => setTasks(data))
@@ -24,6 +26,9 @@ function TasksPage () {
         <div className="fade-in">
             <div className="d-flex justify-content-center">
                 <h1 className="entity-header">Zadania</h1>
+            </div>
+            <div className="d-flex justify-content-center">
+                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
             </div>
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <thead className="table-dark">

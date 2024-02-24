@@ -4,7 +4,6 @@ import {Role, User} from "../../models/Interfaces";
 import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
-import "./VerifyUsersPage.css";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
