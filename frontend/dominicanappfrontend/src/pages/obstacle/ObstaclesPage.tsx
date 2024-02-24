@@ -38,10 +38,7 @@ function ObstaclesPage () {
                     <th>Zadanie</th>
                     <th>Od</th>
                     <th>Do</th>
-                    <th>Opis</th>
                     <th>Status</th>
-                    <th>Funkcyjny</th>
-                    <th>Odpowiedź funkcyjnego</th>
                     <th>Akcja</th>
                 </tr>
                 </thead>
@@ -53,7 +50,6 @@ function ObstaclesPage () {
                         <td>{obstacle.task.name}</td>
                         <td>{obstacle.fromDate}</td>
                         <td>{obstacle.toDate}</td>
-                        <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                         <td>
                             <span className={
                                 obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
@@ -63,11 +59,9 @@ function ObstaclesPage () {
                             {obstacle.status}
                           </span>
                         </td>
-                        <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
-                        <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
                         <td>
                             <button className="btn btn-sm btn-dark"
-                                    onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Akcja
+                                    onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Szczegóły
                             </button>
                         </td>
                     </tr>

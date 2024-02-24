@@ -35,8 +35,6 @@ function UsersPage () {
                     <th>Imię</th>
                     <th>Nazwisko</th>
                     <th>Email</th>
-                    <th>Role</th>
-                    <th>Provider</th>
                     <th>Zweryfikowany</th>
                     <th>Akcja</th>
                 </tr>
@@ -48,8 +46,6 @@ function UsersPage () {
                         <td>{user.name}</td>
                         <td>{user.surname}</td>
                         <td>{user.email}</td>
-                        <td className="max-column-width">{user.roles.map(role => role.name).join(', ')}</td>
-                        <td>{user.provider}</td>
                         <td>
                             <span className={
                                 user.enabled ? '' : 'highlighted-text-not-verified'}
@@ -58,7 +54,7 @@ function UsersPage () {
                             </span>
                         </td>
                         <td>
-                            <button className="btn btn-dark" onClick={() => navigate(`/users/${user.id}/verify`)}>Akcja</button>
+                            <button className="btn btn-dark" onClick={() => navigate(`/users/${user.id}/verify`)}>Szczegóły</button>
                         </td>
                     </tr>
                 ))}
