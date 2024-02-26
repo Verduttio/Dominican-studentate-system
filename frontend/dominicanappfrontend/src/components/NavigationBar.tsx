@@ -12,8 +12,8 @@ const NavigationBar = () => {
 
     return (
         <div className="navigation-bar">
-            <button onClick={() => navigateTo('/tasks')}>Tasks</button>
-            <button onClick={() => navigateTo('/user-profile')}>Strona Użytkownika</button>
+            <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
+            <button onClick={() => navigateTo('/tasks')}>Zadania</button>
             <button onClick={() => navigateTo('/obstacles')}>Przeszkody</button>
             <button onClick={() => navigateTo('/conflicts')}>Konflikty</button>
             <button onClick={() => navigateTo('/users')}>Użytkownicy</button>

@@ -10,7 +10,7 @@
 .navigation-bar button {
     margin: 0 10px;
     padding: 10px 20px;
-    background-color: #3498db;
+    background-color: #212529;
     color: white;
     border: none;
     border-radius: 5px;
@@ -19,5 +19,6 @@
 }
 
 .navigation-bar button:hover {
-    background-color: #2980b9;
+    background-color: #ffffff;
+    color: #010202;
 }

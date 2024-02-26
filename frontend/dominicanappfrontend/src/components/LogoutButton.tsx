@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {backendUrl} from "../utils/constants";
+import "./LogoutButton.css";
 
 function LogoutButton () {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ function LogoutButton () {
     };
 
     return (
-        <button onClick={handleLogout}>Wyloguj</button>
+        <button id="logout-button" onClick={handleLogout}>Wyloguj</button>
     );
 }
 

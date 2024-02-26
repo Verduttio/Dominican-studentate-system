@@ -47,6 +47,6 @@
 
 .card-top-bar {
     height: 20px;
-    background: black;
+    background: #212529;
     border-radius: calc(0.25rem - 0px) calc(0.25rem - 0px) 0 0;
 }
