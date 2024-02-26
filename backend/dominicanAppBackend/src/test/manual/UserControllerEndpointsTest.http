@@ -1,10 +1,31 @@
+### GET active sessions
+GET {{host}}/api/users/activeSessions
+
+### POST logout
+POST {{host}}/api/users/logout
+
+### GET Check current user
+GET {{host}}/api/users/current/check
+
+### GET Current user
+GET {{host}}/api/users/current
+
+### Get all users
+GET {{host}}/api/users
+
+### Get all users short info
+GET {{host}}/api/users/shortInfo
+
+### Get a user by a specific ID
+GET {{host}}/api/users/1
+
 ### POST login
 POST {{host}}/api/users/login
 Content-Type: application/json
 
 {
   "email": "funcad@mail9.com",
-  "password": "12345678"
+  "password": "87654321"
 }
 
 ### POST login
@@ -13,7 +34,7 @@ Content-Type: application/json
 
 {
   "email": "bszwaja20@gmail.com",
-  "password": "7654745896978"
+  "password": "12345678"
 }
 
 ### POST register
@@ -45,27 +66,10 @@ Content-Type: application/json
 
 ["ROLE_DZIEKAN", "ROLE_SPIEWAJACY"]
 
-### GET active sessions
-GET {{host}}/api/users/activeSessions
+### Change user password
+PATCH {{host}}/api/users/20/password
 
-### POST logout
-POST {{host}}/api/users/logout
-
-### GET Check current user
-GET {{host}}/api/users/current/check
-
-### GET Current user
-GET {{host}}/api/users/current
-
-### Get all users
-GET {{host}}/api/users
-
-### Get all users short info
-GET {{host}}/api/users/shortInfo
-
-### Get a user by a specific ID
-GET {{host}}/api/users/1
-
+12345678
 
 ### Create a new user
 POST {{host}}/api/users

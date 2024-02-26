@@ -1,24 +1,22 @@
 package org.verduttio.dominicanappbackend.controller;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.dto.auth.LoginRequest;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
-import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -61,11 +59,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
         return new ResponseEntity<>("User registered successfully: " + user.getEmail(), HttpStatus.OK);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        return ResponseEntity.ok("User authenticated successfully");
     }
 
     @GetMapping("/activeSessions")
@@ -137,6 +130,22 @@ public class UserController {
             userService.updateUserRolesSupervisorAndTaskPerformer(userId, roleNames);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<?> updateUserPassword(@PathVariable Long userId,
+                                                @Valid
+                                                @Size(min=8, message="Password with at least 8 characters is mandatory")
+                                                @RequestBody String newPassword) {
+        try {
+            userService.updateUserPassword(userId, newPassword);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
