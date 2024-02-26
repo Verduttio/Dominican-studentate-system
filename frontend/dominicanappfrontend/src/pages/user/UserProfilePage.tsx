@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
+import {User} from "../../models/Interfaces";
 
 function UserProfilePage () {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users/current`, 'GET');
 
     useEffect(() => {
@@ -12,30 +13,46 @@ function UserProfilePage () {
             .then(() => {});
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h2>Profil Użytkownika</h2>
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Mój profil</h1>
+            </div>
             {user && (
-                <table>
-                    <tbody>
-                    {Object.entries(user).map(([key, value]) => (
-                        <tr key={key}>
-                            <th>{key}</th>
-                            <td>
-                                {Array.isArray(value)
-                                    ? value.map(item => typeof item === 'object' && item.name ? item.name : item).join(', ')
-                                    : String(value)}
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
+                <div className="row">
+                    <div className="col-md-6">
+                        <div className="card shadow-sm">
+                            <div className="card-top-bar"></div>
+                            <div className="card-body">
+                                <div><strong>Imię:</strong> {user.name}</div>
+                                <div><strong>Nazwisko:</strong> {user.surname}</div>
+                                <div><strong>Email:</strong> {user.email}</div>
+                                <div><strong>Id:</strong> {user.id}</div>
+                                <div className="d-flex justify-content-center p-3">
+                                    <button className="btn btn-danger">Zmień hasło</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="card shadow-sm">
+                            <div className="card-top-bar"></div>
+                            <div className="card-body">
+                                <ul>
+                                    {user.roles.map((role, index) => (
+                                        <li key={index}>{role.name}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
-            <LogoutButton/>
         </div>
+
     );
 }
 

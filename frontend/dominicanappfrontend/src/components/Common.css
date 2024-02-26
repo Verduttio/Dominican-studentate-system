@@ -44,3 +44,9 @@
     border-color: rgba(0, 0, 0, 0.45);
     border-width: 2px;
 }
+
+.card-top-bar {
+    height: 20px;
+    background: black;
+    border-radius: calc(0.25rem - 0px) calc(0.25rem - 0px) 0 0;
+}
