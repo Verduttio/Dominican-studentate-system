@@ -1,9 +1,6 @@
 ### GET active sessions
 GET {{host}}/api/users/activeSessions
 
-### POST logout
-POST {{host}}/api/users/logout
-
 ### GET Check current user
 GET {{host}}/api/users/current/check
 
@@ -18,6 +15,9 @@ GET {{host}}/api/users/shortInfo
 
 ### Get a user by a specific ID
 GET {{host}}/api/users/1
+
+### POST logout
+POST {{host}}/api/users/logout
 
 ### POST login
 POST {{host}}/api/users/login
@@ -67,9 +67,12 @@ Content-Type: application/json
 ["ROLE_DZIEKAN", "ROLE_SPIEWAJACY"]
 
 ### Change user password
-PATCH {{host}}/api/users/20/password
+PATCH {{host}}/api/users/33/password
+Content-Type: application/json
 
-12345678
+{
+  "newPassword": "12345678"
+}
 
 ### Create a new user
 POST {{host}}/api/users

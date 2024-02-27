@@ -12,6 +12,7 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
+import org.verduttio.dominicanappbackend.dto.auth.PasswordUpdateDTO;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
@@ -138,10 +139,9 @@ public class UserController {
     @PatchMapping("/{userId}/password")
     public ResponseEntity<?> updateUserPassword(@PathVariable Long userId,
                                                 @Valid
-                                                @Size(min=8, message="Password with at least 8 characters is mandatory")
-                                                @RequestBody String newPassword) {
+                                                @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
         try {
-            userService.updateUserPassword(userId, newPassword);
+            userService.updateUserPassword(userId, passwordUpdateDTO.getNewPassword());
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
