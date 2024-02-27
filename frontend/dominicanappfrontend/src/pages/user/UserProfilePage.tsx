@@ -3,10 +3,12 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {User} from "../../models/Interfaces";
+import ChangePasswordPopup from "./ChangePasswordPopup";
 
 function UserProfilePage () {
     const [user, setUser] = useState<User | null>(null);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users/current`, 'GET');
+    const [showChangePassword, setShowChangePassword] = useState(false);
 
     useEffect(() => {
         request(null, (data) => setUser(data))
@@ -32,10 +34,16 @@ function UserProfilePage () {
                                 <div><strong>Email:</strong> {user.email}</div>
                                 <div><strong>Id:</strong> {user.id}</div>
                                 <div className="d-flex justify-content-center p-3">
-                                    <button className="btn btn-danger">Zmień hasło</button>
+                                    <button
+                                        className="btn btn-danger"
+                                        onClick={() => setShowChangePassword(true)}
+                                    >
+                                        Zmień hasło
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                        {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
                     </div>
                     <div className="col-md-6">
                         <div className="card shadow-sm">
