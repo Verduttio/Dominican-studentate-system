@@ -4,6 +4,7 @@ import {Role, User} from "../../models/Interfaces";
 import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
+import ChangePasswordPopup from "./ChangePasswordPopup";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -19,6 +20,7 @@ function VerifyUserPage() {
     const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
     const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+    const [showChangePassword, setShowChangePassword] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -137,9 +139,11 @@ function VerifyUserPage() {
                                     disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                             </button>
                         }
-                        <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}>
+                        <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                            onClick={() => setShowChangePassword(true)}>
                             Zmień hasło
                         </button>
+                        {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
                         <button className="btn btn-danger" onClick={handleDelete}
                                 disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                         </button>
