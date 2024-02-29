@@ -207,7 +207,7 @@ public class UserService {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FUNKCYJNY"));
 
         if (!currentUserId.equals(userId) && !hasFunctionalRole) {
-            throw new AccessDeniedException("Unauthorized");
+            throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
         }
 
         User user = userRepository.findById(userId)

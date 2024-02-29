@@ -132,6 +132,10 @@ public class ScheduleService {
         return getNotFullyAssignedTasks(allTasks, schedulesInPeriod);
     }
 
+    public List<Schedule> getAllSchedulesForUserInSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
+        return scheduleRepository.findByUserIdAndDateBetween(userId, from, to);
+    }
+
     public List<Task> getAvailableTasksBySupervisorRole(String supervisor, LocalDate from, LocalDate to) {
         Role supervisorRole = roleService.findByNameAndType(supervisor, RoleType.SUPERVISOR)
                 .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
@@ -405,5 +409,13 @@ public class ScheduleService {
 
     public void save(Schedule existingSchedule) {
         scheduleRepository.save(existingSchedule);
+    }
+
+    public List<Schedule> getAllSchedulesByUserIdForSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
     }
 }
