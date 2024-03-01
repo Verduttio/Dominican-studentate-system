@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import LogoutButton from "../../components/LogoutButton";
 import useHttp from "../../services/UseHttp";
 import { Task } from "../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";

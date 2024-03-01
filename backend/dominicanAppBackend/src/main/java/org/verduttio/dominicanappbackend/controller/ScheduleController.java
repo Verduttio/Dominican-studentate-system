@@ -103,7 +103,7 @@ public class ScheduleController {
         }
     }
 
-    @GetMapping("/available-tasks/users/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<?> getAllSchedulesByUserIdForSpecifiedWeek(@PathVariable Long userId,
                                                                      @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
                                                                      @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {

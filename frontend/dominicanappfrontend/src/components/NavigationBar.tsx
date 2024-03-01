@@ -12,6 +12,7 @@ const NavigationBar = () => {
 
     return (
         <div className="navigation-bar">
+            <button onClick={() => navigateTo('/home')}>Home</button>
             <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
             <button onClick={() => navigateTo('/tasks')}>Zadania</button>
             <button onClick={() => navigateTo('/obstacles')}>Przeszkody</button>
