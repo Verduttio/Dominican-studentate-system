@@ -102,9 +102,17 @@ public class TaskService {
         task.setPermanent(updatedTaskDTO.isPermanent());
         task.setParticipantForWholePeriod(updatedTaskDTO.isParticipantForWholePeriod());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getAllowedRoleNames());
+        if(rolesDB.isEmpty()) {
+            throw new IllegalArgumentException("No roles found for given role names");
+        }
         task.setAllowedRoles(rolesDB);
+
         Set<Role> supervisorRolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getSupervisorRoleNames());
+        if(supervisorRolesDB.isEmpty()) {
+            throw new IllegalArgumentException("No supervisor roles found for given role names");
+        }
         task.setSupervisorRoles(supervisorRolesDB);
+
         task.setDaysOfWeek(updatedTaskDTO.getDaysOfWeek());
 
         taskRepository.save(task);
