@@ -15,6 +15,9 @@ function AddSchedule() {
 
     return (
         <div className="fade-in">
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Wybierz tydzień</h1>
+            </div>
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             <div className="d-flex justify-content-between">
                 <button className="btn btn-success me-4" onClick={handleScheduleCreator}>Kreator harmonogramu</button>
