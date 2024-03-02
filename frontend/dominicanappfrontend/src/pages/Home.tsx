@@ -46,7 +46,7 @@ function Home() {
             const toDate = format(weekDays[6], 'dd-MM-yyyy');
             requestFetchUserSchedules(null, (data: Schedule[]) => {
                 setUserSchedules(data);
-            }, false, `${backendUrl}/api/schedules/users/${userId}?from=${fromDate}&to=${toDate}`, 'GET');
+            }, false, `${backendUrl}/api/schedules/users/${userId}/week?from=${fromDate}&to=${toDate}`, 'GET');
         }));
     }, [requestCurrent, requestFetchUserSchedules, userId, weekDays]);
 
