@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import { Schedule } from '../../models/Interfaces';
+import {Schedule, ScheduleShortInfo} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import WeekSelector from "../../components/WeekSelector";
+import {endOfWeek, format, startOfWeek} from "date-fns";
 
 function downloadPdf() {
     axios({
@@ -22,12 +24,19 @@ function downloadPdf() {
 }
 
 function SchedulePage() {
-    const [scheduleList, setScheduleList] = useState<Schedule[]>([]);
-    const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules`, 'GET');
+    const [scheduleShortInfo, setScheduleShortInfo] = useState<ScheduleShortInfo[]>([]);
+    const [currentWeek, setCurrentWeek] = useState(new Date());
+    const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
     const navigate = useNavigate();
 
+    const handleScheduleCreator = () => {
+        const from = format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy');
+        const to = format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy');
+        navigate(`/schedule-creator?from=${from}&to=${to}`);
+    };
+
     useEffect(() => {
-        fetchSchedule(null, (data) => setScheduleList(data));
+        fetchSchedule(null, (data) => setScheduleShortInfo(data));
     }, [fetchSchedule]);
 
     if (loading) return <div>Ładowanie...</div>;
@@ -35,29 +44,34 @@ function SchedulePage() {
 
     return (
         <div className="fade-in">
-            <h1>Harmonogram</h1>
-            <table>
-                <thead>
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Harmonogram</h1>
+            </div>
+            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow mb-0">
+                <thead className="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Task</th>
-                    <th>User</th>
-                    <th>Date</th>
+                    <th>Użytkownik</th>
+                    <th>Zadania</th>
                 </tr>
                 </thead>
                 <tbody>
-                {scheduleList.map(schedule => (
-                    <tr key={schedule.id}>
-                        <td>{schedule.id}</td>
-                        <td>{schedule.task.name}</td>
-                        <td>{schedule.user.name} {schedule.user.surname}</td>
-                        <td>{schedule.date}</td>
+                {scheduleShortInfo.map(scheduleShortInfo => (
+                    <tr key={scheduleShortInfo.userId}>
+                        <td>{scheduleShortInfo.userId}</td>
+                        <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
+                        <td>{scheduleShortInfo.tasksInfoStrings.join(', ')}</td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <button onClick={downloadPdf}>Pobierz harmonogram</button>
-            <button onClick={() => navigate('/add-schedule')}>Dodaj harmonogram</button>
+            <div className="text-center">
+                <button className="btn btn-success mt-4" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram</button>
+            </div>
+            <div className="text-center">
+                <button className="btn btn-info mt-4" onClick={downloadPdf}>Pobierz harmonogram</button>
+            </div>
         </div>
     );
 }
