@@ -4,8 +4,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {Role, Task} from "../../models/Interfaces";
-import {RoleCheckboxList} from "./addTask/RoleCheckboxList";
-import {DaysOfWeekCheckboxList} from "./addTask/DaysOfWeekCheckboxList";
+import TaskFormFields from "./addTask/TaskFormFields";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRoles'> {
@@ -76,7 +75,7 @@ function EditTask() {
         });
         fetchSupervisorRoles(null, (data: Role[]) => setRolesSupervisor(data));
         fetchTaskPerformerRoles(null, (data: Role[]) => setRolesTaskPerformer(data));
-    }, [fetchSupervisorRoles, fetchTaskPerformerRoles]);
+    }, [fetchTask, fetchSupervisorRoles, fetchTaskPerformerRoles]);
 
     const handleSubmit = () => {
         let error = validateTaskData(taskData)
@@ -141,66 +140,15 @@ function EditTask() {
             {validationError && <div className="alert alert-danger">{validationError}</div>}
             {postError && <div className="alert alert-danger">{postError}</div>}
             <div className="edit-entity-container">
-                <div className="mb-3">
-                    <label htmlFor="name" className="form-label">
-                        Nazwa zadania:
-                    </label>
-                    <input
-                        className="form-control-sm"
-                        name="name"
-                        value={taskData.name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="participantsLimit" className="form-label">Limit uczestników:</label>
-                    <input
-                        className="form-control-sm"
-                        id="participantsLimit"
-                        name="participantsLimit"
-                        type="number"
-                        value={taskData.participantsLimit.toString()}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label custom-checkbox">
-                        Stały task:
-                        <input
-                            className="form-check-input"
-                            name="permanent"
-                            type="checkbox"
-                            checked={taskData.permanent}
-                            onChange={handleChange}
-                        />
-                    </label>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Role potrzebne do wykonania zadania:</label>
-                    <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
-                                      onRoleChange={handleRoleChange}/>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Kto może wyznaczyć do tego zadania:</label>
-                    <RoleCheckboxList roles={rolesSupervisor} selectedRoles={taskData.supervisorRoleNames}
-                                      onRoleChange={handleSupervisorRoleChange}/>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Dni tygodnia:</label>
-                    <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange}/>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label custom-checkbox">
-                        Uczestnik na cały okres:
-                        <input
-                            className="form-check-input"
-                            name="participantForWholePeriod"
-                            type="checkbox"
-                            checked={taskData.participantForWholePeriod}
-                            onChange={handleChange}
-                        />
-                    </label>
-                </div>
+                <TaskFormFields
+                    taskData={taskData}
+                    handleChange={handleChange}
+                    handleRoleChange={handleRoleChange}
+                    handleSupervisorRoleChange={handleSupervisorRoleChange}
+                    handleDayChange={handleDayChange}
+                    rolesTaskPerformer={rolesTaskPerformer}
+                    rolesSupervisor={rolesSupervisor}
+                />
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-success" onClick={handleSubmit}>Uaktualnij</button>
                 </div>
