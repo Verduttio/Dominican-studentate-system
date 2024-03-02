@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 const ScheduleCreatorTaskSelection: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -13,8 +14,8 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/schedules/available-tasks/by-supervisor/${roleName}?from=${from}&to=${to}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
-    const navigate = useNavigate();
 
+    useNavigate();
     const getTaskUrl = (task: Task) => {
         const base = `/schedule-creator/task/${task.participantForWholePeriod ? 'assignWeekly' : 'assignDaily'}`;
         const params = `?taskId=${task.id}&from=${from}&to=${to}`;
@@ -25,27 +26,34 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
         request(null, (data: Task[]) => setTasks(data))
     }, [request]);
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">
-            <h1>Zadania dla roli: {roleName}</h1>
+            <h2 className="entity-header-dynamic-size">Zadania dla roli: {roleName}</h2>
+            <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {tasks.length > 0 ? (
-                <ul>
-                    {tasks.map(task => (
-                        <li key={task.id}>
-                            {task.id} - {task.name}
-                            <button
-                                onClick={() => navigate(getTaskUrl(task))}>Zobacz
-                                zależności
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            ) : <p>Brak zadań dla wybranej roli.</p>}
+                    <>
+                        {tasks.map(task => (
+                            <div className="card mb-4" id="button-scale">
+                                <div className="card-body text-center">
+                                    <Link to={getTaskUrl(task)}
+                                          className={"stretched-link text-decoration-none text-black"}
+                                    >
+                                        {task.name}
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </>
+                )
+                :
+                <div className="alert alert-info text-center">Brak zadań dla wybranej roli</div>
+            }
         </div>
-    );
+    )
+        ;
 };
 
 export default ScheduleCreatorTaskSelection;
