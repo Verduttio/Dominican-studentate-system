@@ -6,6 +6,7 @@ import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 function downloadPdf() {
     axios({
@@ -39,8 +40,8 @@ function SchedulePage() {
         fetchSchedule(null, (data) => setScheduleShortInfo(data));
     }, [fetchSchedule]);
 
-    if (loading) return <div>Ładowanie...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (loading) return <LoadingSpinner/>;
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="fade-in">

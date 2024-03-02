@@ -16,10 +16,12 @@ function AddSchedule() {
     return (
         <div className="fade-in">
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
-            <button onClick={handleScheduleCreator}>Kreator harmonogramu</button>
-            <button onClick={() => {
-            }}>Wybierz jedno zadanie i wyznacz osobę
-            </button>
+            <div className="d-flex justify-content-between">
+                <button className="btn btn-success me-4" onClick={handleScheduleCreator}>Kreator harmonogramu</button>
+                <button className="btn btn-success" onClick={() => {}}>
+                    Wybierz jedno zadanie
+                </button>
+            </div>
         </div>
     );
 }
