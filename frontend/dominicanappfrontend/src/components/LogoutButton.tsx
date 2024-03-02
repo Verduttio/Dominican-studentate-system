@@ -15,6 +15,7 @@ function LogoutButton () {
 
             if (response.status === 200) {
                 console.log('Wylogowano pomyślnie');
+                localStorage.removeItem('userId');
                 navigate('/login');
             }
         } catch (error) {

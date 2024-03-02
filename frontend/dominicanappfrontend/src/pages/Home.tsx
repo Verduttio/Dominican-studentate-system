@@ -3,15 +3,15 @@ import useHttp from "../services/UseHttp";
 import { backendUrl } from "../utils/constants";
 import LoadingSpinner from "../components/LoadingScreen";
 import {addDays, format, startOfWeek} from "date-fns";
-import {Schedule} from "../models/Interfaces";
+import {Schedule, User} from "../models/Interfaces";
 
 function Home() {
-    const { error, loading, request } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
+    const { error: errorCurrent, loading: loadingCurrent, request: requestCurrent } = useHttp(`${backendUrl}/api/users/current`, 'GET');
     const { error: errorFetchUserSchedules, loading: loadingFetchUserSchedules, request: requestFetchUserSchedules } = useHttp();
     const [userSchedules, setUserSchedules] = useState<Schedule[]>([]);
-    // const [date] = useState(new Date());
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const date = new Date();
-    const userId: number = 51;
+    let userId: number = localStorage.getItem('userId') ? parseInt(localStorage.getItem('userId') as string) : 0;
 
     const weekDays = useMemo(() => {
         const today = new Date();
@@ -38,29 +38,36 @@ function Home() {
     };
 
     useEffect(() => {
-        request().then(() => {});
+        requestCurrent(null, ((data : User) => {
+            setCurrentUser(data);
+            localStorage.setItem('userId', data.id.toString());
+            userId = data.id;
+            const fromDate = format(weekDays[0], 'dd-MM-yyyy');
+            const toDate = format(weekDays[6], 'dd-MM-yyyy');
+            requestFetchUserSchedules(null, (data: Schedule[]) => {
+                setUserSchedules(data);
+            }, false, `${backendUrl}/api/schedules/users/${userId}?from=${fromDate}&to=${toDate}`, 'GET');
+        }));
+    }, [requestCurrent, requestFetchUserSchedules, userId, weekDays]);
 
-        const fromDate = format(weekDays[0], 'dd-MM-yyyy');
-        const toDate = format(weekDays[6], 'dd-MM-yyyy');
-        requestFetchUserSchedules(null, (data: Schedule[]) => {
-            setUserSchedules(data);
-        }, false, `${backendUrl}/api/schedules/users/${userId}?from=${fromDate}&to=${toDate}`, 'GET');
-    }, [request, requestFetchUserSchedules, userId, weekDays]);
-
-    if (loading || loadingFetchUserSchedules) return <LoadingSpinner />;
-    if (error || errorFetchUserSchedules) return <div className="alert alert-danger">{error || errorFetchUserSchedules}</div>;
+    if (loadingCurrent || loadingFetchUserSchedules) return <LoadingSpinner />;
+    if (errorCurrent || errorFetchUserSchedules) return <div className="alert alert-danger">{errorCurrent || errorFetchUserSchedules}</div>;
 
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
-                <h2 className="entity-header">Twój harmonogram na ten tydzień:</h2>
+                <h2 className="entity-header">Witaj {currentUser?.id} {currentUser?.name} {currentUser?.surname}</h2>
+            </div>
+            <div className="d-flex justify-content-center">
+                <h2 className="entity-header">Twój harmonogram na ten tydzień</h2>
             </div>
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <thead className="table-dark">
                 <tr>
                     {weekDays.map((day, index) => (
-                        <th key={index} style={{ backgroundColor: format(day, 'dd.MM.yyyy') === format(date, 'dd.MM.yyyy') ? 'green' : '' }}>
-                            {['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'][index]} <br /> {format(day, 'dd.MM.yyyy')}
+                        <th key={index}
+                            style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(date, 'dd.MM.yyyy') ? 'green' : ''}}>
+                            {['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'][index]} <br/> {format(day, 'dd.MM.yyyy')}
                         </th>
                     ))}
                 </tr>

@@ -39,8 +39,9 @@ function Login () {
                 withCredentials: true
             });
 
-            if (response.status === 200 && response.data === 'User authenticated successfully') {
+            if (response.status === 200 && response.data.id !== 0) {
                 console.log('Zalogowano pomyślnie');
+                localStorage.setItem('userId', response.data.id);
                 navigate('/home');
             } else {
                 console.log('Błąd podczas logowania.');

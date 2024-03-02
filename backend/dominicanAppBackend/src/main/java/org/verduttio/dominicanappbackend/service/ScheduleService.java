@@ -416,6 +416,10 @@ public class ScheduleService {
             throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
         }
 
+        if(!userService.existsById(userId)) {
+            throw new EntityNotFoundException("User with given id does not exist");
+        }
+
         return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
     }
 }
