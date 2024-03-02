@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
+import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfo;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
@@ -421,5 +422,27 @@ public class ScheduleService {
         }
 
         return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
+    }
+
+    public List<ScheduleShortInfo> getScheduleShortInfoForEachUserForSpecifiedWeek(LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        List<User> users = userService.getAllUsers();
+        return users.stream()
+                .map(user -> createScheduleShortInfoForUser(user.getId(), from, to))
+                .collect(Collectors.toList());
+    }
+
+    private ScheduleShortInfo createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to) {
+        User user = userService.getUserById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to);
+
+        List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
+
+        return new ScheduleShortInfo(userId, user.getName(), user.getSurname(), tasksInfoStrings);
     }
 }

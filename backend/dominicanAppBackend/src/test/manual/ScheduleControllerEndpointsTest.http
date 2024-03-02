@@ -16,6 +16,9 @@ GET {{host}}/api/schedules/available-tasks?from=05-02-2024&to=11-02-2024
 ### Get schedules by user for specified week
 GET {{host}}/api/schedules/users/51/week?from=26-02-2024&to=03-03-2024
 
+### Get shortScheduleInfo for specified week
+GET {{host}}/api/schedules/users/scheduleShortInfo/week?from=26-02-2024&to=03-03-2024
+
 ### Get schedules by supervisor and date weeks
 GET {{host}}/api/schedules/available-tasks/by-supervisor/ROLE_KANTOR?from=05-02-2024&to=11-02-2024
 
