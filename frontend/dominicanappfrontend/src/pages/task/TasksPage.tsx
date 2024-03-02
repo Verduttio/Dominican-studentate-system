@@ -51,14 +51,19 @@ function TasksPage () {
                         <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
                         <td className="max-column-width">{task.supervisorRoles.map(role => role.name).join(', ')}</td>
                         <td>
-                            <button className="btn btn-dark">Akcja</button>
+                            <button
+                                className="btn btn-dark"
+                                onClick={() => navigate(`/edit-task/${task.id}`)}
+                            >
+                                Edytuj
+                            </button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-task')}>Dodaj taska!</button>
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-task')}>Dodaj zadanie</button>
             </div>
         </div>
     );
