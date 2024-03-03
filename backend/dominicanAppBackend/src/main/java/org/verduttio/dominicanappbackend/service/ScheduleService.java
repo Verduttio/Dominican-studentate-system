@@ -445,4 +445,30 @@ public class ScheduleService {
 
         return new ScheduleShortInfo(userId, user.getName(), user.getSurname(), tasksInfoStrings);
     }
+
+    //TODO: Optimise this method
+    public void deleteScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleForWholePeriodTaskDTO) {
+        LocalDate from = addScheduleForWholePeriodTaskDTO.getFromDate();
+        LocalDate to = addScheduleForWholePeriodTaskDTO.getToDate();
+
+        validate(!DateValidator.dateStartsMondayEndsSunday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+
+        if(!taskService.existsById(addScheduleForWholePeriodTaskDTO.getTaskId())) {
+            throw new EntityNotFoundException("Task with given id does not exist");
+        }
+
+        if(!userService.existsById(addScheduleForWholePeriodTaskDTO.getUserId())) {
+            throw new EntityNotFoundException("User with given id does not exist");
+        }
+
+        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(addScheduleForWholePeriodTaskDTO.getUserId(), from, to);
+
+        validate(schedules.isEmpty(), new EntityNotFoundException("No schedules found for given user and date range"));
+
+        schedules.forEach(schedule -> {
+            if(schedule.getTask().getId().equals(addScheduleForWholePeriodTaskDTO.getTaskId())) {
+                scheduleRepository.deleteById(schedule.getId());
+            }
+        });
+    }
 }

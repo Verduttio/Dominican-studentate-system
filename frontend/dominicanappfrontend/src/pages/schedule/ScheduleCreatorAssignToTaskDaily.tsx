@@ -17,7 +17,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/schedules/task/${taskId}/user-dependencies?from=${from}&to=${to}`;
     const { error: assignToTaskError, request: assignToTaskRequest, loading: assignToTaskLoading } = useHttp(
-        `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=false`, 'POST');
+        `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST');
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
@@ -92,7 +92,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                     <th>UserId</th>
                     <th>Imię i nazwisko</th>
                     <th>Ostatnio wykonany</th>
-                    <th>Liczba wykonania w ostatnim roku</th>
+                    <th>Dni z zadaniem (ostatni rok)</th>
                     <th>Aktualne taski</th>
                     <th>Konflikt</th>
                     <th>Przeszkoda</th>
