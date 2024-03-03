@@ -54,7 +54,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                         </td>
                     </tr>
                     <tr>
-                        <th className="table-dark">Role, które mogą wyznaczyć osoby do zadania</th>
+                        <th className="table-dark">Role, które mogą wyznaczać do zadania</th>
                         <td>
                             <ul className="list-unstyled">
                                 {task.supervisorRoles.map(role => <li key={role.id}>{role.name}</li>)}

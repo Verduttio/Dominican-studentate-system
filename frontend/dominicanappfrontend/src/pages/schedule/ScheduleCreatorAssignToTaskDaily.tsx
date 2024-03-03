@@ -5,6 +5,7 @@ import {backendUrl} from "../../utils/constants";
 import {Task, UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
+import LoadingSpinner from "../../components/LoadingScreen";
 
 
 const ScheduleCreatorAssignToTaskDaily = () => {
@@ -75,17 +76,18 @@ const ScheduleCreatorAssignToTaskDaily = () => {
 
 
 
-    if (loading || fetchTaskLoading) return <div>Ładowanie...</div>;
-    if (error || fetchTaskError) return <div className="error-message">{error || fetchTaskError}</div>;
+    if (loading || fetchTaskLoading) return <LoadingSpinner/>;
+    if (error || fetchTaskError) return <div className="alert alert-danger">{error || fetchTaskError}</div>;
 
     return (
         <div className="fade-in">
-            <h1>Zależności użytkowników dla zadania {taskId}</h1>
-            <TaskInfo taskId={taskId}/>
-            <p>Tworzysz harmonogram od: {from}, do: {to}</p>
-            {assignToTaskError && <div className="error-message">{assignToTaskError}</div>}
-            <table>
-                <thead>
+            <div className="d-flex justify-content-center">
+                <TaskInfo taskId={taskId}/>
+            </div>
+            <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
+            {assignToTaskError && <div className="alert alert-danger">{assignToTaskError}</div>}
+            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <thead className="table-dark">
                 <tr>
                     <th>UserId</th>
                     <th>Imię i nazwisko</th>
@@ -102,7 +104,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 <tbody>
                 {userDependencies.map((dep, index) => (
                     <tr key={index}
-                        style={{backgroundColor: dep.assignedToTheTask ? 'green' : dep.hasObstacle ? 'blue' : dep.isInConflict ? 'orange' : 'grey'}}>
+                        className={dep.assignedToTheTask ? 'table-success' : dep.hasObstacle ? 'table-primary' : dep.isInConflict ? 'table-warning' : ''}>
                         <td>{dep.userId}</td>
                         <td>{dep.userName}</td>
                         <td>{dep.lastAssigned}</td>
@@ -114,7 +116,9 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                         <td>
                             {task && (
                                 <select onChange={(e) => handleDayChange(dep.userId, e.target.value)}
-                                        value={selectedDays[dep.userId] || ''}>
+                                        value={selectedDays[dep.userId] || ''}
+                                        className={`form-select ${dep.assignedToTheTask ? 'disabled' : ''}`}
+                                >
                                     {task.daysOfWeek.map(day => (
                                         <option key={day} value={day}>{day}</option>
                                     ))}
@@ -122,7 +126,12 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                             )}
                         </td>
                         <td>
-                            <button onClick={() => handleSubmit(dep.userId)} disabled={assignToTaskLoading}>Przypisz
+                            <button
+                                className="btn btn-dark"
+                                onClick={() => handleSubmit(dep.userId)}
+                                disabled={assignToTaskLoading}
+                            >
+                                Przypisz
                             </button>
                         </td>
                     </tr>
