@@ -44,9 +44,15 @@ public class TaskController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/byRole/{roleName}")
+    @GetMapping("/byAllowedRole/{roleName}")
     public ResponseEntity<List<Task>> getTasksByRole(@PathVariable String roleName) {
         List<Task> tasks = taskService.findTasksByRoleName(roleName);
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
+    @GetMapping("/bySupervisorRole/{roleName}")
+    public ResponseEntity<List<Task>> getTasksBySupervisorRole(@PathVariable String roleName) {
+        List<Task> tasks = taskService.findTasksBySupervisorRoleName(roleName);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
