@@ -258,6 +258,19 @@ public class ScheduleController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping("/forDailyPeriod")
+    public ResponseEntity<?> deleteScheduleForDailyPeriod(@Valid @RequestBody AddScheduleForDailyPeriodTaskDTO addScheduleForDailyPeriodTaskDTO) {
+        try {
+            scheduleService.deleteScheduleForDailyPeriodTask(addScheduleForDailyPeriodTaskDTO);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId) {
         try {

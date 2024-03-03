@@ -18,12 +18,15 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const fetchUrl = `${backendUrl}/api/schedules/task/${taskId}/user-dependencies?from=${from}&to=${to}`;
     const { error: assignToTaskError, request: assignToTaskRequest, loading: assignToTaskLoading } = useHttp(
         `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST');
+    const { error: unassignTaskError, request: unassignTaskRequest, loading: unassignTaskLoading } = useHttp(
+        `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
     const [task, setTask] = useState<Task | null>(null);
     const { request: fetchTaskRequest, error: fetchTaskError, loading: fetchTaskLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'GET');
     const [selectedDays, setSelectedDays] = useState<{ [userId: number]: string }>({});
+    const [refreshData, setRefreshData] = useState(false);
 
 
     useEffect(() => {
@@ -42,7 +45,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 setSelectedDays(initialSelectedDays);
             }
         });
-    }, [request, task]);
+    }, [request, task, refreshData]);
 
     const handleDayChange = (userId: number, selectedDay: string) => {
         setSelectedDays(prev => ({
@@ -67,7 +70,29 @@ const ScheduleCreatorAssignToTaskDaily = () => {
 
             console.log(requestData);
 
-            assignToTaskRequest(requestData, () => {});
+            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
+        } else {
+            console.log("selected day: ", selectedDays[userId]);
+            console.log("taskId, from, to or selected day is null")
+        }
+    }
+
+    function unassignTask(userId: number) {
+        if (taskId != null && from != null && to != null && selectedDays[userId]) {
+            const selectedDayOfWeek = selectedDays[userId];
+            const taskDate = dateFormatter.getNextDateForDayOfWeek(from, selectedDayOfWeek);
+
+            const requestData = {
+                userId: userId,
+                taskId: parseInt(taskId),
+                weekStartDate: dateFormatter.formatDate(from),
+                weekEndDate: dateFormatter.formatDate(to),
+                taskDate: taskDate
+            };
+
+            console.log(requestData);
+
+            unassignTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
         } else {
             console.log("selected day: ", selectedDays[userId]);
             console.log("taskId, from, to or selected day is null")
@@ -86,6 +111,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
             </div>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {assignToTaskError && <div className="alert alert-danger">{assignToTaskError}</div>}
+            {unassignTaskError && <div className="alert alert-danger">{unassignTaskError}</div>}
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <thead className="table-dark">
                 <tr>
@@ -126,13 +152,23 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                             )}
                         </td>
                         <td>
-                            <button
-                                className="btn btn-dark"
-                                onClick={() => handleSubmit(dep.userId)}
-                                disabled={assignToTaskLoading}
-                            >
-                                Przypisz
-                            </button>
+                            {dep.assignedToTheTask ? (
+                                <button
+                                    className="btn btn-outline-dark"
+                                    onClick={() => unassignTask(dep.userId)}
+                                    disabled={assignToTaskLoading || unassignTaskLoading}
+                                >
+                                    Odznacz
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-dark"
+                                    onClick={() => handleSubmit(dep.userId)}
+                                    disabled={assignToTaskLoading || unassignTaskLoading}
+                                >
+                                    Przypisz
+                                </button>
+                            )}
                         </td>
                     </tr>
                 ))}
