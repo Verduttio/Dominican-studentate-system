@@ -499,4 +499,16 @@ public class ScheduleService {
             }
         });
     }
+
+    public List<Schedule> getAllSchedulesForTaskForSpecifiedWeek(Long taskId, LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        if(!taskService.existsById(taskId)) {
+            throw new EntityNotFoundException("Task with given id does not exist");
+        }
+
+        return scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to);
+    }
 }

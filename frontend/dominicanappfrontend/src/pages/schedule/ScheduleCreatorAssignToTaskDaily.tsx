@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
-import {Task, UserTaskDependency} from "../../models/Interfaces";
+import {Schedule, Task, UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -30,6 +30,9 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const [refreshData, setRefreshData] = useState(false);
     const [showConfirmAssignmentPopup, setShowConfirmAssignmentPopup] = useState(false);
     const [userIdAssignPopupData, setUserIdAssignPopupData] = useState(0);
+    const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
+    const { request: taskSchedulesRequest, error: taskSchedulesError, loading: taskSchedulesLoading } = useHttp(`${backendUrl}/api/schedules/tasks/${taskId}/week?from=${from}&to=${to}`, 'GET');
+    const [taskSchedules, setTaskSchedules] = useState<Schedule[]>([]);
 
 
     useEffect(() => {
@@ -47,8 +50,11 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 });
                 setSelectedDays(initialSelectedDays);
             }
+            taskSchedulesRequest(null, (data) => {
+                setTaskSchedules(data);
+            });
         });
-    }, [request, task, refreshData]);
+    }, [request, task, refreshData, taskSchedulesRequest]);
 
     const handleDayChange = (userId: number, selectedDay: string) => {
         setSelectedDays(prev => ({
@@ -57,11 +63,26 @@ const ScheduleCreatorAssignToTaskDaily = () => {
         }));
     };
 
+    function countAssignedUsersOnSelectedDay(userId: number) {
+        if (from == null) return 0;
+
+        const selectedDayOfWeek = selectedDays[userId];
+        const taskDate = dateFormatter.getNextDateForDayOfWeek(from, selectedDayOfWeek);
+        return taskSchedules.filter(schedule => schedule.date && schedule.date === taskDate).length;
+    }
+
     function handleSubmit(userId: number) {
         const userDependency = userDependencies.find(dep => dep.userId === userId);
+        const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
         if (userDependency?.isInConflict) {
-            setShowConfirmAssignmentPopup(true);
+            setConfirmAssignmentPopupText("Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?");
             setUserIdAssignPopupData(userDependency?.userId);
+            setShowConfirmAssignmentPopup(true);
+        } else if (countAssignedUsersOnSelectedDay(userId) >= participantsLimit) {
+            setConfirmAssignmentPopupText("Do zadania jest przypisana maksymalna liczba uczestników. Czy na pewno chcesz wyznaczyć do tego zadania kolejną osobę?");
+            const userId = userDependency?.userId ? userDependency.userId : 0;
+            setUserIdAssignPopupData(userId);
+            setShowConfirmAssignmentPopup(true);
         } else {
             assignToTask(userId);
         }
@@ -113,9 +134,8 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     }
 
 
-
-    if (loading || fetchTaskLoading) return <LoadingSpinner/>;
-    if (error || fetchTaskError) return <div className="alert alert-danger">{error || fetchTaskError}</div>;
+    if (loading || fetchTaskLoading || taskSchedulesLoading) return <LoadingSpinner/>;
+    if (error || fetchTaskError || taskSchedulesError) return <div className="alert alert-danger">{error || fetchTaskError || taskSchedulesError}</div>;
 
     return (
         <div className="fade-in">
@@ -194,7 +214,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {assignToTask(userIdAssignPopupData)}}
                 onClose={() => {setShowConfirmAssignmentPopup(false)}}
-                text={"Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?"}
+                text={confirmAssignmentPopupText}
             />}
         </div>
     );

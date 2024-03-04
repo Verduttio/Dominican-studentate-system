@@ -16,6 +16,9 @@ GET {{host}}/api/schedules/available-tasks?from=05-02-2024&to=11-02-2024
 ### Get schedules by user for specified week
 GET {{host}}/api/schedules/users/51/week?from=26-02-2024&to=03-03-2024
 
+### Get schedules by task for specified week
+GET {{host}}/api/schedules/tasks/13/week?from=04-03-2024&to=10-03-2024
+
 ### Get shortScheduleInfo for specified week
 GET {{host}}/api/schedules/users/scheduleShortInfo/week?from=26-02-2024&to=03-03-2024
 
