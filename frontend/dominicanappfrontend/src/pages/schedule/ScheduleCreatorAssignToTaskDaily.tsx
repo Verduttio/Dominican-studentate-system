@@ -40,6 +40,12 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     }, [fetchTaskRequest]);
 
     useEffect(() => {
+        taskSchedulesRequest(null, (data) => {
+            setTaskSchedules(data);
+        });
+    },[taskSchedulesRequest]);
+
+    useEffect(() => {
         request(null, (data) => {
             setUserDependencies(data);
             // Initialize selectedDays with the first day of task.daysOfWeek for each user
@@ -50,9 +56,6 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 });
                 setSelectedDays(initialSelectedDays);
             }
-            taskSchedulesRequest(null, (data) => {
-                setTaskSchedules(data);
-            });
         });
     }, [request, task, refreshData, taskSchedulesRequest]);
 
