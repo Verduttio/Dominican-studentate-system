@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
-import {UserTaskDependency} from "../../models/Interfaces";
+import {Task, UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -27,16 +27,31 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
     const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
     const [refreshData, setRefreshData] = useState(false);
     const [userIdAssignPopupData, setUserIdAssignPopupData] = useState(0);
+    const [task, setTask] = useState<Task>();
+    const { request: fetchTaskRequest, error: fetchTaskError, loading: fetchTaskLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'GET');
+    const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
 
     useEffect(() => {
         request(null, (data) => setUserDependencies(data));
-    }, [request, refreshData]);
+        fetchTaskRequest(null, setTask);
+    }, [request, refreshData, fetchTaskRequest]);
+
+    function countAssignedUsers() {
+        return userDependencies.filter(dep => dep.assignedToTheTask).length;
+    }
 
     function handleSubmit(userId: number) {
         const userDependency = userDependencies.find(dep => dep.userId === userId);
+        const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
         if (userDependency?.isInConflict) {
-            setShowConfirmAssignmentPopup(true);
+            setConfirmAssignmentPopupText("Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?");
             setUserIdAssignPopupData(userDependency?.userId);
+            setShowConfirmAssignmentPopup(true);
+        } else if (countAssignedUsers() >= participantsLimit) {
+            setConfirmAssignmentPopupText("Do zadania jest przypisana maksymalna liczba uczestników. Czy na pewno chcesz wyznaczyć do tego zadania kolejną osobę?");
+            const userId = userDependency?.userId ? userDependency.userId : 0;
+            setUserIdAssignPopupData(userId);
+            setShowConfirmAssignmentPopup(true);
         } else {
             assignToTask(userId);
         }
@@ -80,8 +95,8 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
     }
 
 
-    if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-error">{error}</div>;
+    if (loading || fetchTaskLoading) return <LoadingSpinner/>;
+    if (error || fetchTaskError) return <div className="alert alert-error">{error || fetchTaskError}</div>;
 
     return (
         <div className="fade-in">
@@ -139,7 +154,7 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {assignToTask(userIdAssignPopupData)}}
                 onClose={() => {setShowConfirmAssignmentPopup(false)}}
-                text={"Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?"}
+                text={confirmAssignmentPopupText}
             />}
         </div>
     );
