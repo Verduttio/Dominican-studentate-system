@@ -6,6 +6,7 @@ import {Task, UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
+import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 
 
 const ScheduleCreatorAssignToTaskDaily = () => {
@@ -27,6 +28,8 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const { request: fetchTaskRequest, error: fetchTaskError, loading: fetchTaskLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'GET');
     const [selectedDays, setSelectedDays] = useState<{ [userId: number]: string }>({});
     const [refreshData, setRefreshData] = useState(false);
+    const [showConfirmAssignmentPopup, setShowConfirmAssignmentPopup] = useState(false);
+    const [userIdAssignPopupData, setUserIdAssignPopupData] = useState(0);
 
 
     useEffect(() => {
@@ -54,8 +57,17 @@ const ScheduleCreatorAssignToTaskDaily = () => {
         }));
     };
 
-
     function handleSubmit(userId: number) {
+        const userDependency = userDependencies.find(dep => dep.userId === userId);
+        if (userDependency?.isInConflict) {
+            setShowConfirmAssignmentPopup(true);
+            setUserIdAssignPopupData(userDependency?.userId);
+        } else {
+            assignToTask(userId);
+        }
+    }
+
+    function assignToTask(userId: number) {
         if (taskId != null && from != null && to != null && selectedDays[userId]) {
             const selectedDayOfWeek = selectedDays[userId];
             const taskDate = dateFormatter.getNextDateForDayOfWeek(from, selectedDayOfWeek);
@@ -70,7 +82,8 @@ const ScheduleCreatorAssignToTaskDaily = () => {
 
             console.log(requestData);
 
-            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
+            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
+                .then(() => setShowConfirmAssignmentPopup(false));
         } else {
             console.log("selected day: ", selectedDays[userId]);
             console.log("taskId, from, to or selected day is null")
@@ -178,6 +191,11 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 ))}
                 </tbody>
             </table>
+            {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
+                onHandle={() => {assignToTask(userIdAssignPopupData)}}
+                onClose={() => {setShowConfirmAssignmentPopup(false)}}
+                text={"Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?"}
+            />}
         </div>
     );
 };
