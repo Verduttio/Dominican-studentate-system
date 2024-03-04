@@ -12,7 +12,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const roleName = queryParams.get('roleName');
     const from = queryParams.get('from');
     const to = queryParams.get('to');
-    const fetchUrl = `${backendUrl}/api/schedules/available-tasks/by-supervisor/${roleName}?from=${from}&to=${to}`;
+    const fetchUrl = `${backendUrl}/api/tasks/bySupervisorRole/${roleName}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
 
     useNavigate();

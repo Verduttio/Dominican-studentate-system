@@ -1,4 +1,4 @@
-.change-password-modal-backdrop {
+.custom-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -11,7 +11,7 @@
     z-index: 1050;
 }
 
-.change-password-modal {
+.custom-modal {
     width: 100%;
     max-width: 500px;
     margin: auto;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import "./ChangePasswordPopup.css";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
+import "../../components/Popup.css";
 
 interface ChangePasswordCardProps {
     userId: number;
@@ -39,8 +39,8 @@ const ChangePasswordPopup: React.FC<ChangePasswordCardProps> = ({ userId, onClos
     };
 
     return (
-        <div className="change-password-modal-backdrop fade-in">
-            <div className="card change-password-modal">
+        <div className="custom-modal-backdrop fade-in">
+            <div className="card custom-modal">
                 <div className="card-body">
                     <div className="card-title">
                         {passwordSuccessfullyChanged && <div className="alert alert-success text-center">Hasło zostało zmienione</div>}

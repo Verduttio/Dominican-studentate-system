@@ -6,6 +6,7 @@ import {UserTaskDependency} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
+import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 
 
 const ScheduleCreatorAssignToTaskWeekly = () => {
@@ -20,17 +21,31 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
         `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=true`, 'POST');
     const { error: unassignTaskError, request: unassignTaskRequest, loading: unassignTaskLoading } = useHttp(
         `${backendUrl}/api/schedules/forWholePeriod`, 'DELETE');
+    const [showConfirmAssignmentPopup, setShowConfirmAssignmentPopup] = useState(false);
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
     const [refreshData, setRefreshData] = useState(false);
+    const [userIdAssignPopupData, setUserIdAssignPopupData] = useState(0);
 
     useEffect(() => {
         request(null, (data) => setUserDependencies(data));
     }, [request, refreshData]);
 
     function handleSubmit(userId: number) {
+        const userDependency = userDependencies.find(dep => dep.userId === userId);
+        if (userDependency?.isInConflict) {
+            setShowConfirmAssignmentPopup(true);
+            setUserIdAssignPopupData(userDependency?.userId);
+        } else {
+            assignToTask(userId);
+        }
+    }
+
+
+    function assignToTask(userId: number) {
         if (taskId != null && from != null && to != null) {
+
             const requestData = {
                 userId: userId,
                 taskId: parseInt(taskId),
@@ -40,7 +55,8 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
 
             console.log(requestData);
 
-            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
+            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
+                .then(() => setShowConfirmAssignmentPopup(false));
         } else {
             console.log("taskId, from or to is null")
         }
@@ -118,6 +134,11 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                 ))}
                 </tbody>
             </table>
+            {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
+                onHandle={() => {assignToTask(userIdAssignPopupData)}}
+                onClose={() => {setShowConfirmAssignmentPopup(false)}}
+                text={"Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?"}
+            />}
         </div>
     );
 };
