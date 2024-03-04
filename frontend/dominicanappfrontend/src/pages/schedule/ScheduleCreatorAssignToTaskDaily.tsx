@@ -140,34 +140,38 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                         <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
                         <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                         <td>
-                            {task && (
-                                <select onChange={(e) => handleDayChange(dep.userId, e.target.value)}
-                                        value={selectedDays[dep.userId] || ''}
-                                        className={`form-select ${dep.assignedToTheTask ? 'disabled' : ''}`}
-                                >
-                                    {task.daysOfWeek.map(day => (
-                                        <option key={day} value={day}>{day}</option>
-                                    ))}
-                                </select>
+                            {!dep.hasObstacle && (
+                                task && (
+                                    <select onChange={(e) => handleDayChange(dep.userId, e.target.value)}
+                                            value={selectedDays[dep.userId] || ''}
+                                            className={`form-select ${dep.assignedToTheTask ? 'disabled' : ''}`}
+                                    >
+                                        {task.daysOfWeek.map(day => (
+                                            <option key={day} value={day}>{day}</option>
+                                        ))}
+                                    </select>
+                                )
                             )}
                         </td>
                         <td>
-                            {dep.assignedToTheTask ? (
-                                <button
-                                    className="btn btn-outline-dark"
-                                    onClick={() => unassignTask(dep.userId)}
-                                    disabled={assignToTaskLoading || unassignTaskLoading}
-                                >
-                                    Odznacz
-                                </button>
-                            ) : (
-                                <button
-                                    className="btn btn-dark"
-                                    onClick={() => handleSubmit(dep.userId)}
-                                    disabled={assignToTaskLoading || unassignTaskLoading}
-                                >
-                                    Przypisz
-                                </button>
+                            {!dep.hasObstacle && (
+                                dep.assignedToTheTask ? (
+                                    <button
+                                        className="btn btn-outline-dark"
+                                        onClick={() => unassignTask(dep.userId)}
+                                        disabled={assignToTaskLoading || unassignTaskLoading}
+                                    >
+                                        Odznacz
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="btn btn-dark"
+                                        onClick={() => handleSubmit(dep.userId)}
+                                        disabled={assignToTaskLoading || unassignTaskLoading}
+                                    >
+                                        Przypisz
+                                    </button>
+                                )
                             )}
                         </td>
                     </tr>

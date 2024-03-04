@@ -119,15 +119,17 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                         <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
                         <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                         <td>
-                            {dep.assignedToTheTask ? (
-                                <button className="btn btn-outline-dark" onClick={() => {unassignTask(dep.userId)}} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                    Odznacz
-                                </button>
-                            ) : (
-                                <button className="btn btn-dark" onClick={() => handleSubmit(dep.userId)}
-                                        disabled={assignToTaskLoading || unassignTaskLoading}>
-                                    Przypisz
-                                </button>
+                            {!dep.hasObstacle && (
+                                dep.assignedToTheTask ? (
+                                    <button className="btn btn-outline-dark" onClick={() => {unassignTask(dep.userId)}} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                        Odznacz
+                                    </button>
+                                ) : (
+                                    <button className="btn btn-dark" onClick={() => handleSubmit(dep.userId)}
+                                            disabled={assignToTaskLoading || unassignTaskLoading}>
+                                        Przypisz
+                                    </button>
+                                )
                             )}
                         </td>
                     </tr>
