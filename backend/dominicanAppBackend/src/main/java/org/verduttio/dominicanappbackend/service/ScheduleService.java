@@ -350,8 +350,6 @@ public class ScheduleService {
 
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
 
-        validate(task.isParticipantForWholePeriod(), new IllegalArgumentException("Task does not allow assigning participants for daily period"));
-
         validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
