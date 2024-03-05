@@ -19,11 +19,8 @@ function AddSchedule() {
                 <h1 className="entity-header">Wybierz tydzień</h1>
             </div>
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
-            <div className="d-flex justify-content-between">
-                <button className="btn btn-success me-4" onClick={handleScheduleCreator}>Kreator harmonogramu</button>
-                <button className="btn btn-success" onClick={() => {}}>
-                    Wybierz jedno zadanie
-                </button>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success me-4" onClick={handleScheduleCreator}>Zatwierdź</button>
             </div>
         </div>
     );

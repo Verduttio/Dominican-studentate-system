@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
@@ -14,13 +14,6 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/tasks/bySupervisorRole/${roleName}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
-
-    useNavigate();
-    const getTaskUrl = (task: Task) => {
-        const base = `/schedule-creator/task/${task.participantForWholePeriod ? 'assignWeekly' : 'assignDaily'}`;
-        const params = `?taskId=${task.id}&from=${from}&to=${to}`;
-        return base + params;
-    }
 
     useEffect(() => {
         request(null, (data: Task[]) => setTasks(data))
@@ -38,7 +31,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
                         {tasks.map(task => (
                             <div className="card mb-4" id="button-scale">
                                 <div className="card-body text-center">
-                                    <Link to={getTaskUrl(task)}
+                                    <Link to={`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`}
                                           className={"stretched-link text-decoration-none text-black"}
                                     >
                                         {task.name}

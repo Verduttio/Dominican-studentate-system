@@ -29,6 +29,7 @@ import EditRole from "./pages/role/EditRole";
 import EditConflict from "./pages/conflict/EditConflict";
 import EditObstacle from "./pages/obstacle/EditObstacle";
 import EditTask from "./pages/task/EditTask";
+import ScheduleCreatorChooseMethod from "./pages/schedule/ScheduleCreatorChooseMethod";
 
 const AppContent = () => {
     const location = useLocation();
@@ -62,6 +63,7 @@ const AppContent = () => {
                     <Route path="/add-schedule" Component={AddSchedule}/>
                     <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
                     <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
+                    <Route path="/schedule-creator/task/chooseMethod" Component={ScheduleCreatorChooseMethod}/>
                     <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
                     <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
