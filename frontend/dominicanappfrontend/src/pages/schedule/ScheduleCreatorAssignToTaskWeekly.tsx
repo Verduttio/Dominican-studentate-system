@@ -43,7 +43,12 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
     function handleSubmit(userId: number) {
         const userDependency = userDependencies.find(dep => dep.userId === userId);
         const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
-        if (userDependency?.isInConflict) {
+
+        if (userDependency?.isInConflict && countAssignedUsers() >= participantsLimit) {
+            setConfirmAssignmentPopupText("Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Ponadto do zadania jest już przypisana maksymalna liczba uczesnitków. Czy na pewno chcesz wyznaczyć do tego zadania wybraną osobę?");
+            setUserIdAssignPopupData(userDependency?.userId);
+            setShowConfirmAssignmentPopup(true);
+        } else if (userDependency?.isInConflict) {
             setConfirmAssignmentPopupText("Użytkownik wykonuje inne zadanie, które jest w konflikcie z wybranym. Czy na pewno chcesz go wyznaczyć?");
             setUserIdAssignPopupData(userDependency?.userId);
             setShowConfirmAssignmentPopup(true);
@@ -136,13 +141,16 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                         <td>
                             {!dep.hasObstacle && (
                                 dep.assignedToTheTask ? (
-                                    <button className="btn btn-outline-dark" onClick={() => {
+                                    <button className={dep.isInConflict ? 'btn btn-warning' : 'btn btn-success'} onClick={() => {
                                         unassignTask(dep.userId)
                                     }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                        Odznacz
+                                        <span
+                                            className={dep.isInConflict? 'highlighted-text-conflict' : ''}>
+                                                Odznacz
+                                            </span>
                                     </button>
                                 ) : (
-                                    <button className="btn btn-dark" onClick={() => handleSubmit(dep.userId)}
+                                    <button className={dep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'} onClick={() => handleSubmit(dep.userId)}
                                             disabled={assignToTaskLoading || unassignTaskLoading}>
                                         Przypisz
                                     </button>
