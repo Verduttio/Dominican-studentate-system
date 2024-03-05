@@ -26,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query(value = "DELETE FROM user_roles WHERE role_id = :roleId", nativeQuery = true)
     void removeRoleFromAllUsers(Long roleId);
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name IN :roleNames")
+    List<User> findAllWhichHaveAnyOfRoles(List<String> roleNames);
 }

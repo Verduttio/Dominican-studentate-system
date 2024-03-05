@@ -164,7 +164,10 @@ public class ScheduleService {
             throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
         }
 
-        List<User> users = userService.getAllUsers();
+        Task task = taskService.getTaskById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with given id does not exist"));
+
+        List<User> users = userService.getUsersWhichHaveAnyOfRoles(task.getAllowedRoles().stream().map(Role::getName).collect(Collectors.toList()));
         return users.stream()
                 .map(user -> getUserDependenciesForTaskWeekly(taskId, user.getId(), from, to))
                 .collect(Collectors.toList());
@@ -200,7 +203,10 @@ public class ScheduleService {
             throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
         }
 
-        List<User> users = userService.getAllUsers();
+        Task task = taskService.getTaskById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with given id does not exist"));
+
+        List<User> users = userService.getUsersWhichHaveAnyOfRoles(task.getAllowedRoles().stream().map(Role::getName).collect(Collectors.toList()));
         return users.stream()
                 .map(user -> getUserDependenciesForTaskDaily(taskId, user.getId(), from, to))
                 .collect(Collectors.toList());

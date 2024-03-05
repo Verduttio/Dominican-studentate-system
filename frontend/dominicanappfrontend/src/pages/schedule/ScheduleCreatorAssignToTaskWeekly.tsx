@@ -136,7 +136,9 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                         <td>
                             {!dep.hasObstacle && (
                                 dep.assignedToTheTask ? (
-                                    <button className="btn btn-outline-dark" onClick={() => {unassignTask(dep.userId)}} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                    <button className="btn btn-outline-dark" onClick={() => {
+                                        unassignTask(dep.userId)
+                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
                                         Odznacz
                                     </button>
                                 ) : (
@@ -152,10 +154,17 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                 </tbody>
             </table>
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
-                onHandle={() => {assignToTask(userIdAssignPopupData)}}
-                onClose={() => {setShowConfirmAssignmentPopup(false)}}
+                onHandle={() => {
+                    assignToTask(userIdAssignPopupData)
+                }}
+                onClose={() => {
+                    setShowConfirmAssignmentPopup(false)
+                }}
                 text={confirmAssignmentPopupText}
             />}
+            <h4 className="entity-header-dynamic-size">Jeśli użytkownika nie ma na liście, to znaczy, że nie posiada
+                roli, która pozwala wykonać zadanie</h4>
+            <h4 className="entity-header-dynamic-size">Nadaj użytkownikowi odpowiednią rolę, aby pojawił się na liście</h4>
         </div>
     );
 };

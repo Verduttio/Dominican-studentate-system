@@ -63,6 +63,10 @@ public class UserService {
         return userRepository.findAllUsersShortInfo();
     }
 
+    public List<User> getUsersWhichHaveAnyOfRoles(List<String> roleNames) {
+        return userRepository.findAllWhichHaveAnyOfRoles(roleNames);
+    }
+
     public void createUser(UserDTO userDTO) {
         userValidator.validateEmailWhenRegister(userDTO.getEmail());
         User user = convertUserDTOToUser(userDTO, AuthProvider.LOCAL);

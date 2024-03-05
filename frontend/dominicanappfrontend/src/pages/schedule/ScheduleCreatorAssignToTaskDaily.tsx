@@ -178,7 +178,8 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                                             onClick={() => unassignTask(dep.userId, day)}
                                             disabled={assignToTaskLoading || unassignTaskLoading}
                                         >
-                                            <span className={dep.isInConflict.includes(day) ? 'highlighted-text-conflict' : ''}>
+                                            <span
+                                                className={dep.isInConflict.includes(day) ? 'highlighted-text-conflict' : ''}>
                                                 Odznacz
                                             </span>
                                         </button>
@@ -199,10 +200,18 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 </tbody>
             </table>
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
-                onHandle={() => {assignToTask(userIdAssignPopupData, selectedDayOfWeek)}}
-                onClose={() => {setShowConfirmAssignmentPopup(false)}}
+                onHandle={() => {
+                    assignToTask(userIdAssignPopupData, selectedDayOfWeek)
+                }}
+                onClose={() => {
+                    setShowConfirmAssignmentPopup(false)
+                }}
                 text={confirmAssignmentPopupText}
             />}
+            <h4 className="entity-header-dynamic-size">Jeśli użytkownika nie ma na liście, to znaczy, że nie posiada
+                roli, która pozwala wykonać zadanie</h4>
+            <h4 className="entity-header-dynamic-size">Nadaj użytkownikowi odpowiednią rolę, aby pojawił się na
+                liście</h4>
         </div>
     );
 };
