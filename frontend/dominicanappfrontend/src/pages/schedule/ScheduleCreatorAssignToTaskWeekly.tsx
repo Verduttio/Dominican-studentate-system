@@ -101,7 +101,7 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
 
 
     if (loading || fetchTaskLoading) return <LoadingSpinner/>;
-    if (error || fetchTaskError) return <div className="alert alert-error">{error || fetchTaskError}</div>;
+    if (error || fetchTaskError) return <div className="alert alert-danger">{error || fetchTaskError}</div>;
 
     return (
         <div className="fade-in">
