@@ -57,7 +57,7 @@ interface ScheduleShortInfo {
     tasksInfoStrings: string[];
 }
 
-interface UserTaskDependency {
+interface UserTaskDependencyWeekly {
     userId: number;
     userName: string;
     lastAssigned: string;
@@ -67,6 +67,19 @@ interface UserTaskDependency {
     hasObstacle: boolean;
     assignedToTheTask: boolean;
 }
+
+interface UserTaskDependencyDaily {
+    userId: number;
+    userName: string;
+    lastAssigned: string;
+    numberOfAssignsInLastYear: number;
+    assignedTasks: string[];
+    isInConflict: string[];
+    hasObstacle: string[];
+    assignedToTheTask: string[];
+}
+
+type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 export enum ObstacleStatus {
     AWAITING = "AWAITING",
@@ -101,5 +114,6 @@ interface TaskShortInfo {
     name: string;
 }
 
-export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependency}
+export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependencyWeekly, UserTaskDependencyDaily}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo}
+export type {DayOfWeek}

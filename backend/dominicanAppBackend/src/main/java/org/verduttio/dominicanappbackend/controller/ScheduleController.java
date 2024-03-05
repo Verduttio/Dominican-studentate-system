@@ -12,7 +12,8 @@ import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodT
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfo;
-import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.PdfService;
@@ -158,23 +159,33 @@ public class ScheduleController {
         }
     }
 
-    @GetMapping("/task/{taskId}/user-dependencies")
-    public ResponseEntity<List<UserTaskDependencyDTO>> getUserDependenciesForTask(
+    @GetMapping("/task/{taskId}/user-dependencies/weekly")
+    public ResponseEntity<List<UserTaskDependencyWeeklyDTO>> getUserDependenciesForTaskWeekly(
             @PathVariable Long taskId,
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
-            if (!from.getDayOfWeek().equals(DayOfWeek.MONDAY) || !to.getDayOfWeek().equals(DayOfWeek.SUNDAY)
-                    || ChronoUnit.DAYS.between(from, to) != 6) {
-                throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
-            }
-
-            List<UserTaskDependencyDTO> dependencies = scheduleService.getAllUserDependenciesForTask(taskId, from, to);
+            List<UserTaskDependencyWeeklyDTO> dependencies = scheduleService.getAllUserDependenciesForTaskWeekly(taskId, from, to);
             return ResponseEntity.ok(dependencies);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/task/{taskId}/user-dependencies/daily")
+    public ResponseEntity<List<UserTaskDependencyDailyDTO>> getUserDependenciesForTaskDaily(
+            @PathVariable Long taskId,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            List<UserTaskDependencyDailyDTO> dependencies = scheduleService.getAllUserDependenciesForTaskDaily(taskId, from, to);
+            return ResponseEntity.ok(dependencies);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
-import {Task, UserTaskDependency} from "../../models/Interfaces";
+import {Task, UserTaskDependencyWeekly} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -10,13 +10,13 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 
 
 const ScheduleCreatorAssignToTaskWeekly = () => {
-    const [userDependencies, setUserDependencies] = useState<UserTaskDependency[]>([]);
+    const [userDependencies, setUserDependencies] = useState<UserTaskDependencyWeekly[]>([]);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const taskId = queryParams.get('taskId');
     const from = queryParams.get('from');
     const to = queryParams.get('to');
-    const fetchUrl = `${backendUrl}/api/schedules/task/${taskId}/user-dependencies?from=${from}&to=${to}`;
+    const fetchUrl = `${backendUrl}/api/schedules/task/${taskId}/user-dependencies/weekly?from=${from}&to=${to}`;
     const { error: assignToTaskError, request: assignToTaskRequest, loading: assignToTaskLoading } = useHttp(
         `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=true`, 'POST');
     const { error: unassignTaskError, request: unassignTaskRequest, loading: unassignTaskLoading } = useHttp(

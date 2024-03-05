@@ -6,7 +6,8 @@ import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodT
 import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfo;
-import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -158,14 +159,18 @@ public class ScheduleService {
         }).collect(Collectors.toList());
     }
 
-    public List<UserTaskDependencyDTO> getAllUserDependenciesForTask(Long taskId, LocalDate from, LocalDate to) {
+    public List<UserTaskDependencyWeeklyDTO> getAllUserDependenciesForTaskWeekly(Long taskId, LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
         List<User> users = userService.getAllUsers();
         return users.stream()
-                .map(user -> getUserDependenciesForTask(taskId, user.getId(), from, to))
+                .map(user -> getUserDependenciesForTaskWeekly(taskId, user.getId(), from, to))
                 .collect(Collectors.toList());
     }
 
-    public UserTaskDependencyDTO getUserDependenciesForTask(Long taskId, Long userId, LocalDate from, LocalDate to) {
+    public UserTaskDependencyWeeklyDTO getUserDependenciesForTaskWeekly(Long taskId, Long userId, LocalDate from, LocalDate to) {
         validate(!taskService.existsById(taskId), new EntityNotFoundException("Task with given id does not exist"));
 
         User user = userService.getUserById(userId)
@@ -186,8 +191,46 @@ public class ScheduleService {
 
         boolean alreadyAssignedToTheTask = userAssignedTasksForWeek.stream().anyMatch(t -> t.getId().equals(taskId));
 
-        return new UserTaskDependencyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
+        return new UserTaskDependencyWeeklyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
                 userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnDate, alreadyAssignedToTheTask);
+    }
+
+    public List<UserTaskDependencyDailyDTO> getAllUserDependenciesForTaskDaily(Long taskId, LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        List<User> users = userService.getAllUsers();
+        return users.stream()
+                .map(user -> getUserDependenciesForTaskDaily(taskId, user.getId(), from, to))
+                .collect(Collectors.toList());
+    }
+
+    public UserTaskDependencyDailyDTO getUserDependenciesForTaskDaily(Long taskId, Long userId, LocalDate from, LocalDate to) {
+        validate(!taskService.existsById(taskId), new EntityNotFoundException("Task with given id does not exist"));
+
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
+
+        long numberOfTaskCompletionByUserInLast365days = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
+
+        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
+
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+
+        Set<DayOfWeek> isConflict = getDaysWhenTaskIsInConflictWithOther(taskId, userSchedulesForWeek);
+
+        Set<DayOfWeek> hasObstacle = checkIfUserHasValidApprovedObstacleForTaskForWeek(from, userId, taskId);
+
+        Set<DayOfWeek> alreadyAssignedToTheTask = userSchedulesForWeek.stream()
+                .filter(s -> s.getTask().getId().equals(taskId))
+                .map(s -> s.getDate().getDayOfWeek())
+                .collect(Collectors.toSet());
+
+        return new UserTaskDependencyDailyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
+                userAssignedTasksNamesForWeek, isConflict, hasObstacle, alreadyAssignedToTheTask);
     }
 
     private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
@@ -361,6 +404,16 @@ public class ScheduleService {
         return tasks.stream().anyMatch(t -> conflictService.tasksAreInConflict(taskId, t.getId()));
     }
 
+    public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules) {
+        Set<DayOfWeek> daysWhenTaskIsInConflict = new HashSet<>();
+        for(Schedule schedule : schedules) {
+            if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId())) {
+                daysWhenTaskIsInConflict.add(schedule.getDate().getDayOfWeek());
+            }
+        }
+        return daysWhenTaskIsInConflict;
+    }
+
     private void checkIfTaskOccursOnGivenDayOfWeek(ScheduleDTO scheduleDTO, Task task) {
         DayOfWeek scheduleDayOfWeek = scheduleDTO.getDate().getDayOfWeek();
         Set<DayOfWeek> taskDaysOfWeek = task.getDaysOfWeek();
@@ -383,6 +436,17 @@ public class ScheduleService {
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, Long userId, Long taskId) {
         return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, date).isEmpty();
+    }
+
+    private Set<DayOfWeek> checkIfUserHasValidApprovedObstacleForTaskForWeek(LocalDate weekStartDate, Long userId, Long taskId) {
+        Set<DayOfWeek> daysWhenUserHasValidApprovedObstacle = new HashSet<>();
+        for(DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            LocalDate date = weekStartDate.plusDays(dayOfWeek.getValue() - 1);
+            if(checkIfUserHasValidApprovedObstacleForTaskAtDate(date, userId, taskId)) {
+                daysWhenUserHasValidApprovedObstacle.add(dayOfWeek);
+            }
+        }
+        return daysWhenUserHasValidApprovedObstacle;
     }
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, User user, Task task) {

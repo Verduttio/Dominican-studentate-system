@@ -24,8 +24,8 @@ export class DateFormatter {
         let dayIndex = daysOfWeek.indexOf(dayOfWeek);
         let startDayIndex = start.getDay() === 0 ? 6 : (start.getDay() - 1);
 
-        console.log('startDayIndex', startDayIndex);
-        console.log('dayIndex', dayIndex);
+        // console.log('startDayIndex', startDayIndex);
+        // console.log('dayIndex', dayIndex);
 
         if (dayIndex === -1) {
             throw new Error('Invalid day of the week');

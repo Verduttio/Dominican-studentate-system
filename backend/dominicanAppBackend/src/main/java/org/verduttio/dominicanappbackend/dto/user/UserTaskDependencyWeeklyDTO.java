@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.dto.user;
 import java.time.LocalDate;
 import java.util.List;
 
-public class UserTaskDependencyDTO {
+public class UserTaskDependencyWeeklyDTO {
     private Long userId;
     private String userName;
     private LocalDate lastAssigned;
@@ -70,7 +70,7 @@ public class UserTaskDependencyDTO {
         this.userId = userId;
     }
 
-    public UserTaskDependencyDTO(Long userId, String userName, LocalDate lastAssigned, int numberOfAssignsInLastYear,
+    public UserTaskDependencyWeeklyDTO(Long userId, String userName, LocalDate lastAssigned, int numberOfAssignsInLastYear,
                                  List<String> assignedTasks, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask) {
         this.userId = userId;
         this.userName = userName;
