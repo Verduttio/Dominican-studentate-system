@@ -5,6 +5,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -71,6 +72,22 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/current/check").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("api/users/{userId}/verification/assignRoles").hasRole("FUNKCYJNY")
+                        .requestMatchers("api/schedules/forWholePeriod").hasRole("FUNKCYJNY")
+                        .requestMatchers("api/schedules/forDailyPeriod").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.DELETE, "api/users/{userId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PATCH, "api/users/{userId}/roles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PUT, "api/users/{userId}/verification/assignRoles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.POST, "api/obstacles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.DELETE, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PATCH, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PUT, "api/tasks/{taskId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.POST, "api/tasks").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.POST, "api/conflicts").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PUT, "api/conflicts/{conflictId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.DELETE, "api/conflicts/{conflictId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.POST, "api/roles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.DELETE, "api/roles/{roleId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PUT, "api/roles/{roleId}").hasRole("FUNKCYJNY")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement
