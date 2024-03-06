@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "api/users/{userId}").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.PATCH, "api/users/{userId}/roles").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.PUT, "api/users/{userId}/verification/assignRoles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.GET, "api/obstacles").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.POST, "api/obstacles").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.DELETE, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.PATCH, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
