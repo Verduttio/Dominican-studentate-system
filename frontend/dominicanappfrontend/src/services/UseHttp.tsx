@@ -26,11 +26,7 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
             }
         } catch (err : any) {
             if (err.response.status === 403 ) {
-                if (err.response.data === null) {
-                    setError("Nie posiadasz praw dostępu do tych danych");
-                } else {
-                    setError(err.response.data);
-                }
+                setError("Nie posiadasz praw dostępu do tych danych");
             } else if (err.response && err.response.status === 401 && !skipRedirect) {
                 setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
                 setTimeout(() => {
