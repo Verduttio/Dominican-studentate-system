@@ -4,11 +4,15 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
+import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
@@ -62,6 +66,22 @@ public class ObstacleController {
         return new ResponseEntity<>(obstacles, HttpStatus.OK);
     }
 
+    @GetMapping("/users/current")
+    public ResponseEntity<?> getAllObstaclesByCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+
+        List<Obstacle> obstacles;
+        try {
+            obstacles = obstacleService.getAllObstaclesByUserId(userId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
     @GetMapping("/{status}/count")
     public ResponseEntity<?> getNumberOfObstaclesByStatus(@PathVariable ObstacleStatus status) {
         Long numberOfNotAnsweredObstacles = obstacleService.getNumberOfObstaclesByStatus(status);
@@ -101,6 +121,8 @@ public class ObstacleController {
             obstacleService.deleteObstacle(obstacleId);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

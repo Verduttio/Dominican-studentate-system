@@ -6,6 +6,7 @@ import useHttp from '../services/UseHttp';
 import {backendUrl} from "../utils/constants";
 import { faUserPlus, faNoteSticky} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useIsFunkcyjny from "../services/UseIsFunkcyjny";
 
 
 
@@ -13,6 +14,7 @@ const NavigationBar = () => {
     const navigate = useNavigate();
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
     const { request: numberOfUnverifiedUsersRequest, error: numberOfUnverifiedUsersError, loading: numberOfUnverifiedUsersLoading } = useHttp(
         `${backendUrl}/api/users/notVerified/count`, 'GET'
     );
@@ -41,25 +43,9 @@ const NavigationBar = () => {
 
     return (
         <div className="navigation-bar">
-            <button onClick={() => navigateTo('/home')}>Home</button>
+            <button onClick={() => navigateTo('/home')}>Harmonogram</button>
 
             <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
-
-            <button onClick={() => navigateTo('/tasks')}>Zadania</button>
-
-            <button
-                onClick={() => navigateTo('/obstacles')}
-            >
-                Przeszkody
-                {numberOfAwaitingObstacles > 0 && (
-                    <span className="notification-icon">
-                        <FontAwesomeIcon icon={faNoteSticky}/>
-                        <span className="notification-count">{numberOfAwaitingObstacles}</span>
-                    </span>
-                )}
-            </button>
-
-            <button onClick={() => navigateTo('/conflicts')}>Konflikty</button>
 
             <button
                 onClick={() => navigateTo('/users')}
@@ -73,9 +59,37 @@ const NavigationBar = () => {
                 )}
             </button>
 
-            <button onClick={() => navigateTo('/schedule')}>Harmonogram</button>
+            {isFunkcyjny &&
+                <button
+                    className="bg-primary"
+                    onClick={() => navigateTo('/schedule')}
+                >
+                    Dodaj harmonogram
+                </button>
+            }
 
-            <button onClick={() => navigateTo('/roles')}>Role</button>
+            {isFunkcyjny &&
+                <button
+                    className="bg-primary"
+                    onClick={() => navigateTo('/obstacles')}
+                >
+                    Przeszkody
+                    {numberOfAwaitingObstacles > 0 && (
+                        <span className="notification-icon">
+                            <FontAwesomeIcon icon={faNoteSticky}/>
+                            <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                        </span>
+                    )}
+                </button>
+            }
+
+            <button onClick={() => {}}>Inne</button>
+
+            {/*<button onClick={() => navigateTo('/tasks')}>Zadania</button>*/}
+
+            {/*<button onClick={() => navigateTo('/conflicts')}>Konflikty</button>*/}
+
+            {/*<button onClick={() => navigateTo('/roles')}>Role</button>*/}
 
             <LogoutButton/>
         </div>

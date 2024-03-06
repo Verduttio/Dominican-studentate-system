@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "api/users/{userId}/verification/assignRoles").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.GET, "api/obstacles").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.POST, "api/obstacles").hasRole("FUNKCYJNY")
-                        .requestMatchers(HttpMethod.DELETE, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
+//                        .requestMatchers(HttpMethod.DELETE, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY") || obstacle.user.id == loggedInUser.id --> check in service
                         .requestMatchers(HttpMethod.PATCH, "api/obstacles/{obstacleId}").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.PUT, "api/tasks/{taskId}").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.POST, "api/tasks").hasRole("FUNKCYJNY")

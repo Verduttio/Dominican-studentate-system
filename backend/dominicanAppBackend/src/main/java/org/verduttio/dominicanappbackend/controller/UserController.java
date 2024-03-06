@@ -118,6 +118,20 @@ public class UserController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    //TODO: Move to service layer
+    @GetMapping("/checkRole/{roleName}")
+    public ResponseEntity<Boolean> checkIfUserHasRole(@PathVariable String roleName) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        if (userDetails.getUser().getRoles().stream().anyMatch(role -> role.getName().equals(roleName))) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.OK);
+        }
+    }
+
+
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
         try {

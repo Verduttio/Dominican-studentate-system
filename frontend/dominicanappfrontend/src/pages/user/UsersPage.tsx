@@ -5,11 +5,13 @@ import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import "./UsersPage.css";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -37,6 +39,7 @@ function UsersPage () {
                     <th>Email</th>
                     <th>Zweryfikowany</th>
                     <th>Akcja</th>
+                    {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
                 <tbody>
@@ -54,8 +57,13 @@ function UsersPage () {
                             </span>
                         </td>
                         <td>
-                            <button className="btn btn-dark" onClick={() => navigate(`/users/${user.id}/verify`)}>Szczegóły</button>
+                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
                         </td>
+                        {isFunkcyjny &&
+                            <td>
+                                <button className="btn btn-primary" onClick={() => navigate(`/users/${user.id}/verify`)}>Edytuj</button>
+                            </td>
+                        }
                     </tr>
                 ))}
                 </tbody>

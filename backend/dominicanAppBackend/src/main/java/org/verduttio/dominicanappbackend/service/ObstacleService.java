@@ -2,6 +2,9 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
@@ -9,6 +12,7 @@ import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
@@ -69,6 +73,20 @@ public class ObstacleService {
         if(!obstacleRepository.existsById(obstacleId)) {
             throw new EntityNotFoundException("Obstacle not found with id: " + obstacleId);
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User currentUser = userDetails.getUser();
+
+        Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
+
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_FUNKCYJNY"))
+            || currentUser.getId().equals(obstacle.getUser().getId())) {
+            obstacleRepository.deleteById(obstacleId);
+        } else {
+            throw new AccessDeniedException("You are not allowed to delete this obstacle");
+        }
+
         obstacleRepository.deleteById(obstacleId);
     }
 
