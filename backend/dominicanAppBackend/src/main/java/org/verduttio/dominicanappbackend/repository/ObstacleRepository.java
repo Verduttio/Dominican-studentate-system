@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
+import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
 
 import java.util.List;
 
@@ -32,4 +33,6 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
     @Modifying
     @Query("UPDATE Obstacle o SET o.recipientUser = NULL WHERE o.recipientUser.id = :userId")
     void updateAllByRecipientUserIdToNull(Long userId);
+
+    Long countAllByStatus(ObstacleStatus status);
 }

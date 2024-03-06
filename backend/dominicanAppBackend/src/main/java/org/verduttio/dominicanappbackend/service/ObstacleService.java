@@ -115,4 +115,8 @@ public class ObstacleService {
     public List<Obstacle> findAllByTaskId(Long taskId) {
         return obstacleRepository.findAllByTaskId(taskId);
     }
+
+    public Long getNumberOfObstaclesByStatus(ObstacleStatus status) {
+        return obstacleRepository.countAllByStatus(status);
+    }
 }

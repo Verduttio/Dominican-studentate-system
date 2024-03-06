@@ -221,7 +221,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Long countNumberOfNotVerifiedUsers() {
+    public Long getNumberOfNotVerifiedUsers() {
         return userRepository.countByNotEnabled();
     }
 }

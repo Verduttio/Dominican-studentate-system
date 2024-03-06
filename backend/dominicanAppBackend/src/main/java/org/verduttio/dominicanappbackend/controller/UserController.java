@@ -1,7 +1,6 @@
 package org.verduttio.dominicanappbackend.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -108,8 +107,8 @@ public class UserController {
     }
 
     @GetMapping("/notVerified/count")
-    public ResponseEntity<Long> countNumberOfNotVerifiedUsers() {
-        return new ResponseEntity<>(userService.countNumberOfNotVerifiedUsers(), HttpStatus.OK);
+    public ResponseEntity<Long> getNumberOfNotVerifiedUsers() {
+        return new ResponseEntity<>(userService.getNumberOfNotVerifiedUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
