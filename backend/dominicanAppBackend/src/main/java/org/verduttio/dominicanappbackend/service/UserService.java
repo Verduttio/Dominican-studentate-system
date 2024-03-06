@@ -220,4 +220,8 @@ public class UserService {
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    public Long countNumberOfNotVerifiedUsers() {
+        return userRepository.countByNotEnabled();
+    }
 }

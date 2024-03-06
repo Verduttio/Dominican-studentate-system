@@ -107,6 +107,11 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @GetMapping("/notVerified/count")
+    public ResponseEntity<Long> countNumberOfNotVerifiedUsers() {
+        return new ResponseEntity<>(userService.countNumberOfNotVerifiedUsers(), HttpStatus.OK);
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         return userService.getUserById(userId)

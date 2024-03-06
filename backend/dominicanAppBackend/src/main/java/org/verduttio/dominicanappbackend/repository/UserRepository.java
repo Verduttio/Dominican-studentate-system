@@ -29,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name IN :roleNames")
     List<User> findAllWhichHaveAnyOfRoles(List<String> roleNames);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isEnabled = false")
+    Long countByNotEnabled();
 }
