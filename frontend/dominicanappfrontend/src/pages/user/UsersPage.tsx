@@ -61,7 +61,9 @@ function UsersPage () {
                         </td>
                         {isFunkcyjny &&
                             <td>
-                                <button className="btn btn-primary" onClick={() => navigate(`/users/${user.id}/verify`)}>Edytuj</button>
+                                <button className="btn btn-primary" onClick={() => navigate(`/users/${user.id}/verify`)}>
+                                    {user.enabled ? "Edytuj" : "Zweryfikuj"}
+                                </button>
                             </td>
                         }
                     </tr>
