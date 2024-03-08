@@ -46,7 +46,7 @@ function UsersPage () {
                         <td>{user.name}</td>
                         <td>{user.surname}</td>
                         <td>
-                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
+                            <button className="btn btn-dark" onClick={() => {navigate(`/users/${user.id}/viewer/details`)}}>Szczegóły</button>
                         </td>
                         {isFunkcyjny &&
                             <td>

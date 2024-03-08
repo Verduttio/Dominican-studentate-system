@@ -32,6 +32,7 @@ import EditTask from "./pages/task/EditTask";
 import ScheduleCreatorChooseMethod from "./pages/schedule/ScheduleCreatorChooseMethod";
 import OtherEntities from "./pages/other/OtherEntities";
 import AddMyObstacle from "./pages/obstacle/AddMyObstacle";
+import UserDetailsViewer from "./pages/user/UserDetailsViewer";
 
 const AppContent = () => {
     const location = useLocation();
@@ -71,6 +72,7 @@ const AppContent = () => {
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
+                    <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
                     <Route path="*" element={<Navigate replace to="/login"/>}/>
                 </Routes>
             </div>
