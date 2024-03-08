@@ -72,12 +72,14 @@ function Login () {
                             <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email:</label>
                                 <input type="email" className="form-control" id="email" value={email}
-                                       onChange={e => setEmail(e.target.value)}/>
+                                       onChange={e => setEmail(e.target.value)}
+                                       autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Hasło:</label>
                                 <input type="password" className="form-control" id="password" value={password}
-                                       onChange={e => setPassword(e.target.value)}/>
+                                       onChange={e => setPassword(e.target.value)}
+                                       autoComplete="off"/>
                             </div>
                             {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
                             {errorOAuth2 && <div className="alert alert-danger" role="alert">{errorOAuth2Message}</div>}

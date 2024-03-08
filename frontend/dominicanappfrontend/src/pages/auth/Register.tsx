@@ -101,30 +101,30 @@ function Register () {
                             <div className="mb-3">
                                 <label htmlFor="name" className="form-label">Imię:</label>
                                 <input type="text" className="form-control" id="name" name="name" value={name}
-                                       onChange={onChange}/>
+                                       onChange={onChange} autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="surname" className="form-label">Nazwisko:</label>
                                 <input type="text" className="form-control" id="surname" name="surname"
                                        value={surname}
-                                       onChange={onChange}/>
+                                       onChange={onChange} autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email:</label>
                                 <input type="email" className="form-control" id="email" name="email" value={email}
-                                       onChange={onChange}/>
+                                       onChange={onChange} autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Hasło:</label>
                                 <input type="password" className="form-control" id="password" name="password"
                                        value={password}
-                                       onChange={onChange}/>
+                                       onChange={onChange} autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="confirmPassword" className="form-label">Powtórz hasło:</label>
                                 <input type="password" className="form-control" id="confirmPassword"
                                        name="confirmPassword"
-                                       value={confirmPassword} onChange={onChange}/>
+                                       value={confirmPassword} onChange={onChange} autoComplete="off"/>
                             </div>
                             {error && <div className="alert alert-danger" role="alert">{error}</div>}
                             {registerSuccess &&
