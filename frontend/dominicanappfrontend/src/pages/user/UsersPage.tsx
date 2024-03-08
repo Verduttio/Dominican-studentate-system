@@ -33,35 +33,24 @@ function UsersPage () {
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <thead className="table-dark">
                 <tr>
-                    <th>ID</th>
                     <th>Imię</th>
                     <th>Nazwisko</th>
-                    <th>Email</th>
-                    <th>Zweryfikowany</th>
                     <th>Akcja</th>
                     {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
                 <tbody>
                 {users.map(user => (
-                    <tr key={user.id}>
-                        <td>{user.id}</td>
+                    <tr key={user.id}
+                        className={!user.enabled ? 'table-danger' : ''}>
                         <td>{user.name}</td>
                         <td>{user.surname}</td>
-                        <td>{user.email}</td>
-                        <td>
-                            <span className={
-                                user.enabled ? '' : 'highlighted-text-not-verified'}
-                            >
-                            {user.enabled ? "Tak" : "Nie"}
-                            </span>
-                        </td>
                         <td>
                             <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
                         </td>
                         {isFunkcyjny &&
                             <td>
-                                <button className="btn btn-primary" onClick={() => navigate(`/users/${user.id}/verify`)}>
+                                <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"} onClick={() => navigate(`/users/${user.id}/verify`)}>
                                     {user.enabled ? "Edytuj" : "Zweryfikuj"}
                                 </button>
                             </td>
