@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
-import {Obstacle, User} from "../../models/Interfaces";
+import {User} from "../../models/Interfaces";
 import ChangePasswordPopup from "./ChangePasswordPopup";
 import CurrentUserObstaclesTable from "./CurrentUserObstaclesTable";
+import {useNavigate} from "react-router-dom";
 
 function UserProfilePage () {
     const [user, setUser] = useState<User | null>(null);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users/current`, 'GET');
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setUser(data))
@@ -64,6 +66,9 @@ function UserProfilePage () {
                         <h1 className="entity-header">Moje przeszkody</h1>
                     </div>
                     <CurrentUserObstaclesTable/>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-success" onClick={() => {navigate("/add-obstacle/myself")}}>Dodaj przeszkodę</button>
+                    </div>
                 </>
             )}
         </div>

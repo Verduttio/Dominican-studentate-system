@@ -88,6 +88,24 @@ public class ObstacleController {
         return new ResponseEntity<>(numberOfNotAnsweredObstacles, HttpStatus.OK);
     }
 
+    @PostMapping("/users/current")
+    public ResponseEntity<?> createObstacleForCurrentUser(@Valid @RequestBody ObstacleRequestDTO obstacleRequestDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+        obstacleRequestDTO.setUserId(userId);
+
+        try {
+            obstacleService.saveObstacle(obstacleRequestDTO);
+        } catch (EntityNotFoundException e ) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @PostMapping
     public ResponseEntity<?> createObstacle(@Valid @RequestBody ObstacleRequestDTO obstacleRequestDTO) {
         try {
