@@ -61,9 +61,12 @@
 .card#button-scale {
     transition: all 0.3s ease;
     cursor: pointer;
+    background-color: #212529;
+    color: white
 }
 
 .card:hover#button-scale {
-    background-color: #b2cdec;
+    background-color: #ffffff;
     transform: scale(1.05);
+    color: black
 }

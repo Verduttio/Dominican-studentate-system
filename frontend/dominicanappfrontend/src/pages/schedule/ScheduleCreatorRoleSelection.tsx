@@ -8,7 +8,7 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const location = useLocation();
-    useNavigate();
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, setSupervisorRoles);
@@ -27,12 +27,8 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
                 {supervisorRoles.map((role) => (
                     <div className="card mb-4" id="button-scale">
-                        <div className="card-body text-center">
-                            <Link to={`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`}
-                                  className={"stretched-link text-decoration-none text-black"}
-                            >
-                                {role.name}
-                            </Link>
+                        <div className="card-body text-center" onClick={() => {navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}}>
+                            {role.name}
                         </div>
                     </div>
                 ))}

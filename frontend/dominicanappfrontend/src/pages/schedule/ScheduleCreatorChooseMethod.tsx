@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
@@ -14,6 +14,7 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/tasks/${taskId}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const navigate = useNavigate();
 
     const getTaskUrlWeekly = (taskId: number | undefined) => {
         const base = `/schedule-creator/task/assignWeekly`;
@@ -41,22 +42,14 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {task?.participantForWholePeriod && (
                 <div className="card mb-4" id="button-scale">
-                    <div className="card-body text-center">
-                        <Link to={getTaskUrlWeekly(task?.id)}
-                              className={"stretched-link text-decoration-none text-black"}
-                        >
-                            Kreator tygodniowy
-                        </Link>
+                    <div className="card-body text-center" onClick={() => navigate(getTaskUrlWeekly(task?.id))}>
+                        Kreator tygodniowy
                     </div>
                 </div>
             )}
             <div className="card mb-4" id="button-scale">
-                <div className="card-body text-center">
-                    <Link to={getTaskUrlDaily(task?.id)}
-                          className={"stretched-link text-decoration-none text-black"}
-                    >
-                        Kreator dzienny
-                    </Link>
+                <div className="card-body text-center" onClick={() => {navigate(getTaskUrlDaily(task?.id))}}>
+                    Kreator dzienny
                 </div>
             </div>
         </div>

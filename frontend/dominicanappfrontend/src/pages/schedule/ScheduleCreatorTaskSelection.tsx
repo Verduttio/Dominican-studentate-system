@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
@@ -14,6 +14,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/tasks/bySupervisorRole/${roleName}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data: Task[]) => setTasks(data))
@@ -30,12 +31,8 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
                     <>
                         {tasks.map(task => (
                             <div className="card mb-4" id="button-scale">
-                                <div className="card-body text-center">
-                                    <Link to={`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`}
-                                          className={"stretched-link text-decoration-none text-black"}
-                                    >
-                                        {task.name}
-                                    </Link>
+                                <div className="card-body text-center" onClick={() => {navigate(`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`)}}>
+                                    {task.name}
                                 </div>
                             </div>
                         ))}
