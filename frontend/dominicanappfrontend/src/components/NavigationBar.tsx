@@ -83,7 +83,7 @@ const NavigationBar = () => {
                 </button>
             }
 
-            <button onClick={() => {}}>Inne</button>
+            <button onClick={() => {navigateTo('/other')}}>Inne</button>
 
             {/*<button onClick={() => navigateTo('/tasks')}>Zadania</button>*/}
 
