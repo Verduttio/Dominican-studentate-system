@@ -4,11 +4,13 @@ import { Conflict } from "../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 function ConflictsPage() {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/conflicts`, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -38,6 +40,7 @@ function ConflictsPage() {
                     <th>Zadanie 1</th>
                     <th>Zadanie 2</th>
                     <th>Akcja</th>
+                    {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
                 <tbody>
@@ -47,17 +50,22 @@ function ConflictsPage() {
                         <td>{conflict.task1.name}</td>
                         <td>{conflict.task2.name}</td>
                         <td>
-                            <button className="btn btn-sm btn-dark"
-                                    onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj
-                            </button>
+                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
                         </td>
+                        {isFunkcyjny &&
+                            <td>
+                                <button className="btn btn-primary" onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj</button>
+                            </td>
+                        }
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-conflict')}>Dodaj konflikt</button>
-            </div>
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-conflict')}>Dodaj konflikt</button>
+                </div>
+            }
         </div>
     );
 }

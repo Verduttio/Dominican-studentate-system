@@ -4,11 +4,13 @@ import { Task } from "../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -39,6 +41,7 @@ function TasksPage () {
                     <th>Dozwolone role</th>
                     <th>Wyznaczający</th>
                     <th>Akcja</th>
+                    {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
                 <tbody>
@@ -51,20 +54,22 @@ function TasksPage () {
                         <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
                         <td className="max-column-width">{task.supervisorRoles.map(role => role.name).join(', ')}</td>
                         <td>
-                            <button
-                                className="btn btn-dark"
-                                onClick={() => navigate(`/edit-task/${task.id}`)}
-                            >
-                                Edytuj
-                            </button>
+                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
                         </td>
+                        {isFunkcyjny &&
+                            <td>
+                                <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>
+                            </td>
+                        }
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-task')}>Dodaj zadanie</button>
-            </div>
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-task')}>Dodaj zadanie</button>
+                </div>
+            }
         </div>
     );
 }

@@ -4,10 +4,12 @@ import { Role } from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -36,6 +38,7 @@ function ViewRoles() {
                     <th>Nazwa</th>
                     <th>Typ</th>
                     <th>Akcja</th>
+                    {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
                 <tbody>
@@ -45,17 +48,22 @@ function ViewRoles() {
                         <td>{role.name}</td>
                         <td>{role.type}</td>
                         <td>
-                            <button className="btn btn-sm btn-dark"
-                                    onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj
-                            </button>
+                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
                         </td>
+                        {isFunkcyjny &&
+                            <td>
+                                <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>
+                            </td>
+                        }
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
-            </div>
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
+                </div>
+            }
         </div>
     );
 }
