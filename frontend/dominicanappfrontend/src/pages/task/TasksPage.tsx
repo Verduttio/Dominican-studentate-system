@@ -40,7 +40,6 @@ function TasksPage () {
                     <th>Cały okres</th>
                     <th>Dozwolone role</th>
                     <th>Wyznaczający</th>
-                    <th>Akcja</th>
                     {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
@@ -53,9 +52,6 @@ function TasksPage () {
                         <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                         <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
                         <td className="max-column-width">{task.supervisorRoles.map(role => role.name).join(', ')}</td>
-                        <td>
-                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
-                        </td>
                         {isFunkcyjny &&
                             <td>
                                 <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>

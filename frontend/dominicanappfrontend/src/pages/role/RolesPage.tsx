@@ -37,7 +37,6 @@ function ViewRoles() {
                     <th>ID</th>
                     <th>Nazwa</th>
                     <th>Typ</th>
-                    <th>Akcja</th>
                     {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
@@ -47,9 +46,6 @@ function ViewRoles() {
                         <td>{role.id}</td>
                         <td>{role.name}</td>
                         <td>{role.type}</td>
-                        <td>
-                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
-                        </td>
                         {isFunkcyjny &&
                             <td>
                                 <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>

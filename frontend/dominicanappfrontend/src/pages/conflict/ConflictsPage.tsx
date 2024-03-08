@@ -39,7 +39,6 @@ function ConflictsPage() {
                     <th>ID</th>
                     <th>Zadanie 1</th>
                     <th>Zadanie 2</th>
-                    <th>Akcja</th>
                     {isFunkcyjny && <th>Edytuj</th>}
                 </tr>
                 </thead>
@@ -49,9 +48,6 @@ function ConflictsPage() {
                         <td>{conflict.id}</td>
                         <td>{conflict.task1.name}</td>
                         <td>{conflict.task2.name}</td>
-                        <td>
-                            <button className="btn btn-dark" onClick={() => {}}>Szczegóły</button>
-                        </td>
                         {isFunkcyjny &&
                             <td>
                                 <button className="btn btn-primary" onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj</button>
