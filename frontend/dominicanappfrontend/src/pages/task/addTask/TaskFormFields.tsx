@@ -6,7 +6,7 @@ interface TaskFormFieldsProps {
     taskData: any;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     handleRoleChange: (roleName: string, checked: boolean) => void;
-    handleSupervisorRoleChange: (roleName: string, checked: boolean) => void;
+    handleSupervisorRoleChange: (roleName: string) => void;
     handleDayChange: (dayEnglish: string, checked: boolean) => void;
     rolesTaskPerformer: any[];
     rolesSupervisor: any[];
@@ -56,8 +56,18 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
             </div>
             <div className="mb-3">
                 <label className="form-label">Kto może wyznaczyć do tego zadania:</label>
-                <RoleCheckboxList roles={rolesSupervisor} selectedRoles={taskData.supervisorRoleNames}
-                                  onRoleChange={handleSupervisorRoleChange}/>
+                <select
+                    id="supervisorRoleName"
+                    name="supervisorRoleName"
+                    className="form-select"
+                    value={taskData.supervisorRoleName}
+                    onChange={e => handleSupervisorRoleChange(e.target.value)}
+                >
+                    <option value="">Wybierz rolę supervisora</option>
+                    {rolesSupervisor.map(role => (
+                        <option key={role.id} value={role.name}>{role.name}</option>
+                    ))}
+                </select>
             </div>
             <div className="mb-3">
                 <label className="form-label">Dni tygodnia:</label>
@@ -65,7 +75,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
             </div>
             <div className="mb-3">
                 <label className="form-label custom-checkbox">
-                    Uczestnik na cały okres:
+                Uczestnik na cały okres:
                     <input
                         className="form-check-input"
                         name="participantForWholePeriod"

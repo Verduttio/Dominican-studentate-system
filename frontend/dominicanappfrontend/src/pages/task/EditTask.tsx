@@ -7,9 +7,9 @@ import {Role, Task} from "../../models/Interfaces";
 import TaskFormFields from "./addTask/TaskFormFields";
 
 
-interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRoles'> {
+interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
     allowedRoleNames: string[],
-    supervisorRoleNames: string[]
+    supervisorRoleName: string
 }
 
 function validateTaskData(data: TaskFormData) : string {
@@ -25,8 +25,8 @@ function validateTaskData(data: TaskFormData) : string {
         return('Proszę wybrać przynajmniej jedną rolę osoby wykonującej.');
     }
 
-    if (data.supervisorRoleNames.length === 0) {
-        return('Proszę wybrać przynajmniej jedną rolę osoby wyznaczającej.');
+    if (data.supervisorRoleName === '') {
+        return('Proszę wybrać rolę osoby wyznaczającej.');
     }
 
     if (data.daysOfWeek.length === 0) {
@@ -43,7 +43,7 @@ function EditTask() {
         permanent: false,
         participantForWholePeriod: false,
         allowedRoleNames: [],
-        supervisorRoleNames: [],
+        supervisorRoleName: '',
         daysOfWeek: []
     };
 
@@ -68,7 +68,7 @@ function EditTask() {
                     permanent: task.permanent,
                     participantForWholePeriod: task.participantForWholePeriod,
                     allowedRoleNames: task.allowedRoles.map(role => role.name),
-                    supervisorRoleNames: task.supervisorRoles.map(role => role.name),
+                    supervisorRoleName: task.supervisorRole?.name,
                     daysOfWeek: task.daysOfWeek
                 });
             }
@@ -97,13 +97,10 @@ function EditTask() {
         });
     };
 
-    const handleSupervisorRoleChange = (roleName: string, checked: boolean) => {
-        const updatedRoles = checked
-            ? [...taskData.supervisorRoleNames, roleName]
-            : taskData.supervisorRoleNames.filter(roleNameValue => roleNameValue !== roleName);
+    const handleSupervisorRoleChange = (roleName: string) => {
         setTaskData({
             ...taskData,
-            supervisorRoleNames: updatedRoles
+            supervisorRoleName: roleName
         });
     };
 

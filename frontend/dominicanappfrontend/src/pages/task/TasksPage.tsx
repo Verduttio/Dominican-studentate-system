@@ -51,7 +51,7 @@ function TasksPage () {
                         <td>{task.participantsLimit}</td>
                         <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                         <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
-                        <td className="max-column-width">{task.supervisorRoles.map(role => role.name).join(', ')}</td>
+                        <td className="max-column-width">{task.supervisorRole?.name}</td>
                         {isFunkcyjny &&
                             <td>
                                 <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>
