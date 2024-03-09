@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/AddEditForm.css';
 import RoleFormFields from "./RoleFormFields";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 function EditRole() {
     const { roleId } = useParams();
@@ -15,6 +16,7 @@ function EditRole() {
     const { request: deleteRole, error: deleteError, loading: deleteLoading } = useHttp(`${backendUrl}/api/roles/${roleId}`, 'DELETE');
     const [roleData, setRoleData] = useState<Role | null>(null);
     const [validationError, setValidationError] = useState<string>('');
+    const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
 
     useEffect(() => {
         if (roleId) {
@@ -40,7 +42,8 @@ function EditRole() {
         if (roleId) {
             deleteRole(null, () => {
                 navigate('/roles', { state: { message: 'Pomyślnie usunięto rolę' } });
-            });
+            })
+                .then(() => setShowConfirmationPopup(false));
         }
     };
 
@@ -58,7 +61,8 @@ function EditRole() {
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
                     <div className="d-flex justify-content-between">
                         <button className="btn btn-success" type="submit" disabled={updateLoading || deleteLoading}>Zaktualizuj</button>
-                        <button type="button" onClick={handleDelete} className="btn btn-danger" disabled={updateLoading || deleteLoading}>Usuń</button>
+                        <button type="button" onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger" disabled={updateLoading || deleteLoading}>Usuń</button>
+                        {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                     </div>
                 </form>
             </div>

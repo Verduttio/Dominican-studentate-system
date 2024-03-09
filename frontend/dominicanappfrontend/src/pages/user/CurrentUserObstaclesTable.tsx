@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
 import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 
 function CurrentUserObstaclesTable () {
@@ -11,16 +11,18 @@ function CurrentUserObstaclesTable () {
     const { error: userObstaclesError, loading: userObstaclesLoading, request: userObstaclesRequest } = useHttp(`${backendUrl}/api/obstacles/users/current`, 'GET');
     const { error: deleteError, loading: deleteLoading, request: deleteRequest } = useHttp();
     const [refreshData, setRefreshData] = useState<boolean>(false);
+    const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
 
 
     useEffect(() => {
         userObstaclesRequest(null, (data) => setUserObstacles(data))
     }, [userObstaclesRequest, refreshData]);
 
-    const handleDelete = (obstacleId: number) => {
+    const deleteObstacle = (obstacleId: number) => {
         deleteRequest(null, () => {
             setRefreshData(!refreshData);
-        }, false, `${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
+        }, false, `${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE')
+            .then(() => setShowConfirmationPopup(false));
     }
 
     if (userObstaclesLoading) return <LoadingSpinner/>;
@@ -40,6 +42,7 @@ function CurrentUserObstaclesTable () {
             </thead>
             <tbody>
             {userObstacles.map(obstacle => (
+                <>
                 <tr key={obstacle.id}>
                     <td>{obstacle.task.name}</td>
                     <td>{obstacle.fromDate}</td>
@@ -54,13 +57,15 @@ function CurrentUserObstaclesTable () {
                         </span>
                     </td>
                     <td>
-                        <button className="btn btn-danger" onClick={() => {handleDelete(obstacle.id)}} disabled={deleteLoading}>Usuń</button>
+                        <button className="btn btn-danger" onClick={() => {setShowConfirmationPopup(true)}} disabled={deleteLoading}>Usuń</button>
                     </td>
                 </tr>
+                {showConfirmationPopup && <ConfirmDeletionPopup onClose={() => setShowConfirmationPopup(false)} onHandle={() => deleteObstacle(obstacle.id)}/>}
+                </>
             ))}
             </tbody>
         </table>
     );
-};
+}
 
 export default CurrentUserObstaclesTable;

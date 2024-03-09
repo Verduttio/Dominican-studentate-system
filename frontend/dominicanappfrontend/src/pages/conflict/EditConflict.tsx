@@ -6,6 +6,7 @@ import { backendUrl } from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ConflictFormFields from './ConflictFormFields';
 import "../../components/AddEditForm.css";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 interface FormData {
     task1Id: number;
@@ -22,6 +23,7 @@ function EditConflict() {
     const { request: updateConflict, error: updateError, loading: updateLoading } = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'PUT');
     const { request: deleteConflict, error: deleteError , loading: deleteLoading} = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'DELETE');
     const [validationError, setValidationError] = useState<string>('');
+    const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
 
     useEffect(() => {
         fetchTasks(null, setTasks);
@@ -42,7 +44,8 @@ function EditConflict() {
         if (conflictId) {
             deleteConflict(null, () => {
                 navigate('/conflicts', { state: { message: 'Pomyślnie usunięto konflikt' } });
-            });
+            })
+                .then(() => setShowConfirmationPopup(false));
         }
     };
 
@@ -63,7 +66,8 @@ function EditConflict() {
                 <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} />
                 <div className="d-flex justify-content-between">
                     <button onClick={handleSubmit} className="btn btn-success" disabled={deleteLoading || updateLoading}>Zaktualizuj</button>
-                    <button onClick={handleDelete} className="btn btn-danger" disabled={deleteLoading || updateLoading}>Usuń</button>
+                    <button onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger" disabled={deleteLoading || updateLoading}>Usuń</button>
+                    {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
@@ -15,6 +16,7 @@ function EditObstacle() {
     const {request: getCurrent, error: getCurrentError, loading: getCurrentLoading} = useHttp(`${backendUrl}/api/users/current`, 'GET');
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [recipientAnswer, setRecipientAnswer] = useState<string>('');
+    const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
 
     let loading = patchLoading || deleteLoading || getCurrentLoading;
 
@@ -38,7 +40,7 @@ function EditObstacle() {
     const deleteObstacle = () => {
         deleteRequest(null, () => {
             navigate('/obstacles', {state: {message: 'Pomyślnie usunięto przeszkodę'}});
-        });
+        }).then(() => setShowConfirmationPopup(false));
     };
 
     if (!obstacle) return <LoadingSpinner/>;
@@ -116,8 +118,9 @@ function EditObstacle() {
                             usuń aktualną i dodaj nową.
                         </div>
                         <div className="d-flex justify-content-center">
-                            <button className="btn btn-danger" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
+                            <button className="btn btn-danger" onClick={() => setShowConfirmationPopup(true)} disabled={loading}>Usuń z bazy</button>
                         </div>
+                        {showConfirmationPopup && <ConfirmDeletionPopup onHandle={deleteObstacle} onClose={() => setShowConfirmationPopup(false)}/>}
                     </>
                 )}
 
