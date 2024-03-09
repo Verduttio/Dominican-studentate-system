@@ -70,7 +70,7 @@ function EditObstacle() {
                         <tr key={obstacle.id}>
                             <td>{obstacle.id}</td>
                             <td>{obstacle.user.name} {obstacle.user.surname}</td>
-                            <td>{obstacle.task.name}</td>
+                            <td>{obstacle.tasks.map(task => task.name).join(", ")}</td>
                             <td>{obstacle.fromDate}</td>
                             <td>{obstacle.toDate}</td>
                             <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>

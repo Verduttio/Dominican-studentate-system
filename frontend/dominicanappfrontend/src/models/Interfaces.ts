@@ -28,7 +28,7 @@ interface User {
 interface Obstacle {
     id: number;
     user: User;
-    task: Task;
+    tasks: Task[];
     fromDate: string;
     toDate: string;
     applicantDescription: string;
@@ -102,7 +102,7 @@ export enum Provider {
 ///Models for transferring data
 interface ObstacleData {
     userId: number;
-    taskId: number;
+    tasksIds: number[];
     fromDate: string;
     toDate: string;
     applicantDescription: string;

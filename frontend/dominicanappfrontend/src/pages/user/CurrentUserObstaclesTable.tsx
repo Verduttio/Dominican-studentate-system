@@ -64,7 +64,7 @@ function CurrentUserObstaclesTable () {
                 <>
                 <tr key={obstacle.id}
                     className={className}>
-                    <td>{obstacle.task.name}</td>
+                    <td>{obstacle.tasks.map(task => task.name).join(", ")}</td>
                     <td>{obstacle.fromDate}</td>
                     <td>{obstacle.toDate}</td>
                     <td>

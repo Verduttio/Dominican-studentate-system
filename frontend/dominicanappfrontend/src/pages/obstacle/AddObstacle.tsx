@@ -4,11 +4,13 @@ import useHttp from "../../services/UseHttp";
 import {ObstacleData, TaskShortInfo, UserShortInfo} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faRectangleXmark} from "@fortawesome/free-solid-svg-icons";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
         userId: 0,
-        taskId: 0,
+        tasksIds: [],
         fromDate: '',
         toDate: '',
         applicantDescription: ''
@@ -21,17 +23,19 @@ function AddObstacle() {
     const { request: fetchUsers, error: fetchUsersError, loading: loadingFetchUser} = useHttp(`${backendUrl}/api/users/shortInfo`, 'GET');
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
     const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
+    const [fullTasksList, setFullTasksList] = useState<TaskShortInfo[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchUsers(null, (data) => setUsers(data));
-        fetchTasks(null, (data) => setTasks(data));
+        fetchTasks(null, (data) => {setTasks(data); setFullTasksList(data)});
     }, [fetchUsers, fetchTasks]);
 
     const handleSubmit = (e: React.FormEvent) => {
+        console.log("HERERE");
         e.preventDefault();
 
-        if (!obstacleData.userId || !obstacleData.taskId || !obstacleData.fromDate || !obstacleData.toDate) {
+        if (obstacleData.tasksIds.length === 0 || !obstacleData.userId  || !obstacleData.fromDate || !obstacleData.toDate) {
             setValidationError('Wypełnij wymagane pola');
             return;
         }
@@ -51,10 +55,35 @@ function AddObstacle() {
         setObstacleData({ ...obstacleData, userId: parseInt(e.target.value) });
     };
 
+
     const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setValidationError('');
-        setObstacleData({ ...obstacleData, taskId: parseInt(e.target.value) });
-    }
+        const selectedTaskId = parseInt(e.target.value);
+        if (!selectedTaskId || obstacleData.tasksIds.includes(selectedTaskId)) {
+            return;
+        }
+
+        setObstacleData(prevState => ({
+            ...prevState,
+            tasksIds: [...prevState.tasksIds, selectedTaskId]
+        }));
+
+        // Remove added task from the list of available tasks
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTaskId));
+    };
+
+
+    const handleRemoveTask = (taskId: number) => {
+        setObstacleData(prev => ({
+            ...prev,
+            tasksIds: prev.tasksIds.filter(id => id !== taskId)
+        }));
+
+        // Add removed task back to the list of available tasks
+        const removedTask = fullTasksList.find(task => task.id === taskId);
+        if (removedTask) {
+            setTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
+        }
+    };
 
     if(loadingFetchUser || loadingFetchTasks) return <LoadingSpinner/>;
     if(fetchUsersError) return <div className="alert alert-danger">{fetchUsersError}</div>;
@@ -86,20 +115,25 @@ function AddObstacle() {
                         </select>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="taskId" className="form-label">Zadanie:</label>
-                        <select
-                            className="form-select"
-                            id="taskId"
-                            value={obstacleData.taskId}
-                            onChange={handleTaskChange}
-                        >
+                        <label className="form-label">Zadania:</label>
+                        <select className="form-select" onChange={handleTaskChange}>
                             <option value="">Wybierz zadanie</option>
                             {tasks.map(task => (
-                                <option key={task.id} value={task.id}>
-                                    {task.name}
-                                </option>
+                                <option key={task.id} value={task.id}>{task.name}</option>
                             ))}
                         </select>
+                        <div className="selected-tasks">
+                        {obstacleData.tasksIds.map(taskId => {
+                                const task = fullTasksList.find(t => t.id === taskId);
+                                return (
+                                    <div className="pt-2">
+                                        <button className="btn btn-secondary p-1" type="button" onClick={() => handleRemoveTask(taskId)}>
+                                            {task ? task.name : 'Nieznane zadanie'} <FontAwesomeIcon icon={faRectangleXmark}/>
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                     <div className="mb-3">
                         <label htmlFor="fromDate" className="form-label">Data początkowa:</label>

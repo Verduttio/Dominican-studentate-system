@@ -35,7 +35,7 @@ function ObstaclesPage () {
                 <tr>
                     <th>ID</th>
                     <th>Proszący</th>
-                    <th>Zadanie</th>
+                    <th>Zadania</th>
                     <th>Od</th>
                     <th>Do</th>
                     <th>Status</th>
@@ -68,7 +68,7 @@ function ObstaclesPage () {
                         className={className}>
                         <td>{obstacle.id}</td>
                         <td>{obstacle.user.name} {obstacle.user.surname}</td>
-                        <td>{obstacle.task.name}</td>
+                        <td>{obstacle.tasks.map(task => task.name).join(", ")}</td>
                         <td>{obstacle.fromDate}</td>
                         <td>{obstacle.toDate}</td>
                         <td>
