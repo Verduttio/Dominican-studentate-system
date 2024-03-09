@@ -22,6 +22,7 @@ function AddMyObstacle() {
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
     const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const [fullTasksList, setFullTasksList] = useState<TaskShortInfo[]>([]);
+    const [selectAllTasks, setSelectAllTasks] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -87,29 +88,62 @@ function AddMyObstacle() {
                 {postError && <div className="alert alert-danger">{postError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <form onSubmit={handleSubmit}>
+                    <label className="form-label">Zadania:</label>
                     <div className="mb-3">
-                        <label className="form-label">Zadania:</label>
-                        <select className="form-select" onChange={handleTaskChange}>
-                            <option value="">Wybierz zadanie</option>
-                            {tasks.map(task => (
-                                <option key={task.id} value={task.id}>{task.name}</option>
-                            ))}
-                        </select>
-                        <div className="selected-tasks">
-                            {obstacleData.tasksIds.map(taskId => {
-                                const task = fullTasksList.find(t => t.id === taskId);
-                                return (
-                                    <div className="pt-2">
-                                        <button className="btn btn-secondary p-1" type="button"
-                                                onClick={() => handleRemoveTask(taskId)}>
-                                            {task ? task.name : 'Nieznane zadanie'} <FontAwesomeIcon
-                                            icon={faRectangleXmark}/>
-                                        </button>
-                                    </div>
-                                );
-                            })}
+                        <div className="d-flex justify-content-between">
+                        <label className="form-check-label me-2" htmlFor="selectAllTasksSwitch">
+                            Wybierz wszystkie zadania
+                        </label>
+                        <div className="form-check form-switch">
+                            <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="selectAllTasksSwitch"
+                                checked={selectAllTasks}
+                                onChange={e => {
+                                    setSelectAllTasks(e.target.checked);
+                                    if (e.target.checked) {
+                                        setObstacleData(prevState => ({
+                                            ...prevState,
+                                            tasksIds: fullTasksList.map(task => task.id)
+                                        }));
+                                        setTasks([]);
+                                    } else {
+                                        setObstacleData(prevState => ({
+                                            ...prevState,
+                                            tasksIds: []
+                                        }));
+                                        setTasks(fullTasksList);
+                                    }
+                                }}
+                            />
+                        </div>
                         </div>
                     </div>
+                    {!selectAllTasks &&
+                        <div className="mb-3">
+                            <select className="form-select" onChange={handleTaskChange}>
+                                    <option value="">Wybierz zadanie</option>
+                                    {tasks.map(task => (
+                                        <option key={task.id} value={task.id}>{task.name}</option>
+                                    ))}
+                                </select>
+                                <div className="selected-tasks">
+                                    {obstacleData.tasksIds.map(taskId => {
+                                        const task = fullTasksList.find(t => t.id === taskId);
+                                        return (
+                                            <div className="pt-2">
+                                                <button className="btn btn-secondary p-1" type="button"
+                                                        onClick={() => handleRemoveTask(taskId)}>
+                                                    {task ? task.name : 'Nieznane zadanie'} <FontAwesomeIcon
+                                                    icon={faRectangleXmark}/>
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        }
                     <div className="mb-3">
                         <label htmlFor="fromDate" className="form-label">Data początkowa:</label>
                         <input
