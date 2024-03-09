@@ -47,7 +47,7 @@ function CurrentUserObstaclesTable () {
                 return (
                 <>
                 <tr key={obstacle.id}
-                    className={isCurrent ? 'table-success' : isObsolete ? 'table-danger' : ''}>
+                    className={isCurrent ? 'table-info' : isObsolete ? 'table-dark' : ''}>
                     <td>{obstacle.task.name}</td>
                     <td>{obstacle.fromDate}</td>
                     <td>{obstacle.toDate}</td>

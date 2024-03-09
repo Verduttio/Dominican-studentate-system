@@ -48,7 +48,7 @@ function ObstaclesPage () {
                     const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
                     return (
                     <tr key={obstacle.id}
-                        className={isCurrent ? 'table-success' : isObsolete ? 'table-danger' : ''}>
+                        className={isCurrent ? 'table-info' : isObsolete ? 'table-dark' : ''}>
                         <td>{obstacle.id}</td>
                         <td>{obstacle.user.name} {obstacle.user.surname}</td>
                         <td>{obstacle.task.name}</td>
