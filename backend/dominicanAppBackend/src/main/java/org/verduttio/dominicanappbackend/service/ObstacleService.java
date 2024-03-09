@@ -37,9 +37,7 @@ public class ObstacleService {
     }
 
     public List<Obstacle> getAllObstacles() {
-        List<Obstacle> obstacles = obstacleRepository.findAll();
-        obstacles.sort(Comparator.comparingInt(o -> o.getStatus().ordinal()));
-        return obstacles;
+        return obstacleRepository.findAll(Sort.by(Sort.Direction.DESC, "toDate"));
     }
 
     public Optional<Obstacle> getObstacleById(Long obstacleId) {
@@ -104,7 +102,7 @@ public class ObstacleService {
         if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
-        return obstacleRepository.findAllByUserId(userId);
+        return obstacleRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "toDate"));
     }
 
     private void updateObstacleFromPatchDTO(Obstacle obstacle, ObstaclePatchDTO obstaclePatchDTO) {

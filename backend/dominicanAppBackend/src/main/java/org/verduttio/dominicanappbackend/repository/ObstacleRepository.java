@@ -1,6 +1,7 @@
 package org.verduttio.dominicanappbackend.repository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,7 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
     @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId AND o.task.id = :taskId")
     List<Obstacle> findObstaclesByUserIdAndTaskId(@Param("userId") Long userId, @Param("taskId") Long taskId);
 
-    List<Obstacle> findAllByUserId(Long userId);
+    List<Obstacle> findAllByUserId(Long userId, Sort sort);
 
     List<Obstacle> findAllByTaskId(Long taskId);
 
