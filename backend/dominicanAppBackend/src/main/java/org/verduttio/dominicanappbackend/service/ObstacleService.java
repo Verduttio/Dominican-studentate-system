@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ObstacleService {
@@ -37,7 +38,19 @@ public class ObstacleService {
     }
 
     public List<Obstacle> getAllObstacles() {
-        return obstacleRepository.findAll(Sort.by(Sort.Direction.DESC, "toDate"));
+        List<Obstacle> allObstacles = obstacleRepository.findAll();
+
+        List<Obstacle> futureObstacles = allObstacles.stream()
+                .filter(obstacle -> obstacle.getFromDate().isAfter(LocalDate.now()))
+                .sorted(Comparator.comparing(Obstacle::getFromDate).thenComparing(Obstacle::getToDate).reversed())
+                .collect(Collectors.toList());
+        List<Obstacle> pastObstacles = allObstacles.stream()
+                .filter(obstacle -> obstacle.getFromDate().isBefore(LocalDate.now()) || obstacle.getFromDate().isEqual(LocalDate.now()))
+                .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
+                .toList();
+        futureObstacles.addAll(pastObstacles);
+
+        return futureObstacles;
     }
 
     public Optional<Obstacle> getObstacleById(Long obstacleId) {
@@ -102,7 +115,17 @@ public class ObstacleService {
         if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
-        return obstacleRepository.findAllByUserId(userId, Sort.by(Sort.Direction.DESC, "toDate"));
+        List<Obstacle> allObstacles = obstacleRepository.findAllByUserId(userId);
+        List<Obstacle> futureObstacles = allObstacles.stream()
+                .filter(obstacle -> obstacle.getFromDate().isAfter(LocalDate.now()))
+                .sorted(Comparator.comparing(Obstacle::getFromDate).thenComparing(Obstacle::getToDate).reversed())
+                .collect(Collectors.toList());
+        List<Obstacle> pastObstacles = allObstacles.stream()
+                .filter(obstacle -> obstacle.getFromDate().isBefore(LocalDate.now()) || obstacle.getFromDate().isEqual(LocalDate.now()))
+                .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
+                .toList();
+        futureObstacles.addAll(pastObstacles);
+        return futureObstacles;
     }
 
     private void updateObstacleFromPatchDTO(Obstacle obstacle, ObstaclePatchDTO obstaclePatchDTO) {
