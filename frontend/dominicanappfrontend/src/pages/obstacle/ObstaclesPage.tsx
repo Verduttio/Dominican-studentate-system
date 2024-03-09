@@ -46,9 +46,26 @@ function ObstaclesPage () {
                 {obstacles.map(obstacle => {
                     const isObsolete = new Date(obstacle.toDate) < new Date();
                     const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
+                    let className = '';
+                    if (isCurrent) {
+                        if (obstacle.status === ObstacleStatus.AWAITING) {
+                            className = 'table-warning';
+                        } else if (obstacle.status === ObstacleStatus.APPROVED) {
+                            className = 'table-success';
+                        } else if (obstacle.status === ObstacleStatus.REJECTED) {
+                            className = 'table-danger';
+                        }
+                    } else {
+                        if (isObsolete) {
+                            className = 'table-dark';
+                        } else {
+                            className = '';
+                        }
+                    }
+
                     return (
                     <tr key={obstacle.id}
-                        className={isCurrent ? 'table-info' : isObsolete ? 'table-dark' : ''}>
+                        className={className}>
                         <td>{obstacle.id}</td>
                         <td>{obstacle.user.name} {obstacle.user.surname}</td>
                         <td>{obstacle.task.name}</td>
