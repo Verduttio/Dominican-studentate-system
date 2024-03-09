@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import {Schedule, ScheduleShortInfo} from '../../models/Interfaces';
+import {ScheduleShortInfo} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../components/LoadingScreen";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 function downloadPdf() {
     axios({
@@ -29,6 +30,7 @@ function SchedulePage() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
     const navigate = useNavigate();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
 
     const handleScheduleCreator = () => {
         const from = format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy');
@@ -67,11 +69,13 @@ function SchedulePage() {
                 ))}
                 </tbody>
             </table>
+            {isFunkcyjny &&
+                <div className="text-center">
+                    <button className="btn btn-primary mt-4" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram</button>
+                </div>
+            }
             <div className="text-center">
-                <button className="btn btn-success mt-4" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram</button>
-            </div>
-            <div className="text-center">
-                <button className="btn btn-info mt-4" onClick={downloadPdf}>Pobierz harmonogram</button>
+                <button className="btn btn-success mt-4" onClick={downloadPdf}>Pobierz harmonogram</button>
             </div>
         </div>
     );

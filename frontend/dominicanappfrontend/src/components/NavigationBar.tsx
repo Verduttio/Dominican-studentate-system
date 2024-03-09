@@ -43,7 +43,7 @@ const NavigationBar = () => {
 
     return (
         <div className="navigation-bar">
-            <button onClick={() => navigateTo('/home')}>Harmonogram</button>
+            <button onClick={() => navigateTo('/home')}>Home</button>
 
             <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
 
@@ -51,7 +51,7 @@ const NavigationBar = () => {
                 onClick={() => navigateTo('/users')}
             >
                 Użytkownicy
-                {numberOfUnverifiedUsers > 0 && (
+                {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
                     <span className="notification-icon">
                         <FontAwesomeIcon icon={faUserPlus}/>
                         <span className="notification-count">{numberOfUnverifiedUsers}</span>
@@ -59,14 +59,11 @@ const NavigationBar = () => {
                 )}
             </button>
 
-            {isFunkcyjny &&
-                <button
-                    className="bg-primary"
-                    onClick={() => navigateTo('/schedule')}
-                >
-                    Dodaj harmonogram
-                </button>
-            }
+            <button
+                onClick={() => navigateTo('/schedule')}
+            >
+                Dodaj harmonogram
+            </button>
 
             {isFunkcyjny &&
                 <button
@@ -84,12 +81,6 @@ const NavigationBar = () => {
             }
 
             <button onClick={() => {navigateTo('/other')}}>Inne</button>
-
-            {/*<button onClick={() => navigateTo('/tasks')}>Zadania</button>*/}
-
-            {/*<button onClick={() => navigateTo('/conflicts')}>Konflikty</button>*/}
-
-            {/*<button onClick={() => navigateTo('/roles')}>Role</button>*/}
 
             <LogoutButton/>
         </div>
