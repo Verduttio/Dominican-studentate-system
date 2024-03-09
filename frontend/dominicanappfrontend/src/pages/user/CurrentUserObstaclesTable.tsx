@@ -57,7 +57,7 @@ function CurrentUserObstaclesTable () {
                     if (isObsolete) {
                         className = 'table-dark';
                     } else {
-                        className = '';
+                        className = 'table-info';
                     }
                 }
                 return (

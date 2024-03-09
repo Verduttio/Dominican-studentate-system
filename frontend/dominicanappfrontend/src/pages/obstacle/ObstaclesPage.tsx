@@ -59,7 +59,7 @@ function ObstaclesPage () {
                         if (isObsolete) {
                             className = 'table-dark';
                         } else {
-                            className = '';
+                            className = 'table-info';
                         }
                     }
 
