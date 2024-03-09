@@ -12,12 +12,12 @@ POST {{host}}/api/tasks
 Content-Type: application/json
 
 {
-  "name": "Wash dishes",
+  "name": "Wash dishes2",
   "participantsLimit": 10,
   "permanent": true,
   "participantForWholePeriod": false,
   "allowedRoleNames": ["ROLE_USER"],
-  "supervisorRoleNames": ["ROLE_USER"],
+  "supervisorRoleName": "ROLE_USER",
   "daysOfWeek": ["MONDAY", "WEDNESDAY", "FRIDAY"]
 }
 
@@ -31,7 +31,7 @@ Content-Type: application/json
   "permanent": false,
   "participantForWholePeriod": true,
   "allowedRoleNames": ["ROLE_USER", "ROLE_ADMIN"],
-  "supervisorRoleNames": ["ROLE_ADMIN"],
+  "supervisorRoleName": "ROLE_ADMIN",
   "daysOfWeek": ["TUESDAY", "THURSDAY"]
 }
 

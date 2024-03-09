@@ -74,17 +74,17 @@ public class TaskService {
     private Task convertTaskDTOToTask(TaskDTO taskDTO) {
         Task task = taskDTO.basicFieldsToTask();
         Set<Role> rolesDB = roleService.getRolesByRoleNames(taskDTO.getAllowedRoleNames());
-        Set<Role> supervisorRolesDB = roleService.getRolesByRoleNames(taskDTO.getSupervisorRoleNames());
+        Role supervisorRoleDB = roleService.getRoleByName(taskDTO.getSupervisorRoleName());
         if(rolesDB.isEmpty()) {
             throw new IllegalArgumentException("No roles found for given role names");
         }
 
-        if(supervisorRolesDB.isEmpty()) {
-            throw new IllegalArgumentException("No supervisor roles found for given role names");
+        if(supervisorRoleDB == null) {
+            throw new IllegalArgumentException("No supervisor role found for given role name");
         }
 
         task.setAllowedRoles(rolesDB);
-        task.setSupervisorRoles(supervisorRolesDB);
+        task.setSupervisorRole(supervisorRoleDB);
 
         return task;
     }
@@ -107,11 +107,11 @@ public class TaskService {
         }
         task.setAllowedRoles(rolesDB);
 
-        Set<Role> supervisorRolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getSupervisorRoleNames());
-        if(supervisorRolesDB.isEmpty()) {
+        Role supervisorRoleDB = roleService.getRoleByName(updatedTaskDTO.getSupervisorRoleName());
+        if(supervisorRoleDB == null) {
             throw new IllegalArgumentException("No supervisor roles found for given role names");
         }
-        task.setSupervisorRoles(supervisorRolesDB);
+        task.setSupervisorRole(supervisorRoleDB);
 
         task.setDaysOfWeek(updatedTaskDTO.getDaysOfWeek());
 

@@ -30,13 +30,9 @@ public class Task {
     )
     private Set<Role> allowedRoles;
 
-    @ManyToMany
-    @JoinTable(
-            name = "task_supervisor_roles",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> supervisorRoles;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role supervisorRole;
 
     @ElementCollection(targetClass = DayOfWeek.class)
     @Enumerated(EnumType.STRING)
@@ -88,20 +84,20 @@ public class Task {
         this.participantForWholePeriod = participantForWholePeriod;
     }
 
+    public Role getSupervisorRole() {
+        return supervisorRole;
+    }
+
+    public void setSupervisorRole(Role supervisorRole) {
+        this.supervisorRole = supervisorRole;
+    }
+
     public Set<Role> getAllowedRoles() {
         return allowedRoles;
     }
 
     public void setAllowedRoles(Set<Role> allowedRoles) {
         this.allowedRoles = allowedRoles;
-    }
-
-    public Set<Role> getSupervisorRoles() {
-        return supervisorRoles;
-    }
-
-    public void setSupervisorRoles(Set<Role> supervisorRoles) {
-        this.supervisorRoles = supervisorRoles;
     }
 
     public Set<DayOfWeek> getDaysOfWeek() {
@@ -120,13 +116,13 @@ public class Task {
 
     public Task(String name, int participantsLimit, boolean permanent,
                 boolean participantForWholePeriod, Set<Role> allowedRoles,
-                Set<Role> supervisorRoles, Set<DayOfWeek> daysOfWeek) {
+                Role supervisorRole, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.participantsLimit = participantsLimit;
         this.permanent = permanent;
         this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoles = allowedRoles;
-        this.supervisorRoles = supervisorRoles;
+        this.supervisorRole = supervisorRole;
         this.daysOfWeek = daysOfWeek;
     }
 

@@ -19,8 +19,8 @@ public class TaskDTO {
     private boolean participantForWholePeriod;
     @NotEmpty(message="Allowed roles are mandatory")
     private Set<String> allowedRoleNames;
-    @NotEmpty(message="Supervisor roles are mandatory")
-    private Set<String> supervisorRoleNames;
+    @NotEmpty(message="Supervisor role is mandatory")
+    private String supervisorRoleName;
     @NotEmpty(message="Days of week are mandatory")
     private Set<DayOfWeek> daysOfWeek;
 
@@ -45,8 +45,8 @@ public class TaskDTO {
         return allowedRoleNames;
     }
 
-    public Set<String> getSupervisorRoleNames() {
-        return supervisorRoleNames;
+    public String getSupervisorRoleName() {
+        return supervisorRoleName;
     }
 
     public Set<DayOfWeek> getDaysOfWeek() {
@@ -58,16 +58,15 @@ public class TaskDTO {
     }
 
     public TaskDTO(String name, int participantsLimit, boolean permanent, boolean participantForWholePeriod,
-                   Set<String> allowedRoleNames, Set<String> supervisorRoleNames ,Set<DayOfWeek> daysOfWeek) {
+                   Set<String> allowedRoleNames, String supervisorRoleName ,Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.participantsLimit = participantsLimit;
         this.permanent = permanent;
         this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoleNames = allowedRoleNames;
-        this.supervisorRoleNames = supervisorRoleNames;
+        this.supervisorRoleName = supervisorRoleName;
         this.daysOfWeek = daysOfWeek;
     }
-
 
 
     public Task basicFieldsToTask() {
