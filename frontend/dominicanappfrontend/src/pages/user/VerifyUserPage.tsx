@@ -1,6 +1,6 @@
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
-import {Role, User} from "../../models/Interfaces";
+import {Provider, Role, User} from "../../models/Interfaces";
 import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -139,10 +139,12 @@ function VerifyUserPage() {
                                     disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                             </button>
                         }
-                        <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
-                            onClick={() => setShowChangePassword(true)}>
-                            Zmień hasło
-                        </button>
+                        {user.provider === Provider.LOCAL &&
+                            <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                                onClick={() => setShowChangePassword(true)}>
+                                Zmień hasło
+                            </button>
+                        }
                         {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
                         <button className="btn btn-danger" onClick={handleDelete}
                                 disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika

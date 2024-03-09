@@ -94,6 +94,11 @@ export enum RoleType {
     OTHER = "OTHER"
 }
 
+export enum Provider {
+    GOOGLE = "GOOGLE",
+    LOCAL = "LOCAL"
+}
+
 ///Models for transferring data
 interface ObstacleData {
     userId: number;
