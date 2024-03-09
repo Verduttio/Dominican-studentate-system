@@ -12,10 +12,10 @@ POST {{host}}/api/obstacles
 Content-Type: application/json
 
 {
-  "userId": 3,
-  "taskId": 1,
-  "fromDate": "2024-01-01",
-  "toDate": "2024-01-10",
+  "userId": 20,
+  "tasksIds": [38,39],
+  "fromDate": "2024-04-01",
+  "toDate": "2024-04-10",
   "applicantDescription": "Some description"
 }
 

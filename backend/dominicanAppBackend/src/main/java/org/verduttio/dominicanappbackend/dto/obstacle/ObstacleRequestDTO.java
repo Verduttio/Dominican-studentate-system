@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.dto.obstacle;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
@@ -7,12 +8,14 @@ import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ObstacleRequestDTO {
     @NotNull(message="User id is mandatory")
     private Long userId;
-    @NotNull(message="Task id is mandatory")
-    private Long taskId;
+    @NotEmpty(message="Task id is mandatory")
+    private Set<Long> tasksIds;
     @NotNull(message="From date is mandatory")
     private LocalDate fromDate;
     @NotNull(message="To date is mandatory")
@@ -28,12 +31,12 @@ public class ObstacleRequestDTO {
         this.userId = userId;
     }
 
-    public Long getTaskId() {
-        return taskId;
+    public Set<Long> getTasksIds() {
+        return tasksIds;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setTasksIds(Set<Long> tasksIds) {
+        this.tasksIds = tasksIds;
     }
 
     public LocalDate getFromDate() {
@@ -64,10 +67,10 @@ public class ObstacleRequestDTO {
     public ObstacleRequestDTO() {
     }
 
-    public ObstacleRequestDTO(Long userId, Long taskId, LocalDate fromDate, LocalDate toDate,
+    public ObstacleRequestDTO(Long userId, Set<Long> tasksIds, LocalDate fromDate, LocalDate toDate,
                        String applicantDescription) {
         this.userId = userId;
-        this.taskId = taskId;
+        this.tasksIds = tasksIds;
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.applicantDescription = applicantDescription;
@@ -79,8 +82,13 @@ public class ObstacleRequestDTO {
         obstacle.setUser(new User());
         obstacle.getUser().setId(this.userId);
 
-        obstacle.setTask(new Task());
-        obstacle.getTask().setId(this.taskId);
+        obstacle.setTasks(new HashSet<>());
+
+        for (Long taskId : this.tasksIds) {
+            Task task = new Task();
+            task.setId(taskId);
+            obstacle.getTasks().add(task);
+        }
 
         obstacle.setFromDate(this.fromDate);
         obstacle.setToDate(this.toDate);

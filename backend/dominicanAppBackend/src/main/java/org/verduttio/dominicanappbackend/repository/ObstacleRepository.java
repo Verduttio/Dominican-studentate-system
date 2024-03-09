@@ -1,7 +1,6 @@
 package org.verduttio.dominicanappbackend.repository;
 
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,16 +12,18 @@ import java.util.List;
 
 
 public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
-    @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId AND o.task.id = :taskId")
+    @Query("SELECT o FROM Obstacle o JOIN o.tasks t WHERE o.user.id = :userId AND t.id = :taskId")
     List<Obstacle> findObstaclesByUserIdAndTaskId(@Param("userId") Long userId, @Param("taskId") Long taskId);
 
     List<Obstacle> findAllByUserId(Long userId);
 
+
+    @Query("SELECT o FROM Obstacle o JOIN o.tasks t WHERE t.id = :taskId")
     List<Obstacle> findAllByTaskId(Long taskId);
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM Obstacle o WHERE o.task.id = :taskId")
+    @Query("DELETE FROM Obstacle o WHERE o.id IN (SELECT o.id FROM Obstacle o JOIN o.tasks t WHERE t.id = :taskId)")
     void deleteAllByTaskId(Long taskId);
 
     @Transactional

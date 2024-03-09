@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Table(name = "obstacles")
@@ -15,9 +16,13 @@ public class Obstacle {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    @ManyToMany
+    @JoinTable(
+            name = "obstacle_tasks",
+            joinColumns = @JoinColumn(name = "obstacle_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_id")
+    )
+    private Set<Task> tasks;
 
     private LocalDate fromDate;
 
@@ -51,12 +56,12 @@ public class Obstacle {
         this.user = user;
     }
 
-    public Task getTask() {
-        return task;
+    public Set<Task> getTasks() {
+        return tasks;
     }
 
-    public void setTask(Task task) {
-        this.task = task;
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public LocalDate getFromDate() {
@@ -111,11 +116,11 @@ public class Obstacle {
     public Obstacle() {
     }
 
-    public Obstacle(User user, Task task, LocalDate fromDate, LocalDate toDate,
+    public Obstacle(User user, Set<Task> tasks, LocalDate fromDate, LocalDate toDate,
                     String applicantDescription, ObstacleStatus status, String recipientAnswer,
                     User recipientUser) {
         this.user = user;
-        this.task = task;
+        this.tasks = tasks;
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.applicantDescription = applicantDescription;

@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Component
 public class ObstacleValidator {
@@ -24,14 +25,16 @@ public class ObstacleValidator {
 
     public void validateObstacleRequestDTO(ObstacleRequestDTO obstacleRequestDTO) {
         Long userId = obstacleRequestDTO.getUserId();
-        Long taskId = obstacleRequestDTO.getTaskId();
+        Set<Long> taskId = obstacleRequestDTO.getTasksIds();
 
         if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
 
-        if (!taskRepository.existsById(taskId)) {
-            throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
+        for (Long id : taskId) {
+            if (!taskRepository.existsById(id)) {
+                throw new EntityNotFoundException("Task with id " + id + " does not exist");
+            }
         }
     }
 
