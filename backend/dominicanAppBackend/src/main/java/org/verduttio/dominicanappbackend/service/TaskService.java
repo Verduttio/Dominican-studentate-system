@@ -99,7 +99,7 @@ public class TaskService {
 
         task.setName(updatedTaskDTO.getName());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
-        task.setPermanent(updatedTaskDTO.isPermanent());
+        task.setArchived(updatedTaskDTO.isArchived());
         task.setParticipantForWholePeriod(updatedTaskDTO.isParticipantForWholePeriod());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getAllowedRoleNames());
         if(rolesDB.isEmpty()) {

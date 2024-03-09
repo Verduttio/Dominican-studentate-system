@@ -18,7 +18,7 @@ public class Task {
 
     private int participantsLimit;
 
-    private boolean permanent;
+    private boolean archived;
 
     private boolean participantForWholePeriod;
 
@@ -68,12 +68,12 @@ public class Task {
         this.participantsLimit = participantsLimit;
     }
 
-    public boolean isPermanent() {
-        return permanent;
+    public boolean isArchived() {
+        return archived;
     }
 
-    public void setPermanent(boolean permanent) {
-        this.permanent = permanent;
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
     public boolean isParticipantForWholePeriod() {
@@ -114,12 +114,12 @@ public class Task {
     public Task() {
     }
 
-    public Task(String name, int participantsLimit, boolean permanent,
+    public Task(String name, int participantsLimit, boolean archived,
                 boolean participantForWholePeriod, Set<Role> allowedRoles,
                 Role supervisorRole, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.participantsLimit = participantsLimit;
-        this.permanent = permanent;
+        this.archived = archived;
         this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoles = allowedRoles;
         this.supervisorRole = supervisorRole;
