@@ -38,18 +38,6 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                 />
             </div>
             <div className="mb-3">
-                <label className="form-label custom-checkbox">
-                    Stały task:
-                    <input
-                        className="form-check-input"
-                        name="permanent"
-                        type="checkbox"
-                        checked={taskData.permanent}
-                        onChange={handleChange}
-                    />
-                </label>
-            </div>
-            <div className="mb-3">
                 <label className="form-label">Role potrzebne do wykonania zadania:</label>
                 <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
                                   onRoleChange={handleRoleChange}/>
@@ -63,7 +51,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                     value={taskData.supervisorRoleName}
                     onChange={e => handleSupervisorRoleChange(e.target.value)}
                 >
-                    <option value="">Wybierz rolę supervisora</option>
+                    <option value="">Wybierz funkcyjnego</option>
                     {rolesSupervisor.map(role => (
                         <option key={role.id} value={role.name}>{role.name}</option>
                     ))}
