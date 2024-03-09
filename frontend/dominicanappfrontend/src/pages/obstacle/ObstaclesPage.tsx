@@ -43,8 +43,12 @@ function ObstaclesPage () {
                 </tr>
                 </thead>
                 <tbody>
-                {obstacles.map(obstacle => (
-                    <tr key={obstacle.id}>
+                {obstacles.map(obstacle => {
+                    const isObsolete = new Date(obstacle.toDate) < new Date();
+                    const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
+                    return (
+                    <tr key={obstacle.id}
+                        className={isCurrent ? 'table-success' : isObsolete ? 'table-danger' : ''}>
                         <td>{obstacle.id}</td>
                         <td>{obstacle.user.name} {obstacle.user.surname}</td>
                         <td>{obstacle.task.name}</td>
@@ -65,7 +69,7 @@ function ObstaclesPage () {
                             </button>
                         </td>
                     </tr>
-                ))}
+                )})}
                 </tbody>
             </table>
             <div className="d-flex justify-content-center">

@@ -41,9 +41,13 @@ function CurrentUserObstaclesTable () {
             </tr>
             </thead>
             <tbody>
-            {userObstacles.map(obstacle => (
+            {userObstacles.map(obstacle => {
+                const isObsolete = new Date(obstacle.toDate) < new Date();
+                const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
+                return (
                 <>
-                <tr key={obstacle.id}>
+                <tr key={obstacle.id}
+                    className={isCurrent ? 'table-success' : isObsolete ? 'table-danger' : ''}>
                     <td>{obstacle.task.name}</td>
                     <td>{obstacle.fromDate}</td>
                     <td>{obstacle.toDate}</td>
@@ -62,7 +66,7 @@ function CurrentUserObstaclesTable () {
                 </tr>
                 {showConfirmationPopup && <ConfirmDeletionPopup onClose={() => setShowConfirmationPopup(false)} onHandle={() => deleteObstacle(obstacle.id)}/>}
                 </>
-            ))}
+            )})}
             </tbody>
         </table>
     );
