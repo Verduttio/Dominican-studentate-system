@@ -176,7 +176,7 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                         <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
                         <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                         <td>
-                            {!dep.hasObstacle && (
+                            {!dep.hasObstacle ? (
                                 dep.assignedToTheTask ? (
                                     <button className={dep.isInConflict ? 'btn btn-warning' : 'btn btn-success'} onClick={() => {
                                         unassignTask(dep.userId)
@@ -190,6 +190,17 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                                     <button className={dep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'} onClick={() => handleSubmit(dep.userId)}
                                             disabled={assignToTaskLoading || unassignTaskLoading}>
                                         Przypisz
+                                    </button>
+                                )
+                            ) : (dep.assignedToTheTask && (
+                                    <button className='btn btn-info'
+                                            onClick={() => {
+                                                unassignTask(dep.userId)
+                                            }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                        <span
+                                            className='highlighted-text-conflict'>
+                                                Odznacz
+                                            </span>
                                     </button>
                                 )
                             )}
