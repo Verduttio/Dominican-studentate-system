@@ -4,6 +4,7 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {User} from "../../models/Interfaces";
 import {useNavigate, useParams} from "react-router-dom";
+import UserWeekSchedule from "./UserWeekSchedule";
 
 function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
@@ -44,6 +45,10 @@ function UserDetailsViewer () {
                     </tr>
                 </tbody>
             </table>
+            <div className="d-flex justify-content-center">
+                <h4 className="entity-header-dynamic-size">Harmonogram użytkownika</h4>
+            </div>
+            <UserWeekSchedule userId={user ? user.id : 0}/>
         </div>
 
     );
