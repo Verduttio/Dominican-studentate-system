@@ -2,13 +2,19 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {backendUrl} from "../../utils/constants";
-import {Schedule, Task, UserTaskDependencyDaily} from "../../models/Interfaces";
+import {Schedule, Task, UserTaskDependencyDaily, UserTaskDependencyWeekly} from "../../models/Interfaces";
 import {DateFormatter} from "../../utils/DateFormatter";
 import TaskInfo from "../task/TaskInfo";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import "./ScheduleCreatorAssignToTaskDaily.css";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
 
+interface SortConfig {
+    key: string | null;
+    direction: string;
+}
 
 const ScheduleCreatorAssignToTaskDaily = () => {
     const [userDependencies, setUserDependencies] = useState<UserTaskDependencyDaily[]>([]);
@@ -34,6 +40,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const { request: taskSchedulesRequest, error: taskSchedulesError, loading: taskSchedulesLoading } = useHttp(`${backendUrl}/api/schedules/tasks/${taskId}/week?from=${from}&to=${to}`, 'GET');
     const [taskSchedules, setTaskSchedules] = useState<Schedule[]>([]);
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'ascending' });
 
 
     useEffect(() => {
@@ -127,6 +134,34 @@ const ScheduleCreatorAssignToTaskDaily = () => {
         }
     }
 
+    const requestSort = (key: keyof UserTaskDependencyWeekly) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    userDependencies.sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        if (a[sortConfig.key as keyof UserTaskDependencyWeekly] < b[sortConfig.key as keyof UserTaskDependencyWeekly]) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key as keyof UserTaskDependencyWeekly ] > b[sortConfig.key as keyof UserTaskDependencyWeekly]) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+    });
+
+
+    const SortIcon: React.FC<{ keyName: string }> = ({ keyName }) => {
+        if (sortConfig.key !== keyName) {
+            return <span><FontAwesomeIcon icon={faSort}/></span>;
+        }
+        return <span>{sortConfig.direction === 'ascending' ? <FontAwesomeIcon icon={faSortUp}/> : <FontAwesomeIcon icon={faSortDown}/>}</span>;
+    };
+
 
     if (loading || fetchTaskLoading || taskSchedulesLoading) return <LoadingSpinner/>;
     if (error || fetchTaskError || taskSchedulesError) return <div className="alert alert-danger">{error || fetchTaskError || taskSchedulesError}</div>;
@@ -144,8 +179,10 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 <tr>
                     <th>UserId</th>
                     <th>Imię i nazwisko</th>
-                    <th>Ostatnio wykonany</th>
-                    <th>Dni z zadaniem (ostatni rok)</th>
+                    <th onClick={() => requestSort('lastAssigned')}>Ostatnio wykonany <SortIcon keyName='lastAssigned'/>
+                    </th>
+                    <th onClick={() => requestSort('numberOfAssignsInLastYear')}>Dni z zadaniem (ostatni rok) <SortIcon
+                        keyName='numberOfAssignsInLastYear'/></th>
                     <th>Aktualne taski</th>
                     {task?.daysOfWeek.map((day, index) => (
                         <th key={index}>{day}</th>

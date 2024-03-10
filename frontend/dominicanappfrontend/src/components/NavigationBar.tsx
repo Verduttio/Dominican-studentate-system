@@ -62,7 +62,7 @@ const NavigationBar = () => {
             <button
                 onClick={() => navigateTo('/schedule')}
             >
-                Dodaj harmonogram
+                Harmonogram
             </button>
 
             {isFunkcyjny &&
