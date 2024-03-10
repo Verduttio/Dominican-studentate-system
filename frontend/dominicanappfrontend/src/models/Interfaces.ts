@@ -57,6 +57,12 @@ interface ScheduleShortInfo {
     tasksInfoStrings: string[];
 }
 
+interface ScheduleShortInfoForTask {
+    taskId: number;
+    taskName: string;
+    usersInfoStrings: string[];
+}
+
 interface UserTaskDependencyWeekly {
     userId: number;
     userName: string;
@@ -120,5 +126,5 @@ interface TaskShortInfo {
 }
 
 export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependencyWeekly, UserTaskDependencyDaily}
-export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo}
+export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask}
 export type {DayOfWeek}
