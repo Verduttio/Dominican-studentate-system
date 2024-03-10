@@ -111,6 +111,13 @@ public class ObstacleService {
         return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
     }
 
+    public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdBetweenDate(Long userId, Long taskId, LocalDate fromDate, LocalDate toDate) {
+        List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
+        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getFromDate().isBefore(toDate) || obstacle.getFromDate().isEqual(toDate) ||
+                                                                                                                obstacle.getToDate().isEqual(fromDate) || obstacle.getToDate().isAfter(fromDate)).toList();
+        return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
+    }
+
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {
         if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");

@@ -190,12 +190,12 @@ public class ScheduleService {
 
         boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, userAssignedTasksForWeek);
 
-        boolean hasObstacleForTaskOnDate = checkIfUserHasValidApprovedObstacleForTaskAtDate(from, userId, taskId);
+        boolean hasObstacleForTaskOnWeek = checkIfUserHasValidApprovedObstacleForTaskBetweenDate(from, to, userId, taskId);
 
         boolean alreadyAssignedToTheTask = userAssignedTasksForWeek.stream().anyMatch(t -> t.getId().equals(taskId));
 
         return new UserTaskDependencyWeeklyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
-                userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnDate, alreadyAssignedToTheTask);
+                userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnWeek, alreadyAssignedToTheTask);
     }
 
     public List<UserTaskDependencyDailyDTO> getAllUserDependenciesForTaskDaily(Long taskId, LocalDate from, LocalDate to) {
@@ -440,6 +440,10 @@ public class ScheduleService {
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskAtDate(LocalDate date, Long userId, Long taskId) {
         return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, date).isEmpty();
+    }
+
+    private boolean checkIfUserHasValidApprovedObstacleForTaskBetweenDate(LocalDate dateFrom, LocalDate dateTo, Long userId, Long taskId) {
+        return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo).isEmpty();
     }
 
     private Set<DayOfWeek> checkIfUserHasValidApprovedObstacleForTaskForWeek(LocalDate weekStartDate, Long userId, Long taskId) {
