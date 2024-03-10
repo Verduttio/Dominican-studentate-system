@@ -5,6 +5,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {User} from "../../models/Interfaces";
 import {useNavigate, useParams} from "react-router-dom";
 import UserWeekSchedule from "./UserWeekSchedule";
+import UserTasksStatistics from "./UserTasksStatistics";
 
 function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
@@ -27,28 +28,32 @@ function UserDetailsViewer () {
             </div>
             <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                 <tbody>
-                    <tr>
-                        <th className="table-dark">Imię</th>
-                        <td>{user?.name}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Nazwisko</th>
-                        <td>{user?.surname}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Email</th>
-                        <td>{user?.email}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Role</th>
-                        <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
-                    </tr>
+                <tr>
+                    <th className="table-dark">Imię</th>
+                    <td>{user?.name}</td>
+                </tr>
+                <tr>
+                    <th className="table-dark">Nazwisko</th>
+                    <td>{user?.surname}</td>
+                </tr>
+                <tr>
+                    <th className="table-dark">Email</th>
+                    <td>{user?.email}</td>
+                </tr>
+                <tr>
+                    <th className="table-dark">Role</th>
+                    <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
+                </tr>
                 </tbody>
             </table>
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size">Harmonogram użytkownika</h4>
             </div>
             <UserWeekSchedule userId={user ? user.id : 0}/>
+            <div className="d-flex justify-content-center">
+                <h4 className="entity-header-dynamic-size">Statystyki</h4>
+            </div>
+            <UserTasksStatistics userId={user ? user.id : 0}/>
         </div>
 
     );
