@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {addDays, endOfWeek, format, startOfWeek} from "date-fns";
 import useHttp from "../../services/UseHttp";
-import {Schedule, User} from "../../models/Interfaces";
+import {Schedule} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import WeekSelector from "../../components/WeekSelector";
 
 interface UserWeekScheduleProps {
     userId: number;
-    currentWeek: Date;
-    setCurrentWeek: React.Dispatch<React.SetStateAction<Date>>;
 }
 
-const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek, setCurrentWeek}) => {
+const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
+    const [currentWeek, setCurrentWeek] = useState(new Date());
     const [userSchedules, setUserSchedules] = useState<Schedule[]>([]);
     const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
     const todayDate = new Date();
