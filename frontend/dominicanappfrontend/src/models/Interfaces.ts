@@ -125,6 +125,15 @@ interface TaskShortInfo {
     name: string;
 }
 
+interface UserTaskStatistics {
+    taskName: string;
+    lastAssigned: string;
+    numberOfAssignInLast30Days: number;
+    numberOfAssignInLast90Days: number;
+    numberOfAssignInLast365Days: number;
+    totalNumberOfAssigns: number;
+}
+
 export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependencyWeekly, UserTaskDependencyDaily}
-export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask}
+export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {DayOfWeek}

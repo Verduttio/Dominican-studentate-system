@@ -10,6 +10,9 @@ GET {{host}}/api/schedules/1
 ### Get schedules by userID
 GET {{host}}/api/schedules/user/5
 
+### Get statistics for user
+GET {{host}}/api/schedules/users/19/statistics/tasks
+
 ### Get schedules by date weeks
 GET {{host}}/api/schedules/available-tasks?from=05-02-2024&to=11-02-2024
 
