@@ -33,7 +33,6 @@ function AddObstacle() {
     }, [fetchUsers, fetchTasks]);
 
     const handleSubmit = (e: React.FormEvent) => {
-        console.log("HERERE");
         e.preventDefault();
 
         if (obstacleData.tasksIds.length === 0 || !obstacleData.userId  || !obstacleData.fromDate || !obstacleData.toDate) {
