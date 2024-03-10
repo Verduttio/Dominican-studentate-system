@@ -10,8 +10,10 @@ import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.Obstacle;
 import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
+import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
+import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
@@ -28,13 +30,15 @@ public class ObstacleService {
     private final ObstacleRepository obstacleRepository;
     private final UserService userService;
     private final ObstacleValidator obstacleValidator;
+    private final ScheduleRepository scheduleRepository;
 
     @Autowired
     public ObstacleService(ObstacleRepository obstacleRepository, UserService userService,
-                           ObstacleValidator obstacleValidator) {
+                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository) {
         this.obstacleRepository = obstacleRepository;
         this.userService = userService;
         this.obstacleValidator = obstacleValidator;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -75,6 +79,13 @@ public class ObstacleService {
 
         obstacleValidator.validateObstaclePatchDTO(obstaclePatchDTO);
         updateObstacleFromPatchDTO(obstacle, obstaclePatchDTO);
+
+        // Remove all schedules for user and tasks in the given range
+        if(obstacle.getStatus() == ObstacleStatus.APPROVED) {
+            for (Task task : obstacle.getTasks()) {
+                scheduleRepository.deleteAllByUserIdAndTaskIdAndDateBetween(obstacle.getUser().getId(), task.getId(), obstacle.getFromDate(), obstacle.getToDate());
+            }
+        }
 
         obstacleRepository.save(obstacle);
     }
