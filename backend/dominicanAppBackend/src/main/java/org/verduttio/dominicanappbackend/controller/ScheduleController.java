@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodTaskDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfo;
+import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
@@ -125,7 +122,7 @@ public class ScheduleController {
     public ResponseEntity<?> getShortScheduleInfoForSpecifiedWeek(
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
-        List<ScheduleShortInfo> userSchedulesForSpecifiedWeek;
+        List<ScheduleShortInfoForUser> userSchedulesForSpecifiedWeek;
         try {
             userSchedulesForSpecifiedWeek = scheduleService.getScheduleShortInfoForEachUserForSpecifiedWeek(from, to);
         } catch (EntityNotFoundException e) {
@@ -135,6 +132,22 @@ public class ScheduleController {
         }
 
         return new ResponseEntity<>(userSchedulesForSpecifiedWeek, HttpStatus.OK);
+    }
+
+    @GetMapping("/tasks/scheduleShortInfo/week")
+    public ResponseEntity<?> getShortScheduleInfoForSpecifiedWeekForTasks(
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        List<ScheduleShortInfoForTask> taskSchedulesForSpecifiedWeek;
+        try {
+            taskSchedulesForSpecifiedWeek = scheduleService.getScheduleShortInfoForEachTaskForSpecifiedWeek(from, to);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(taskSchedulesForSpecifiedWeek, HttpStatus.OK);
     }
 
     @GetMapping("/available-tasks/by-supervisor/{supervisor}")

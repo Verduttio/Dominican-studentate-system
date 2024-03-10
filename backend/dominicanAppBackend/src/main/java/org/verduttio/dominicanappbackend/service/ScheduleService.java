@@ -2,10 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForDailyPeriodTaskDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.AddScheduleForWholePeriodTaskDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.ScheduleDTO;
-import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfo;
+import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.entity.*;
@@ -496,7 +493,7 @@ public class ScheduleService {
         return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
     }
 
-    public List<ScheduleShortInfo> getScheduleShortInfoForEachUserForSpecifiedWeek(LocalDate from, LocalDate to) {
+    public List<ScheduleShortInfoForUser> getScheduleShortInfoForEachUserForSpecifiedWeek(LocalDate from, LocalDate to) {
         if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
             throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
         }
@@ -507,7 +504,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    private ScheduleShortInfo createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to) {
+    private ScheduleShortInfoForUser createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to) {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
@@ -515,7 +512,7 @@ public class ScheduleService {
 
         List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
 
-        return new ScheduleShortInfo(userId, user.getName(), user.getSurname(), tasksInfoStrings);
+        return new ScheduleShortInfoForUser(userId, user.getName(), user.getSurname(), tasksInfoStrings);
     }
 
     //TODO: Optimise this method
@@ -582,5 +579,75 @@ public class ScheduleService {
         }
 
         return scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to);
+    }
+
+    public List<ScheduleShortInfoForTask> getScheduleShortInfoForEachTaskForSpecifiedWeek(LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        List<Task> tasks = taskService.getAllTasks();
+        return tasks.stream()
+                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to))
+                .collect(Collectors.toList());
+    }
+
+    private ScheduleShortInfoForTask createScheduleShortInfoForTask(Long taskId, LocalDate from, LocalDate to) {
+        Task task = taskService.getTaskById(taskId).orElseThrow(() ->
+                new EntityNotFoundException("Task with given id does not exist"));
+
+        List<Schedule> schedules = getAllSchedulesForTaskForSpecifiedWeek(taskId, from, to);
+
+        List<String> usersInfoStrings = createInfoStringsOfUsersOccurrenceFromGivenSchedule(schedules, task.getDaysOfWeek().size());
+
+        return new ScheduleShortInfoForTask(taskId, task.getName(), usersInfoStrings);
+    }
+
+    private List<String> createInfoStringsOfUsersOccurrenceFromGivenSchedule(List<Schedule> schedules, int taskDaysOfWeekCount) {
+        // If user appears in the list n times, where n is the user occurrence in the week,
+        // then it will be converted to "user.name user.surname" only string.
+        // If user appears less than n times, then it will be converted to "user.name user.surname (P, W, Ś)" string,
+        // where P, W, Ś are the days of the week when the user occurs.
+
+        // Possible days of the week
+        // Dictionary of DayOfWeek enum and its abbreviation in polish
+        Map<DayOfWeek, String> dayOfWeekAbbreviations = Map.of(
+                DayOfWeek.MONDAY, "Pn",
+                DayOfWeek.TUESDAY, "Wt",
+                DayOfWeek.WEDNESDAY, "Śr",
+                DayOfWeek.THURSDAY, "Cz",
+                DayOfWeek.FRIDAY, "Pt",
+                DayOfWeek.SATURDAY, "So",
+                DayOfWeek.SUNDAY, "Nd"
+        );
+
+        // Create a map of users and their DaysOfWeek assigns from schedule.date
+        // Example: {user: [MONDAY, WEDNESDAY, FRIDAY], user2: [TUESDAY, THURSDAY]}
+        Map<User, Set<DayOfWeek>> userDaysWhenItIsAssignedInSchedule = schedules.stream()
+                .collect(Collectors.groupingBy(Schedule::getUser, Collectors.mapping(
+                        schedule -> schedule.getDate().getDayOfWeek(),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> {
+                                    Collections.sort(list);
+                                    return new LinkedHashSet<>(list);
+                                })
+                )));
+
+        return userDaysWhenItIsAssignedInSchedule.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(User::getName).thenComparing(User::getSurname)))
+                .map(entry -> {
+                    User user = entry.getKey();
+                    Set<DayOfWeek> occurrences = entry.getValue();
+                    if (occurrences.size() < taskDaysOfWeekCount) {
+                        String daysOfWeekString = occurrences.stream()
+                                .map(dayOfWeekAbbreviations::get)
+                                .collect(Collectors.joining(", "));
+                        return user.getName() + " " + user.getSurname() + " (" + daysOfWeekString + ")";
+                    } else {
+                        return user.getName() + " " + user.getSurname();
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }
