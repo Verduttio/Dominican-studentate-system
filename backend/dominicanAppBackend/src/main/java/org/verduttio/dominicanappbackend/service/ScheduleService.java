@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -663,5 +664,42 @@ public class ScheduleService {
         return tasks.stream()
                 .map(task -> createScheduleShortInfoForTask(task.getId(), from, to))
                 .collect(Collectors.toList());
+    }
+
+    public List<UserTaskStatisticsDTO> getStatisticsForUserTasks(Long userId) {
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with given id does not exist"));
+
+        List<Schedule> schedules = getAllSchedulesByUserId(userId);
+
+        Map<Task, LocalDate> lastAssignmentDateForTask = schedules.stream()
+                .collect(Collectors.toMap(Schedule::getTask, Schedule::getDate, (date1, date2) -> date1.isAfter(date2) ? date1 : date2));
+
+        Map<Task, Long> taskOccurrencesInLast30Days = getTaskOccurrencesInLastNDays(schedules, 30);
+        Map<Task, Long> taskOccurrencesInLast90Days = getTaskOccurrencesInLastNDays(schedules, 90);
+        Map<Task, Long> taskOccurrencesInLast365Days = getTaskOccurrencesInLastNDays(schedules, 365);
+        Map<Task, Long> taskOccurrencesInAllTime = schedules.stream()
+                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.counting()));
+
+        // Create list of UserTaskStatisticsDTO objects
+        List<UserTaskStatisticsDTO> userTaskStatistics = new ArrayList<>();
+        for(Task task : taskOccurrencesInAllTime.keySet()) {
+            LocalDate lastAssignmentDate = lastAssignmentDateForTask.get(task);
+            long occurrencesInLast30Days = taskOccurrencesInLast30Days.getOrDefault(task, 0L);
+            long occurrencesInLast90Days = taskOccurrencesInLast90Days.getOrDefault(task, 0L);
+            long occurrencesInLast365Days = taskOccurrencesInLast365Days.getOrDefault(task, 0L);
+            long occurrencesInAllTime = taskOccurrencesInAllTime.get(task);
+            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), lastAssignmentDate, occurrencesInLast30Days, occurrencesInLast90Days, occurrencesInLast365Days, occurrencesInAllTime));
+        }
+
+        return userTaskStatistics;
+    }
+
+    private Map<Task, Long> getTaskOccurrencesInLastNDays(List<Schedule> schedules, int n) {
+        LocalDate startDate = LocalDate.now().minusDays(n);
+        LocalDate endDate = LocalDate.now().plusDays(1); // We add 1 day to include the current day
+        return schedules.stream()
+                .filter(schedule -> schedule.getDate().isAfter(startDate) && schedule.getDate().isBefore(endDate))
+                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.counting()));
     }
 }

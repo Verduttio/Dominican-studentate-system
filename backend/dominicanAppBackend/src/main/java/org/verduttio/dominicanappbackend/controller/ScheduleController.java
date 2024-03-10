@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.PdfService;
@@ -235,7 +236,15 @@ public class ScheduleController {
         return new ResponseEntity<>(taskSchedulesForSpecifiedWeek, HttpStatus.OK);
     }
 
-
+    @GetMapping("/users/{userId}/statistics/tasks")
+    public ResponseEntity<?> getStatisticsForUserTasks(@PathVariable Long userId) {
+        try {
+            List<UserTaskStatisticsDTO> userTaskStatistics = scheduleService.getStatisticsForUserTasks(userId);
+            return new ResponseEntity<>(userTaskStatistics, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 
 
     @PostMapping
