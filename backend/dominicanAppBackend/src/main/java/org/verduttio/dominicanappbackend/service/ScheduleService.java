@@ -650,4 +650,18 @@ public class ScheduleService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskByRoleForSpecifiedWeek(String supervisorRole, LocalDate from, LocalDate to) {
+        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        }
+
+        Role role = roleService.findByNameAndType(supervisorRole, RoleType.SUPERVISOR)
+                .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
+
+        List<Task> tasks = taskService.findTasksBySupervisorRoleName(role.getName());
+        return tasks.stream()
+                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to))
+                .collect(Collectors.toList());
+    }
 }

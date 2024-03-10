@@ -150,6 +150,23 @@ public class ScheduleController {
         return new ResponseEntity<>(taskSchedulesForSpecifiedWeek, HttpStatus.OK);
     }
 
+    @GetMapping("/tasks/byRole/{supervisorRole}/scheduleShortInfo/week")
+    public ResponseEntity<?> getShortScheduleInfoForSpecifiedWeekForTasksBySupervisorRole(
+            @PathVariable String supervisorRole,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        List<ScheduleShortInfoForTask> taskSchedulesForSpecifiedWeek;
+        try {
+            taskSchedulesForSpecifiedWeek = scheduleService.getScheduleShortInfoForTaskByRoleForSpecifiedWeek(supervisorRole, from, to);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(taskSchedulesForSpecifiedWeek, HttpStatus.OK);
+    }
+
     @GetMapping("/available-tasks/by-supervisor/{supervisor}")
     public ResponseEntity<?> getAvailableTasksBySupervisorRole(
             @PathVariable String supervisor,
