@@ -1,5 +1,6 @@
 .navigation-bar {
     display: flex;
+    flex-wrap: wrap; /* Pozwala elementom zawijać się, gdy nie mieszczą się w jednym rzędzie */
     justify-content: center;
     align-items: center;
     background-color: #2c3e50;
@@ -8,7 +9,7 @@
 }
 
 .navigation-bar button {
-    margin: 0 10px;
+    margin: 5px; /* Zapewnia odstęp przy zawijaniu */
     padding: 10px 20px;
     background-color: #212529;
     color: white;
@@ -16,6 +17,14 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+/* Dodatkowy styl dla zawijania */
+@media (max-width: 600px) {
+    .navigation-bar {
+        justify-content: start;
+        flex-direction: column; /* Zmienia kierunek elementów na pionowy */
+    }
 }
 
 .navigation-bar button:hover {
