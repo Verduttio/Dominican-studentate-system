@@ -6,6 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {faChevronDown, faChevronUp} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import "./TaskInfo.css";
+import daysOfWeekTranslation from "../../models/Translations";
 
 interface TaskInfoProps {
     taskId: string | null
@@ -71,7 +72,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                             <th className="table-dark">Dni tygodnia</th>
                             <td>
                                 <ul className="list-unstyled">
-                                    {task.daysOfWeek.map((day, index) => <li key={index}>{day}</li>)}
+                                    {task.daysOfWeek.map((day, index) => <li key={index}>{daysOfWeekTranslation[day]}</li>)}
                                 </ul>
                             </td>
                         </tr>

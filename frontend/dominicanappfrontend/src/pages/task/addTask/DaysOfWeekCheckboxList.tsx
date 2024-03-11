@@ -1,5 +1,5 @@
 import React from 'react';
-import { daysOfWeekMap } from '../../../utils/DaysOfWeekMap';
+import daysOfWeekTranslation from "../../../models/Translations";
 
 interface DaysOfWeekCheckboxListProps {
     selectedDays: string[];
@@ -9,7 +9,7 @@ interface DaysOfWeekCheckboxListProps {
 export const DaysOfWeekCheckboxList: React.FC<DaysOfWeekCheckboxListProps> = ({ selectedDays, onDayChange }) => {
     return (
         <>
-            {Object.entries(daysOfWeekMap).map(([polishDay, englishDay]) => (
+            {Object.entries(daysOfWeekTranslation).map(([englishDay, polishDay]) => (
                 <label className="form-check custom-checkbox" key={polishDay}>
                     <input
                         className="form-check-input"

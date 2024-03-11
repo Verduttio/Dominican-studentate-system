@@ -10,6 +10,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import "./ScheduleCreatorAssignToTaskDaily.css";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
+import daysOfWeekTranslation from "../../models/Translations";
 
 interface SortConfig {
     key: string | null;
@@ -185,7 +186,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                         keyName='numberOfAssignsInLastYear'/></th>
                     <th>Aktualne taski</th>
                     {task?.daysOfWeek.map((day, index) => (
-                        <th key={index}>{day}</th>
+                        <th key={index}>{daysOfWeekTranslation[day]}</th>
                     ))}
                 </tr>
                 </thead>

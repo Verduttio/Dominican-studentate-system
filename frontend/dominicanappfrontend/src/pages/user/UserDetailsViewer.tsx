@@ -3,7 +3,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {User} from "../../models/Interfaces";
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import UserWeekSchedule from "./UserWeekSchedule";
 import UserTasksStatistics from "./UserTasksStatistics";
 
@@ -11,7 +11,6 @@ function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
     const { userId } = useParams();
     const { error, loading, request } = useHttp(`${backendUrl}/api/users/${userId}`, 'GET');
-    const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data) => setUser(data))
