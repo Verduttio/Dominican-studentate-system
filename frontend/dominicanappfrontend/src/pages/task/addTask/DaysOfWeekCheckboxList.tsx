@@ -1,5 +1,5 @@
 import React from 'react';
-import daysOfWeekTranslation from "../../../models/Translations";
+import {daysOfWeekTranslation} from "../../../models/DayOfWeek";
 
 interface DaysOfWeekCheckboxListProps {
     selectedDays: string[];

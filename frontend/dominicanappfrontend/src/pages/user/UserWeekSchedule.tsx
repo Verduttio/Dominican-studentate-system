@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {addDays, endOfWeek, format, startOfWeek} from "date-fns";
 import useHttp from "../../services/UseHttp";
 import {Schedule} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import WeekSelector from "../../components/WeekSelector";
+import {daysOfWeekAbbreviation} from "../../models/DayOfWeek";
 
 interface UserWeekScheduleProps {
     userId: number;
@@ -21,8 +22,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     }, [fetchSchedule]);
 
     const weekDays = useMemo(() => {
-        const weekDate = currentWeek;
-        let weekStart = startOfWeek(weekDate, { weekStartsOn: 1 });
+        let weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
         return Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
     }, [currentWeek]);
 
@@ -44,6 +44,11 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
         );
     };
 
+    function getEnglishDayOfWeek(date: Date): string {
+        const daysOfWeek = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+        return daysOfWeek[date.getDay()];
+    }
+
 
     if (error) return <div className="alert alert-danger">{error}</div>;
 
@@ -55,15 +60,20 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
             {loading ? <LoadingSpinner /> : (
                 <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
                     <thead className="table-dark">
-                    <tr>
-                        {weekDays.map((day, index) => (
-                            <th key={index}
-                                style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'green' : ''}}>
-                                {['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Niedz'][index]}
-                                <br/> {format(day, 'dd.MM.yyyy')}
-                            </th>
-                        ))}
-                    </tr>
+                        <tr>
+                            {weekDays.map((day, index) => {
+                                const englishDayOfWeek = getEnglishDayOfWeek(day);
+                                const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+
+                                return (
+                                    <th key={index}
+                                        style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'green' : ''}}>
+                                        {polishAbbreviation}
+                                        <br/> {format(day, 'dd.MM.yyyy')}
+                                    </th>
+                                );
+                            })}
+                        </tr>
                     </thead>
                     <tbody>
                     <tr>

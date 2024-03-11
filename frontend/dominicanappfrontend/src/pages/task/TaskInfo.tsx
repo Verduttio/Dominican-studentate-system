@@ -6,7 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {faChevronDown, faChevronUp} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import "./TaskInfo.css";
-import daysOfWeekTranslation from "../../models/Translations";
+import {daysOfWeekTranslation} from "../../models/DayOfWeek";
 
 interface TaskInfoProps {
     taskId: string | null

@@ -10,7 +10,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import "./ScheduleCreatorAssignToTaskDaily.css";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
-import daysOfWeekTranslation from "../../models/Translations";
+import {daysOfWeekTranslation} from "../../models/DayOfWeek";
 
 interface SortConfig {
     key: string | null;
