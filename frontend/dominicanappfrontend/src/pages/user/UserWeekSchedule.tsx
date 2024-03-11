@@ -21,10 +21,10 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     }, [fetchSchedule]);
 
     const weekDays = useMemo(() => {
-        const today = new Date();
-        let weekStart = startOfWeek(today, { weekStartsOn: 1 });
+        const weekDate = currentWeek;
+        let weekStart = startOfWeek(weekDate, { weekStartsOn: 1 });
         return Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
-    }, []);
+    }, [currentWeek]);
 
     const tasksForDay = (day: Date) => {
         const formattedDay = format(day, 'yyyy-MM-dd');
