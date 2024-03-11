@@ -29,16 +29,18 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
 
     return (
     <div className="fade-in">
-        <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
-            <tbody>
-                <tr>
-                    <th className="table-dark">Zadanie</th>
-                    <td>{task.name}</td>
-                </tr>
-            </tbody>
-        </table>
-        <div className={isExpanded ? 'detailsVisible' : 'detailsHidden'}>
-            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+        <div className="table-responsive d-flex justify-content-center">
+            <table className="table table-hover table-striped table-rounded table-shadow">
+                <tbody>
+                    <tr>
+                        <th className="table-dark">Zadanie</th>
+                        <td>{task.name}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div className={isExpanded ? 'detailsVisible table-responsive d-flex justify-content-center' : 'detailsHidden'}>
+            <table className="table table-hover table-striped table-rounded table-shadow">
                 <tbody>
                 {isExpanded && (
                     <>

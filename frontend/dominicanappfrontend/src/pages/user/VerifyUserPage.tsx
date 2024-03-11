@@ -65,9 +65,9 @@ function VerifyUserPage() {
         <div className="fade-in">
             <div className="page-header">
                 {user.enabled ? <h1>Edycja użytkownika</h1> : <h1>Weryfikacja użytkownika</h1>}
-
             </div>
-            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+            <div className="table-responsive d-flex justify-content-center">
+            <table className="table table-hover table-striped table-rounded table-shadow">
                 <thead className="table-dark">
                 <tr>
                     <th>ID</th>
@@ -97,6 +97,7 @@ function VerifyUserPage() {
                     </tr>
                 </tbody>
             </table>
+            </div>
                 <div className="edit-entity-container">
                     {requestError && <div className="alert alert-danger">{requestError}</div>}
                     {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}

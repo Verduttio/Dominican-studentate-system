@@ -43,7 +43,7 @@ const AppContent = () => {
     return (
         <>
             {hideBarPaths.includes(location.pathname) ? null : <NavigationBar/>}
-            <div className="background" style={backgroundStyle}>
+            <div className="container ">
                 <Routes>
                     <Route path="/home" Component={Home}/>
                     <Route path="/login" Component={Login}/>

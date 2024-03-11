@@ -58,7 +58,8 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
                 <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             </div>
             {loading ? <LoadingSpinner /> : (
-                <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
+                <div className="table-responsive d-flex justify-content-center">
+                <table className="table table-hover table-striped table-rounded table-shadow">
                     <thead className="table-dark">
                         <tr>
                             {weekDays.map((day, index) => {
@@ -83,6 +84,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
                     </tr>
                     </tbody>
                 </table>
+                </div>
             )}
         </div>
     );

@@ -31,30 +31,32 @@ function ViewRoles() {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
             </div>
-            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
-                <thead className="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nazwa</th>
-                    <th>Typ</th>
-                    {isFunkcyjny && <th>Edytuj</th>}
-                </tr>
-                </thead>
-                <tbody>
-                {roles.map(role => (
-                    <tr key={role.id}>
-                        <td>{role.id}</td>
-                        <td>{role.name}</td>
-                        <td>{role.type}</td>
-                        {isFunkcyjny &&
-                            <td>
-                                <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>
-                            </td>
-                        }
+            <div className="table-responsive">
+                <table className="table table-hover table-striped table-rounded table-shadow">
+                    <thead className="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nazwa</th>
+                        <th>Typ</th>
+                        {isFunkcyjny && <th>Edytuj</th>}
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {roles.map(role => (
+                        <tr key={role.id}>
+                            <td>{role.id}</td>
+                            <td>{role.name}</td>
+                            <td>{role.type}</td>
+                            {isFunkcyjny &&
+                                <td>
+                                    <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>
+                                </td>
+                            }
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
             {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-primary m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>

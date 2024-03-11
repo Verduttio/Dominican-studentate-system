@@ -175,68 +175,70 @@ const ScheduleCreatorAssignToTaskDaily = () => {
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {assignToTaskError && <div className="alert alert-danger">{assignToTaskError}</div>}
             {unassignTaskError && <div className="alert alert-danger">{unassignTaskError}</div>}
-            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
-                <thead className="table-dark">
-                <tr>
-                    <th>UserId</th>
-                    <th>Imię i nazwisko</th>
-                    <th onClick={() => requestSort('lastAssigned')}>Ostatnio wykonany <SortIcon keyName='lastAssigned'/>
-                    </th>
-                    <th onClick={() => requestSort('numberOfAssignsInLastYear')}>Dni z zadaniem (ostatni rok) <SortIcon
-                        keyName='numberOfAssignsInLastYear'/></th>
-                    <th>Aktualne taski</th>
-                    {task?.daysOfWeek.map((day, index) => (
-                        <th key={index}>{daysOfWeekTranslation[day]}</th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {userDependencies.map((dep, index) => (
-                    <tr key={index}
-                        className={dep.assignedToTheTask.length > 0 ? 'table-success' : dep.hasObstacle.length > 0 ? 'table-primary' : dep.isInConflict.length > 0 ? 'table-warning' : ''}
-                    >
-                        <td>{dep.userId}</td>
-                        <td>{dep.userName}</td>
-                        <td>{dep.lastAssigned}</td>
-                        <td>{dep.numberOfAssignsInLastYear}</td>
-                        <td>{dep.assignedTasks.join(', ')}</td>
+            <div className="table-responsive">
+                <table className="table table-hover table-striped table-rounded table-shadow">
+                    <thead className="table-dark">
+                    <tr>
+                        <th>UserId</th>
+                        <th>Imię i nazwisko</th>
+                        <th onClick={() => requestSort('lastAssigned')}>Ostatnio wykonany <SortIcon keyName='lastAssigned'/>
+                        </th>
+                        <th onClick={() => requestSort('numberOfAssignsInLastYear')}>Dni z zadaniem (ostatni rok) <SortIcon
+                            keyName='numberOfAssignsInLastYear'/></th>
+                        <th>Aktualne taski</th>
                         {task?.daysOfWeek.map((day, index) => (
-                            <td key={index}>
-                                {(dep.hasObstacle.includes(day)) ? (
-                                    <button
-                                        className="btn btn-info"
-                                        disabled={true}
-                                    >
-                                        Przeszkoda
-                                    </button>
-                                ) : (
-                                    (dep.assignedToTheTask.includes(day)) ? (
-                                        <button
-                                            className={dep.isInConflict.includes(day) ? 'btn btn-warning' : 'btn btn-success'}
-                                            onClick={() => unassignTask(dep.userId, day)}
-                                            disabled={assignToTaskLoading || unassignTaskLoading}
-                                        >
-                                            <span
-                                                className={dep.isInConflict.includes(day) ? 'highlighted-text-conflict' : ''}>
-                                                Odznacz
-                                            </span>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            className={dep.isInConflict.includes(day) ? 'btn btn-warning' : 'btn btn-dark'}
-                                            onClick={() => handleSubmit(dep.userId, day)}
-                                            disabled={assignToTaskLoading || unassignTaskLoading}
-                                        >
-                                            Przypisz
-                                        </button>
-                                    )
-                                )}
-                            </td>
+                            <th key={index}>{daysOfWeekTranslation[day]}</th>
                         ))}
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {userDependencies.map((dep, index) => (
+                        <tr key={index}
+                            className={dep.assignedToTheTask.length > 0 ? 'table-success' : dep.hasObstacle.length > 0 ? 'table-primary' : dep.isInConflict.length > 0 ? 'table-warning' : ''}
+                        >
+                            <td>{dep.userId}</td>
+                            <td>{dep.userName}</td>
+                            <td>{dep.lastAssigned}</td>
+                            <td>{dep.numberOfAssignsInLastYear}</td>
+                            <td>{dep.assignedTasks.join(', ')}</td>
+                            {task?.daysOfWeek.map((day, index) => (
+                                <td key={index}>
+                                    {(dep.hasObstacle.includes(day)) ? (
+                                        <button
+                                            className="btn btn-info"
+                                            disabled={true}
+                                        >
+                                            Przeszkoda
+                                        </button>
+                                    ) : (
+                                        (dep.assignedToTheTask.includes(day)) ? (
+                                            <button
+                                                className={dep.isInConflict.includes(day) ? 'btn btn-warning' : 'btn btn-success'}
+                                                onClick={() => unassignTask(dep.userId, day)}
+                                                disabled={assignToTaskLoading || unassignTaskLoading}
+                                            >
+                                                <span
+                                                    className={dep.isInConflict.includes(day) ? 'highlighted-text-conflict' : ''}>
+                                                    Odznacz
+                                                </span>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className={dep.isInConflict.includes(day) ? 'btn btn-warning' : 'btn btn-dark'}
+                                                onClick={() => handleSubmit(dep.userId, day)}
+                                                disabled={assignToTaskLoading || unassignTaskLoading}
+                                            >
+                                                Przypisz
+                                            </button>
+                                        )
+                                    )}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, selectedDayOfWeek)
