@@ -50,3 +50,37 @@
     font-size: 0.75em;
 }
 
+.hamburger-menu {
+    display: none; /* Ukryty domyślnie */
+    background-color: #212529;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-menu {
+    display: none; /* Ukryty domyślnie */
+    flex-direction: column; /* Dla wyświetlenia w kolumnie */
+}
+
+/* Styl dla menu, gdy jest widoczne */
+.mobile-menu.active {
+    display: flex;
+}
+
+/* Wyświetlanie przycisku hamburger i ukrywanie pełnej nawigacji na małych ekranach */
+@media (max-width: 768px) {
+    .hamburger-menu {
+        display: block; /* Pokaż przycisk hamburger */
+    }
+
+    .navbar-buttons-pc{
+        display: none; /* Ukryj przyciski nawigacji */
+    }
+
+    .mobile-menu.hidden {
+        display: none; /* Zapewnia, że menu jest ukryte */
+    }
+}
+
+

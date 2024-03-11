@@ -4,9 +4,10 @@ import './NavigationBar.css';
 import LogoutButton from "./LogoutButton";
 import useHttp from '../services/UseHttp';
 import {backendUrl} from "../utils/constants";
-import { faUserPlus, faNoteSticky} from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faNoteSticky, faBars} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useIsFunkcyjny from "../services/UseIsFunkcyjny";
+
 
 
 
@@ -21,6 +22,7 @@ const NavigationBar = () => {
     const { request: numberOfAwaitingObstaclesRequest, error: numberOfAwaitingObstaclesError, loading: numberOfAwaitingObstaclesLoading } = useHttp(
         `${backendUrl}/api/obstacles/AWAITING/count`, 'GET'
     );
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         numberOfUnverifiedUsersRequest(null, ((number) => {
@@ -39,50 +41,108 @@ const NavigationBar = () => {
 
     const navigateTo = (path : string) => {
         navigate(path);
+        setIsMenuOpen(false);
+    };
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
     };
 
     return (
         <div className="navigation-bar">
-            <button onClick={() => navigateTo('/home')}>Home</button>
+            <button className="hamburger-menu" onClick={toggleMenu}>
+                Opcje <FontAwesomeIcon icon={faBars}/>
+            </button>
+            <div className={`mobile-menu ${isMenuOpen ? 'active' : 'hidden'}`}>
+                <button onClick={() => navigateTo('/home')}>Home</button>
 
-            <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
+                <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
 
-            <button
-                onClick={() => navigateTo('/users')}
-            >
-                Użytkownicy
-                {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
-                    <span className="notification-icon">
+                <button
+                    onClick={() => navigateTo('/users')}
+                >
+                    Użytkownicy
+                    {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
+                        <span className="notification-icon">
                         <FontAwesomeIcon icon={faUserPlus}/>
                         <span className="notification-count">{numberOfUnverifiedUsers}</span>
                     </span>
-                )}
-            </button>
+                    )}
+                </button>
 
-            <button
-                onClick={() => navigateTo('/schedule')}
-            >
-                Harmonogram
-            </button>
-
-            {isFunkcyjny &&
                 <button
-                    className="bg-primary"
-                    onClick={() => navigateTo('/obstacles')}
+                    onClick={() => navigateTo('/schedule')}
                 >
-                    Przeszkody
-                    {numberOfAwaitingObstacles > 0 && (
-                        <span className="notification-icon">
+                    Harmonogram
+                </button>
+
+                {isFunkcyjny &&
+                    <button
+                        className="bg-primary"
+                        onClick={() => navigateTo('/obstacles')}
+                    >
+                        Przeszkody
+                        {numberOfAwaitingObstacles > 0 && (
+                            <span className="notification-icon">
                             <FontAwesomeIcon icon={faNoteSticky}/>
                             <span className="notification-count">{numberOfAwaitingObstacles}</span>
                         </span>
+                        )}
+                    </button>
+                }
+
+                <button onClick={() => {
+                    navigateTo('/other')
+                }}>Inne
+                </button>
+                <LogoutButton/>
+            </div>
+
+            <div className="navbar-buttons-pc">
+                <button onClick={() => navigateTo('/home')}>Home</button>
+
+                <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
+
+                <button
+                    onClick={() => navigateTo('/users')}
+                >
+                    Użytkownicy
+                    {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
+                        <span className="notification-icon">
+                            <FontAwesomeIcon icon={faUserPlus}/>
+                            <span className="notification-count">{numberOfUnverifiedUsers}</span>
+                        </span>
                     )}
                 </button>
-            }
 
-            <button onClick={() => {navigateTo('/other')}}>Inne</button>
+                <button
+                    onClick={() => navigateTo('/schedule')}
+                >
+                    Harmonogram
+                </button>
 
-            <LogoutButton/>
+                {isFunkcyjny &&
+                    <button
+                        className="bg-primary"
+                        onClick={() => navigateTo('/obstacles')}
+                    >
+                        Przeszkody
+                        {numberOfAwaitingObstacles > 0 && (
+                            <span className="notification-icon">
+                                <FontAwesomeIcon icon={faNoteSticky}/>
+                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                            </span>
+                        )}
+                    </button>
+                }
+
+                <button onClick={() => {
+                    navigateTo('/other')
+                }}>Inne
+                </button>
+
+                <LogoutButton/>
+            </div>
         </div>
     );
 };
