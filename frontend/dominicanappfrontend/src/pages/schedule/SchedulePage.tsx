@@ -72,26 +72,29 @@ function SchedulePage() {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
             </div>
-            <div className="table-responsive d-flex justify-content-center">
-            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                <thead className="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Użytkownik</th>
-                    <th>Zadania</th>
-                </tr>
-                </thead>
-                <tbody>
-                {scheduleShortInfo.map(scheduleShortInfo => (
-                    <tr key={scheduleShortInfo.userId}>
-                        <td>{scheduleShortInfo.userId}</td>
-                        <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
-                        <td>{scheduleShortInfo.tasksInfoStrings.join(', ')}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '600px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Użytkownik</th>
+                            <th>Zadania</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {scheduleShortInfo.map(scheduleShortInfo => (
+                            <tr key={scheduleShortInfo.userId}>
+                                <td>{scheduleShortInfo.userId}</td>
+                                <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
+                                <td>{scheduleShortInfo.tasksInfoStrings.join(', ')}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadPdf}>Pobierz harmonogram według użytkowników
                 </button>
@@ -101,42 +104,45 @@ function SchedulePage() {
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według roli</h4>
             </div>
             <div className="d-flex justify-content-center mb-1">
-            <select className="form-select w-100" onChange={handleRoleChange}>
+                <select className="form-select w-100" style={{maxWidth: '350px'}} onChange={handleRoleChange}>
                     <option value="">Wybierz rolę</option>
                     {supervisorRoles.map(role => (
                         <option key={role.name} value={role.name}>{role.name}</option>
                     ))}
-            </select>
+                </select>
             </div>
-            {errorFetchScheduleByTasksByRoles && <div className="alert alert-danger">{errorFetchScheduleByTasksByRoles}</div>}
+            {errorFetchScheduleByTasksByRoles &&
+                <div className="alert alert-danger">{errorFetchScheduleByTasksByRoles}</div>}
             {loadingFetchScheduleByTasksByRoles ? <LoadingSpinner/> : (
-                <div className="table-responsive d-flex justify-content-center">
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Zadanie</th>
-                            <th>Użytkownicy</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
-                            <tr key={scheduleShortInfoForTaskByRole.taskId}>
-                                <td>{scheduleShortInfoForTaskByRole.taskId}</td>
-                                <td>{scheduleShortInfoForTaskByRole.taskName}</td>
-                                <td>
-                                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
-                                        <div key={index}>{userInfoString}</div>
-                                    ))}
-                                </td>
+                <div className="d-flex justify-content-center">
+                    <div className="table-responsive" style={{maxWidth: '600px'}}>
+                        <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                            <thead className="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Zadanie</th>
+                                <th>Użytkownicy</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
+                                <tr key={scheduleShortInfoForTaskByRole.taskId}>
+                                    <td>{scheduleShortInfoForTaskByRole.taskId}</td>
+                                    <td>{scheduleShortInfoForTaskByRole.taskName}</td>
+                                    <td>
+                                        {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
+                                            <div key={index}>{userInfoString}</div>
+                                        ))}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
             <div className="text-center">
-            <button className="btn btn-success mt-2">Pobierz harmonogram według roli</button>
+                <button className="btn btn-success mt-2">Pobierz harmonogram według roli</button>
             </div>
 
             <div className="d-flex justify-content-center">
@@ -144,29 +150,31 @@ function SchedulePage() {
             </div>
             {errorFetchScheduleByTasks && <div className="alert alert-danger">{errorFetchScheduleByTasks}</div>}
             {loadingFetchScheduleByTasks ? <LoadingSpinner/> : (
-                <div className="table-responsive d-flex justify-content-center">
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Zadanie</th>
-                            <th>Użytkownicy</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
-                            <tr key={scheduleShortInfoForTask.taskId}>
-                                <td>{scheduleShortInfoForTask.taskId}</td>
-                                <td>{scheduleShortInfoForTask.taskName}</td>
-                                <td>
-                                    {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
-                                        <div key={index}>{userInfoString}</div>
-                                    ))}
-                                </td>
+                <div className="d-flex justify-content-center">
+                    <div className="table-responsive" style={{maxWidth: '600px'}}>
+                        <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                            <thead className="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Zadanie</th>
+                                <th>Użytkownicy</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
+                                <tr key={scheduleShortInfoForTask.taskId}>
+                                    <td>{scheduleShortInfoForTask.taskId}</td>
+                                    <td>{scheduleShortInfoForTask.taskName}</td>
+                                    <td>
+                                        {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
+                                            <div key={index}>{userInfoString}</div>
+                                        ))}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
             <div className="text-center">
