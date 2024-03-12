@@ -24,14 +24,16 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
-        <div className="fade-in">
+        <div className="fade-in d-flex flex-column align-items-center">
             <h2 className="entity-header-dynamic-size">Zadania dla roli: {roleName}</h2>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {tasks.length > 0 ? (
                     <>
                         {tasks.map(task => (
-                            <div className="card mb-4" id="button-scale">
-                                <div className="card-body text-center" onClick={() => {navigate(`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`)}}>
+                            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                                <div className="card-body text-center" onClick={() => {
+                                    navigate(`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`)
+                                }}>
                                     {task.name}
                                 </div>
                             </div>
