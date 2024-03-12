@@ -30,36 +30,38 @@ function UsersPage () {
                 <h1 className="entity-header">Użytkownicy</h1>
             </div>
             {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
-            <div className="table-responsive d-flex justify-content-center">
-                <table className="table table-hover table-striped table-rounded table-shadow">
-                    <thead className="table-dark">
-                    <tr>
-                        <th>Imię</th>
-                        <th>Nazwisko</th>
-                        <th>Akcja</th>
-                        {isFunkcyjny && <th>Edytuj</th>}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {users.map(user => (
-                        <tr key={user.id}
-                            className={!user.enabled ? 'table-danger' : ''}>
-                            <td>{user.name}</td>
-                            <td>{user.surname}</td>
-                            <td>
-                                <button className="btn btn-dark" onClick={() => {navigate(`/users/${user.id}/viewer/details`)}}>Szczegóły</button>
-                            </td>
-                            {isFunkcyjny &&
-                                <td>
-                                    <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"} onClick={() => navigate(`/users/${user.id}/verify`)}>
-                                        {user.enabled ? "Edytuj" : "Zweryfikuj"}
-                                    </button>
-                                </td>
-                            }
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '500px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>Imię</th>
+                            <th>Nazwisko</th>
+                            <th>Akcja</th>
+                            {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {users.map(user => (
+                            <tr key={user.id}
+                                className={!user.enabled ? 'table-danger' : ''}>
+                                <td>{user.name}</td>
+                                <td>{user.surname}</td>
+                                <td>
+                                    <button className="btn btn-dark" onClick={() => {navigate(`/users/${user.id}/viewer/details`)}}>Szczegóły</button>
+                                </td>
+                                {isFunkcyjny &&
+                                    <td>
+                                        <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"} onClick={() => navigate(`/users/${user.id}/verify`)}>
+                                            {user.enabled ? "Edytuj" : "Zweryfikuj"}
+                                        </button>
+                                    </td>
+                                }
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

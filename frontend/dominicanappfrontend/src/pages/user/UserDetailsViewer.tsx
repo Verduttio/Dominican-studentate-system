@@ -26,26 +26,28 @@ function UserDetailsViewer () {
                 <h1 className="entity-header">Dane użytkownika {user?.name} {user?.surname}</h1>
             </div>
             <div className="table-responsive d-flex justify-content-center">
-                <table className="table table-hover table-striped table-rounded table-shadow">
-                    <tbody>
-                    <tr>
-                        <th className="table-dark">Imię</th>
-                        <td>{user?.name}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Nazwisko</th>
-                        <td>{user?.surname}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Email</th>
-                        <td>{user?.email}</td>
-                    </tr>
-                    <tr>
-                        <th className="table-dark">Role</th>
-                        <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div className="table-responsive" style={{maxWidth: '500px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <tbody>
+                        <tr>
+                            <th className="table-dark">Imię</th>
+                            <td>{user?.name}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Nazwisko</th>
+                            <td>{user?.surname}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Email</th>
+                            <td>{user?.email}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Role</th>
+                            <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size">Harmonogram użytkownika</h4>

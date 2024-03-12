@@ -58,32 +58,34 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
                 <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             </div>
             {loading ? <LoadingSpinner /> : (
-                <div className="table-responsive d-flex justify-content-center">
-                <table className="table table-hover table-striped table-rounded table-shadow">
-                    <thead className="table-dark">
-                        <tr>
-                            {weekDays.map((day, index) => {
-                                const englishDayOfWeek = getEnglishDayOfWeek(day);
-                                const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+                <div className="d-flex justify-content-center">
+                    <div className="table-responsive" style={{maxWidth: '1000px'}}>
+                        <table className="table table-hover table-striped table-rounded table-shadow">
+                            <thead className="table-dark">
+                                <tr>
+                                    {weekDays.map((day, index) => {
+                                        const englishDayOfWeek = getEnglishDayOfWeek(day);
+                                        const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
 
-                                return (
-                                    <th key={index}
-                                        style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'green' : ''}}>
-                                        {polishAbbreviation}
-                                        <br/> {format(day, 'dd.MM.yyyy')}
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        {weekDays.map((day, index) => (
-                            <td key={index}>{tasksForDay(day)}</td>
-                        ))}
-                    </tr>
-                    </tbody>
-                </table>
+                                        return (
+                                            <th key={index}
+                                                style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'green' : ''}}>
+                                                {polishAbbreviation}
+                                                <br/> {format(day, 'dd.MM.yyyy')}
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                {weekDays.map((day, index) => (
+                                    <td key={index}>{tasksForDay(day)}</td>
+                                ))}
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>
