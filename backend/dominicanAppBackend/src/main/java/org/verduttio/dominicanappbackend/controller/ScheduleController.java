@@ -40,8 +40,7 @@ public class ScheduleController {
     @GetMapping("/pdf")
     public ResponseEntity<byte[]> downloadPdf() {
         try {
-            List<Schedule> schedules = scheduleService.getAllSchedules();
-            byte[] pdfContent = pdfService.generateSchedulePdf(schedules);
+            byte[] pdfContent = pdfService.generateSchedulePdfForUsers();
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Disposition", "attachment; filename=schedules.pdf");
