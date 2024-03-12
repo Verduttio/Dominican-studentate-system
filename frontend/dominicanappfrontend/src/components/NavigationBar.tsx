@@ -51,7 +51,13 @@ const NavigationBar = () => {
     return (
         <div className="navigation-bar">
             <button className="hamburger-menu" onClick={toggleMenu}>
-                Opcje <FontAwesomeIcon icon={faBars}/>
+                Opcje
+                {numberOfUnverifiedUsers + numberOfAwaitingObstacles > 0 && isFunkcyjny && (
+                    <span className="notification-icon">
+                        <FontAwesomeIcon icon={faBars}/>
+                        <span className="notification-count">{numberOfUnverifiedUsers + numberOfAwaitingObstacles}</span>
+                    </span>
+                )}
             </button>
             <div className={`mobile-menu ${isMenuOpen ? 'active' : 'hidden'}`}>
                 <button onClick={() => navigateTo('/home')}>Home</button>
