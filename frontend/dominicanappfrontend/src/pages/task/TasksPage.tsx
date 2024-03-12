@@ -31,36 +31,40 @@ function TasksPage () {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
             </div>
-            <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
-                <thead className="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nazwa</th>
-                    <th>Limit uczestników</th>
-                    <th>Cały okres</th>
-                    <th>Dozwolone role</th>
-                    <th>Wyznaczający</th>
-                    {isFunkcyjny && <th>Edytuj</th>}
-                </tr>
-                </thead>
-                <tbody>
-                {tasks.map(task => (
-                    <tr key={task.id}>
-                        <td>{task.id}</td>
-                        <td>{task.name}</td>
-                        <td>{task.participantsLimit}</td>
-                        <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
-                        <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
-                        <td className="max-column-width">{task.supervisorRole?.name}</td>
-                        {isFunkcyjny &&
-                            <td>
-                                <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>
-                            </td>
-                        }
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '800px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nazwa</th>
+                            <th>Limit uczestników</th>
+                            <th>Cały okres</th>
+                            <th>Dozwolone role</th>
+                            <th>Wyznaczający</th>
+                            {isFunkcyjny && <th>Edytuj</th>}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {tasks.map(task => (
+                            <tr key={task.id}>
+                                <td>{task.id}</td>
+                                <td>{task.name}</td>
+                                <td>{task.participantsLimit}</td>
+                                <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
+                                <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
+                                <td className="max-column-width">{task.supervisorRole?.name}</td>
+                                {isFunkcyjny &&
+                                    <td>
+                                        <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>
+                                    </td>
+                                }
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-primary m-1" onClick={() => navigate('/add-task')}>Dodaj zadanie</button>

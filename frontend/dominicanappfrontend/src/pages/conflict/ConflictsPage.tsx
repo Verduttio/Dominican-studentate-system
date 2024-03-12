@@ -33,31 +33,33 @@ function ConflictsPage() {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
             </div>
-            <div className="table-responsive">
-                <table className="table table-hover table-striped table-rounded table-shadow">
-                    <thead className="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Zadanie 1</th>
-                        <th>Zadanie 2</th>
-                        {isFunkcyjny && <th>Edytuj</th>}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {conflicts.map(conflict => (
-                        <tr key={conflict.id}>
-                            <td>{conflict.id}</td>
-                            <td>{conflict.task1.name}</td>
-                            <td>{conflict.task2.name}</td>
-                            {isFunkcyjny &&
-                                <td>
-                                    <button className="btn btn-primary" onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj</button>
-                                </td>
-                            }
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '500px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Zadanie 1</th>
+                            <th>Zadanie 2</th>
+                            {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {conflicts.map(conflict => (
+                            <tr key={conflict.id}>
+                                <td>{conflict.id}</td>
+                                <td>{conflict.task1.name}</td>
+                                <td>{conflict.task2.name}</td>
+                                {isFunkcyjny &&
+                                    <td>
+                                        <button className="btn btn-primary" onClick={() => navigate(`/edit-conflict/${conflict.id}`)}>Edytuj</button>
+                                    </td>
+                                }
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
