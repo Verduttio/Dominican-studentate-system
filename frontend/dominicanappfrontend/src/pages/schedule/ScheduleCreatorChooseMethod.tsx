@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from '../../services/UseHttp';
 import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
@@ -36,19 +36,21 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
-        <div className="fade-in">
+        <div className="fade-in d-flex flex-column align-items-center">
             <h2 className="entity-header-dynamic-size">Wybierz tryb tworzenia harmonogramu</h2>
             <h3 className="entity-header-dynamic-size">Zadanie: {task?.name}</h3>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
             {task?.participantForWholePeriod && (
-                <div className="card mb-4" id="button-scale">
+                <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
                     <div className="card-body text-center" onClick={() => navigate(getTaskUrlWeekly(task?.id))}>
                         Kreator tygodniowy
                     </div>
                 </div>
             )}
-            <div className="card mb-4" id="button-scale">
-                <div className="card-body text-center" onClick={() => {navigate(getTaskUrlDaily(task?.id))}}>
+            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                <div className="card-body text-center" onClick={() => {
+                    navigate(getTaskUrlDaily(task?.id))
+                }}>
                     Kreator dzienny
                 </div>
             </div>
