@@ -81,7 +81,7 @@ function Register () {
     return (
         <div className="container fade-in">
             <div className="row justify-content-center">
-                <div className="d-flex align-items-center justify-content-center">
+                <div className="d-flex align-items-center justify-content-center" style={{minHeight: '100vh'}}>
                     <div className="login-image col-md-6">
                         <img src={`${process.env.PUBLIC_URL}/Seal_of_the_Dominican_Order.svg`} alt="Logo zakonu"
                              className="img-fluid"/>

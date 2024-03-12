@@ -37,13 +37,11 @@ import UserDetailsViewer from "./pages/user/UserDetailsViewer";
 const AppContent = () => {
     const location = useLocation();
     const hideBarPaths = ['/login', '/register'];
-    const backgroundStyle = hideBarPaths.includes(location.pathname) ?
-        { minHeight: '100vh' } : {};
 
     return (
         <>
             {hideBarPaths.includes(location.pathname) ? null : <NavigationBar/>}
-            <div className="container ">
+            <div className="container">
                 <Routes>
                     <Route path="/home" Component={Home}/>
                     <Route path="/login" Component={Login}/>
