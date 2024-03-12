@@ -6,32 +6,33 @@ const OtherEntities = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="d-flex justify-content-center align-items-center fade-in" style={{minHeight: '100vh'}}>
-            <div className="w-25">
-                <div className="card mb-4" id="button-scale">
-                    <div className="card-body text-center" onClick={() => {
-                        navigate("/tasks")
-                    }}>
-                        Zadania
-                    </div>
-                </div>
-                <div className="card mb-4" id="button-scale">
-                    <div className="card-body text-center" onClick={() => {
-                        navigate("/conflicts")
-                    }}>
-                        Konflikty
-                    </div>
-                </div>
-                <div className="card mb-4" id="button-scale">
-                    <div className="card-body text-center" onClick={() => {
-                        navigate("/roles")
-                    }}>
-                        Role
-                    </div>
+        <div className="fade-in d-flex flex-column align-items-center" style={{minHeight: '80vh'}}>
+
+            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                <div className="card-body text-center" onClick={() => {
+                    navigate("/tasks")
+                }}>
+                    Zadania
                 </div>
             </div>
-        </div>
 
+            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                <div className="card-body text-center" onClick={() => {
+                    navigate("/conflicts")
+                }}>
+                    Konflikty
+                </div>
+            </div>
+
+            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                <div className="card-body text-center" onClick={() => {
+                    navigate("/roles")
+                }}>
+                    Role
+                </div>
+            </div>
+
+        </div>
     );
 };
 
