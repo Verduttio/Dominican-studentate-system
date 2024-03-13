@@ -1,6 +1,9 @@
 package org.verduttio.dominicanappbackend.service;
 
-import be.quodlibet.boxable.*;
+import be.quodlibet.boxable.BaseTable;
+import be.quodlibet.boxable.Cell;
+import be.quodlibet.boxable.HorizontalAlignment;
+import be.quodlibet.boxable.Row;
 import be.quodlibet.boxable.line.LineStyle;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -24,6 +27,8 @@ import java.util.List;
 public class PdfService {
 
     private final ScheduleService scheduleService;
+    private static final float MARGIN = 30;
+    private static final String FONT_PATH = "c:/windows/fonts/calibri.ttf";
 
     @Autowired
     public PdfService(ScheduleService scheduleService) {
@@ -31,56 +36,84 @@ public class PdfService {
     }
 
     public byte[] generateSchedulePdfForUsers(LocalDate from, LocalDate to) throws IOException {
+        validateDateRange(from, to);
+        List<ScheduleShortInfoForUser> schedules = scheduleService.getScheduleShortInfoForEachUserForSpecifiedWeek(from, to);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPage(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateUserScheduleTable(table, schedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
+    public byte[] generateSchedulePdfForTasksBySupervisorRole(String roleName, LocalDate from, LocalDate to) throws IOException {
+        validateDateRange(from, to);
+        List<ScheduleShortInfoForTask> schedules = scheduleService.getScheduleShortInfoForTaskByRoleForSpecifiedWeek(roleName, from, to);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPage(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateTaskScheduleTable(table, schedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
+    private void validateDateRange(LocalDate from, LocalDate to) {
         if (!DateValidator.dateStartsMondayEndsSunday(from, to)) {
             throw new IllegalArgumentException("Dates must start on Monday and end on Sunday");
         }
+    }
 
-        List<ScheduleShortInfoForUser> schedules = scheduleService.getScheduleShortInfoForEachUserForSpecifiedWeek(from, to);
+    private static PDPage addNewPage(PDDocument doc) {
+        PDPage page = new PDPage();
+        doc.addPage(page);
+        return page;
+    }
 
-        // Set margins
-        float margin = 30;
+    private float initializeTitle(PDDocument doc, PDPage page, PDFont font, LocalDate from, LocalDate to) throws IOException {
+        return addTitle(doc, page, font, "Harmonogram od " + from + " do " + to);
+    }
 
-        // Initialize Document
-        PDDocument doc = new PDDocument();
-        PDFont fontCalibri = PDType0Font.load(doc, new File("c:/windows/fonts/calibri.ttf"));
-        PDPage page = addNewPage(doc);
-        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
-
-        // Calculate title width to center
-        String title = "Harmonogram od " + from.toString() + " do " + to.toString();
-        float titleWidth = fontCalibri.getStringWidth(title) / 1000 * 18; // 18 is the font size
-        float titleHeight = fontCalibri.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * 18;
+    private static float addTitle(PDDocument doc, PDPage page, PDFont font, String title) throws IOException {
+        float titleWidth = font.getStringWidth(title) / 1000 * 18; // Font size 18
+        float titleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * 18;
         float startX = (page.getMediaBox().getWidth() - titleWidth) / 2;
-        float startY = yStartNewPage + margin - 20 - titleHeight;
+        float startY = page.getMediaBox().getHeight() - 2 * MARGIN - 20 - titleHeight;
 
-        // Adding centered title
         try (PDPageContentStream contentStream = new PDPageContentStream(doc, page)) {
             contentStream.beginText();
-            contentStream.setFont(fontCalibri, 18); // Use larger font for title
-            contentStream.newLineAtOffset(startX, startY); // Adjust title position for centering
+            contentStream.setFont(font, 18);
+            contentStream.newLineAtOffset(startX, startY);
             contentStream.showText(title);
             contentStream.endText();
         }
+        return startY - 30 - titleHeight;
+    }
 
-        // Adjust yStartNewPage to account for title space
-        yStartNewPage -= 30 + titleHeight; // Adjust based on the size of the title and desired spacing
+    private BaseTable initializeTable(PDDocument doc, PDPage page, float startY) throws IOException {
+        return new BaseTable(startY, startY, MARGIN, page.getMediaBox().getWidth() - 2 * MARGIN, MARGIN, doc, page, true, true);
+    }
 
-        // Initialize table below the title
-        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
-        boolean drawContent = true;
-        float bottomMargin = 70;
-        BaseTable table = new BaseTable(yStartNewPage, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
-
+    private void populateUserScheduleTable(BaseTable table, List<ScheduleShortInfoForUser> schedules, PDFont font) throws IOException {
         // Create Header row
         Row<PDPage> headerRow = table.createRow(15f);
         Cell<PDPage> cell = headerRow.createCell(50, "Imię i nazwisko");
-        cell.setFont(fontCalibri);
+        cell.setFont(font);
         cell.setFontSize(12);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
 
         cell = headerRow.createCell(50, "Zadanie");
-        cell.setFont(fontCalibri);
+        cell.setFont(font);
         cell.setFontSize(12);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
@@ -93,74 +126,29 @@ public class PdfService {
 
             Row<PDPage> row = table.createRow(12f);
             cell = row.createCell(50, fullName);
-            cell.setFont(fontCalibri);
+            cell.setFont(font);
             cell.setFontSize(12);
 
             cell = row.createCell(50, String.join(", ", schedule.tasksInfoStrings()));
-            cell.setFont(fontCalibri);
+            cell.setFont(font);
             cell.setFontSize(12);
         }
 
         table.draw();
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        doc.save(byteArrayOutputStream);
-        doc.close();
-        return byteArrayOutputStream.toByteArray();
     }
 
-    public byte[] generateSchedulePdfForTasksBySupervisorRole(String roleName, LocalDate from, LocalDate to) throws IOException {
-        if (!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Dates must start on Monday and end on Sunday");
-        }
-
-        List<ScheduleShortInfoForTask> schedules = scheduleService.getScheduleShortInfoForTaskByRoleForSpecifiedWeek(roleName, from, to);
-
-        // Set margins
-        float margin = 30;
-
-        // Initialize Document
-        PDDocument doc = new PDDocument();
-        PDFont fontCalibri = PDType0Font.load(doc, new File("c:/windows/fonts/calibri.ttf"));
-        PDPage page = addNewPage(doc);
-        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
-
-        // Calculate title width to center
-        String title = "Harmonogram od " + from.toString() + " do " + to.toString();
-        float titleWidth = fontCalibri.getStringWidth(title) / 1000 * 18; // 18 is the font size
-        float titleHeight = fontCalibri.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * 18;
-        float startX = (page.getMediaBox().getWidth() - titleWidth) / 2;
-        float startY = yStartNewPage + margin - 20 - titleHeight;
-
-        // Adding centered title
-        try (PDPageContentStream contentStream = new PDPageContentStream(doc, page)) {
-            contentStream.beginText();
-            contentStream.setFont(fontCalibri, 18); // Use larger font for title
-            contentStream.newLineAtOffset(startX, startY); // Adjust title position for centering
-            contentStream.showText(title);
-            contentStream.endText();
-        }
-
-        // Adjust yStartNewPage to account for title space
-        yStartNewPage -= 30 + titleHeight; // Adjust based on the size of the title and desired spacing
-
-        // Initialize table below the title
-        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
-        boolean drawContent = true;
-        float bottomMargin = 70;
-        BaseTable table = new BaseTable(yStartNewPage, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
-
+    private void populateTaskScheduleTable(BaseTable table, List<ScheduleShortInfoForTask> schedules, PDFont font) throws IOException {
         // Create Header row
         Row<PDPage> headerRow = table.createRow(15f);
         Cell<PDPage> cell = headerRow.createCell(50, "Zadanie");
-        cell.setFont(fontCalibri);
+        cell.setFont(font);
         cell.setFontSize(12);
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
 
         cell = headerRow.createCell(50, "Wykonujący");
-        cell.setFont(fontCalibri);
+        cell.setFont(font);
         cell.setFontSize(12);
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setFillColor(Color.BLACK);
@@ -196,7 +184,7 @@ public class PdfService {
             Cell<PDPage> taskCell = taskRow.createCell(50, text);
             taskCell.setFillColor(Color.LIGHT_GRAY);
             taskCell.setAlign(HorizontalAlignment.CENTER);
-            taskCell.setFont(fontCalibri);
+            taskCell.setFont(font);
             taskCell.setFontSize(12);
             taskCell.setTopBorderStyle(new LineStyle(Color.LIGHT_GRAY, 0));
             taskCell.setBottomBorderStyle(new LineStyle(Color.LIGHT_GRAY, 0));
@@ -204,7 +192,7 @@ public class PdfService {
             //Add one row for each user
             for (int i = 0; i < schedule.usersInfoStrings().size(); i++) {
                 Cell<PDPage> userCell = taskRow.createCell(50, schedule.usersInfoStrings().get(i));
-                userCell.setFont(fontCalibri);
+                userCell.setFont(font);
                 userCell.setFontSize(12);
 
                 if (i+1 < schedule.usersInfoStrings().size()) {
@@ -214,7 +202,7 @@ public class PdfService {
                         text = taskName;
                     }
                     Cell<PDPage> emptyTaskCell = newUserRow.createCell(50, text);
-                    emptyTaskCell.setFont(fontCalibri);
+                    emptyTaskCell.setFont(font);
                     emptyTaskCell.setFontSize(12);
                     emptyTaskCell.setFillColor(Color.LIGHT_GRAY);
                     emptyTaskCell.setAlign(HorizontalAlignment.CENTER);
@@ -230,19 +218,16 @@ public class PdfService {
         }
 
         table.draw();
+    }
 
+    private byte[] finalizeDocument(PDDocument doc) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         doc.save(byteArrayOutputStream);
         doc.close();
         return byteArrayOutputStream.toByteArray();
     }
 
-
-
-    private static PDPage addNewPage(PDDocument doc) {
-        PDPage page = new PDPage();
-        doc.addPage(page);
-        return page;
+    private PDFont getFont(PDDocument pdDocument) throws IOException {
+        return PDType0Font.load(pdDocument, new File(FONT_PATH));
     }
-
 }
