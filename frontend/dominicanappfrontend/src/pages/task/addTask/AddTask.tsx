@@ -120,7 +120,7 @@ function AddTask() {
             </div>
             {validationError && <div className="alert alert-danger">{validationError}</div>}
             {postError && <div className="alert alert-danger">{postError}</div>}
-            <div className="edit-entity-container">
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 <TaskFormFields
                     taskData={taskData}
                     handleChange={handleChange}

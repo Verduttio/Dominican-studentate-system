@@ -84,7 +84,7 @@ function AddMyObstacle() {
             <div className="page-header">
                 <h1>Dodaj swoją przeszkodę</h1>
             </div>
-            <div className="edit-entity-container">
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {postError && <div className="alert alert-danger">{postError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <form onSubmit={handleSubmit}>

@@ -54,7 +54,7 @@ function EditRole() {
             <div className="page-header">
                 <h1>Edytuj rolę</h1>
             </div>
-            <div className="edit-entity-container">
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {(fetchError || updateError || deleteError) && <div className="alert alert-danger">{fetchError || updateError || deleteError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>

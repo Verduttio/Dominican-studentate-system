@@ -98,7 +98,7 @@ function VerifyUserPage() {
                 </tbody>
             </table>
             </div>
-                <div className="edit-entity-container">
+                <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                     {requestError && <div className="alert alert-danger">{requestError}</div>}
                     {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}
                     {updateRolesError && <div className="alert alert-danger">{updateRolesError}</div>}
@@ -131,23 +131,23 @@ function VerifyUserPage() {
                     </div>
                     <div className="d-flex justify-content-between">
                         {user.enabled ?
-                            <button className="btn btn-success"
+                            <button className="btn btn-success mx-1"
                                     onClick={handleUpdateRoles}
                                     disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
                             </button>
                             :
-                            <button className="btn btn-success" onClick={handleSubmit}
+                            <button className="btn btn-success mx-1" onClick={handleSubmit}
                                     disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                             </button>
                         }
                         {user.provider === Provider.LOCAL &&
-                            <button className="btn btn-warning" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                            <button className="btn btn-warning mx-1" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
                                 onClick={() => setShowChangePassword(true)}>
                                 Zmień hasło
                             </button>
                         }
                         {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
-                        <button className="btn btn-danger" onClick={handleDelete}
+                        <button className="btn btn-danger mx-1" onClick={handleDelete}
                                 disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                         </button>
                     </div>

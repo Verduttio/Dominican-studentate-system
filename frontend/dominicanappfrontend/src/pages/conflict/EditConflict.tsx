@@ -60,7 +60,7 @@ function EditConflict() {
             <div className="page-header">
                 <h1>Edytuj konflikt</h1>
             </div>
-            <div className="edit-entity-container">
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {(updateError || deleteError) && <div className="alert alert-danger">{updateError || deleteError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} />

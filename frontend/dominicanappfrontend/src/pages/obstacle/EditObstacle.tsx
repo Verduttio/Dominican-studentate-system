@@ -89,7 +89,7 @@ function EditObstacle() {
                     </tbody>
                 </table>
             </div>
-            <div className="edit-entity-container">
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {deleteError && <div className="alert alert-danger">{deleteError}</div>}
                 {obstacle.status === ObstacleStatus.AWAITING ? (
                     <>
