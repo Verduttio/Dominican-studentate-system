@@ -67,91 +67,103 @@ function VerifyUserPage() {
                 {user.enabled ? <h1>Edycja użytkownika</h1> : <h1>Weryfikacja użytkownika</h1>}
             </div>
             <div className="table-responsive d-flex justify-content-center">
-            <table className="table table-hover table-striped table-rounded table-shadow">
-                <thead className="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Imię</th>
-                    <th>Nazwisko</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Provider</th>
-                    <th>Zweryfikowany</th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.name}</td>
-                        <td>{user.surname}</td>
-                        <td>{user.email}</td>
-                        <td className="max-column-width">{user.roles.map(role => role.name).join(', ')}</td>
-                        <td>{user.provider}</td>
-                        <td>
-                            <span className={
-                                user.enabled ? '' : 'highlighted-text-not-verified'}
-                            >
-                            {user.enabled ? "Tak" : "Nie"}
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
-                <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                    {requestError && <div className="alert alert-danger">{requestError}</div>}
-                    {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}
-                    {updateRolesError && <div className="alert alert-danger">{updateRolesError}</div>}
-                    <div className="mb-3">
-                        <label className="form-label">Role funkcyjne:</label>
-                        {rolesSupervisor.map((role) => (
-                            <label className="form-check custom-checkbox">
-                                <input
-                                    className={"form-check-input"}
-                                    type="checkbox"
-                                    checked={selectedRoles.includes(role.name)}
-                                    onChange={(e) => handleRoleChange(role.name, e.target.checked)}
-                                />
-                                {role.name}
-                            </label>
-                        ))}
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Role wykonujące:</label>
-                        {rolesTaskPerformer.map((role) => (
-                            <label className="form-check custom-checkbox">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    checked={selectedRoles.includes(role.name)}
-                                    onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
-                                {role.name}
-                            </label>
-                        ))}
-                    </div>
-                    <div className="d-flex justify-content-between">
-                        {user.enabled ?
-                            <button className="btn btn-success mx-1"
-                                    onClick={handleUpdateRoles}
-                                    disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
-                            </button>
-                            :
-                            <button className="btn btn-success mx-1" onClick={handleSubmit}
-                                    disabled={requestLoading || deleteUserLoading}>Zweryfikuj
-                            </button>
-                        }
-                        {user.provider === Provider.LOCAL &&
-                            <button className="btn btn-warning mx-1" disabled={requestLoading || deleteUserLoading || updateRolesLoading}
-                                onClick={() => setShowChangePassword(true)}>
-                                Zmień hasło
-                            </button>
-                        }
-                        {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
-                        <button className="btn btn-danger mx-1" onClick={handleDelete}
-                                disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
-                        </button>
-                    </div>
+                <div className="table-responsive" style={{maxWidth: '500px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <tbody>
+                        <tr>
+                            <th className="table-dark">Id</th>
+                            <td>{user?.id}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Imię</th>
+                            <td>{user?.name}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Nazwisko</th>
+                            <td>{user?.surname}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Email</th>
+                            <td>{user?.email}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Role</th>
+                            <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Zarejestrowany przez</th>
+                            <td>{user?.provider}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Zweryfikowany</th>
+                            <td>
+                                <span className={
+                                    user.enabled ? '' : 'highlighted-text-not-verified'}
+                                >
+                                    {user.enabled ? "Tak" : "Nie"}
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
+                {requestError && <div className="alert alert-danger">{requestError}</div>}
+                {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}
+                {updateRolesError && <div className="alert alert-danger">{updateRolesError}</div>}
+                <div className="mb-3">
+                    <label className="form-label">Role funkcyjne:</label>
+                    {rolesSupervisor.map((role) => (
+                        <label className="form-check custom-checkbox">
+                            <input
+                                className={"form-check-input"}
+                                type="checkbox"
+                                checked={selectedRoles.includes(role.name)}
+                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}
+                            />
+                            {role.name}
+                        </label>
+                    ))}
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Role wykonujące:</label>
+                    {rolesTaskPerformer.map((role) => (
+                        <label className="form-check custom-checkbox">
+                            <input
+                                className="form-check-input"
+                                type="checkbox"
+                                checked={selectedRoles.includes(role.name)}
+                                onChange={(e) => handleRoleChange(role.name, e.target.checked)}/>
+                            {role.name}
+                        </label>
+                    ))}
+                </div>
+                <div className="d-flex justify-content-between">
+                    {user.enabled ?
+                        <button className="btn btn-success mx-1"
+                                onClick={handleUpdateRoles}
+                                disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
+                        </button>
+                        :
+                        <button className="btn btn-success mx-1" onClick={handleSubmit}
+                                disabled={requestLoading || deleteUserLoading}>Zweryfikuj
+                        </button>
+                    }
+                    {user.provider === Provider.LOCAL &&
+                        <button className="btn btn-warning mx-1"
+                                disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                                onClick={() => setShowChangePassword(true)}>
+                            Zmień hasło
+                        </button>
+                    }
+                    {showChangePassword &&
+                        <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)}/>}
+                    <button className="btn btn-danger mx-1" onClick={handleDelete}
+                            disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
