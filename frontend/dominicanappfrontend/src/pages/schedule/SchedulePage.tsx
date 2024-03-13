@@ -63,7 +63,23 @@ function SchedulePage() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_zadania_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
+            link.setAttribute('download', `Harmonogram_zadan_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
+    function downloadSchedulePdfForTasks() {
+        axios({
+            url: `${backendUrl}/api/schedules/pdf/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            method: 'GET',
+            responseType: 'blob',
+            withCredentials: true
+        }).then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Harmonogram_zadan_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
         });
@@ -205,7 +221,7 @@ function SchedulePage() {
                 </div>
             )}
             <div className="text-center">
-                <button className="btn btn-success mt-2">Pobierz harmonogram według zadań</button>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks}>Pobierz harmonogram według zadań</button>
             </div>
         </div>
     );
