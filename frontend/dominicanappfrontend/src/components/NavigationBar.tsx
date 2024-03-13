@@ -4,7 +4,7 @@ import './NavigationBar.css';
 import LogoutButton from "./LogoutButton";
 import useHttp from '../services/UseHttp';
 import {backendUrl} from "../utils/constants";
-import { faUserPlus, faNoteSticky, faBars} from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faNoteSticky, faBars, faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useIsFunkcyjny from "../services/UseIsFunkcyjny";
 
@@ -55,10 +55,20 @@ const NavigationBar = () => {
                 {numberOfUnverifiedUsers + numberOfAwaitingObstacles > 0 && isFunkcyjny ? (
                     <span className="notification-icon">
                         <FontAwesomeIcon icon={faBars}/>
-                        <span className="notification-count">{numberOfUnverifiedUsers + numberOfAwaitingObstacles}</span>
+                        <span
+                            className="notification-count">{numberOfUnverifiedUsers + numberOfAwaitingObstacles}</span>
                     </span>
                 ) : <span> <FontAwesomeIcon icon={faBars}/></span>}
             </button>
+
+            <button className="bg-success" onClick={() => {
+                navigate(-1)
+            }}>
+                <span>
+                    <FontAwesomeIcon icon={faArrowLeft}/>
+                </span>
+            </button>
+
             <div className={`mobile-menu ${isMenuOpen ? 'active' : 'hidden'}`}>
                 <button onClick={() => navigateTo('/home')}>Home</button>
 
