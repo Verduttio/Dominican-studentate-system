@@ -9,27 +9,13 @@ import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../components/LoadingScreen";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
-function downloadPdf() {
-    axios({
-        url: `${backendUrl}/api/schedules/pdf`,
-        method: 'GET',
-        responseType: 'blob',
-        withCredentials: true
-    }).then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'schedules.pdf');
-        document.body.appendChild(link);
-        link.click();
-    });
-}
 
 function SchedulePage() {
     const [scheduleShortInfo, setScheduleShortInfo] = useState<ScheduleShortInfo[]>([]);
     const [scheduleShortInfoForTasks, setScheduleShortInfoForTasks] = useState<ScheduleShortInfoForTask[]>([]);
     const [scheduleShortInfoForTasksByRoles, setScheduleShortInfoForTasksByRoles] = useState<ScheduleShortInfoForTask[]>([]);
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
+    const [selectedSupervisorRoleName, setSelectedSupervisorRoleName] = useState<string | null>(null);
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
     const { request: fetchScheduleByTasks, error: errorFetchScheduleByTasks, loading: loadingFetchScheduleByTasks} = useHttp(`${backendUrl}/api/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
@@ -44,11 +30,45 @@ function SchedulePage() {
         fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data));
     }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles]);
 
+    function downloadSchedulePdfForUsers() {
+        axios({
+            url: `${backendUrl}/api/schedules/pdf/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            method: 'GET',
+            responseType: 'blob',
+            withCredentials: true
+        }).then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Harmonogram_użytkownicy_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
+    function downloadSchedulePdfForTasksByRole() {
+        axios({
+            url: `${backendUrl}/api/schedules/pdf/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            method: 'GET',
+            responseType: 'blob',
+            withCredentials: true
+        }).then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Harmonogram_zadania_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
             setScheduleShortInfoForTasksByRoles([]);
+            setSelectedSupervisorRoleName(null)
         } else {
+            setSelectedSupervisorRoleName(selectedRoleName);
             fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
                 `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
         }
@@ -96,7 +116,7 @@ function SchedulePage() {
             </div>
 
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadPdf}>Pobierz harmonogram według użytkowników
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}>Pobierz harmonogram według użytkowników
                 </button>
             </div>
 
@@ -142,7 +162,7 @@ function SchedulePage() {
                 </div>
             )}
             <div className="text-center">
-                <button className="btn btn-success mt-2">Pobierz harmonogram według roli</button>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null}>Pobierz harmonogram według roli</button>
             </div>
 
             <div className="d-flex justify-content-center">

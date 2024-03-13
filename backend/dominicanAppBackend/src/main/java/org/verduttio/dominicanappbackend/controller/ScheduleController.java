@@ -38,22 +38,47 @@ public class ScheduleController {
     }
 
     @GetMapping("/pdf/users/scheduleShortInfo/week")
-    public ResponseEntity<byte[]> generateSchedulePdfForUsers(
+    public ResponseEntity<?> generateSchedulePdfForUsers(
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
             byte[] pdfContent = pdfService.generateSchedulePdfForUsers(from, to);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=schedules.pdf");
+            headers.add("Content-Disposition", "attachment; filename=Schedules_users_" + from.toString() + "-" + to.toString() + ".pdf");
 
             return ResponseEntity
                     .ok()
                     .headers(headers)
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/pdf/tasks/byRole/{supervisorRole}/scheduleShortInfo/week")
+    public ResponseEntity<?> generateSchedulePdfForTasksByRole(
+            @PathVariable String supervisorRole,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForTasksBySupervisorRole(supervisorRole, from, to);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Schedules_tasks_" + from.toString() + "-" + to.toString() + ".pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
