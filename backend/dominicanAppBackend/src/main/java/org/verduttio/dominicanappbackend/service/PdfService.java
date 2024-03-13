@@ -192,6 +192,10 @@ public class PdfService {
                 cellForTaskNameNumber -= 1;
             }
 
+            if (schedule.usersInfoStrings().isEmpty()) {
+                cellForTaskNameNumber = 0;
+            }
+
             Row<PDPage> taskRow = table.createRow(12f);
             String text = "";
             if(cellForTaskNameNumber == 0) {
