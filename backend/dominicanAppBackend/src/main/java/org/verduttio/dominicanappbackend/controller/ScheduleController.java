@@ -37,10 +37,12 @@ public class ScheduleController {
         this.pdfService = pdfService;
     }
 
-    @GetMapping("/pdf")
-    public ResponseEntity<byte[]> downloadPdf() {
+    @GetMapping("/pdf/users/scheduleShortInfo/week")
+    public ResponseEntity<byte[]> generateSchedulePdfForUsers(
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
-            byte[] pdfContent = pdfService.generateSchedulePdfForUsers();
+            byte[] pdfContent = pdfService.generateSchedulePdfForUsers(from, to);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Disposition", "attachment; filename=schedules.pdf");
