@@ -91,11 +91,11 @@ function VerifyUserPage() {
                             <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Zarejestrowany przez</th>
+                            <th className="table-dark">Rejestracja</th>
                             <td>{user?.provider}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Zweryfikowany</th>
+                            <th className="table-dark">Weryfikacja</th>
                             <td>
                                 <span className={
                                     user.enabled ? '' : 'highlighted-text-not-verified'}
@@ -141,17 +141,17 @@ function VerifyUserPage() {
                 </div>
                 <div className="d-flex justify-content-between">
                     {user.enabled ?
-                        <button className="btn btn-success mx-1"
+                        <button className="btn btn-success m-1"
                                 onClick={handleUpdateRoles}
                                 disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
                         </button>
                         :
-                        <button className="btn btn-success mx-1" onClick={handleSubmit}
+                        <button className="btn btn-success m-1" onClick={handleSubmit}
                                 disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                         </button>
                     }
                     {user.provider === Provider.LOCAL &&
-                        <button className="btn btn-warning mx-1"
+                        <button className="btn btn-warning m-1"
                                 disabled={requestLoading || deleteUserLoading || updateRolesLoading}
                                 onClick={() => setShowChangePassword(true)}>
                             Zmień hasło
@@ -159,7 +159,7 @@ function VerifyUserPage() {
                     }
                     {showChangePassword &&
                         <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)}/>}
-                    <button className="btn btn-danger mx-1" onClick={handleDelete}
+                    <button className="btn btn-danger m-1" onClick={handleDelete}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>
                 </div>

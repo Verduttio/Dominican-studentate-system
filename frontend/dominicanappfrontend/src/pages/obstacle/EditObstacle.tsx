@@ -51,46 +51,60 @@ function EditObstacle() {
             <div className="page-header">
                 <h1>Modyfikuj przeszkodę</h1>
             </div>
-            <div>
-                <table className="table table-hover table-striped table-responsive table-rounded table-shadow">
-                    <thead className="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Proszący</th>
-                        <th>Zadanie</th>
-                        <th>Od</th>
-                        <th>Do</th>
-                        <th>Opis</th>
-                        <th>Status</th>
-                        <th>Funkcyjny</th>
-                        <th>Odpowiedź funkcyjnego</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr key={obstacle.id}>
+            <div className="table-responsive d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '500px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <tbody>
+                        <tr>
+                            <th className="table-dark">Id</th>
                             <td>{obstacle.id}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Proszący</th>
                             <td>{obstacle.user.name} {obstacle.user.surname}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Zadanie</th>
                             <td>{obstacle.tasks.map(task => task.name).join(", ")}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Od</th>
                             <td>{obstacle.fromDate}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Do</th>
                             <td>{obstacle.toDate}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Opis</th>
                             <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Status</th>
                             <td>
-                            <span className={
-                                obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
-                                obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
-                                obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
-                            }>
-                            {obstacle.status}
-                          </span>
+                                <span className={
+                                    obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                        obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                            obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                                }>
+                                {obstacle.status}
+                              </span>
                             </td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Funkcyjny</th>
                             <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Odpowiedź funkcyjnego</th>
                             <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
             </div>
-            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {deleteError && <div className="alert alert-danger">{deleteError}</div>}
+        </div>
+    <div className="edit-entity-container mw-100" style={{width: '400px'}}>
+        {deleteError && <div className="alert alert-danger">{deleteError}</div>}
                 {obstacle.status === ObstacleStatus.AWAITING ? (
                     <>
                         {patchError && <div className="alert alert-danger">{patchError}</div>}
