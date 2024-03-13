@@ -67,6 +67,22 @@ public class PdfService {
         }
     }
 
+    public byte[] generateSchedulePdfForTasks(LocalDate from, LocalDate to) throws IOException {
+        validateDateRange(from, to);
+        List<ScheduleShortInfoForTask> schedules = scheduleService.getScheduleShortInfoForEachTaskForSpecifiedWeek(from, to);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPage(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateTaskScheduleTable(table, schedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (!DateValidator.dateStartsMondayEndsSunday(from, to)) {
             throw new IllegalArgumentException("Dates must start on Monday and end on Sunday");
