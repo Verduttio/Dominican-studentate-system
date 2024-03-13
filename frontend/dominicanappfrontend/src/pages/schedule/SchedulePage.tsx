@@ -30,6 +30,13 @@ function SchedulePage() {
         fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data));
     }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles]);
 
+    useEffect(() => {
+        if (selectedSupervisorRoleName) {
+            fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
+                `${backendUrl}/api/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`, 'GET');
+        }
+    }, [fetchScheduleByTasksByRoles, selectedSupervisorRoleName, currentWeek]);
+
     function downloadSchedulePdfForUsers() {
         axios({
             url: `${backendUrl}/api/schedules/pdf/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
