@@ -120,9 +120,9 @@ function EditObstacle() {
                             />
                         </div>
                         <div className="d-flex justify-content-between">
-                            <button className="btn btn-success" onClick={approveObstacle} disabled={loading}>Zatwierdź</button>
-                            <button className="btn btn-warning" onClick={rejectObstacle} disabled={loading}>Odrzuć</button>
-                            <button className="btn btn-danger" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
+                            <button className="btn btn-success m-1" onClick={approveObstacle} disabled={loading}>Zatwierdź</button>
+                            <button className="btn btn-warning m-1" onClick={rejectObstacle} disabled={loading}>Odrzuć</button>
+                            <button className="btn btn-danger m-1" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
                         </div>
                     </>
                 ) : (

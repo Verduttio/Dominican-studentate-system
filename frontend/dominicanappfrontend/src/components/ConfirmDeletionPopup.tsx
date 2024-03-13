@@ -15,8 +15,8 @@ const ConfirmDeletionPopup: React.FC<ConfirmDeletionPopupProps> = ({ onHandle, o
                         <h5>Czy na pewno chcesz dokonać usunięcia?</h5>
                     </div>
                     <div className="modal-footer d-flex justify-content-between">
-                        <button className="btn btn-secondary" onClick={onClose}>Anuluj</button>
-                        <button className="btn btn-danger" onClick={onHandle}>Tak</button>
+                        <button className="btn btn-secondary m-1" onClick={onClose}>Anuluj</button>
+                        <button className="btn btn-danger m-1" onClick={onHandle}>Tak</button>
                     </div>
                 </div>
             </div>

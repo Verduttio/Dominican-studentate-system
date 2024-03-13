@@ -19,8 +19,8 @@ const ConfirmAssignmentPopup: React.FC<ConfirmAssignmentPopupProps> = ({ onHandl
                         <p>{text}</p>
                     </div>
                     <div className="modal-footer d-flex justify-content-between">
-                        <button className="btn btn-secondary" onClick={onClose}>Anuluj</button>
-                        <button className="btn btn-danger" onClick={onHandle}>Wyznacz</button>
+                        <button className="btn btn-secondary m-1" onClick={onClose}>Anuluj</button>
+                        <button className="btn btn-danger m-1" onClick={onHandle}>Wyznacz</button>
                     </div>
                 </div>
             </div>

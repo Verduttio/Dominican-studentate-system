@@ -88,7 +88,7 @@ const ChangePasswordPopup: React.FC<ChangePasswordCardProps> = ({ userId, onClos
                             <div className="d-flex justify-content-between">
                                 <button
                                     type="button"
-                                    className="btn btn-secondary"
+                                    className="btn btn-secondary m-1"
                                     onClick={onClose}
                                     disabled={loadingChangePassword}
                                 >
@@ -96,7 +96,7 @@ const ChangePasswordPopup: React.FC<ChangePasswordCardProps> = ({ userId, onClos
                                 </button>
                                 <button
                                     type="submit"
-                                    className="btn btn-danger"
+                                    className="btn btn-danger m-1"
                                     onClick={e => handleSubmit}
                                     disabled={loadingChangePassword}
                                 >

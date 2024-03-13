@@ -158,8 +158,8 @@ function EditTask() {
                     rolesSupervisor={rolesSupervisor}
                 />
                 <div className="d-flex justify-content-between">
-                    <button className="btn btn-success" onClick={handleSubmit}>Uaktualnij</button>
-                    <button className="btn btn-danger" onClick={() => setShowConfirmationPopup(true)}>Usuń zadanie</button>
+                    <button className="btn btn-success m-1" onClick={handleSubmit}>Uaktualnij</button>
+                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)}>Usuń zadanie</button>
                     {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
             </div>
