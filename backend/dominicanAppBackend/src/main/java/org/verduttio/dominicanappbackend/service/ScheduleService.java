@@ -689,7 +689,7 @@ public class ScheduleService {
             long occurrencesInLast90Days = taskOccurrencesInLast90Days.getOrDefault(task, 0L);
             long occurrencesInLast365Days = taskOccurrencesInLast365Days.getOrDefault(task, 0L);
             long occurrencesInAllTime = taskOccurrencesInAllTime.get(task);
-            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), lastAssignmentDate, occurrencesInLast30Days, occurrencesInLast90Days, occurrencesInLast365Days, occurrencesInAllTime));
+            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesInLast30Days, occurrencesInLast90Days, occurrencesInLast365Days, occurrencesInAllTime));
         }
 
         return userTaskStatistics;

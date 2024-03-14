@@ -16,6 +16,8 @@ public class Task {
 
     private String name;
 
+    private String nameAbbrev;
+
     private int participantsLimit;
 
     private boolean archived;
@@ -58,6 +60,14 @@ public class Task {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNameAbbrev() {
+        return nameAbbrev;
+    }
+
+    public void setNameAbbrev(String nameAbbrev) {
+        this.nameAbbrev = nameAbbrev;
     }
 
     public int getParticipantsLimit() {
@@ -114,10 +124,11 @@ public class Task {
     public Task() {
     }
 
-    public Task(String name, int participantsLimit, boolean archived,
+    public Task(String name, String nameAbbrev, int participantsLimit, boolean archived,
                 boolean participantForWholePeriod, Set<Role> allowedRoles,
                 Role supervisorRole, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
+        this.nameAbbrev = nameAbbrev;
         this.participantsLimit = participantsLimit;
         this.archived = archived;
         this.participantForWholePeriod = participantForWholePeriod;

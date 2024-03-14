@@ -98,6 +98,7 @@ public class TaskService {
         Task task = existingTask.get();
 
         task.setName(updatedTaskDTO.getName());
+        task.setNameAbbrev(updatedTaskDTO.getNameAbbrev());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
         task.setArchived(updatedTaskDTO.isArchived());
         task.setParticipantForWholePeriod(updatedTaskDTO.isParticipantForWholePeriod());
