@@ -7,6 +7,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import ConflictFormFields from './ConflictFormFields';
 import "../../components/AddEditForm.css";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import AlertBox from "../../components/AlertBox";
 
 interface FormData {
     task1Id: number;
@@ -19,8 +20,8 @@ function EditConflict() {
     const [formData, setFormData] = useState<FormData>({ task1Id: 0, task2Id: 0, daysOfWeek: [] });
     const { conflictId } = useParams<{ conflictId: string }>();
     const navigate = useNavigate();
-    const { request: fetchTasks, loading: loadingTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
-    const { request: fetchConflict, loading: loadingConflict } = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'GET');
+    const { request: fetchTasks, loading: loadingTasks, error: fetchTasksError } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
+    const { request: fetchConflict, loading: loadingConflict, error: fetchConflictError } = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'GET');
     const { request: updateConflict, error: updateError, loading: updateLoading } = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'PUT');
     const { request: deleteConflict, error: deleteError , loading: deleteLoading} = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'DELETE');
     const [validationError, setValidationError] = useState<string>('');
@@ -61,7 +62,8 @@ function EditConflict() {
         setFormData({ ...formData, [e.target.name]: parseInt(e.target.value) });
     };
 
-    if (loadingTasks || loadingConflict || !tasks) return <LoadingSpinner />;
+    if (loadingTasks || loadingConflict) return <LoadingSpinner />;
+    if (fetchTasksError || fetchConflictError) return <AlertBox text={fetchTasksError || fetchConflictError} type={'danger'} width={'500px'}/>
 
     return (
         <div className="fade-in">
@@ -69,7 +71,7 @@ function EditConflict() {
                 <h1>Edytuj konflikt</h1>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {(updateError || deleteError) && <div className="alert alert-danger">{updateError || deleteError}</div>}
+                {(updateError || deleteError) && <AlertBox text={deleteError || updateError} type={'danger'} width={'500px'}/>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} onChangeDays={onChangeDays}/>
                 <div className="d-flex justify-content-between">

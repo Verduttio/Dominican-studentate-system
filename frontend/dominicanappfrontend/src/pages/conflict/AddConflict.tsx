@@ -6,6 +6,7 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/AddEditForm.css';
 import ConflictFormFields from "./ConflictFormFields";
+import AlertBox from "../../components/AlertBox";
 
 
 interface FormData {
@@ -59,7 +60,7 @@ function AddConflict() {
     };
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">
@@ -67,8 +68,8 @@ function AddConflict() {
                 <h1>Dodaj konflikt</h1>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {postRequest.error && <div className="alert alert-danger">{postRequest.error}</div>}
-                {submitError && <div className="alert alert-danger">{submitError}</div>}
+                {postRequest.error && <AlertBox text={postRequest.error} type={'danger'} width={'500px'}/>}
+                {submitError && <AlertBox text={submitError} type={'danger'} width={'500px'}/>}
                 <ConflictFormFields
                     tasks={tasks}
                     formData={formData}
@@ -76,7 +77,7 @@ function AddConflict() {
                     onChangeDays={onChangeDays}
                 />
                 <div className="d-flex justify-content-center">
-                    <button className="btn btn-success" onClick={handleSubmit}>Dodaj</button>
+                    <button className="btn btn-success" disabled={postRequest.loading} onClick={handleSubmit}>Dodaj</button>
                 </div>
             </div>
         </div>

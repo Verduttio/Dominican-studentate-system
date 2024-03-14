@@ -5,6 +5,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import AlertBox from "../../components/AlertBox";
 
 
 function ConflictsPage() {
@@ -21,7 +22,7 @@ function ConflictsPage() {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">
@@ -31,7 +32,7 @@ function ConflictsPage() {
                 </div>
             </div>
             <div className="d-flex justify-content-center">
-                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+                {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
