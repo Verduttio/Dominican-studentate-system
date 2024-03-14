@@ -25,18 +25,22 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                 onSuccess(response.data);
             }
         } catch (err : any) {
-            if (err.response.status === 403 ) {
-                setError("Nie posiadasz praw dostępu do tych danych");
-            } else if (err.response && err.response.status === 401 && !skipRedirect) {
-                setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
-                setTimeout(() => {
-                    navigate('/login');
-                }, 3000); // in ms
+            if(err.response === undefined) {
+                setError("Wystąpił błąd: " + err);
             } else {
-                if(err.response && err.response.data) {
-                    setError("Wystąpił błąd: " + err.response.data);
+                if (err.response.status === 403 ) {
+                    setError("Nie posiadasz praw dostępu do tych danych");
+                } else if (err.response && err.response.status === 401 && !skipRedirect) {
+                    setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 3000); // in ms
                 } else {
-                    setError("Wystąpił błąd: " + err.response);
+                    if(err.response && err.response.data) {
+                        setError("Wystąpił błąd: " + err.response.data);
+                    } else {
+                        setError("Wystąpił błąd: " + err.response);
+                    }
                 }
             }
         } finally {
