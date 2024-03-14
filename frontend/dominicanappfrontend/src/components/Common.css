@@ -68,6 +68,11 @@
     word-wrap: break-word;
 }
 
+.max-column-width-300{
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
 .custom-checkbox .form-check-input {
     border-color: rgba(0, 0, 0, 0.45);
     border-width: 2px;
