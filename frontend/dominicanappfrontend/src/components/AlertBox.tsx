@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface AlertBoxProps {
-    text: string;
+    text: string | null;
     type: 'info' | 'danger' | 'success';
     width: string;
 }

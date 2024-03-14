@@ -6,6 +6,7 @@ import {Provider, User} from "../../models/Interfaces";
 import ChangePasswordPopup from "./ChangePasswordPopup";
 import CurrentUserObstaclesTable from "./CurrentUserObstaclesTable";
 import {useNavigate} from "react-router-dom";
+import AlertBox from "../../components/AlertBox";
 
 function UserProfilePage () {
     const [user, setUser] = useState<User | null>(null);
@@ -19,7 +20,7 @@ function UserProfilePage () {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

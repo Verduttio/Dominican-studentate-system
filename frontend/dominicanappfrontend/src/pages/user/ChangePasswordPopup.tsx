@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import "../../components/Popup.css";
+import AlertBox from "../../components/AlertBox";
 
 interface ChangePasswordCardProps {
     userId: number;
@@ -43,9 +44,9 @@ const ChangePasswordPopup: React.FC<ChangePasswordCardProps> = ({ userId, onClos
             <div className="card custom-modal">
                 <div className="card-body">
                     <div className="card-title">
-                        {passwordSuccessfullyChanged && <div className="alert alert-success text-center">Hasło zostało zmienione</div>}
-                        {validationError && <div className="alert alert-danger">{validationError}</div>}
-                        {errorChangePassword && <div className="alert alert-danger">{errorChangePassword}</div>}
+                        {passwordSuccessfullyChanged && <AlertBox text={"Hasło zostało zmienione"} type="success" width={'500px'} />}
+                        {validationError && <AlertBox text={validationError} type="danger" width={'500px'} />}
+                        {errorChangePassword && <AlertBox text={errorChangePassword} type="danger" width={'500px'} />}
                     </div>
                     {passwordSuccessfullyChanged ? (
                         <div className="d-flex justify-content-center">

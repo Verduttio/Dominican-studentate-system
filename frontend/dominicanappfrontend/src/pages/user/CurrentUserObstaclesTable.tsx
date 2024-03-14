@@ -4,6 +4,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import AlertBox from "../../components/AlertBox";
 
 
 function CurrentUserObstaclesTable () {
@@ -26,8 +27,8 @@ function CurrentUserObstaclesTable () {
     }
 
     if (userObstaclesLoading) return <LoadingSpinner/>;
-    if (userObstacles.length === 0) return <div className="alert alert-info text-center">Brak przeszkód</div>;
-    if (userObstaclesError) return <div className="alert alert-danger">{userObstaclesError}</div>;
+    if (userObstacles.length === 0) return <AlertBox text={"Brak przeszkód"} type="info" width={'500px'} />;
+    if (userObstaclesError) return <AlertBox text={userObstaclesError} type="danger" width={'500px'} />;
 
     return (
         <div className="table-responsive d-flex justify-content-center">

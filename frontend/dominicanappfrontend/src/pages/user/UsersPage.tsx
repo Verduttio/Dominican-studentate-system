@@ -6,6 +6,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import "./UsersPage.css";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import AlertBox from "../../components/AlertBox";
 
 
 function UsersPage () {
@@ -22,14 +23,14 @@ function UsersPage () {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
                 <h1 className="entity-header">Użytkownicy</h1>
             </div>
-            {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+            {locationStateMessage && <AlertBox text={locationStateMessage} type="info" width={'500px'} />}
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">

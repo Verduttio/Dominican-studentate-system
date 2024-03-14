@@ -5,6 +5,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ChangePasswordPopup from "./ChangePasswordPopup";
+import AlertBox from "../../components/AlertBox";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -59,7 +60,7 @@ function VerifyUserPage() {
     }
 
     if(loadingSupervisorRoles || loadingTaskPerformerRoles || !user) return <LoadingSpinner/>;
-    if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser) return <div className="alert alert-danger">{errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser}</div>;
+    if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
@@ -109,9 +110,9 @@ function VerifyUserPage() {
                 </div>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {requestError && <div className="alert alert-danger">{requestError}</div>}
-                {deleteUserError && <div className="alert alert-danger">{deleteUserError}</div>}
-                {updateRolesError && <div className="alert alert-danger">{updateRolesError}</div>}
+                {requestError && <AlertBox text={requestError} type="danger" width={'500px'} />}
+                {deleteUserError && <AlertBox text={deleteUserError} type="danger" width={'500px'} />}
+                {updateRolesError && <AlertBox text={updateRolesError} type="danger" width={'500px'} />}
                 <div className="mb-3">
                     <label className="form-label">Role funkcyjne:</label>
                     {rolesSupervisor.map((role) => (

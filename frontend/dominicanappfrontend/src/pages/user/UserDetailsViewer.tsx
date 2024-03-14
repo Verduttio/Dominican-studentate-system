@@ -6,6 +6,7 @@ import {User} from "../../models/Interfaces";
 import {useParams} from "react-router-dom";
 import UserWeekSchedule from "./UserWeekSchedule";
 import UserTasksStatistics from "./UserTasksStatistics";
+import AlertBox from "../../components/AlertBox";
 
 function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
@@ -18,7 +19,7 @@ function UserDetailsViewer () {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
