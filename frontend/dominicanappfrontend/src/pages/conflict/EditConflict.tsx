@@ -11,11 +11,12 @@ import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 interface FormData {
     task1Id: number;
     task2Id: number;
+    daysOfWeek: string[];
 }
 
 function EditConflict() {
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
-    const [formData, setFormData] = useState<FormData>({ task1Id: 0, task2Id: 0 });
+    const [formData, setFormData] = useState<FormData>({ task1Id: 0, task2Id: 0, daysOfWeek: [] });
     const { conflictId } = useParams<{ conflictId: string }>();
     const navigate = useNavigate();
     const { request: fetchTasks, loading: loadingTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
@@ -28,7 +29,7 @@ function EditConflict() {
     useEffect(() => {
         fetchTasks(null, setTasks);
         if (conflictId) {
-            fetchConflict(null, (data: Conflict) => setFormData({ task1Id: data.task1.id, task2Id: data.task2.id }));
+            fetchConflict(null, (data: Conflict) => setFormData({ task1Id: data.task1.id, task2Id: data.task2.id, daysOfWeek: data.daysOfWeek}));
         }
     }, [conflictId, fetchTasks, fetchConflict]);
 
@@ -49,6 +50,13 @@ function EditConflict() {
         }
     };
 
+    const onChangeDays = (dayEnglish: string, checked: boolean) => {
+        const updatedDays = checked
+            ? [...formData.daysOfWeek, dayEnglish]
+            : formData.daysOfWeek.filter(day => day !== dayEnglish);
+        setFormData({ ...formData, daysOfWeek: updatedDays });
+    };
+
     const onChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: parseInt(e.target.value) });
     };
@@ -63,7 +71,7 @@ function EditConflict() {
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {(updateError || deleteError) && <div className="alert alert-danger">{updateError || deleteError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
-                <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} />
+                <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} onChangeDays={onChangeDays}/>
                 <div className="d-flex justify-content-between">
                     <button onClick={handleSubmit} className="btn btn-success m-1" disabled={deleteLoading || updateLoading}>Zaktualizuj</button>
                     <button onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger m-1" disabled={deleteLoading || updateLoading}>Usuń</button>

@@ -42,6 +42,7 @@ interface Conflict {
     id: number;
     task1: Task;
     task2: Task;
+    daysOfWeek: string[];
 }
 
 interface Schedule {

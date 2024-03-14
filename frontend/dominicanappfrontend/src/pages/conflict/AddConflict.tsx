@@ -11,13 +11,15 @@ import ConflictFormFields from "./ConflictFormFields";
 interface FormData {
     task1Id: number;
     task2Id: number;
+    daysOfWeek: string[];
 }
 
 function AddConflict() {
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
     const [formData, setFormData] = useState<FormData>({
         task1Id: 0,
-        task2Id: 0
+        task2Id: 0,
+        daysOfWeek: []
     });
     const { task1Id, task2Id } = formData;
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
@@ -49,6 +51,13 @@ function AddConflict() {
         setSubmitError('');
     };
 
+    const onChangeDays = (dayEnglish: string, checked: boolean) => {
+        const updatedDays = checked
+            ? [...formData.daysOfWeek, dayEnglish]
+            : formData.daysOfWeek.filter(day => day !== dayEnglish);
+        setFormData({ ...formData, daysOfWeek: updatedDays });
+    };
+
     if (loading) return <LoadingSpinner/>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
@@ -64,6 +73,7 @@ function AddConflict() {
                     tasks={tasks}
                     formData={formData}
                     onChange={onChange}
+                    onChangeDays={onChangeDays}
                 />
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-success" onClick={handleSubmit}>Dodaj</button>

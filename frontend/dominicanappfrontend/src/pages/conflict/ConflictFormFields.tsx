@@ -1,17 +1,20 @@
 import React from 'react';
 import { TaskShortInfo } from "../../models/Interfaces";
+import {DaysOfWeekCheckboxList} from "../task/addTask/DaysOfWeekCheckboxList";
 
 interface ConflictFormFieldsProps {
     tasks: TaskShortInfo[];
     formData: {
         task1Id: number;
         task2Id: number;
+        daysOfWeek: string[];
     };
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    onChangeDays: (dayEnglish: string, checked: boolean) => void;
 }
 
-const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData, onChange }) => {
-    const { task1Id, task2Id } = formData;
+const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData, onChange, onChangeDays }) => {
+    const { task1Id, task2Id, daysOfWeek} = formData;
 
     return (
         <>
@@ -40,6 +43,10 @@ const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData
                     <option value="">Wybierz zadanie 2</option>
                     {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
                 </select>
+            </div>
+            <div className="mb-3">
+                <label className="form-label">Konflikt w:</label>
+                <DaysOfWeekCheckboxList selectedDays={daysOfWeek} onDayChange={onChangeDays}/>
             </div>
         </>
     );
