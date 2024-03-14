@@ -29,9 +29,9 @@ function UserProfilePage () {
             </div>
             {user && (
                 <>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="card shadow-sm">
+                    <div className="row d-flex align-items-center">
+                        <div className="col-md-6 mw-100" style={{width: '400px'}}>
+                            <div className="card shadow-sm m-1">
                                 <div className="card-top-bar"></div>
                                 <div className="card-body">
                                     <div><strong>Imię:</strong> {user.name}</div>
@@ -53,8 +53,8 @@ function UserProfilePage () {
                             </div>
                             {showChangePassword && <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)} />}
                         </div>
-                        <div className="col-md-6">
-                            <div className="card shadow-sm">
+                        <div className="col-md-6 mw-100" style={{width: '400px'}}>
+                            <div className="card shadow-sm m-1">
                                 <div className="card-top-bar"></div>
                                 <div className="card-body">
                                     <ul>
