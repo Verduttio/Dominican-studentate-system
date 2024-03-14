@@ -23,7 +23,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -62,9 +61,9 @@ public class ScheduleServiceTest {
         Role supervisorRole = new Role("SupervisorRoleName", RoleType.SUPERVISOR);
         roleRepository.save(supervisorRole);
 
-        Task task1 = new Task("Task 1", 2, true, false, null, Set.of(supervisorRole), EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY));
-        Task task2 = new Task("Task 2", 3, false, true, null, Set.of(supervisorRole), EnumSet.allOf(DayOfWeek.class));
-        Task task3 = new Task("Task 3", 1, true, false, null, Set.of(supervisorRole), EnumSet.of(DayOfWeek.FRIDAY));
+        Task task1 = new Task("Task 1", "1", 2, true, false, null, supervisorRole, EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY));
+        Task task2 = new Task("Task 2", "1",3, false, true, null, supervisorRole, EnumSet.allOf(DayOfWeek.class));
+        Task task3 = new Task("Task 3", "1",1, true, false, null, supervisorRole, EnumSet.of(DayOfWeek.FRIDAY));
         task1 = taskRepository.save(task1);
         task2 = taskRepository.save(task2);
         task3 = taskRepository.save(task3);

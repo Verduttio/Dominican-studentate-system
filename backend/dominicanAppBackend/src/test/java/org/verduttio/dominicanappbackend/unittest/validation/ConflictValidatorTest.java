@@ -51,7 +51,7 @@ public class ConflictValidatorTest {
         when(taskRepository.existsById(1L)).thenReturn(false);
 
         // Act & Assert
-        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFieldsOnAdd(conflict));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ConflictValidatorTest {
         when(taskRepository.existsById(2L)).thenReturn(false);
 
         // Act & Assert
-        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> conflictValidator.validateConflictFieldsOnAdd(conflict));
     }
 
     @Test
@@ -72,6 +72,6 @@ public class ConflictValidatorTest {
         when(conflictRepository.existsByTaskIds(1L, 2L)).thenReturn(true);
 
         // Act & Assert
-        Assertions.assertThrows(EntityAlreadyExistsException.class, () -> conflictValidator.validateConflictFields(conflict));
+        Assertions.assertThrows(EntityAlreadyExistsException.class, () -> conflictValidator.validateConflictFieldsOnAdd(conflict));
     }
 }

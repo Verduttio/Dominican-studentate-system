@@ -22,11 +22,11 @@ public class ScheduleServiceTest {
 
     @Test
     void makeUsersTasksInWeekInfoString_mixOfAllAndPartAssignTasks() {
-        Task task1 = new Task("Washing", 3, true, true, null, null,
+        Task task1 = new Task("Washing", "1",3, true, true, null, null,
                 Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
-        Task task2 = new Task("Cooking", 2, true, true, null, null,
+        Task task2 = new Task("Cooking", "1",2, true, true, null, null,
                 Set.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY));
-        Task task3 = new Task("Drying", 2, true, true, null, null,
+        Task task3 = new Task("Drying", "1",2, true, true, null, null,
                 Set.of(DayOfWeek.THURSDAY, DayOfWeek.SATURDAY));
 
         Schedule schedule1 = new Schedule();

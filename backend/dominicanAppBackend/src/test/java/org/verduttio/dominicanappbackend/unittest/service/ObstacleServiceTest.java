@@ -16,6 +16,7 @@ import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -44,9 +45,9 @@ class ObstacleServiceTest {
         LocalDate toDate = LocalDate.of(2024, 6, 23);
         LocalDate testDate = LocalDate.of(2024, 5, 18);
 
-        Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
-        Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
-        Obstacle obstacle3 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
+        Obstacle obstacle1 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
+        Obstacle obstacle2 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
+        Obstacle obstacle3 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
 
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2, obstacle3);
 
@@ -74,8 +75,8 @@ class ObstacleServiceTest {
         LocalDate toDate = LocalDate.of(2024, 6, 23);
         LocalDate testDate = LocalDate.of(2024, 5, 18);
 
-        Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
-        Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
+        Obstacle obstacle1 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.AWAITING, "Answer", user);
+        Obstacle obstacle2 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
 
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2);
 
@@ -101,8 +102,8 @@ class ObstacleServiceTest {
         LocalDate toDate = LocalDate.of(2024, 6, 23);
         LocalDate testDate = LocalDate.of(2024, 4, 18);
 
-        Obstacle obstacle1 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
-        Obstacle obstacle2 = new Obstacle(user, task, fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
+        Obstacle obstacle1 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.APPROVED, "Answer", user);
+        Obstacle obstacle2 = new Obstacle(user, Set.of(task), fromDate, toDate, "Description", ObstacleStatus.REJECTED, "Answer", user);
 
         List<Obstacle> obstacles = Arrays.asList(obstacle1, obstacle2);
 

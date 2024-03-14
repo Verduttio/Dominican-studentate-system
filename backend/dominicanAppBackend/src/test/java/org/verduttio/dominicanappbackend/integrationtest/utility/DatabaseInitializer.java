@@ -54,7 +54,7 @@ public class DatabaseInitializer {
         obstacle.setToDate(LocalDate.of(2024, 1, 20));
         obstacle.setApplicantDescription("Test Description");
         obstacle.setStatus(ObstacleStatus.APPROVED);
-        obstacle.setTask(task);
+        obstacle.setTasks(Set.of(task));
         obstacle.setUser(user);
         return obstacleRepository.save(obstacle);
     }
@@ -66,38 +66,38 @@ public class DatabaseInitializer {
         return conflictRepository.save(conflict);
     }
 
-    public Task addWashDishesTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
+    public Task addWashDishesTask(Set<Role> allowedRoles, Role supervisorRole) {
         Task task = new Task();
         task.setName("Wash dishes");
         task.setParticipantsLimit(5);
-        task.setPermanent(false);
+        task.setArchived(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
-        task.setSupervisorRoles(supervisorRoles);
+        task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
         return taskRepository.save(task);
     }
 
-    public Task addPrepareMealTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
+    public Task addPrepareMealTask(Set<Role> allowedRoles, Role supervisorRole) {
         Task task = new Task();
         task.setName("Prepare meal");
         task.setParticipantsLimit(15);
-        task.setPermanent(false);
+        task.setArchived(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
-        task.setSupervisorRoles(supervisorRoles);
+        task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY));
         return taskRepository.save(task);
     }
 
-    public Task addDryDishesTask(Set<Role> allowedRoles, Set<Role> supervisorRoles) {
+    public Task addDryDishesTask(Set<Role> allowedRoles, Role supervisorRole) {
         Task task = new Task();
         task.setName("Dry dishes");
         task.setParticipantsLimit(12);
-        task.setPermanent(false);
+        task.setArchived(false);
         task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
-        task.setSupervisorRoles(supervisorRoles);
+        task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY));
         return taskRepository.save(task);
     }

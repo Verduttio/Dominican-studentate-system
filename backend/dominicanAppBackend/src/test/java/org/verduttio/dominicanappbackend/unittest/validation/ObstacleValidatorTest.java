@@ -13,6 +13,8 @@ import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
+import java.util.Set;
+
 @ExtendWith(MockitoExtension.class)
 class ObstacleValidatorTest {
 
@@ -29,10 +31,10 @@ class ObstacleValidatorTest {
     void validateObstacleRequestDTO_WithValidData_ShouldPass() {
         ObstacleRequestDTO dto = new ObstacleRequestDTO();
         dto.setUserId(1L);
-        dto.setTaskId(1L);
+        dto.setTasksIds(Set.of(1L));
 
         Mockito.when(userService.existsById(dto.getUserId())).thenReturn(true);
-        Mockito.when(taskRepository.existsById(dto.getTaskId())).thenReturn(true);
+        Mockito.when(taskRepository.existsById(1L)).thenReturn(true);
 
         Assertions.assertDoesNotThrow(() -> obstacleValidator.validateObstacleRequestDTO(dto));
     }
@@ -41,7 +43,7 @@ class ObstacleValidatorTest {
     void validateObstacleRequestDTO_WithInvalidUserId_ShouldThrowException() {
         ObstacleRequestDTO dto = new ObstacleRequestDTO();
         dto.setUserId(1L);
-        dto.setTaskId(1L);
+        dto.setTasksIds(Set.of(1L));
 
         Mockito.when(userService.existsById(dto.getUserId())).thenReturn(false);
 
