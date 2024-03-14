@@ -7,11 +7,12 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/AddEditForm.css';
 import RoleFormFields from "./RoleFormFields";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import AlertBox from "../../components/AlertBox";
 
 function EditRole() {
     const { roleId } = useParams();
     const navigate = useNavigate();
-    const { request: fetchRole, error: fetchError} = useHttp(`${backendUrl}/api/roles/${roleId}`, 'GET');
+    const { request: fetchRole, error: fetchError, loading: fetchLoading} = useHttp(`${backendUrl}/api/roles/${roleId}`, 'GET');
     const { request: updateRole, error: updateError , loading: updateLoading} = useHttp(`${backendUrl}/api/roles/${roleId}`, 'PUT');
     const { request: deleteRole, error: deleteError, loading: deleteLoading } = useHttp(`${backendUrl}/api/roles/${roleId}`, 'DELETE');
     const [roleData, setRoleData] = useState<Role | null>(null);
@@ -47,7 +48,8 @@ function EditRole() {
         }
     };
 
-    if (!roleData) return <LoadingSpinner/>;
+    if (fetchLoading) return <LoadingSpinner/>;
+    if (fetchError) return <AlertBox text={fetchError} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">
