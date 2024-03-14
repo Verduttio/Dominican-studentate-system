@@ -3,9 +3,7 @@ package org.verduttio.dominicanappbackend.controller;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
@@ -16,9 +14,11 @@ import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.PdfService;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
-import org.verduttio.dominicanappbackend.service.exception.*;
+import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
+import org.verduttio.dominicanappbackend.service.exception.ScheduleIsInConflictException;
 
-import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -29,79 +29,10 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
-    private final PdfService pdfService;
 
     @Autowired
     public ScheduleController(ScheduleService scheduleService, PdfService pdfService) {
         this.scheduleService = scheduleService;
-        this.pdfService = pdfService;
-    }
-
-    @GetMapping("/pdf/users/scheduleShortInfo/week")
-    public ResponseEntity<?> generateSchedulePdfForUsers(
-            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
-            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
-        try {
-            byte[] pdfContent = pdfService.generateSchedulePdfForUsers(from, to);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=Schedules_users_" + from.toString() + "-" + to.toString() + ".pdf");
-
-            return ResponseEntity
-                    .ok()
-                    .headers(headers)
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(pdfContent);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IOException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/pdf/tasks/byRole/{supervisorRole}/scheduleShortInfo/week")
-    public ResponseEntity<?> generateSchedulePdfForTasksByRole(
-            @PathVariable String supervisorRole,
-            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
-            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
-        try {
-            byte[] pdfContent = pdfService.generateSchedulePdfForTasksBySupervisorRole(supervisorRole, from, to);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=Schedules_tasks_by_" + supervisorRole + "_" + from.toString() + "-" + to.toString() + ".pdf");
-
-            return ResponseEntity
-                    .ok()
-                    .headers(headers)
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(pdfContent);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IOException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/pdf/tasks/scheduleShortInfo/week")
-    public ResponseEntity<?> generateSchedulePdfForTasks(
-            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
-            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
-        try {
-            byte[] pdfContent = pdfService.generateSchedulePdfForTasks(from, to);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=Schedules_tasks_" + from.toString() + "-" + to.toString() + ".pdf");
-
-            return ResponseEntity
-                    .ok()
-                    .headers(headers)
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(pdfContent);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IOException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping

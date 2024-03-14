@@ -39,7 +39,7 @@ function SchedulePage() {
 
     function downloadSchedulePdfForUsers() {
         axios({
-            url: `${backendUrl}/api/schedules/pdf/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            url: `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
             responseType: 'blob',
             withCredentials: true
@@ -55,7 +55,7 @@ function SchedulePage() {
 
     function downloadSchedulePdfForTasksByRole() {
         axios({
-            url: `${backendUrl}/api/schedules/pdf/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            url: `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
             responseType: 'blob',
             withCredentials: true
@@ -71,7 +71,7 @@ function SchedulePage() {
 
     function downloadSchedulePdfForTasks() {
         axios({
-            url: `${backendUrl}/api/schedules/pdf/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+            url: `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
             responseType: 'blob',
             withCredentials: true
