@@ -186,7 +186,7 @@ public class ScheduleService {
 
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
-        boolean isConflict = checkIfTaskIsInConflictWithGivenTasks(taskId, userAssignedTasksForWeek);
+        boolean isConflict = checkIfTaskIsInConflictWithOtherTasksFromSchedule(taskId, userSchedulesForWeek);
 
         boolean hasObstacleForTaskOnWeek = checkIfUserHasValidApprovedObstacleForTaskBetweenDate(from, to, userId, taskId);
 
@@ -331,7 +331,7 @@ public class ScheduleService {
 
         validate(checkIfTaskIsInTaskList(userWeekAssignedTasks, task), new EntityAlreadyExistsException("User is already assigned to the task"));
 
-        validate(checkIfTaskIsInConflictWithGivenTasks(addScheduleDTO.getTaskId(), userWeekAssignedTasks) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
+        validate(checkIfTaskIsInConflictWithGivenTasksWeekly(addScheduleDTO.getTaskId(), userWeekAssignedTasks) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
 
     }
 
@@ -366,7 +366,7 @@ public class ScheduleService {
     }
 
     private boolean checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(Task task, List<Schedule> schedules, LocalDate date) {
-        return schedules.stream().anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId()) && s.getDate().equals(date));
+        return schedules.stream().anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), date) && s.getDate().equals(date));
     }
 
     private boolean checkIfUserIsAlreadyAssignedToDailyTask(User user, Task task, LocalDate date) {
@@ -381,7 +381,7 @@ public class ScheduleService {
     public boolean isScheduleInConflictWithOtherSchedules(Schedule schedule) {
         List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(schedule.getUser().getId(), schedule.getDate());
         for(Schedule otherSchedule : schedules) {
-            if(conflictService.tasksAreInConflict(schedule.getTask().getId(), otherSchedule.getTask().getId())) {
+            if(conflictService.tasksAreInConflict(schedule.getTask().getId(), otherSchedule.getTask().getId(), otherSchedule.getDate())) {
                 return true;
             }
         }
@@ -402,14 +402,25 @@ public class ScheduleService {
         }
     }
 
-    public boolean checkIfTaskIsInConflictWithGivenTasks(Long taskId, List<Task> tasks) {
-        return tasks.stream().anyMatch(t -> conflictService.tasksAreInConflict(taskId, t.getId()));
+    public boolean checkIfTaskIsInConflictWithGivenTasksWeekly(Long taskId, List<Task> tasks) {
+        for(Task task : tasks) {
+            for (DayOfWeek taskDayOfWeek : task.getDaysOfWeek()) {
+                if(conflictService.tasksAreInConflict(taskId, task.getId(), taskDayOfWeek)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkIfTaskIsInConflictWithOtherTasksFromSchedule(Long taskId, List<Schedule> schedules) {
+        return !getDaysWhenTaskIsInConflictWithOther(taskId, schedules).isEmpty();
     }
 
     public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules) {
         Set<DayOfWeek> daysWhenTaskIsInConflict = new HashSet<>();
         for(Schedule schedule : schedules) {
-            if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId())) {
+            if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId(), schedule.getDate())) {
                 daysWhenTaskIsInConflict.add(schedule.getDate().getDayOfWeek());
             }
         }

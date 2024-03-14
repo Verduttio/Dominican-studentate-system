@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 
+import java.time.DayOfWeek;
 import java.util.List;
 
 
@@ -25,4 +26,8 @@ public interface ConflictRepository extends JpaRepository<Conflict, Long> {
     @Transactional
     @Query("SELECT c FROM Conflict c WHERE c.task1.id = :taskId OR c.task2.id = :taskId")
     List<Conflict> findAllByTaskId(Long taskId);
+
+    @Transactional
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Conflict c WHERE (c.task1.id = :task1Id AND c.task2.id = :task2Id) OR (c.task1.id = :task2Id AND c.task2.id = :task1Id) AND :dayOfWeek MEMBER OF c.daysOfWeek")
+    boolean existsByTaskIdsAndDayOfWeek(Long task1Id, Long task2Id, DayOfWeek dayOfWeek);
 }

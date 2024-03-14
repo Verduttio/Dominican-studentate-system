@@ -2,6 +2,9 @@ package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
 
+import java.time.DayOfWeek;
+import java.util.Set;
+
 @Entity
 @Table(name = "conflicts")
 public class Conflict {
@@ -17,6 +20,14 @@ public class Conflict {
     @ManyToOne
     @JoinColumn(name = "task2_id")
     private Task task2;
+
+    @ElementCollection(targetClass = DayOfWeek.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name = "conflict_day_of_week",
+            joinColumns = @JoinColumn(name = "conflict_id")
+    )
+    private Set<DayOfWeek> daysOfWeek;
 
 
     // Getters and setters
@@ -44,13 +55,22 @@ public class Conflict {
         this.task2 = task2;
     }
 
+    public Set<DayOfWeek> getDaysOfWeek() {
+        return daysOfWeek;
+    }
+
+    public void setDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
+    }
+
 
     // Constructors
     public Conflict() {
     }
 
-    public Conflict(Task task1, Task task2) {
+    public Conflict(Task task1, Task task2, Set<DayOfWeek> daysOfWeek) {
         this.task1 = task1;
         this.task2 = task2;
+        this.daysOfWeek = daysOfWeek;
     }
 }

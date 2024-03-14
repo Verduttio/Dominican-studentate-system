@@ -22,7 +22,7 @@ public class ConflictValidator {
         this.conflictRepository = conflictRepository;
     }
 
-    public void validateConflictFields(Conflict conflict) {
+    public void validateConflictFieldsOnAdd(Conflict conflict) {
         Long task1Id = conflict.getTask1().getId();
         Long task2Id = conflict.getTask2().getId();
 
@@ -32,6 +32,18 @@ public class ConflictValidator {
         checkTaskExistence(task2Id);
 
         checkConflictWithGivenTaskIdsExists(task1Id, task2Id);
+    }
+
+    public void validateConflictFieldsOnUpdate(Conflict conflict) {
+        Long task1Id = conflict.getTask1().getId();
+        Long task2Id = conflict.getTask2().getId();
+
+        checkDifferentTaskIds(task1Id, task2Id);
+
+        checkTaskExistence(task1Id);
+        checkTaskExistence(task2Id);
+
+        checkIfOtherSameConflictExistsOnUpdate(conflict);
     }
 
     private void checkDifferentTaskIds(Long task1Id, Long task2Id) {
@@ -55,6 +67,21 @@ public class ConflictValidator {
     private void checkConflictWithGivenTaskIdsExists(Long task1Id, Long task2Id) {
         if (conflictRepository.existsByTaskIds(task1Id, task2Id)) {
             throw new EntityAlreadyExistsException("Conflict with given task ids already exist");
+        }
+    }
+
+    private void checkIfOtherSameConflictExistsOnUpdate(Conflict updatedConflict) {
+        Conflict oldConflict = conflictRepository.findById(updatedConflict.getId()).orElseThrow(() -> new EntityNotFoundException("Conflict with id " + updatedConflict.getId() + " not found"));
+        Long oldConflictTask1Id = oldConflict.getTask1().getId();
+        Long oldConflictTask2Id = oldConflict.getTask2().getId();
+
+        Long updatedConflictTask1Id = updatedConflict.getTask1().getId();
+        Long updatedConflictTask2Id = updatedConflict.getTask2().getId();
+
+        if((oldConflictTask1Id.equals(updatedConflictTask1Id) && oldConflictTask2Id.equals(updatedConflictTask2Id))
+        || (oldConflictTask1Id.equals(updatedConflictTask2Id) && oldConflictTask2Id.equals(updatedConflictTask1Id))) {
+        } else {
+            checkConflictWithGivenTaskIdsExists(updatedConflictTask1Id, updatedConflictTask2Id);
         }
     }
 }

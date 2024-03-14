@@ -1,14 +1,20 @@
 package org.verduttio.dominicanappbackend.dto.conflict;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.entity.Task;
+
+import java.time.DayOfWeek;
+import java.util.Set;
 
 public class ConflictDTO {
     @NotNull(message="Task 1 id is mandatory")
     private Long task1Id;
     @NotNull(message="Task 2 id is mandatory")
     private Long task2Id;
+    @NotEmpty(message="Days of week are mandatory")
+    private Set<DayOfWeek> daysOfWeek;
 
     // Getters
     public Long getTask1Id() {
@@ -27,16 +33,25 @@ public class ConflictDTO {
         this.task2Id = task2Id;
     }
 
+    public Set<DayOfWeek> getDaysOfWeek() {
+        return daysOfWeek;
+    }
+
+    public void setDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
+    }
+
     // Constructors
     public ConflictDTO() {
     }
 
-    public ConflictDTO(Long task1Id, Long task2Id) {
+    public ConflictDTO(Long task1Id, Long task2Id, Set<DayOfWeek> daysOfWeek) {
         this.task1Id = task1Id;
         this.task2Id = task2Id;
+        this.daysOfWeek = daysOfWeek;
     }
 
-    public Conflict onlyIdFieldsToConflict() {
+    public Conflict onlyIdFieldsAndDaysToConflict() {
         Conflict conflict = new Conflict();
         Task task1 = new Task();
         Task task2 = new Task();
@@ -46,6 +61,8 @@ public class ConflictDTO {
 
         conflict.setTask1(task1);
         conflict.setTask2(task2);
+
+        conflict.setDaysOfWeek(daysOfWeek);
 
         return conflict;
     }

@@ -7,6 +7,8 @@ import org.verduttio.dominicanappbackend.entity.Conflict;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +34,8 @@ public class ConflictService {
     }
 
     public void saveConflict(ConflictDTO conflictDTO) {
-        Conflict conflict = conflictDTO.onlyIdFieldsToConflict();
-        conflictValidator.validateConflictFields(conflict);
+        Conflict conflict = conflictDTO.onlyIdFieldsAndDaysToConflict();
+        conflictValidator.validateConflictFieldsOnAdd(conflict);
         conflictRepository.save(conflict);
     }
 
@@ -50,10 +52,18 @@ public class ConflictService {
         return conflictRepository.existsByTaskIds(task1Id, task2Id);
     }
 
+    public boolean tasksAreInConflict(Long task1Id, Long task2Id, LocalDate date) {
+        return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, date.getDayOfWeek());
+    }
+    public boolean tasksAreInConflict(Long task1Id, Long task2Id, DayOfWeek dayOfWeek) {
+        return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, dayOfWeek);
+    }
+
+
     public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {
-        Conflict conflict = updatedConflictDTO.onlyIdFieldsToConflict();
+        Conflict conflict = updatedConflictDTO.onlyIdFieldsAndDaysToConflict();
         conflict.setId(conflictId);
-        conflictValidator.validateConflictFields(conflict);
+        conflictValidator.validateConflictFieldsOnUpdate(conflict);
         conflictRepository.save(conflict);
     }
 
