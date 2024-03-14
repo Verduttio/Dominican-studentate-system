@@ -5,12 +5,13 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import AlertBox from "../../components/AlertBox";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
     const navigate = useNavigate();
     const [obstacle, setObstacle] = useState<Obstacle | null>(null);
-    const {request: getRequest, error: getError} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'GET');
+    const {request: getRequest, error: getError, loading: getLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'GET');
     const {request: patchRequest, error: patchError, loading: patchLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'PATCH');
     const {request: deleteRequest, error: deleteError, loading: deleteLoading} = useHttp(`${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
     const {request: getCurrent, error: getCurrentError, loading: getCurrentLoading} = useHttp(`${backendUrl}/api/users/current`, 'GET');
@@ -43,8 +44,8 @@ function EditObstacle() {
         }).then(() => setShowConfirmationPopup(false));
     };
 
-    if (!obstacle) return <LoadingSpinner/>;
-    if (getError || getCurrentError) return <div className="alert alert-danger">{getError || getCurrentError}</div>;
+    if (getLoading) return <LoadingSpinner/>;
+    if (getError || getCurrentError) return <AlertBox text={getError || getCurrentError} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">
@@ -57,57 +58,57 @@ function EditObstacle() {
                         <tbody>
                         <tr>
                             <th className="table-dark">Id</th>
-                            <td>{obstacle.id}</td>
+                            <td>{obstacle?.id}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Proszący</th>
-                            <td>{obstacle.user.name} {obstacle.user.surname}</td>
+                            <td>{obstacle?.user.name} {obstacle?.user.surname}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Zadanie</th>
-                            <td>{obstacle.tasks.map(task => task.name).join(", ")}</td>
+                            <td>{obstacle?.tasks.map(task => task.name).join(", ")}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Od</th>
-                            <td>{obstacle.fromDate}</td>
+                            <td>{obstacle?.fromDate}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Do</th>
-                            <td>{obstacle.toDate}</td>
+                            <td>{obstacle?.toDate}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Opis</th>
-                            <td>{obstacle.applicantDescription ? obstacle.applicantDescription : "-"}</td>
+                            <td>{obstacle?.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Status</th>
                             <td>
                                 <span className={
-                                    obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
-                                        obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
-                                            obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                                    obstacle?.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                        obstacle?.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                            obstacle?.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
                                 }>
-                                {obstacle.status}
+                                {obstacle?.status}
                               </span>
                             </td>
                         </tr>
                         <tr>
                             <th className="table-dark">Funkcyjny</th>
-                            <td>{obstacle.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
+                            <td>{obstacle?.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Odpowiedź funkcyjnego</th>
-                            <td>{obstacle.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
+                            <td>{obstacle?.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
                         </tr>
                         </tbody>
                     </table>
             </div>
         </div>
     <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-        {deleteError && <div className="alert alert-danger">{deleteError}</div>}
-                {obstacle.status === ObstacleStatus.AWAITING ? (
+        {deleteError && <AlertBox text={deleteError} type={'danger'} width={'500px'}/>}
+                {obstacle?.status === ObstacleStatus.AWAITING ? (
                     <>
-                        {patchError && <div className="alert alert-danger">{patchError}</div>}
+                        {patchError && <AlertBox text={patchError} type={'danger'} width={'500px'}/>}
                         <div className="mb-3">
                             <label htmlFor="applicantDescription" className="form-label">Twoja argumentacja
                                 (opcjonalnie):</label>

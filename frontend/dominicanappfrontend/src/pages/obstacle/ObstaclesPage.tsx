@@ -5,6 +5,7 @@ import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import "./ObstaclesPage.css";
+import AlertBox from "../../components/AlertBox";
 
 
 function ObstaclesPage () {
@@ -20,7 +21,7 @@ function ObstaclesPage () {
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="error-message">{error}</div>;
+    if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">

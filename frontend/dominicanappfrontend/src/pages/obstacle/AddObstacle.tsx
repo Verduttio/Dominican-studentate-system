@@ -6,6 +6,7 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRectangleXmark} from "@fortawesome/free-solid-svg-icons";
+import AlertBox from "../../components/AlertBox";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
@@ -86,8 +87,8 @@ function AddObstacle() {
     };
 
     if(loadingFetchUser || loadingFetchTasks) return <LoadingSpinner/>;
-    if(fetchUsersError) return <div className="alert alert-danger">{fetchUsersError}</div>;
-    if(fetchTasksError) return <div className="alert alert-danger">{fetchTasksError}</div>;
+    if(fetchUsersError) return <AlertBox text={fetchUsersError} type={'danger'} width={'500px'}/>;
+    if(fetchTasksError) return <AlertBox text={fetchTasksError} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in">
@@ -95,8 +96,8 @@ function AddObstacle() {
                 <h1>Dodaj przeszkodę</h1>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {postError && <div className="alert alert-danger">{postError}</div>}
-                {validationError && <div className="alert alert-danger">{validationError}</div>}
+                {postError && <AlertBox text={postError} type={'danger'} width={'500px'}/>}
+                {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="userId" className="form-label">Użytkownik:</label>
