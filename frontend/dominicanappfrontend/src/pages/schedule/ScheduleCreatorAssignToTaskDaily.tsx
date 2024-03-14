@@ -11,6 +11,7 @@ import "./ScheduleCreatorAssignToTaskDaily.css";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
 import {daysOfWeekTranslation} from "../../models/DayOfWeek";
+import AlertBox from "../../components/AlertBox";
 
 interface SortConfig {
     key: string | null;
@@ -165,7 +166,9 @@ const ScheduleCreatorAssignToTaskDaily = () => {
 
 
     if (loading || fetchTaskLoading || taskSchedulesLoading) return <LoadingSpinner/>;
-    if (error || fetchTaskError || taskSchedulesError) return <div className="alert alert-danger">{error || fetchTaskError || taskSchedulesError}</div>;
+    if (error || fetchTaskError || taskSchedulesError) return (
+        <AlertBox text={error || fetchTaskError || taskSchedulesError} type={'danger'} width={'500px'}/>
+    )
 
     return (
         <div className="fade-in">
@@ -173,8 +176,8 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 <TaskInfo taskId={taskId}/>
             </div>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
-            {assignToTaskError && <div className="alert alert-danger">{assignToTaskError}</div>}
-            {unassignTaskError && <div className="alert alert-danger">{unassignTaskError}</div>}
+            {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
+            {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             <div className="table-responsive">
                 <table className="table table-hover table-striped table-rounded table-shadow">
                     <thead className="table-dark">

@@ -4,6 +4,7 @@ import useHttp from '../../services/UseHttp';
 import { Role } from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import LoadingSpinner from "../../components/LoadingScreen";
+import AlertBox from "../../components/AlertBox";
 
 const ScheduleCreatorRoleSelection: React.FC = () => {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
@@ -20,7 +21,7 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
     const to = queryParams.get('to');
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
 
     return (
         <div className="fade-in d-flex flex-column align-items-center">

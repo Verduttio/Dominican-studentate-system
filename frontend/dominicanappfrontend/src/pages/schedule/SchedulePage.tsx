@@ -8,6 +8,7 @@ import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../components/LoadingScreen";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import AlertBox from "../../components/AlertBox";
 
 
 function SchedulePage() {
@@ -97,24 +98,11 @@ function SchedulePage() {
         }
     }
 
-    if (loading || loadingSupervisorRoles) return <LoadingSpinner/>;
-    if (error || errorFetchSupervisorRoles) return <div className="alert alert-danger">{error || errorFetchSupervisorRoles}</div>;
+    const renderUsersSchedule = () => {
+        if(loading) return <LoadingSpinner />;
+        if(error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
-    return (
-        <div className="fade-in">
-            <div className="d-flex justify-content-center">
-                <h1 className="entity-header">Harmonogram</h1>
-            </div>
-            {isFunkcyjny &&
-                <div className="d-flex justify-content-center mb-2">
-                    <button className="btn btn-primary" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram
-                    </button>
-                </div>
-            }
-            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
-            <div className="d-flex justify-content-center">
-                <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
-            </div>
+        return (
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '600px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -137,7 +125,94 @@ function SchedulePage() {
                     </table>
                 </div>
             </div>
+        )
+    }
 
+    const renderTasksScheduleByRole = () => {
+        if(loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner />;
+        if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles} type="danger" width={'500px'} />;
+
+        return (
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '600px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Zadanie</th>
+                            <th>Użytkownicy</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
+                            <tr key={scheduleShortInfoForTaskByRole.taskId}>
+                                <td>{scheduleShortInfoForTaskByRole.taskId}</td>
+                                <td>{scheduleShortInfoForTaskByRole.taskName}</td>
+                                <td>
+                                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
+                                        <div key={index}>{userInfoString}</div>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
+    }
+
+    const renderTasksSchedule = () => {
+        if(loadingFetchScheduleByTasks) return <LoadingSpinner />;
+        if(errorFetchScheduleByTasks) return <AlertBox text={errorFetchScheduleByTasks} type="danger" width={'500px'} />;
+
+        return (
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '600px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Zadanie</th>
+                            <th>Użytkownicy</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
+                            <tr key={scheduleShortInfoForTask.taskId}>
+                                <td>{scheduleShortInfoForTask.taskId}</td>
+                                <td>{scheduleShortInfoForTask.taskName}</td>
+                                <td>
+                                    {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
+                                        <div key={index}>{userInfoString}</div>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
+    }
+
+
+    return (
+        <div className="fade-in">
+            <div className="d-flex justify-content-center">
+                <h1 className="entity-header">Harmonogram</h1>
+            </div>
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center mb-2">
+                    <button className="btn btn-primary" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram
+                    </button>
+                </div>
+            }
+            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            <div className="d-flex justify-content-center">
+                <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
+            </div>
+            {renderUsersSchedule()}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}>Pobierz harmonogram według użytkowników
                 </button>
@@ -154,36 +229,7 @@ function SchedulePage() {
                     ))}
                 </select>
             </div>
-            {errorFetchScheduleByTasksByRoles &&
-                <div className="alert alert-danger">{errorFetchScheduleByTasksByRoles}</div>}
-            {loadingFetchScheduleByTasksByRoles ? <LoadingSpinner/> : (
-                <div className="d-flex justify-content-center">
-                    <div className="table-responsive" style={{maxWidth: '600px'}}>
-                        <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                            <thead className="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Zadanie</th>
-                                <th>Użytkownicy</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
-                                <tr key={scheduleShortInfoForTaskByRole.taskId}>
-                                    <td>{scheduleShortInfoForTaskByRole.taskId}</td>
-                                    <td>{scheduleShortInfoForTaskByRole.taskName}</td>
-                                    <td>
-                                        {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
-                                            <div key={index}>{userInfoString}</div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
+            {renderTasksScheduleByRole()}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null}>Pobierz harmonogram według roli</button>
             </div>
@@ -191,35 +237,7 @@ function SchedulePage() {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich zadań</h4>
             </div>
-            {errorFetchScheduleByTasks && <div className="alert alert-danger">{errorFetchScheduleByTasks}</div>}
-            {loadingFetchScheduleByTasks ? <LoadingSpinner/> : (
-                <div className="d-flex justify-content-center">
-                    <div className="table-responsive" style={{maxWidth: '600px'}}>
-                        <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                            <thead className="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Zadanie</th>
-                                <th>Użytkownicy</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
-                                <tr key={scheduleShortInfoForTask.taskId}>
-                                    <td>{scheduleShortInfoForTask.taskId}</td>
-                                    <td>{scheduleShortInfoForTask.taskName}</td>
-                                    <td>
-                                        {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
-                                            <div key={index}>{userInfoString}</div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
+            {renderTasksSchedule()}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks}>Pobierz harmonogram według zadań</button>
             </div>

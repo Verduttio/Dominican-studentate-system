@@ -9,6 +9,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
+import AlertBox from "../../components/AlertBox";
 
 interface SortConfig {
     key: string | null;
@@ -136,7 +137,10 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
 
 
     if (loading || fetchTaskLoading) return <LoadingSpinner/>;
-    if (error || fetchTaskError) return <div className="alert alert-danger">{error || fetchTaskError}</div>;
+    if (error || fetchTaskError) return (
+        <AlertBox text={error || fetchTaskError} type={'danger'} width={'500px'}/>
+
+    );
 
     return (
         <div className="fade-in">
@@ -144,8 +148,8 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                 <TaskInfo taskId={taskId}/>
             </div>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
-            {assignToTaskError && <div className="alert alert-danger text-center">{assignToTaskError}</div>}
-            {unassignTaskError && <div className="alert alert-danger text-center">{unassignTaskError}</div>}
+            {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
+            {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             <div className="table-responsive">
                 <table className="table table-hover table-stripe table-rounded table-shadow">
                     <thead className="table-dark">
