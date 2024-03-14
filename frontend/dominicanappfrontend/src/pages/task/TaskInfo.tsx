@@ -7,6 +7,7 @@ import {faChevronDown, faChevronUp} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import "./TaskInfo.css";
 import {daysOfWeekTranslation} from "../../models/DayOfWeek";
+import AlertBox from "../../components/AlertBox";
 
 interface TaskInfoProps {
     taskId: string | null
@@ -24,8 +25,8 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
     }, [request, taskId]);
 
     if (loading) return <LoadingSpinner/>;
-    if (error) return <div className="alert alert-danger">Błąd: {error}</div>;
-    if (!task) return <div className="alert alert-danger">Nie znaleziono zadania.</div>;
+    if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
+    if (!task) return <AlertBox text={"Nie znaleziono zadania"} type={'danger'} width={'500px'}/>;
 
     return (
     <div className="fade-in">

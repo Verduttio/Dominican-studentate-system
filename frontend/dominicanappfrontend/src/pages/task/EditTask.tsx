@@ -6,6 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {Role, Task} from "../../models/Interfaces";
 import TaskFormFields from "./addTask/TaskFormFields";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import AlertBox from "../../components/AlertBox";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -139,16 +140,18 @@ function EditTask() {
 
 
     if (loadingSupervisorRoles || loadingTaskPerformerRoles || loadingFetchingTask) return <LoadingSpinner/>;
-    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchingTask) return <div className="aler alert-danger">{errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchingTask}</div>;
+    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchingTask) return (
+        <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchingTask} type={'danger'} width={'500px'}/>
+    )
 
     return (
         <div className="fade-in">
             <div className="page-header">
                 <h1>Edytuj zadanie</h1>
             </div>
-            {validationError && <div className="alert alert-danger">{validationError}</div>}
-            {postError && <div className="alert alert-danger">{postError}</div>}
-            {deleteError && <div className="alert alert-danger">{deleteError}</div>}
+            {validationError &&  <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
+            {postError &&  <AlertBox text={postError} type={'danger'} width={'500px'}/>}
+            {deleteError &&  <AlertBox text={deleteError} type={'danger'} width={'500px'}/>}
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 <TaskFormFields
                     taskData={taskData}

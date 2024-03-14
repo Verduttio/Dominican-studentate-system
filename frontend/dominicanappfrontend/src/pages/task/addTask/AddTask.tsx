@@ -5,6 +5,7 @@ import { Task, Role } from "../../../models/Interfaces";
 import {backendUrl} from "../../../utils/constants";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import TaskFormFields from "./TaskFormFields";
+import AlertBox from "../../../components/AlertBox";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -112,15 +113,15 @@ function AddTask() {
 
 
     if (loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
-    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <div className="aler alert-danger">{errorFetchSupervisorRoles}</div>;
+    if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
             <div className="page-header">
                 <h1>Dodaj zadanie</h1>
             </div>
-            {validationError && <div className="alert alert-danger">{validationError}</div>}
-            {postError && <div className="alert alert-danger">{postError}</div>}
+            {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/> }
+            {postError && <AlertBox text={postError} type={'danger'} width={'500px'}/>}
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 <TaskFormFields
                     taskData={taskData}
