@@ -27,6 +27,17 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                 />
             </div>
             <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                    Skrót zadania:
+                </label>
+                <input
+                    className="form-control-sm"
+                    name="nameAbbrev"
+                    value={taskData.nameAbbrev}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="mb-3">
                 <label htmlFor="participantsLimit" className="form-label">Limit uczestników:</label>
                 <input
                     className="form-control-sm"
@@ -63,7 +74,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
             </div>
             <div className="mb-3">
                 <label className="form-label custom-checkbox">
-                Uczestnik na cały okres:
+                    Uczestnik na cały okres:
                     <input
                         className="form-check-input"
                         name="participantForWholePeriod"

@@ -37,7 +37,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                     <tbody>
                     {userStatisticsForTasks.map(userStatisticsForTask => (
                         <tr key={userStatisticsForTask.taskName}>
-                            <td>{userStatisticsForTask.taskName}</td>
+                            <td>[{userStatisticsForTask.taskNameAbbrev}] {userStatisticsForTask.taskName}</td>
                             <td>{userStatisticsForTask.lastAssigned}</td>
                             <td>{userStatisticsForTask.numberOfAssignInLast30Days}</td>
                             <td>{userStatisticsForTask.numberOfAssignInLast90Days}</td>

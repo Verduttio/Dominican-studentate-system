@@ -39,6 +39,7 @@ function validateTaskData(data: TaskFormData) : string {
 function AddTask() {
     const initialTaskState: TaskFormData = {
         name: '',
+        nameAbbrev: '',
         participantsLimit: 0,
         permanent: false,
         participantForWholePeriod: false,

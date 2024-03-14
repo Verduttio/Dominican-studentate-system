@@ -34,7 +34,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                 <tbody>
                     <tr>
                         <th className="table-dark">Zadanie</th>
-                        <td>{task.name}</td>
+                        <td>[{task.nameAbbrev}] {task.name}</td>
                     </tr>
                 </tbody>
             </table>

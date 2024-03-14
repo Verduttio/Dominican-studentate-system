@@ -49,7 +49,7 @@ function TasksPage () {
                         {tasks.map(task => (
                             <tr key={task.id}>
                                 <td>{task.id}</td>
-                                <td>{task.name}</td>
+                                <td>[{task.nameAbbrev}] {task.name}</td>
                                 <td>{task.participantsLimit}</td>
                                 <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                                 <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>

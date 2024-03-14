@@ -7,6 +7,7 @@ interface Role {
 interface Task {
     id: number;
     name: string;
+    nameAbbrev: string;
     participantsLimit: number;
     permanent: boolean;
     participantForWholePeriod: boolean;
@@ -127,6 +128,7 @@ interface TaskShortInfo {
 
 interface UserTaskStatistics {
     taskName: string;
+    taskNameAbbrev: string;
     lastAssigned: string;
     numberOfAssignInLast30Days: number;
     numberOfAssignInLast90Days: number;

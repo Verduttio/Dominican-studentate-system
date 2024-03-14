@@ -40,6 +40,7 @@ function validateTaskData(data: TaskFormData) : string {
 function EditTask() {
     const initialTaskState: TaskFormData = {
         name: '',
+        nameAbbrev: '',
         participantsLimit: 0,
         permanent: false,
         participantForWholePeriod: false,
@@ -67,6 +68,7 @@ function EditTask() {
             if (task) {
                 setTaskData({
                     name: task.name,
+                    nameAbbrev: task.nameAbbrev,
                     participantsLimit: task.participantsLimit,
                     permanent: task.permanent,
                     participantForWholePeriod: task.participantForWholePeriod,
