@@ -5,6 +5,8 @@ import LoadingSpinner from "../components/LoadingScreen";
 import {User} from "../models/Interfaces";
 import UserWeekSchedule from "./user/UserWeekSchedule";
 import UserTasksStatistics from "./user/UserTasksStatistics";
+import AlertBox from "../components/AlertBox";
+
 
 function Home() {
     let userId: number = localStorage.getItem('userId') ? parseInt(localStorage.getItem('userId') as string) : 0;
@@ -20,7 +22,9 @@ function Home() {
     }, [requestCurrent, userId]);
 
     if (loadingCurrent) return <LoadingSpinner />;
-    if (errorCurrent) return <div className="alert alert-danger">{errorCurrent}</div>;
+    if (errorCurrent) return (
+        <AlertBox text={errorCurrent} type="danger" width={'500px'} />
+    );
 
     return (
         <div className="fade-in">

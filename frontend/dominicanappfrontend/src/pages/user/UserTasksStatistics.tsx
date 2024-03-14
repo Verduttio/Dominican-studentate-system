@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import {UserTaskStatistics} from "../../models/Interfaces";
+import AlertBox from "../../components/AlertBox";
 
 interface UserTasksStatisticsProps {
     userId: number;
@@ -18,10 +19,11 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
         requestFetchUserStatisticsForTasks(null, (data: UserTaskStatistics[]) => setUserStatisticsForTasks(data));
     }, [requestFetchUserStatisticsForTasks]);
 
+
     if (loadingFetchUserStatisticsForTasks) return <LoadingSpinner />;
-    if (errorFetchUserStatisticsForTasks) return <div className="alert alert-danger">{errorFetchUserStatisticsForTasks}</div>;
+    if (errorFetchUserStatisticsForTasks) return <AlertBox text={errorFetchUserStatisticsForTasks} type={'danger'} width={'500px'}/>;
     return (
-        <div className="d-flex justify-content-center">
+        <div className="fade-in d-flex justify-content-center">
             <div className="table-responsive" style={{maxWidth: '800px'}}>
                 <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                     <thead className="table-dark">
