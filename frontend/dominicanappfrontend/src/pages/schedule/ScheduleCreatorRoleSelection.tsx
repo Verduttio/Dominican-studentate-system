@@ -5,10 +5,12 @@ import { Role } from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 const ScheduleCreatorRoleSelection: React.FC = () => {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -19,6 +21,10 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
     const queryParams = new URLSearchParams(location.search);
     const from = queryParams.get('from');
     const to = queryParams.get('to');
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;

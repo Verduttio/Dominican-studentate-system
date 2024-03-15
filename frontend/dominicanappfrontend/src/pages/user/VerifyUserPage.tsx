@@ -6,6 +6,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ChangePasswordPopup from "./ChangePasswordPopup";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -16,6 +18,7 @@ function VerifyUserPage() {
     const { request: deleteUserRequest, error: deleteUserError, loading: deleteUserLoading} = useHttp(`${backendUrl}/api/users/${userId}`, 'DELETE');
     const { request: verifyUserRequest, error: requestError, loading: requestLoading} = useHttp(`${backendUrl}/api/users/${userId}/verification/assignRoles`, 'PUT');
     const { request: updateRolesRequest, error: updateRolesError, loading: updateRolesLoading } = useHttp(`${backendUrl}/api/users/${userId}/roles`, 'PATCH');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     const [user, setUser] = useState<User | null>(null);
     const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
@@ -59,13 +62,17 @@ function VerifyUserPage() {
         });
     }
 
-    if(loadingSupervisorRoles || loadingTaskPerformerRoles || !user) return <LoadingSpinner/>;
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+
+    if(loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
     if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
             <div className="page-header">
-                {user.enabled ? <h1>Edycja użytkownika</h1> : <h1>Weryfikacja użytkownika</h1>}
+                {user?.enabled ? <h1>Edycja użytkownika</h1> : <h1>Weryfikacja użytkownika</h1>}
             </div>
             <div className="table-responsive d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
@@ -99,9 +106,9 @@ function VerifyUserPage() {
                             <th className="table-dark">Weryfikacja</th>
                             <td>
                                 <span className={
-                                    user.enabled ? '' : 'highlighted-text-not-verified'}
+                                    user?.enabled ? '' : 'highlighted-text-not-verified'}
                                 >
-                                    {user.enabled ? "Tak" : "Nie"}
+                                    {user?.enabled ? "Tak" : "Nie"}
                                 </span>
                             </td>
                         </tr>
@@ -141,7 +148,7 @@ function VerifyUserPage() {
                     ))}
                 </div>
                 <div className="d-flex justify-content-between">
-                    {user.enabled ?
+                    {user?.enabled ?
                         <button className="btn btn-success m-1"
                                 onClick={handleUpdateRoles}
                                 disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
@@ -151,7 +158,7 @@ function VerifyUserPage() {
                                 disabled={requestLoading || deleteUserLoading}>Zweryfikuj
                         </button>
                     }
-                    {user.provider === Provider.LOCAL &&
+                    {user?.provider === Provider.LOCAL &&
                         <button className="btn btn-warning m-1"
                                 disabled={requestLoading || deleteUserLoading || updateRolesLoading}
                                 onClick={() => setShowChangePassword(true)}>
@@ -159,7 +166,7 @@ function VerifyUserPage() {
                         </button>
                     }
                     {showChangePassword &&
-                        <ChangePasswordPopup userId={user.id} onClose={() => setShowChangePassword(false)}/>}
+                        <ChangePasswordPopup userId={user?.id ? user.id : 0} onClose={() => setShowChangePassword(false)}/>}
                     <button className="btn btn-danger m-1" onClick={handleDelete}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>

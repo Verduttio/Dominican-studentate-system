@@ -12,6 +12,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
 import {daysOfWeekTranslation} from "../../models/DayOfWeek";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 interface SortConfig {
     key: string | null;
@@ -43,6 +44,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     const { request: taskSchedulesRequest, error: taskSchedulesError, loading: taskSchedulesLoading } = useHttp(`${backendUrl}/api/schedules/tasks/${taskId}/week?from=${from}&to=${to}`, 'GET');
     const [taskSchedules, setTaskSchedules] = useState<Schedule[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'ascending' });
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
 
     useEffect(() => {
@@ -164,6 +166,9 @@ const ScheduleCreatorAssignToTaskDaily = () => {
         return <span>{sortConfig.direction === 'ascending' ? <FontAwesomeIcon icon={faSortUp}/> : <FontAwesomeIcon icon={faSortDown}/>}</span>;
     };
 
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading || fetchTaskLoading || taskSchedulesLoading) return <LoadingSpinner/>;
     if (error || fetchTaskError || taskSchedulesError) return (

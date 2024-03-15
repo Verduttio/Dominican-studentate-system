@@ -7,6 +7,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRectangleXmark} from "@fortawesome/free-solid-svg-icons";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 function AddObstacle() {
     const initialObstacleState: ObstacleData = {
@@ -26,6 +27,7 @@ function AddObstacle() {
     const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const [fullTasksList, setFullTasksList] = useState<TaskShortInfo[]>([]);
     const [selectAllTasks, setSelectAllTasks] = useState(false);
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,6 +87,10 @@ function AddObstacle() {
             setTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
         }
     };
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if(loadingFetchUser || loadingFetchTasks) return <LoadingSpinner/>;
     if(fetchUsersError) return <AlertBox text={fetchUsersError} type={'danger'} width={'500px'}/>;

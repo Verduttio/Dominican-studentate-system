@@ -10,6 +10,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 interface SortConfig {
     key: string | null;
@@ -38,6 +39,7 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
     const { request: fetchTaskRequest, error: fetchTaskError, loading: fetchTaskLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'GET');
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'ascending' });
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     useEffect(() => {
         request(null, (data) => setUserDependencies(data));
@@ -135,6 +137,9 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
         return <span>{sortConfig.direction === 'ascending' ? <FontAwesomeIcon icon={faSortUp}/> : <FontAwesomeIcon icon={faSortDown}/>}</span>;
     };
 
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading || fetchTaskLoading) return <LoadingSpinner/>;
     if (error || fetchTaskError) return (

@@ -5,6 +5,7 @@ import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 const ScheduleCreatorChooseMethod: React.FC = () => {
     const [task, setTask] = useState<Task>();
@@ -15,6 +16,7 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/tasks/${taskId}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
 
     const getTaskUrlWeekly = (taskId: number | undefined) => {
@@ -32,6 +34,10 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
     useEffect(() => {
         request(null, (data: Task) => setTask(data))
     }, [request]);
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;

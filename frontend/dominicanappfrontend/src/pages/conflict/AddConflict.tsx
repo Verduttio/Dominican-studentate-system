@@ -7,6 +7,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/AddEditForm.css';
 import ConflictFormFields from "./ConflictFormFields";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 
 interface FormData {
@@ -26,6 +27,7 @@ function AddConflict() {
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
     const postRequest = useHttp(`${backendUrl}/api/conflicts`, 'POST');
     const [submitError, setSubmitError] = useState<string>('');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -58,6 +60,10 @@ function AddConflict() {
             : formData.daysOfWeek.filter(day => day !== dayEnglish);
         setFormData({ ...formData, daysOfWeek: updatedDays });
     };
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;

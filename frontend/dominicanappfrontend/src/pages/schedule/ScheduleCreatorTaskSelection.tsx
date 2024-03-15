@@ -5,6 +5,7 @@ import {Task} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 const ScheduleCreatorTaskSelection: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -15,11 +16,16 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
     const to = queryParams.get('to');
     const fetchUrl = `${backendUrl}/api/tasks/bySupervisorRole/${roleName}`;
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
 
     useEffect(() => {
         request(null, (data: Task[]) => setTasks(data))
     }, [request]);
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;

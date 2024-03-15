@@ -6,6 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
@@ -18,6 +19,7 @@ function EditObstacle() {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [recipientAnswer, setRecipientAnswer] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     let loading = patchLoading || deleteLoading || getCurrentLoading;
 
@@ -43,6 +45,10 @@ function EditObstacle() {
             navigate('/obstacles', {state: {message: 'Pomyślnie usunięto przeszkodę'}});
         }).then(() => setShowConfirmationPopup(false));
     };
+
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (getLoading) return <LoadingSpinner/>;
     if (getError || getCurrentError) return <AlertBox text={getError || getCurrentError} type={'danger'} width={'500px'}/>;

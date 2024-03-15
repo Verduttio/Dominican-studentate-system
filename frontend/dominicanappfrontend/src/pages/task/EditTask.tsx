@@ -7,6 +7,7 @@ import {Role, Task} from "../../models/Interfaces";
 import TaskFormFields from "./addTask/TaskFormFields";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -59,6 +60,7 @@ function EditTask() {
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'PUT');
     const { request: deleteTask, error: deleteError, loading: deleteLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'DELETE');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const [validationError, setValidationError] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -138,6 +140,9 @@ function EditTask() {
         setValidationError('');
     };
 
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loadingSupervisorRoles || loadingTaskPerformerRoles || loadingFetchingTask) return <LoadingSpinner/>;
     if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchingTask) return (

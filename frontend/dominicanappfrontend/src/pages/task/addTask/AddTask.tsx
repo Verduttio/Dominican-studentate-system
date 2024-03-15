@@ -6,6 +6,7 @@ import {backendUrl} from "../../../utils/constants";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import TaskFormFields from "./TaskFormFields";
 import AlertBox from "../../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -55,6 +56,7 @@ function AddTask() {
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks`, 'POST');
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const [validationError, setValidationError] = useState<string>('');
     const navigate = useNavigate();
 
@@ -111,6 +113,9 @@ function AddTask() {
         setValidationError('');
     };
 
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        return <LoadingSpinner/>;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
     if (errorFetchSupervisorRoles || errorFetchTaskPerformerRoles) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles} type="danger" width={'500px'} />;
