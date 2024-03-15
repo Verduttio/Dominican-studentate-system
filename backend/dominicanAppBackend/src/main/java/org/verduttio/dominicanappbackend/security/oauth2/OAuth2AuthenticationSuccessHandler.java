@@ -45,7 +45,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         Optional<String> redirectUri = CookieUtils.getCookie(request, "redirect_uri")
                 .map(Cookie::getValue);
 
-        String targetUrl = "http://localhost:3000";
+        String targetUrl = "http://localhost:3000/home/logged";
         if(redirectUri.isPresent()) {
             targetUrl = redirectUri.get();
         }
