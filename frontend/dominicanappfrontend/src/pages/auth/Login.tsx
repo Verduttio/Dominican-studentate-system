@@ -41,8 +41,7 @@ function Login () {
 
             if (response.status === 200 && response.data.id !== 0) {
                 console.log('Zalogowano pomyślnie');
-                localStorage.setItem('userId', response.data.id);
-                navigate('/home');
+                navigate('/home/logged');
             } else {
                 console.log('Błąd podczas logowania.');
             }
@@ -86,7 +85,7 @@ function Login () {
                             <button type="submit" className="btn btn-primary w-100">Zaloguj</button>
                         </form>
                         <div className="text-center mt-3">
-                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}
+                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home/logged`}
                                className="google-login">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24"
                                      viewBox="0 0 48 48">

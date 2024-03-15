@@ -1,6 +1,7 @@
 import {useCallback, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {removeCurrentUser} from "./CurrentUserCookieService";
 
 function useHttp<T = any>(url : string = "", method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                     setError("Nie posiadasz praw dostępu do tych danych");
                 } else if (err.response && err.response.status === 401 && !skipRedirect) {
                     setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
+                    removeCurrentUser();
                     setTimeout(() => {
                         navigate('/login');
                     }, 3000); // in ms

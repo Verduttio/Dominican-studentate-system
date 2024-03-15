@@ -33,6 +33,7 @@ import ScheduleCreatorChooseMethod from "./pages/schedule/ScheduleCreatorChooseM
 import OtherEntities from "./pages/other/OtherEntities";
 import AddMyObstacle from "./pages/obstacle/AddMyObstacle";
 import UserDetailsViewer from "./pages/user/UserDetailsViewer";
+import HomeLogged from "./pages/HomeLogged";
 
 const AppContent = () => {
     const location = useLocation();
@@ -44,6 +45,7 @@ const AppContent = () => {
             <div className="container">
                 <Routes>
                     <Route path="/home" Component={Home}/>
+                    <Route path="/home/logged" Component={HomeLogged}/>
                     <Route path="/login" Component={Login}/>
                     <Route path="/register" Component={Register}/>
                     <Route path="/tasks" Component={TasksPage}/>
