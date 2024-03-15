@@ -11,3 +11,11 @@ export const getCurrentUser = () => {
 export const removeCurrentUser = () => {
     localStorage.removeItem('currentUser');
 }
+
+export const isFunkcyjnyUser = () => {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        return currentUser.roles.some(role => role.name === 'ROLE_FUNKCYJNY');
+    }
+    return null;
+}

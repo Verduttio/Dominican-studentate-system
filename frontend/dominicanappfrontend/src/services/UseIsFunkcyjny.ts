@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import useHttp from './UseHttp';
-import {backendUrl} from "../utils/constants";
+import {isFunkcyjnyUser} from "./CurrentUserCookieService";
 
 const useIsFunkcyjny = () => {
     const [isFunkcyjny, setIsFunkcyjny] = useState(false);
-    const { request, loading: isFunkcyjnyLoading, error: isFunkcyjnyError, initialized: isFunkcyjnyInitialized } = useHttp(`${backendUrl}/api/users/checkRole/ROLE_FUNKCYJNY`, 'GET');
+    const [isFunkcyjnyInitialized, setIsFunkcyjnyInitialized] = useState(true);
+    const [isFunkcyjnyLoading, setIsFunkcyjnyLoading] = useState(true);
+    const [isFunkcyjnyError, setIsFunkcyjnyError] = useState('');
 
     useEffect(() => {
-        request(null, (value) => {
-            setIsFunkcyjny(value);
-        });
-    }, [request]);
+        const isFunkcyjnyUserValue = isFunkcyjnyUser();
+        setIsFunkcyjny(!!isFunkcyjnyUserValue);
+        setIsFunkcyjnyLoading(false);
+        setIsFunkcyjnyInitialized(false);
+    }, []);
 
     return { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError, isFunkcyjnyInitialized };
 };
