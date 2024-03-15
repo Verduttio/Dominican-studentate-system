@@ -7,9 +7,9 @@ import {getCurrentUser} from "./CurrentUserCookieService";
 const useGetOrCreateCurrentUser = () => {
     const { error: errorCurrent, loading: loadingCurrent, initialized: initializedCurrent, request: requestCurrent } = useHttp(`${backendUrl}/api/users/current`, 'GET');
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const currentUserFromLocalStorage = getCurrentUser();
 
     useEffect(() => {
+        const currentUserFromLocalStorage = getCurrentUser();
         if (currentUserFromLocalStorage) {
             setCurrentUser(currentUserFromLocalStorage);
         } else {
