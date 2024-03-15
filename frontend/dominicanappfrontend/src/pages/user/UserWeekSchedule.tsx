@@ -21,6 +21,16 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
         loading
     } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${format(startOfWeek(currentWeek, {weekStartsOn: 1}), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, {weekStartsOn: 1}), 'dd-MM-yyyy')}`, 'GET');
     const todayDate = new Date();
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => setScreenWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         fetchSchedule(null, (data) => setUserSchedules(data));
@@ -54,11 +64,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
         return daysOfWeek[date.getDay()];
     }
 
-
-    const renderContent = () => {
-        if (loading) return <LoadingSpinner />;
-        if (error) return <AlertBox text={error} type="danger" width={'500px'} />;
-
+    const renderTablePC = () => {
         return (
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '1000px'}}>
@@ -89,7 +95,41 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
                     </table>
                 </div>
             </div>
-        );
+        )
+    }
+
+    const renderTablePhone = () => {
+        return (
+            <div className="d-flex justify-content-center">
+                <div className="table-responsive" style={{maxWidth: '600px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow">
+                        <tbody>
+                        {weekDays.map((day, index) => {
+                            const englishDayOfWeek = getEnglishDayOfWeek(day);
+                            const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+                            return (
+                                <tr key={index}>
+                                    <th className={format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'table-success' : 'table-dark'}>
+                                        {polishAbbreviation} <br/> {format(day, 'dd.MM.yyyy')}
+                                    </th>
+                                    <td>{tasksForDay(day)}</td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        )
+    }
+
+
+    const renderContent = () => {
+        if (loading) return <LoadingSpinner/>;
+        if (error) return <AlertBox text={error} type="danger" width={'500px'}/>;
+
+        return screenWidth <= 700 ? renderTablePhone() : renderTablePC();
     };
 
     return (
