@@ -1,27 +1,23 @@
 package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
-import org.verduttio.dominicanappbackend.entity.Obstacle;
-import org.verduttio.dominicanappbackend.entity.ObstacleStatus;
-import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,14 +27,16 @@ public class ObstacleService {
     private final UserService userService;
     private final ObstacleValidator obstacleValidator;
     private final ScheduleRepository scheduleRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
     public ObstacleService(ObstacleRepository obstacleRepository, UserService userService,
-                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository) {
+                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, TaskRepository taskRepository) {
         this.obstacleRepository = obstacleRepository;
         this.userService = userService;
         this.obstacleValidator = obstacleValidator;
         this.scheduleRepository = scheduleRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -53,12 +51,41 @@ public class ObstacleService {
                 .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
                 .toList();
         futureObstacles.addAll(pastObstacles);
+        List<Obstacle> mappedObstacles = futureObstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
 
-        return futureObstacles;
+        return mappedObstacles;
     }
 
-    public Optional<Obstacle> getObstacleById(Long obstacleId) {
-        return obstacleRepository.findById(obstacleId);
+    private Obstacle mapObstacleWithAllTasksToOnlyOneIfNeeded(Obstacle obstacle) {
+        int numberOfTasks = taskRepository.findAll().size();
+        if (obstacle.getTasks().size() == numberOfTasks) {
+            return mapObstacleWithAllTasksToContainOneSpecialTaskForAll(obstacle);
+        }
+        return obstacle;
+    }
+
+    private Obstacle mapObstacleWithAllTasksToContainOneSpecialTaskForAll(Obstacle obstacle) {
+        Task specialTask = new Task();
+        specialTask.setId(0L);
+        specialTask.setName("Wszystkie zadania");
+        specialTask.setNameAbbrev("Wszystko");
+        specialTask.setAllowedRoles(new HashSet<>());
+        specialTask.setSupervisorRole(new Role());
+        specialTask.setDaysOfWeek(EnumSet.allOf(DayOfWeek.class));
+        specialTask.setParticipantForWholePeriod(true);
+        specialTask.setParticipantsLimit(1);
+        specialTask.setArchived(false);
+
+        Set<Task> tasks = new HashSet<>();
+        tasks.add(specialTask);
+
+        obstacle.setTasks(tasks);
+        return obstacle;
+    }
+
+    public Obstacle getObstacleById(Long obstacleId) {
+        Obstacle obstacle =  obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
+        return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
     }
 
     public void saveObstacle(ObstacleRequestDTO obstacleRequestDTO) {
@@ -112,10 +139,6 @@ public class ObstacleService {
         obstacleRepository.deleteById(obstacleId);
     }
 
-    public List<Obstacle> findObstaclesByUserIdAndTaskId(Long userId, Long taskId) {
-        return obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
-    }
-
     public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdForDate(Long userId, Long taskId, LocalDate date) {
         List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
         List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> obstacleValidator.isDateInRange(date, obstacle.getFromDate(), obstacle.getToDate())).toList();
@@ -143,7 +166,9 @@ public class ObstacleService {
                 .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
                 .toList();
         futureObstacles.addAll(pastObstacles);
-        return futureObstacles;
+        List<Obstacle> mappedObstacles = futureObstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+
+        return mappedObstacles;
     }
 
     private void updateObstacleFromPatchDTO(Obstacle obstacle, ObstaclePatchDTO obstaclePatchDTO) {
@@ -162,7 +187,8 @@ public class ObstacleService {
 
     public List<Obstacle> getAllObstaclesByTaskId(Long taskId) {
         obstacleValidator.validateTaskExistence(taskId);
-        return obstacleRepository.findAllByTaskId(taskId);
+        List<Obstacle> obstaclesByTask = obstacleRepository.findAllByTaskId(taskId);
+        return obstaclesByTask.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
     }
 
     public void deleteAllObstaclesByTaskId(Long taskId) {

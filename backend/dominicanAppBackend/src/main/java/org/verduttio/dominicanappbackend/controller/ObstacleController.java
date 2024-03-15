@@ -37,9 +37,11 @@ public class ObstacleController {
 
     @GetMapping("/{obstacleId}")
     public ResponseEntity<Obstacle> getObstacleById(@PathVariable Long obstacleId) {
-        return obstacleService.getObstacleById(obstacleId)
-                .map(obstacle -> new ResponseEntity<>(obstacle, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        try {
+            return new ResponseEntity<>(obstacleService.getObstacleById(obstacleId), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/task/{taskId}")
