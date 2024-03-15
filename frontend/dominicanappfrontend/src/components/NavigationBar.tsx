@@ -9,8 +9,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useIsFunkcyjny from "../services/UseIsFunkcyjny";
 
 
-
-
 const NavigationBar = () => {
     const navigate = useNavigate();
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);

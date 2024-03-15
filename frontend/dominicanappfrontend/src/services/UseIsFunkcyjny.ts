@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import {isFunkcyjnyUser} from "./CurrentUserCookieService";
+import {User} from "../models/Interfaces";
+import useHttp from "./UseHttp";
+import {backendUrl} from "../utils/constants";
 
 const useIsFunkcyjny = () => {
     const [isFunkcyjny, setIsFunkcyjny] = useState(false);
@@ -7,12 +10,23 @@ const useIsFunkcyjny = () => {
     const [isFunkcyjnyLoading, setIsFunkcyjnyLoading] = useState(true);
     const [isFunkcyjnyError, setIsFunkcyjnyError] = useState('');
 
+    const { error: errorCurrent, loading: loadingCurrent, initialized: initializedCurrent, request: requestCurrent } = useHttp(`${backendUrl}/api/users/current`, 'GET');
+
     useEffect(() => {
         const isFunkcyjnyUserValue = isFunkcyjnyUser();
-        setIsFunkcyjny(!!isFunkcyjnyUserValue);
+
+        if(isFunkcyjnyUserValue === null) {
+            requestCurrent(null, ((data : User) => {
+                localStorage.setItem('currentUser', JSON.stringify(data));
+                setIsFunkcyjny(data.roles.some(role => role.name === 'ROLE_FUNKCYJNY'));
+                console.log("FETCH USER");
+            }));
+        } else {
+            setIsFunkcyjny(isFunkcyjnyUserValue);
+        }
         setIsFunkcyjnyLoading(false);
         setIsFunkcyjnyInitialized(false);
-    }, []);
+    }, [isFunkcyjny, requestCurrent]);
 
     return { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError, isFunkcyjnyInitialized };
 };

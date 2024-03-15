@@ -11,6 +11,7 @@ const useCreateCurrentUserCookie = () => {
         requestCurrent(null, ((data : User) => {
             setCurrentUser(data);
             localStorage.setItem('currentUser', JSON.stringify(data));
+            console.log("FETCH USER");
         }));
     }, [requestCurrent]);
 
