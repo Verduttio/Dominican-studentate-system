@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  app:
+  backend:
     build:
       context: ./backend/dominicanAppBackend
       dockerfile: Dockerfile
@@ -25,6 +25,15 @@ services:
       - "8080:8080"
     depends_on:
       - db
+
+  frontend:
+    build:
+      context: ./frontend/dominicanappfrontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
