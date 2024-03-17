@@ -13,7 +13,7 @@ services:
 
   app:
     build:
-      context: .
+      context: ./backend/dominicanAppBackend
       dockerfile: Dockerfile
     environment:
       POSTGRES_HOST: db
