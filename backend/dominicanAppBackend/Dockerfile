@@ -8,4 +8,4 @@ COPY .env .env
 
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 
-CMD ["java", "-jar", "/app.jar"]
+CMD ["java", "-jar", "./app.jar"]
