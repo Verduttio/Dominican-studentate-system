@@ -36,7 +36,7 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                     setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
                     removeCurrentUser();
                     setTimeout(() => {
-                        navigate('/login');
+                        navigate('/loginForm');
                     }, 3000); // in ms
                 } else {
                     if(err.response && err.response.data) {

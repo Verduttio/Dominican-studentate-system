@@ -16,6 +16,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
     const [userStatisticsForTasks, setUserStatisticsForTasks] = useState<UserTaskStatistics[]>([]);
 
     useEffect(() => {
+        console.log("Backend url: " + backendUrl);
         requestFetchUserStatisticsForTasks(null, (data: UserTaskStatistics[]) => setUserStatisticsForTasks(data));
     }, [requestFetchUserStatisticsForTasks]);
 

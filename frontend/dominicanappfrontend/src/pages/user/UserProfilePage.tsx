@@ -9,6 +9,7 @@ import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser"
 
 function UserProfilePage () {
     const [showChangePassword, setShowChangePassword] = useState(false);
+    //TODO: We should fetch user from backend, because user can change his roles and local data can be outdated
     const { currentUser, errorCurrent } = useGetOrCreateCurrentUser()
     const navigate = useNavigate();
 

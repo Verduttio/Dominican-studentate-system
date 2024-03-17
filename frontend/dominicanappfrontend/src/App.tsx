@@ -37,7 +37,7 @@ import HomeLogged from "./pages/HomeLogged";
 
 const AppContent = () => {
     const location = useLocation();
-    const hideBarPaths = ['/login', '/register'];
+    const hideBarPaths = ['/loginForm', '/register'];
 
     return (
         <>
@@ -46,7 +46,7 @@ const AppContent = () => {
                 <Routes>
                     <Route path="/home" Component={Home}/>
                     <Route path="/home/logged" Component={HomeLogged}/>
-                    <Route path="/login" Component={Login}/>
+                    <Route path="/loginForm" Component={Login}/>
                     <Route path="/register" Component={Register}/>
                     <Route path="/tasks" Component={TasksPage}/>
                     <Route path="/add-task" Component={AddTask}/>
@@ -73,7 +73,7 @@ const AppContent = () => {
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
-                    <Route path="*" element={<Navigate replace to="/login"/>}/>
+                    <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
                 </Routes>
             </div>
         </>

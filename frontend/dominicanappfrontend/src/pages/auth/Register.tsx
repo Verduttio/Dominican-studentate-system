@@ -132,13 +132,13 @@ function Register () {
                                     <div className="alert alert-success" role="alert">
                                         Zarejestrowano pomyślnie. Możesz się teraz zalogować
                                     </div>
-                                    <button className={"btn btn-success w-100"} onClick={() => navigate('/login')}>Zaloguj się</button>
+                                    <button className={"btn btn-success w-100"} onClick={() => navigate('/loginForm')}>Zaloguj się</button>
                                 </>
                             }
                             <button type="submit" className="btn btn-primary w-100" hidden={registerSuccess}>Zarejestruj</button>
                         </form>
                         <div className="text-center mt-3" hidden={registerSuccess}>
-                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home`}
+                            <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home/logged`}
                                className="google-login">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24"
                                      viewBox="0 0 48 48">

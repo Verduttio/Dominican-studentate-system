@@ -22,7 +22,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String redirectUri = envUtils.getAppEnvVariable("FRONTEND_URL");
-        String targetUrl = redirectUri + "/login?error_oauth2=true&error_message=" + exception.getLocalizedMessage();
+        String targetUrl = redirectUri + "/loginForm?error_oauth2=true&error_message=" + exception.getLocalizedMessage();
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("text/plain");
         response.getWriter().write(exception.getLocalizedMessage());
