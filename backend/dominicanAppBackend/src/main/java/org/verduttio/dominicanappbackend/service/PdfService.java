@@ -28,7 +28,7 @@ public class PdfService {
 
     private final ScheduleService scheduleService;
     private static final float MARGIN = 30;
-    private static final String FONT_PATH = "c:/windows/fonts/calibri.ttf";
+    private static final String FONT_PATH = "Capsuula.ttf";
 
     @Autowired
     public PdfService(ScheduleService scheduleService) {
