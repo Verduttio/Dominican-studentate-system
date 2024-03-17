@@ -1,7 +1,6 @@
 package org.verduttio.dominicanappbackend.security.oauth2;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -13,17 +12,18 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
-import org.verduttio.dominicanappbackend.util.CookieUtils;
+import org.verduttio.dominicanappbackend.util.EnvUtils;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final SecurityContextRepository securityContextRepository;
+    private final EnvUtils envUtils;
 
-    public OAuth2AuthenticationSuccessHandler(SecurityContextRepository securityContextRepository) {
+    public OAuth2AuthenticationSuccessHandler(SecurityContextRepository securityContextRepository, EnvUtils envUtils) {
         this.securityContextRepository = securityContextRepository;
+        this.envUtils = envUtils;
     }
 
     @Override
@@ -42,15 +42,12 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Optional<String> redirectUri = CookieUtils.getCookie(request, "redirect_uri")
-                .map(Cookie::getValue);
+        String redirectUri = envUtils.getAppEnvVariable("FRONTEND_URL");
+        redirectUri = redirectUri + "/home/logged";
 
-        String targetUrl = "http://localhost:3000/home/logged";
-        if(redirectUri.isPresent()) {
-            targetUrl = redirectUri.get();
-        }
+        System.out.println("Redirect URI: " + redirectUri);
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
+        return UriComponentsBuilder.fromUriString(redirectUri)
                 .build().toUriString();
     }
 }

@@ -36,6 +36,7 @@ import org.verduttio.dominicanappbackend.security.apiauth.LoginFilter;
 import org.verduttio.dominicanappbackend.security.oauth2.CustomOAuth2UserService;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationFailureHandler;
 import org.verduttio.dominicanappbackend.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import org.verduttio.dominicanappbackend.util.EnvUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,15 +52,17 @@ public class SecurityConfig {
     private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
     private final ObjectMapper mapper;
     private final UserRepository userRepository;
+    private final EnvUtils envUtils;
 
     public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, BCryptPasswordEncoder bCryptPasswordEncoder,
-                          CustomOAuth2UserService customOAuth2UserService, JdbcIndexedSessionRepository jdbcIndexedSessionRepository, ObjectMapper mapper, UserRepository userRepository) {
+                          CustomOAuth2UserService customOAuth2UserService, JdbcIndexedSessionRepository jdbcIndexedSessionRepository, ObjectMapper mapper, UserRepository userRepository, EnvUtils envUtils) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.customOAuth2UserService = customOAuth2UserService;
         this.jdbcIndexedSessionRepository = jdbcIndexedSessionRepository;
         this.mapper = mapper;
         this.userRepository = userRepository;
+        this.envUtils = envUtils;
     }
 
     @Bean
@@ -183,12 +186,12 @@ public class SecurityConfig {
 
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return new OAuth2AuthenticationSuccessHandler(securityContextRepository());
+        return new OAuth2AuthenticationSuccessHandler(securityContextRepository(), envUtils);
     }
 
     @Bean
     public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-        return new OAuth2AuthenticationFailureHandler();
+        return new OAuth2AuthenticationFailureHandler(envUtils);
     }
 
     @Bean

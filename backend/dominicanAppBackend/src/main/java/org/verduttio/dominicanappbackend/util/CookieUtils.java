@@ -11,6 +11,7 @@ public class CookieUtils {
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
+                System.out.println("Cookie: " + cookie.getName());
                 if (cookie.getName().equals(name)) {
                     return Optional.of(cookie);
                 }
@@ -18,5 +19,10 @@ public class CookieUtils {
         }
 
         return Optional.empty();
+    }
+
+    public static String getParamFromUrl(HttpServletRequest request, String paramName) {
+        request.getParameterNames().asIterator().forEachRemaining(System.out::println);
+        return request.getParameter(paramName);
     }
 }
