@@ -1,4 +1,6 @@
 HELP.md
+/src/main/resources/application-heroku.properties
+Dockerfile-heroku
 .env
 .gradle
 build/
