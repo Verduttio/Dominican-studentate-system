@@ -7,6 +7,7 @@ import './Login.css';
 import LoadingSpinner from "../../components/LoadingScreen";
 import '../../components/Common.css';
 
+
 interface FormData {
     name: string;
     surname: string;
@@ -27,6 +28,7 @@ function Register () {
     const { name, surname, email, password, confirmPassword } = formData;
     const { loading, request  } = useHttp(`${backendUrl}/api/users/current/check`, 'GET');
     const [registerSuccess, setRegisterSuccess] = useState<boolean>(false);
+    const [loadingRegisterAttempt, setLoadingRegisterAttempt] = useState(false);
 
     const navigate = useNavigate();
 
@@ -60,7 +62,11 @@ function Register () {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        setLoadingRegisterAttempt(true);
+        if (!validateForm()){
+            setLoadingRegisterAttempt(false);
+            return;
+        }
 
         try {
             const response = await axios.post(`${backendUrl}/api/users/register`, formData);
@@ -69,11 +75,12 @@ function Register () {
             if(response.status === 200) {
                 console.log('Zarejestrowano pomyślnie');
                 setRegisterSuccess(true);
-                // navigate('/login')
+                setLoadingRegisterAttempt(false);
             }
         } catch (err: any) {
             console.error(err.response.data);
             setError(err.response.data)
+            setLoadingRegisterAttempt(false);
         }
     };
 
@@ -135,7 +142,19 @@ function Register () {
                                     <button className={"btn btn-success w-100"} onClick={() => navigate('/loginForm')}>Zaloguj się</button>
                                 </>
                             }
-                            <button type="submit" className="btn btn-primary w-100" hidden={registerSuccess}>Zarejestruj</button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary w-100"
+                                disabled={loadingRegisterAttempt}
+                                hidden={registerSuccess}
+                            >
+                                {loadingRegisterAttempt ? (
+                                    <>
+                                        <span>Rejestrowanie </span>
+                                        <span className="spinner-border spinner-border-sm"></span>
+                                    </>
+                                ) : 'Zarejestruj'}
+                            </button>
                         </form>
                         <div className="text-center mt-3" hidden={registerSuccess}>
                             <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home/logged`}

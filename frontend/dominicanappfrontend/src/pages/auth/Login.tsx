@@ -17,6 +17,7 @@ function Login () {
     const queryParams = new URLSearchParams(location.search);
     const errorOAuth2 : string|null = queryParams.get('error_oauth2');
     const errorOAuth2Message = queryParams.get('error_message') || 'nieznany błąd';
+    const [loadingLoginAttempt, setLoadingLoginAttempt] = useState(false);
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -26,8 +27,10 @@ function Login () {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoadingLoginAttempt(true);
         if (!email || !password) {
             setErrorMessage('Email i hasło są wymagane!');
+            setLoadingLoginAttempt(false);
             return;
         }
 
@@ -44,8 +47,11 @@ function Login () {
                 navigate('/home/logged');
             } else {
                 console.log('Błąd podczas logowania.');
+                setErrorMessage('Wystąpił błąd podczas logowania');
+                setLoadingLoginAttempt(false);
             }
         } catch (error: any) {
+            setLoadingLoginAttempt(false);
             if (error.response && error.response.status === 401) {
                 setErrorMessage(error.response.data);
             } else {
@@ -71,18 +77,25 @@ function Login () {
                             <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email:</label>
                                 <input type="email" className="form-control" id="email" value={email}
-                                       onChange={e => setEmail(e.target.value)}
+                                       onChange={e => {setEmail(e.target.value); setErrorMessage("")}}
                                        autoComplete="off"/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Hasło:</label>
                                 <input type="password" className="form-control" id="password" value={password}
-                                       onChange={e => setPassword(e.target.value)}
+                                       onChange={e => {setPassword(e.target.value); setErrorMessage("")}}
                                        autoComplete="off"/>
                             </div>
                             {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
                             {errorOAuth2 && <div className="alert alert-danger" role="alert">{errorOAuth2Message}</div>}
-                            <button type="submit" className="btn btn-primary w-100">Zaloguj</button>
+                            <button type="submit" className="btn btn-primary w-100" disabled={loadingLoginAttempt}>
+                                {loadingLoginAttempt ? (
+                                    <>
+                                        <span>Logowanie </span>
+                                        <span className="spinner-border spinner-border-sm"></span>
+                                    </>
+                                ) : 'Zaloguj'}
+                            </button>
                         </form>
                         <div className="text-center mt-3">
                             <a href={`${backendUrl}/oauth2/authorization/google?redirect_uri=${frontendUrl}/home/logged`}
