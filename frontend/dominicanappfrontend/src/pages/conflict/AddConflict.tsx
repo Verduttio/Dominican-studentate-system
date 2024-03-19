@@ -83,7 +83,18 @@ function AddConflict() {
                     onChangeDays={onChangeDays}
                 />
                 <div className="d-flex justify-content-center">
-                    <button className="btn btn-success" disabled={postRequest.loading} onClick={handleSubmit}>Dodaj</button>
+                    <button
+                        className="btn btn-success"
+                        disabled={postRequest.loading}
+                        onClick={handleSubmit}
+                    >
+                        {postRequest.loading ? (
+                            <>
+                                <span>Dodawanie </span>
+                                <span className="spinner-border spinner-border-sm"></span>
+                            </>
+                        ) : 'Dodaj'}
+                    </button>
                 </div>
             </div>
         </div>

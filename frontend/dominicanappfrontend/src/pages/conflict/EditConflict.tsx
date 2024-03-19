@@ -81,7 +81,14 @@ function EditConflict() {
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
                 <ConflictFormFields tasks={tasks} formData={formData} onChange={onChange} onChangeDays={onChangeDays}/>
                 <div className="d-flex justify-content-between">
-                    <button onClick={handleSubmit} className="btn btn-success m-1" disabled={deleteLoading || updateLoading}>Zaktualizuj</button>
+                    <button onClick={handleSubmit} className="btn btn-success m-1" disabled={deleteLoading || updateLoading}>
+                        {updateLoading ? (
+                            <>
+                                <span>Aktualizowanie </span>
+                                <span className="spinner-border spinner-border-sm"></span>
+                            </>
+                        ) : 'Zaktualizuj'}
+                    </button>
                     <button onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger m-1" disabled={deleteLoading || updateLoading}>Usuń</button>
                     {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
