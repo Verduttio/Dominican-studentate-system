@@ -58,7 +58,7 @@ function EditTask() {
     const { request: fetchTask, error: errorFetchingTask, loading: loadingFetchingTask } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'GET');
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
-    const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'PUT');
+    const { error: postError, request: postTask, loading: postLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'PUT');
     const { request: deleteTask, error: deleteError, loading: deleteLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'DELETE');
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const [validationError, setValidationError] = useState<string>('');
@@ -168,8 +168,15 @@ function EditTask() {
                     rolesSupervisor={rolesSupervisor}
                 />
                 <div className="d-flex justify-content-between">
-                    <button className="btn btn-success m-1" onClick={handleSubmit}>Uaktualnij</button>
-                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)}>Usuń zadanie</button>
+                    <button className="btn btn-success m-1" onClick={handleSubmit} disabled={postLoading || deleteLoading}>
+                        {postLoading ? (
+                            <>
+                                <span>Aktualizowanie </span>
+                                <span className="spinner-border spinner-border-sm"></span>
+                            </>
+                        ) : 'Zaktualizuj'}
+                    </button>
+                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)} disabled={postLoading || deleteLoading}>Usuń zadanie</button>
                     {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
             </div>

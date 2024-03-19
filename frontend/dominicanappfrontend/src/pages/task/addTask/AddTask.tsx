@@ -55,7 +55,7 @@ function AddTask() {
     const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
-    const { error: postError, request: postTask } = useHttp(`${backendUrl}/api/tasks`, 'POST');
+    const { error: postError, request: postTask, loading: postTaskLoading } = useHttp(`${backendUrl}/api/tasks`, 'POST');
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const [validationError, setValidationError] = useState<string>('');
     const navigate = useNavigate();
@@ -138,7 +138,14 @@ function AddTask() {
                     rolesSupervisor={rolesSupervisor}
                 />
                 <div className="d-flex justify-content-center">
-                    <button className="btn btn-success" onClick={handleSubmit}>Dodaj</button>
+                    <button className="btn btn-success" onClick={handleSubmit} disabled={postTaskLoading}>
+                        {postTaskLoading ? (
+                            <>
+                                <span>Dodawanie </span>
+                                <span className="spinner-border spinner-border-sm"></span>
+                            </>
+                        ) : 'Dodaj'}
+                    </button>
                 </div>
             </div>
         </div>
