@@ -4,7 +4,7 @@ import LoadingSpinner from "../components/LoadingScreen";
 import AlertBox from "../components/AlertBox";
 
 function HomeLogged() {
-    const { currentUser, initializedCurrent, loadingCurrent, errorCurrent } = useCreateCurrentUserCookie();
+    const { initializedCurrent, errorCurrent } = useCreateCurrentUserCookie();
 
     if(initializedCurrent) return <LoadingSpinner/>;
     if(errorCurrent) return <AlertBox text={errorCurrent} type={'danger'} width={'500px'}/>;

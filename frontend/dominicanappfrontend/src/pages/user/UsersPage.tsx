@@ -12,7 +12,7 @@ import AlertBox from "../../components/AlertBox";
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
+    const { isFunkcyjny } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;

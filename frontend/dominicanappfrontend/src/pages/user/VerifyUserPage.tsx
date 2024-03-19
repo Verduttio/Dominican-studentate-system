@@ -66,7 +66,7 @@ function VerifyUserPage() {
         return <LoadingSpinner/>;
     } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
-    if(loadingSupervisorRoles || loadingTaskPerformerRoles) return <LoadingSpinner/>;
+    if(loadingSupervisorRoles || loadingTaskPerformerRoles || loadingUser) return <LoadingSpinner/>;
     if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser} type="danger" width={'500px'} />;
 
     return (
@@ -151,11 +151,24 @@ function VerifyUserPage() {
                     {user?.enabled ?
                         <button className="btn btn-success m-1"
                                 onClick={handleUpdateRoles}
-                                disabled={deleteUserLoading || updateRolesLoading}>Zapisz zmiany
+                                disabled={deleteUserLoading || updateRolesLoading}
+                        >
+                            {updateRolesLoading ? (
+                                <>
+                                    <span>Zapisywanie </span>
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                </>
+                            ) : 'Zapisz zmiany'}
                         </button>
                         :
                         <button className="btn btn-success m-1" onClick={handleSubmit}
-                                disabled={requestLoading || deleteUserLoading}>Zweryfikuj
+                                disabled={requestLoading || deleteUserLoading}>
+                            {requestLoading ? (
+                                <>
+                                    <span>Weryfikowanie </span>
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                </>
+                            ) : 'Zweryfikuj użytkownika'}
                         </button>
                     }
                     {user?.provider === Provider.LOCAL &&
