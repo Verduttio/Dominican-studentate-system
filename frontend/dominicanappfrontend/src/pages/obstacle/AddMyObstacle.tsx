@@ -178,7 +178,14 @@ function AddMyObstacle() {
                         />
                     </div>
                     <div className="d-flex justify-content-center">
-                        <button className="btn btn-success" type="submit" disabled={postLoading}>Dodaj</button>
+                        <button className="btn btn-success" type="submit" disabled={postLoading}>
+                            {postLoading ? (
+                                <>
+                                    <span>Dodawanie </span>
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                </>
+                            ) : 'Dodaj'}
+                        </button>
                     </div>
                 </form>
             </div>
