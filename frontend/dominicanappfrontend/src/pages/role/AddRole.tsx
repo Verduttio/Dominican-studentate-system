@@ -49,7 +49,14 @@ function AddRole() {
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData}/>
                     <div className="d-flex justify-content-center">
-                        <button className="btn btn-success" type="submit" disabled={loading}>Dodaj</button>
+                        <button className="btn btn-success" type="submit" disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <span>Dodawanie </span>
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                </>
+                            ) : 'Dodaj'}
+                        </button>
                     </div>
                 </form>
             </div>

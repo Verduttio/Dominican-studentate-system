@@ -68,7 +68,14 @@ function EditRole() {
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
                     <div className="d-flex justify-content-between">
-                        <button className="btn btn-success m-1" type="submit" disabled={updateLoading || deleteLoading}>Zaktualizuj</button>
+                        <button className="btn btn-success m-1" type="submit" disabled={updateLoading || deleteLoading}>
+                            {updateLoading ? (
+                                <>
+                                    <span>Aktualizowanie </span>
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                </>
+                            ) : 'Zaktualizuj'}
+                        </button>
                         <button type="button" onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger m-1" disabled={updateLoading || deleteLoading}>Usuń</button>
                         {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                     </div>
