@@ -23,7 +23,10 @@ function SchedulePage() {
     const { request: fetchScheduleByTasksByRoles, error: errorFetchScheduleByTasksByRoles, loading: loadingFetchScheduleByTasksByRoles} = useHttp();
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const navigate = useNavigate();
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
+    const { isFunkcyjny } = useIsFunkcyjny();
+    const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
+    const [loadingDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole] = useState<boolean>(false);
+    const [loadingDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks] = useState<boolean>(false);
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data));
@@ -39,6 +42,7 @@ function SchedulePage() {
     }, [fetchScheduleByTasksByRoles, selectedSupervisorRoleName, currentWeek]);
 
     function downloadSchedulePdfForUsers() {
+        setLoadingDownloadSchedulePdfForUsers(true);
         axios({
             url: `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
@@ -51,10 +55,12 @@ function SchedulePage() {
             link.setAttribute('download', `Harmonogram_użytkownicy_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+            setLoadingDownloadSchedulePdfForUsers(false);
         });
     }
 
     function downloadSchedulePdfForTasksByRole() {
+        setLoadingDownloadSchedulePdfForTasksByRole(true);
         axios({
             url: `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
@@ -67,10 +73,12 @@ function SchedulePage() {
             link.setAttribute('download', `Harmonogram_zadan_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+            setLoadingDownloadSchedulePdfForTasksByRole(false);
         });
     }
 
     function downloadSchedulePdfForTasks() {
+        setLoadingDownloadSchedulePdfForTasks(true);
         axios({
             url: `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
             method: 'GET',
@@ -83,6 +91,7 @@ function SchedulePage() {
             link.setAttribute('download', `Harmonogram_zadan_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+            setLoadingDownloadSchedulePdfForTasks(false);
         });
     }
 
@@ -214,7 +223,11 @@ function SchedulePage() {
             </div>
             {renderUsersSchedule()}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}>Pobierz harmonogram według użytkowników
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}
+                        disabled={loadingDownloadSchedulePdfForUsers}>
+                    <span>Pobierz harmonogram według użytkowników </span>
+                    {loadingDownloadSchedulePdfForUsers &&
+                        <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
 
@@ -231,7 +244,11 @@ function SchedulePage() {
             </div>
             {renderTasksScheduleByRole()}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null}>Pobierz harmonogram według roli</button>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null || loadingDownloadSchedulePdfForTasksByRole}>
+                    <span>Pobierz harmonogram według roli </span>
+                    {loadingDownloadSchedulePdfForTasksByRole &&
+                        <span className="spinner-border spinner-border-sm"></span>}
+                </button>
             </div>
 
             <div className="d-flex justify-content-center">
@@ -239,7 +256,11 @@ function SchedulePage() {
             </div>
             {renderTasksSchedule()}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks}>Pobierz harmonogram według zadań</button>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks} disabled={loadingDownloadSchedulePdfForTasks}>
+                    <span>Pobierz harmonogram według zadań </span>
+                    {loadingDownloadSchedulePdfForTasks &&
+                        <span className="spinner-border spinner-border-sm"></span>}
+                </button>
             </div>
         </div>
     );
