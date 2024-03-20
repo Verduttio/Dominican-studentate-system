@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.service.RoleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.SensitiveEntityException;
 
 import java.util.List;
 
@@ -68,11 +69,13 @@ public class RoleController {
     }
 
     @DeleteMapping("/{roleId}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long roleId) {
+    public ResponseEntity<?> deleteRole(@PathVariable Long roleId) {
         try {
             roleService.deleteRole(roleId);
         } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (SensitiveEntityException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

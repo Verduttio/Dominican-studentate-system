@@ -9,6 +9,7 @@ import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
+import org.verduttio.dominicanappbackend.service.exception.SensitiveEntityException;
 
 import java.util.*;
 
@@ -63,14 +64,17 @@ public class RoleService {
     }
 
     public void deleteRole(Long roleId) {
-        if (roleRepository.existsById(roleId)) {
-            taskRepository.removeRoleFromAllTasks(roleId);
-            userRepository.removeRoleFromAllUsers(roleId);
-            roleRepository.deleteById(roleId);
-        } else {
-            throw new EntityNotFoundException("Role with given id does not exist");
+        Role role = roleRepository.findById(roleId).orElseThrow(
+                () -> new EntityNotFoundException("Role with given id does not exist"));
+
+        List<String> sensitiveRoleNames = Arrays.asList("ROLE_USER", "ROLE_FUNKCYJNY");
+        if(sensitiveRoleNames.contains(role.getName())) {
+            throw new SensitiveEntityException("Role with given name cannot be deleted");
         }
 
+        taskRepository.removeRoleFromAllTasks(roleId);
+        userRepository.removeRoleFromAllUsers(roleId);
+        roleRepository.deleteById(roleId);
     }
 
     /**

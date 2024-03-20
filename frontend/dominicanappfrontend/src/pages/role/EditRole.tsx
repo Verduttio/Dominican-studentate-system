@@ -65,10 +65,10 @@ function EditRole() {
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {(fetchError || updateError || deleteError) && <div className="alert alert-danger">{fetchError || updateError || deleteError}</div>}
                 {validationError && <div className="alert alert-danger">{validationError}</div>}
-                <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                <div className="needs-validation">
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
                     <div className="d-flex justify-content-between">
-                        <button className="btn btn-success m-1" type="submit" disabled={updateLoading || deleteLoading}>
+                        <button className="btn btn-success m-1" onClick={handleSubmit} disabled={updateLoading || deleteLoading}>
                             {updateLoading ? (
                                 <>
                                     <span>Aktualizowanie </span>
@@ -76,10 +76,10 @@ function EditRole() {
                                 </>
                             ) : 'Zaktualizuj'}
                         </button>
-                        <button type="button" onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger m-1" disabled={updateLoading || deleteLoading}>Usuń</button>
+                        <button onClick={() => setShowConfirmationPopup(true)} className="btn btn-danger m-1" disabled={updateLoading || deleteLoading}>Usuń</button>
                         {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );
