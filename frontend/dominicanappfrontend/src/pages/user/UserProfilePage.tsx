@@ -3,15 +3,16 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {Provider} from "../../models/Interfaces";
 import ChangePasswordPopup from "./ChangePasswordPopup";
 import CurrentUserObstaclesTable from "./CurrentUserObstaclesTable";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import AlertBox from "../../components/AlertBox";
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 
 function UserProfilePage () {
     const [showChangePassword, setShowChangePassword] = useState(false);
-    //TODO: We should fetch user from backend, because user can change his roles and local data can be outdated
     const { currentUser, errorCurrent } = useGetOrCreateCurrentUser()
     const navigate = useNavigate();
+    const location = useLocation();
+    const locationStateMessage = location.state?.message;
 
     if (!currentUser && !errorCurrent) return <LoadingSpinner />;
     if (errorCurrent) return (
@@ -65,6 +66,7 @@ function UserProfilePage () {
                     <div className="d-flex justify-content-center">
                         <h1 className="entity-header">Moje przeszkody</h1>
                     </div>
+                    {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
                     <CurrentUserObstaclesTable/>
                     <div className="d-flex justify-content-center">
                         <button className="btn btn-success" onClick={() => {navigate("/add-obstacle/myself")}}>Dodaj przeszkodę</button>

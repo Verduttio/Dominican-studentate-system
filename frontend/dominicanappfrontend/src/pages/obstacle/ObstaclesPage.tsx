@@ -29,7 +29,7 @@ function ObstaclesPage () {
                 <h1 className="entity-header">Przeszkody</h1>
             </div>
             <div className="d-flex justify-content-center">
-                {locationStateMessage && <div className="alert alert-success">{locationStateMessage}</div>}
+                {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '800px'}}>

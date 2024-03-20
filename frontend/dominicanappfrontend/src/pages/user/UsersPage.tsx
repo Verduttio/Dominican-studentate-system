@@ -30,7 +30,7 @@ function UsersPage () {
             <div className="d-flex justify-content-center">
                 <h1 className="entity-header">Użytkownicy</h1>
             </div>
-            {locationStateMessage && <AlertBox text={locationStateMessage} type="info" width={'500px'} />}
+            {locationStateMessage && <AlertBox text={locationStateMessage} type="success" width={'500px'} />}
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
