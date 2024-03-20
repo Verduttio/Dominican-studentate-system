@@ -9,7 +9,7 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
     const [initialized, setInitialized] = useState(true);
     const navigate = useNavigate();
 
-    const request = useCallback(async (requestData: T | null = null, onSuccess = (data: any) => {}, skipRedirect: boolean = false, newUrl: string ="", newMethod: string ="") => {
+    const request = useCallback(async (requestData: T | null = null, onSuccess = (_data: any) => {}, skipRedirect: boolean = false, newUrl: string ="", newMethod: string ="") => {
         if(newUrl !== "" && newMethod !== "") {
             // eslint-disable-next-line react-hooks/exhaustive-deps
             url = newUrl;
