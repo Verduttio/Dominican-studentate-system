@@ -79,8 +79,11 @@ public class UserController {
     public ResponseEntity<?> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User userStateFromLogin = userDetails.getUser();
 
-        return new ResponseEntity<>(userDetails.getUser(), HttpStatus.OK);
+        User userCurrentState = userService.getUserById(userStateFromLogin.getId()).orElse(null);
+
+        return new ResponseEntity<>(userCurrentState, HttpStatus.OK);
     }
 
     @GetMapping("/current/check")

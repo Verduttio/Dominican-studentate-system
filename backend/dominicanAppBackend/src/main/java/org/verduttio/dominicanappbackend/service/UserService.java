@@ -5,20 +5,23 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.User;
-import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
+import org.verduttio.dominicanappbackend.security.UserSessionService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.UserAlreadyVerifiedException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
@@ -38,10 +41,11 @@ public class UserService {
     private final ObstacleRepository obstacleRepository;
     private final ScheduleRepository scheduleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserSessionService userSessionService;
 
     @Autowired
     public UserService(UserRepository userRepository, RoleService roleService,
-                       UserValidator userValidator, UserDetailsServiceImpl userDetailsService, ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+                       UserValidator userValidator, UserDetailsServiceImpl userDetailsService, ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository, BCryptPasswordEncoder bCryptPasswordEncoder, SessionRegistry sessionRegistry, UserSessionService userSessionService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
@@ -49,6 +53,7 @@ public class UserService {
         this.obstacleRepository = obstacleRepository;
         this.scheduleRepository = scheduleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userSessionService = userSessionService;
     }
 
     public List<User> getAllUsers() {
@@ -152,6 +157,7 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
+    @Transactional
     public void updateUserRolesSupervisorAndTaskPerformer(Long userId, Set<String> roleNames) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
@@ -171,6 +177,7 @@ public class UserService {
         existingUser.setRoles(rolesDB);
 
         userRepository.save(existingUser);
+        userSessionService.expireUserSessions(existingUser.getEmail());
     }
 
     public void assignRolesOnVerificationAndVerifyUser(Long userId, Set<String> roles) {
