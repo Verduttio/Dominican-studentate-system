@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {useLocation, useNavigate} from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
 import {backendUrl, frontendUrl} from "../../utils/constants";
@@ -52,10 +52,19 @@ function Login () {
             }
         } catch (error: any) {
             setLoadingLoginAttempt(false);
-            if (error.response && error.response.status === 401) {
-                setErrorMessage(error.response.data);
+            if (axios.isAxiosError(error)) {
+                const serverError = error as AxiosError<{ message?: string }>;
+                if (serverError.response) {
+                    if (serverError.response.status === 401) {
+                        setErrorMessage(serverError.response.data.message || 'Nieprawidłowy login lub hasło');
+                    } else {
+                        setErrorMessage(`Wystąpił nieznany błąd podczas logowania: ${serverError.response.data.message || 'Spróbuj ponownie później.'}`);
+                    }
+                } else {
+                    setErrorMessage('Nie udało się połączyć z serwerem. Spróbuj ponownie później.');
+                }
             } else {
-                setErrorMessage('Wystąpił nieznany błąd podczas logowania: ' + error.response.data);
+                setErrorMessage('Wystąpił nieoczekiwany błąd: ' + error.toString());
             }
         }
     };

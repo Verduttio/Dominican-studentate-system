@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
 import {Role, ScheduleShortInfo, ScheduleShortInfoForTask} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
 import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
@@ -27,6 +27,10 @@ function SchedulePage() {
     const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
     const [loadingDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole] = useState<boolean>(false);
     const [loadingDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks] = useState<boolean>(false);
+    const [errorDownloadSchedulePdfForUsers, setErrorDownloadSchedulePdfForUsers] = useState<string | null>(null);
+    const [errorDownloadSchedulePdfForTasksByRole, setErrorDownloadSchedulePdfForTasksByRole] = useState<string | null>(null);
+    const [errorDownloadSchedulePdfForTasks, setErrorDownloadSchedulePdfForTasks] = useState<string | null>(null);
+
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data));
@@ -41,58 +45,97 @@ function SchedulePage() {
         }
     }, [fetchScheduleByTasksByRoles, selectedSupervisorRoleName, currentWeek]);
 
-    function downloadSchedulePdfForUsers() {
+    async function downloadSchedulePdfForUsers() {
         setLoadingDownloadSchedulePdfForUsers(true);
-        axios({
-            url: `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
-            method: 'GET',
-            responseType: 'blob',
-            withCredentials: true
-        }).then((response) => {
+        try {
+            const response = await axios({
+                url: `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+                method: 'GET',
+                responseType: 'blob',
+                withCredentials: true
+            });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Harmonogram_użytkownicy_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<{ message?: string }>;
+                if (serverError.response) {
+                    setErrorDownloadSchedulePdfForUsers('Błąd podczas pobierania PDF:' + serverError.response.data);
+                } else {
+                    setErrorDownloadSchedulePdfForUsers('Problem z połączeniem sieciowym');
+                }
+            } else {
+                setErrorDownloadSchedulePdfForUsers('Nieoczekiwany błąd:' + err);
+            }
+        } finally {
             setLoadingDownloadSchedulePdfForUsers(false);
-        });
+        }
     }
 
-    function downloadSchedulePdfForTasksByRole() {
+    async function downloadSchedulePdfForTasksByRole() {
         setLoadingDownloadSchedulePdfForTasksByRole(true);
-        axios({
-            url: `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
-            method: 'GET',
-            responseType: 'blob',
-            withCredentials: true
-        }).then((response) => {
+        try {
+            const response = await axios({
+                url: `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+                method: 'GET',
+                responseType: 'blob',
+                withCredentials: true
+            });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Harmonogram_zadan_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<{ message?: string }>;
+                if (serverError.response) {
+                    setErrorDownloadSchedulePdfForTasksByRole('Błąd podczas pobierania PDF:' + serverError.response.data);
+                } else {
+                    setErrorDownloadSchedulePdfForTasksByRole('Problem z połączeniem sieciowym');
+                }
+            } else {
+                setErrorDownloadSchedulePdfForTasksByRole('Nieoczekiwany błąd:' + err);
+            }
+        } finally {
             setLoadingDownloadSchedulePdfForTasksByRole(false);
-        });
+        }
     }
 
-    function downloadSchedulePdfForTasks() {
+    async function downloadSchedulePdfForTasks() {
         setLoadingDownloadSchedulePdfForTasks(true);
-        axios({
-            url: `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
-            method: 'GET',
-            responseType: 'blob',
-            withCredentials: true
-        }).then((response) => {
+        try {
+            const response = await axios({
+                url: `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}`,
+                method: 'GET',
+                responseType: 'blob',
+                withCredentials: true
+            });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Harmonogram_zadan_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<{ message?: string }>;
+                if (serverError && serverError.response) {
+                    setErrorDownloadSchedulePdfForTasks('Błąd podczas pobierania PDF:' + serverError.response.data);
+                } else {
+                    setErrorDownloadSchedulePdfForTasks('Problem z połączeniem sieciowym');
+                }
+            } else {
+                setErrorDownloadSchedulePdfForTasks('Nieoczekiwany błąd:' + err);
+            }
+        } finally {
             setLoadingDownloadSchedulePdfForTasks(false);
-        });
+        }
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -139,7 +182,7 @@ function SchedulePage() {
 
     const renderTasksScheduleByRole = () => {
         if(loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner />;
-        if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles} type="danger" width={'500px'} />;
+        if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
 
         return (
             <div className="d-flex justify-content-center">
@@ -222,6 +265,7 @@ function SchedulePage() {
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
             </div>
             {renderUsersSchedule()}
+            {errorDownloadSchedulePdfForUsers && <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'} />}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}
                         disabled={loadingDownloadSchedulePdfForUsers}>
@@ -243,6 +287,7 @@ function SchedulePage() {
                 </select>
             </div>
             {renderTasksScheduleByRole()}
+            {errorDownloadSchedulePdfForTasksByRole && <AlertBox text={errorDownloadSchedulePdfForTasksByRole} type="danger" width={'500px'} />}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null || loadingDownloadSchedulePdfForTasksByRole}>
                     <span>Pobierz harmonogram według roli </span>
@@ -255,6 +300,7 @@ function SchedulePage() {
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich zadań</h4>
             </div>
             {renderTasksSchedule()}
+            {errorDownloadSchedulePdfForTasks && <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width={'500px'} />}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks} disabled={loadingDownloadSchedulePdfForTasks}>
                     <span>Pobierz harmonogram według zadań </span>

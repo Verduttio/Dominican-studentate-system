@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {removeCurrentUser} from "./CurrentUserCookieService";
 
@@ -23,28 +23,30 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
             console.log(requestData)
             console.log(url)
             const response = await axios({ url, method, data: requestData, withCredentials: true});
-            if(response !== undefined) {
-                onSuccess(response.data);
-            }
+            onSuccess(response.data);
         } catch (err : any) {
-            if(err.response === undefined) {
-                setError("Wystąpił błąd: " + err);
-            } else {
-                if (err.response.status === 403 ) {
-                    setError("Nie posiadasz praw dostępu do tych danych");
-                } else if (err.response && err.response.status === 401 && !skipRedirect) {
-                    setError(err.response.data + ". Proszę się zalogować. Nastąpi przekierowanie");
-                    removeCurrentUser();
-                    setTimeout(() => {
-                        navigate('/loginForm');
-                    }, 3000); // in ms
-                } else {
-                    if(err.response && err.response.data) {
-                        setError("Wystąpił błąd: " + err.response.data);
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<{ message?: string }>;
+                if(serverError && serverError.response) {
+                    const status = serverError.response.status;
+                    const data = serverError.response.data;
+
+                    if (status === 403) {
+                        setError("Nie posiadasz praw dostępu do tych danych");
+                    } else if (status === 401 && !skipRedirect) {
+                        setError("Sesja wygasła lub użytkownik nie jest zalogowany. Proszę się zalogować. Nastąpi przekierowanie.");
+                        removeCurrentUser();
+                        setTimeout(() => {
+                            navigate('/loginForm');
+                        }, 3000);
                     } else {
-                        setError("Wystąpił błąd: " + err.response);
+                        setError(`Wystąpił błąd: ${data.message || 'Nieznany błąd'}`);
                     }
+                } else {
+                    setError("Wystąpił problem z połączeniem do serwera.");
                 }
+            } else {
+                setError("Wystąpił nieoczekiwany błąd: " + err.toString());
             }
         } finally {
             setLoading(false);

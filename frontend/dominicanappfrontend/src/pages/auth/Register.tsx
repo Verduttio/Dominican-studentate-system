@@ -1,5 +1,5 @@
 import React, {useState, ChangeEvent, FormEvent, useEffect} from 'react';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {useNavigate} from "react-router-dom";
 import {backendUrl, frontendUrl} from "../../utils/constants";
 import useHttp from "../../services/UseHttp";
@@ -78,8 +78,19 @@ function Register () {
                 setLoadingRegisterAttempt(false);
             }
         } catch (err: any) {
-            console.error(err.response.data);
-            setError(err.response.data)
+            if (axios.isAxiosError(err)) {
+                const serverError = err as AxiosError<{ message?: string }>; // Asercja typu
+                if (serverError.response) {
+                    console.error(serverError.response.data);
+                    setError(serverError.response.data.message || 'Wystąpił błąd podczas rejestracji.');
+                } else {
+                    setError('Nie udało się połączyć z serwerem. Spróbuj ponownie później.');
+                }
+            } else {
+                console.error(err);
+                setError('Wystąpił nieoczekiwany błąd: ' + err.toString());
+            }
+        } finally {
             setLoadingRegisterAttempt(false);
         }
     };
