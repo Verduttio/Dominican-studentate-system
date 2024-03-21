@@ -37,8 +37,8 @@ function ObstaclesPage () {
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '800px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow">
+                <div className="table-responsive" style={{maxWidth: '900px'}}>
+                    <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark">
                         <tr>
                             <th>ID</th>
