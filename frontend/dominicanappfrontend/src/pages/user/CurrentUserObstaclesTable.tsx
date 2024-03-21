@@ -53,8 +53,16 @@ function CurrentUserObstaclesTable () {
                         </thead>
                         <tbody>
                         {obstaclePage.content.map(obstacle => {
-                            const isObsolete = new Date(obstacle.toDate) < new Date();
-                            const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
+                            const obstacleToDate = new Date(obstacle.toDate);
+                            const obstacleFromDate = new Date(obstacle.fromDate);
+                            const currentDate = new Date();
+
+                            const obstacleSimpleToDate = new Date(obstacleToDate.getFullYear(), obstacleToDate.getMonth(), obstacleToDate.getDate());
+                            const obstacleSimpleFromDate = new Date(obstacleFromDate.getFullYear(), obstacleFromDate.getMonth(), obstacleFromDate.getDate());
+                            const currentSimpleDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+                            const isObsolete = obstacleSimpleToDate < currentSimpleDate;
+                            const isCurrent = obstacleSimpleFromDate <= currentSimpleDate && obstacleSimpleToDate >= currentSimpleDate;
                             let className = '';
                             if (isCurrent) {
                                 if (obstacle.status === ObstacleStatus.AWAITING) {
