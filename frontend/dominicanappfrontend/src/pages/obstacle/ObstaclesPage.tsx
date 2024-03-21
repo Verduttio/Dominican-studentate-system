@@ -6,19 +6,24 @@ import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import "./ObstaclesPage.css";
 import AlertBox from "../../components/AlertBox";
+import Pagination from "../../components/Pagination";
 
 
 function ObstaclesPage () {
-    const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-    const { error, loading, request } = useHttp(`${backendUrl}/api/obstacles`, 'GET');
+    const [obstaclePage, setObstaclePage] = useState<{ content: Obstacle[], totalPages: number }>({ content: [], totalPages: 0 });
+    const { error, loading, request } = useHttp();
+    const [currentPage, setCurrentPage] = useState<number>(0);
+    const pageSize = 10;
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
 
     useEffect(() => {
-        request(null, (data) => setObstacles(data))
+        const baseUrl = `${backendUrl}/api/obstacles/pageable`;
+        const requestUrl = `${baseUrl}?page=${currentPage}&size=${pageSize}`;
+        request(null, (data) => setObstaclePage({ content: data.content, totalPages: data.totalPages }), false, requestUrl, 'GET')
             .then(() => {});
-    }, [request]);
+    }, [request, currentPage, pageSize]);
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
@@ -46,7 +51,7 @@ function ObstaclesPage () {
                         </tr>
                         </thead>
                         <tbody>
-                        {obstacles.map(obstacle => {
+                        {obstaclePage.content.map(obstacle => {
                             const isObsolete = new Date(obstacle.toDate) < new Date();
                             const isCurrent = new Date(obstacle.fromDate) <= new Date() && new Date(obstacle.toDate) >= new Date();
                             let className = '';
@@ -67,14 +72,14 @@ function ObstaclesPage () {
                             }
 
                             return (
-                            <tr key={obstacle.id}
-                                className={className}>
-                                <td>{obstacle.id}</td>
-                                <td>{obstacle.user.name} {obstacle.user.surname}</td>
-                                <td className='max-column-width-300'>{obstacle.tasks.map(task => task.name).join(", ")}</td>
-                                <td>{obstacle.fromDate}</td>
-                                <td>{obstacle.toDate}</td>
-                                <td>
+                                <tr key={obstacle.id}
+                                    className={className}>
+                                    <td>{obstacle.id}</td>
+                                    <td>{obstacle.user.name} {obstacle.user.surname}</td>
+                                    <td className='max-column-width-300'>{obstacle.tasks.map(task => task.name).join(", ")}</td>
+                                    <td>{obstacle.fromDate}</td>
+                                    <td>{obstacle.toDate}</td>
+                                    <td>
                                     <span className={
                                         obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
                                             obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
@@ -82,20 +87,29 @@ function ObstaclesPage () {
                                     }>
                                     {obstacle.status}
                                   </span>
-                                </td>
-                                <td>
-                                    <button className="btn btn-sm btn-dark"
-                                            onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Szczegóły
-                                    </button>
-                                </td>
-                            </tr>
-                        )})}
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-sm btn-dark"
+                                                onClick={() => navigate(`/edit-obstacle/${obstacle.id}`)}>Szczegóły
+                                        </button>
+                                    </td>
+                                </tr>
+                            )
+                        })}
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={obstaclePage.totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                />
+            </div>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę</button>
+                <button className="btn btn-success m-1" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę
+                </button>
             </div>
         </div>
     );
