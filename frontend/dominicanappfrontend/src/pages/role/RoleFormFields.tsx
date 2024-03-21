@@ -1,5 +1,5 @@
 import React from 'react';
-import {Role, RoleType} from '../../models/Interfaces';
+import {Role, RoleType, roleTypeTranslation} from '../../models/Interfaces';
 
 interface RoleFormFieldsProps {
     roleData: Role | null;
@@ -43,8 +43,8 @@ const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }
                     required
                 >
                     <option value="">Wybierz typ roli</option>
-                    {Object.values(RoleType).map((type) => (
-                        <option key={type} value={type}>{type}</option>
+                    {Object.values([RoleType.SUPERVISOR, RoleType.TASK_PERFORMER]).map((type) => (
+                        <option key={type} value={type}>{roleTypeTranslation[type]}</option>
                     ))}
                 </select>
             </div>

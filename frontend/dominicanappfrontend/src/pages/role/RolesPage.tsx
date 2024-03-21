@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import { Role } from '../../models/Interfaces';
+import {Role, RoleType, roleTypeTranslation} from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -10,7 +10,7 @@ import AlertBox from "../../components/AlertBox";
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
+    const { isFunkcyjny } = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -48,10 +48,10 @@ function ViewRoles() {
                             <tr key={role.id}>
                                 <td>{role.id}</td>
                                 <td>{role.name}</td>
-                                <td>{role.type}</td>
+                                <td>{roleTypeTranslation[role.type]}</td>
                                 {isFunkcyjny &&
                                     <td>
-                                        <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>
+                                        {role.type !== RoleType.SYSTEM && <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>}
                                     </td>
                                 }
                             </tr>

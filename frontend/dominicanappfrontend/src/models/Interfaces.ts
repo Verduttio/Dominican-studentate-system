@@ -113,6 +113,17 @@ export enum RoleType {
     OTHER = "OTHER"
 }
 
+interface RoleTypeTranslation {
+    [key: string]: string;
+}
+
+export const roleTypeTranslation: RoleTypeTranslation = {
+    "SYSTEM": "System",
+    "SUPERVISOR": "Funkcyjny",
+    "TASK_PERFORMER": "Wykonujący",
+    "OTHER": "Inny"
+}
+
 export enum Provider {
     GOOGLE = "GOOGLE",
     LOCAL = "LOCAL"
