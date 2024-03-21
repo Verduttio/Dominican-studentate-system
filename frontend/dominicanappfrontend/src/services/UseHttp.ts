@@ -40,7 +40,11 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                             navigate('/loginForm');
                         }, 3000);
                     } else {
-                        setError(`Wystąpił błąd: ${data.message || 'Nieznany błąd'}`);
+                        if (data.message) {
+                            setError(`Wystąpił błąd: ${data.message}`);
+                        } else {
+                            setError(`Wystąpił błąd: ${data}`);
+                        }
                     }
                 } else {
                     setError("Wystąpił problem z połączeniem do serwera.");
