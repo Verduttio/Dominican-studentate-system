@@ -55,6 +55,11 @@ public class RoleService {
         }
         Role existingRole = roleOptional.get();
 
+        List<String> sensitiveRoleNames = Arrays.asList("ROLE_USER", "ROLE_FUNKCYJNY");
+        if(sensitiveRoleNames.contains(existingRole.getName())) {
+            throw new SensitiveEntityException("Role with given name cannot be updated");
+        }
+
         if (existsAnotherRoleWithGivenName(updatedRole.getName(), existingRole.getName())) {
             throw new EntityAlreadyExistsException("Another role with given name already exists");
         }
@@ -105,7 +110,7 @@ public class RoleService {
     }
 
     public List<Role> getAllRolesWithout(String... roleNames) {
-        List<Role> allRoles = new LinkedList<Role>(getAllRoles());
+        List<Role> allRoles = new LinkedList<>(getAllRoles());
         for (String roleName : roleNames) {
             allRoles.removeIf(role -> role.getName().equals(roleName));
         }

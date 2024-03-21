@@ -63,6 +63,8 @@ public class RoleController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (SensitiveEntityException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
