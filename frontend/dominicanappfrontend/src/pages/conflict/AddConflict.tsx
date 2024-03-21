@@ -42,6 +42,9 @@ function AddConflict() {
         } else if (task1Id === task2Id) {
             setSubmitError('Proszę wybrać dwa różne zadania.');
             return;
+        } else if (formData.daysOfWeek.length === 0) {
+            setSubmitError('Proszę wybrać przynajmniej jeden dzień tygodnia.');
+            return;
         }
 
         postRequest.request(formData, () => {

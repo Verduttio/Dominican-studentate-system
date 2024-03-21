@@ -40,6 +40,9 @@ function EditConflict() {
         if (!formData.task1Id || !formData.task2Id || formData.task1Id === formData.task2Id) {
             setValidationError("Proszę wybrać dwa różne zadania.");
             return;
+        } else if (formData.daysOfWeek.length === 0) {
+            setValidationError("Proszę wybrać przynajmniej jeden dzień tygodnia.");
+            return;
         }
         updateConflict(formData, () => navigate('/conflicts', { state: { message: 'Konflikt został zaktualizowany' } }));
     };
