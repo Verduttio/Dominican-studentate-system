@@ -106,6 +106,22 @@ public class ObstacleController {
         return new ResponseEntity<>(obstacles, HttpStatus.OK);
     }
 
+    @GetMapping("/users/current/pageable")
+    public ResponseEntity<?> getAllObstaclesByCurrentUser(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+
+        Page<Obstacle> obstacles;
+        try {
+            obstacles = obstacleService.getAllObstaclesByUserId(userId, pageable);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
     @GetMapping("/{status}/count")
     public ResponseEntity<?> getNumberOfObstaclesByStatus(@PathVariable ObstacleStatus status) {
         Long numberOfNotAnsweredObstacles = obstacleService.getNumberOfObstaclesByStatus(status);
