@@ -14,10 +14,8 @@ const useGetOrCreateCurrentUser = () => {
             setCurrentUser(currentUserFromLocalStorage);
         } else {
             requestCurrent(null, ((data : User) => {
-                console.log("[useGetOrCreateCurrentUser] Making request to get current user.");
                 setCurrentUser(data);
                 localStorage.setItem('currentUser', JSON.stringify(data));
-                console.log("FETCH USER");
             }));
         }
     }, [requestCurrent]);

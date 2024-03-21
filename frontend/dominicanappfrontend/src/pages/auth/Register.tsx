@@ -70,24 +70,20 @@ function Register () {
 
         try {
             const response = await axios.post(`${backendUrl}/api/users/register`, formData);
-            console.log(response.data);
 
             if(response.status === 200) {
-                console.log('Zarejestrowano pomyślnie');
                 setRegisterSuccess(true);
                 setLoadingRegisterAttempt(false);
             }
         } catch (err: any) {
             if (axios.isAxiosError(err)) {
-                const serverError = err as AxiosError<{ message?: string }>; // Asercja typu
+                const serverError = err as AxiosError<{ message?: string }>;
                 if (serverError.response) {
-                    console.error(serverError.response.data);
                     setError(serverError.response.data.message || 'Wystąpił błąd podczas rejestracji.');
                 } else {
                     setError('Nie udało się połączyć z serwerem. Spróbuj ponownie później.');
                 }
             } else {
-                console.error(err);
                 setError('Wystąpił nieoczekiwany błąd: ' + err.toString());
             }
         } finally {

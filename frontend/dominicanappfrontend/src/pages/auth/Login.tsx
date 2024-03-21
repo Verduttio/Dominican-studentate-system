@@ -43,10 +43,8 @@ function Login () {
             });
 
             if (response.status === 200 && response.data.id !== 0) {
-                console.log('Zalogowano pomyślnie');
                 navigate('/home/logged');
             } else {
-                console.log('Błąd podczas logowania.');
                 setErrorMessage('Wystąpił błąd podczas logowania');
                 setLoadingLoginAttempt(false);
             }

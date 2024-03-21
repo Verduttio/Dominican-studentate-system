@@ -8,9 +8,8 @@ const useIsFunkcyjny = () => {
     const [isFunkcyjny, setIsFunkcyjny] = useState(false);
     const [isFunkcyjnyInitialized, setIsFunkcyjnyInitialized] = useState(true);
     const [isFunkcyjnyLoading, setIsFunkcyjnyLoading] = useState(true);
-    const [isFunkcyjnyError, setIsFunkcyjnyError] = useState('');
 
-    const { error: errorCurrent, loading: loadingCurrent, initialized: initializedCurrent, request: requestCurrent } = useHttp(`${backendUrl}/api/users/current`, 'GET');
+    const { error: errorCurrent, request: requestCurrent } = useHttp(`${backendUrl}/api/users/current`, 'GET');
 
     useEffect(() => {
         const isFunkcyjnyUserValue = isFunkcyjnyUser();
@@ -19,7 +18,6 @@ const useIsFunkcyjny = () => {
             requestCurrent(null, ((data : User) => {
                 localStorage.setItem('currentUser', JSON.stringify(data));
                 setIsFunkcyjny(data.roles.some(role => role.name === 'ROLE_FUNKCYJNY'));
-                console.log("FETCH USER");
             }));
         } else {
             setIsFunkcyjny(isFunkcyjnyUserValue);
@@ -28,7 +26,7 @@ const useIsFunkcyjny = () => {
         setIsFunkcyjnyInitialized(false);
     }, [isFunkcyjny, requestCurrent]);
 
-    return { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError, isFunkcyjnyInitialized };
+    return { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError: errorCurrent, isFunkcyjnyInitialized };
 };
 
 export const UNAUTHORIZED_PAGE_TEXT = 'Nie masz uprawnień do wyświetlenia tej strony';

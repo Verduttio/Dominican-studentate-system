@@ -20,8 +20,6 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
         setLoading(true);
         setError(null);
         try {
-            console.log(requestData)
-            console.log(url)
             const response = await axios({ url, method, data: requestData, withCredentials: true});
             onSuccess(response.data);
         } catch (err : any) {
