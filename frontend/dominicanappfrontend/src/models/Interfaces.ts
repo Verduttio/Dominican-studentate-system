@@ -95,6 +95,17 @@ export enum ObstacleStatus {
     REJECTED = "REJECTED"
 }
 
+interface ObstacleStatusTranslation {
+    [key: string]: string;
+}
+
+export const obstacleStatusTranslation: ObstacleStatusTranslation = {
+    "AWAITING": "Oczekująca",
+    "APPROVED": "Zaakceptowana",
+    "REJECTED": "Odrzucona"
+};
+
+
 export enum RoleType {
     SYSTEM = "SYSTEM",
     SUPERVISOR = "SUPERVISOR",

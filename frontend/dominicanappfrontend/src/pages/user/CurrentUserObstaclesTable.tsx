@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
+import {Obstacle, ObstacleStatus, obstacleStatusTranslation} from "../../models/Interfaces";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -92,7 +92,7 @@ function CurrentUserObstaclesTable () {
                                             obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
                                                 obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
                                     }>
-                                        {obstacle.status}
+                                        {obstacleStatusTranslation[obstacle.status]}
                                     </span>
                                         </td>
                                         <td>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useHttp from "../../services/UseHttp";
-import {Obstacle, ObstacleStatus} from "../../models/Interfaces";
+import {Obstacle, ObstacleStatus, obstacleStatusTranslation} from "../../models/Interfaces";
 import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -93,7 +93,7 @@ function ObstaclesPage () {
                                             obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
                                                 obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
                                     }>
-                                    {obstacle.status}
+                                    {obstacleStatusTranslation[obstacle.status]}
                                   </span>
                                     </td>
                                     <td>
