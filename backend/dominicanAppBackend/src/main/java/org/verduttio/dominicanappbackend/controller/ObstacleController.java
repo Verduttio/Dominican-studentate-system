@@ -2,6 +2,8 @@ package org.verduttio.dominicanappbackend.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,6 +37,12 @@ public class ObstacleController {
         return new ResponseEntity<>(obstacles, HttpStatus.OK);
     }
 
+    @GetMapping("/pageable")
+    public ResponseEntity<Page<Obstacle>> getAllObstacles(Pageable pageable) {
+        Page<Obstacle> obstacles = obstacleService.getAllObstacles(pageable);
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
     @GetMapping("/{obstacleId}")
     public ResponseEntity<Obstacle> getObstacleById(@PathVariable Long obstacleId) {
         try {
@@ -61,6 +69,20 @@ public class ObstacleController {
         List<Obstacle> obstacles;
         try {
             obstacles = obstacleService.getAllObstaclesByUserId(userId);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{userId}/pageable")
+    public ResponseEntity<?> getAllObstaclesByUserId(
+            @PathVariable Long userId,
+            Pageable pageable) {
+        Page<Obstacle> obstacles;
+        try {
+            obstacles = obstacleService.getAllObstaclesByUserId(userId, pageable);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }

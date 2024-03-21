@@ -1,6 +1,9 @@
 package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,43 +20,37 @@ import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class ObstacleService {
 
     private final ObstacleRepository obstacleRepository;
-    private final UserService userService;
     private final ObstacleValidator obstacleValidator;
     private final ScheduleRepository scheduleRepository;
     private final TaskRepository taskRepository;
 
     @Autowired
-    public ObstacleService(ObstacleRepository obstacleRepository, UserService userService,
+    public ObstacleService(ObstacleRepository obstacleRepository,
                            ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, TaskRepository taskRepository) {
         this.obstacleRepository = obstacleRepository;
-        this.userService = userService;
         this.obstacleValidator = obstacleValidator;
         this.scheduleRepository = scheduleRepository;
         this.taskRepository = taskRepository;
     }
 
     public List<Obstacle> getAllObstacles() {
-        List<Obstacle> allObstacles = obstacleRepository.findAll();
+        List<Obstacle> obstacles = obstacleRepository.findAllSorted();
+        return obstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+    }
 
-        List<Obstacle> futureObstacles = allObstacles.stream()
-                .filter(obstacle -> obstacle.getFromDate().isAfter(LocalDate.now()))
-                .sorted(Comparator.comparing(Obstacle::getFromDate).thenComparing(Obstacle::getToDate).reversed())
-                .collect(Collectors.toList());
-        List<Obstacle> pastObstacles = allObstacles.stream()
-                .filter(obstacle -> obstacle.getFromDate().isBefore(LocalDate.now()) || obstacle.getFromDate().isEqual(LocalDate.now()))
-                .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
-                .toList();
-        futureObstacles.addAll(pastObstacles);
-        List<Obstacle> mappedObstacles = futureObstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
-
-        return mappedObstacles;
+    public Page<Obstacle> getAllObstacles(Pageable pageable) {
+        Page<Obstacle> obstacles = obstacleRepository.findAllSorted(pageable);
+        List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
 
     private Obstacle mapObstacleWithAllTasksToOnlyOneIfNeeded(Obstacle obstacle) {
@@ -93,10 +90,6 @@ public class ObstacleService {
         obstacleValidator.ensureFromDateNotAfterToDate(obstacleRequestDTO.getFromDate(), obstacleRequestDTO.getToDate());
 
         Obstacle obstacle = obstacleRequestDTO.toObstacle();
-        obstacleRepository.save(obstacle);
-    }
-
-    public void saveObstacle(Obstacle obstacle) {
         obstacleRepository.save(obstacle);
     }
 
@@ -153,22 +146,14 @@ public class ObstacleService {
     }
 
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {
-        if (!userService.existsById(userId)) {
-            throw new EntityNotFoundException("User with id " + userId + " does not exist");
-        }
-        List<Obstacle> allObstacles = obstacleRepository.findAllByUserId(userId);
-        List<Obstacle> futureObstacles = allObstacles.stream()
-                .filter(obstacle -> obstacle.getFromDate().isAfter(LocalDate.now()))
-                .sorted(Comparator.comparing(Obstacle::getFromDate).thenComparing(Obstacle::getToDate).reversed())
-                .collect(Collectors.toList());
-        List<Obstacle> pastObstacles = allObstacles.stream()
-                .filter(obstacle -> obstacle.getFromDate().isBefore(LocalDate.now()) || obstacle.getFromDate().isEqual(LocalDate.now()))
-                .sorted(Comparator.comparing(Obstacle::getToDate).reversed())
-                .toList();
-        futureObstacles.addAll(pastObstacles);
-        List<Obstacle> mappedObstacles = futureObstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+       List<Obstacle> obstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId);
+       return obstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+    }
 
-        return mappedObstacles;
+    public Page<Obstacle> getAllObstaclesByUserId(Long userId, Pageable pageable) {
+        Page<Obstacle> obstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId, pageable);
+        List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
 
     private void updateObstacleFromPatchDTO(Obstacle obstacle, ObstaclePatchDTO obstaclePatchDTO) {
@@ -189,14 +174,6 @@ public class ObstacleService {
         obstacleValidator.validateTaskExistence(taskId);
         List<Obstacle> obstaclesByTask = obstacleRepository.findAllByTaskId(taskId);
         return obstaclesByTask.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
-    }
-
-    public void deleteAllObstaclesByTaskId(Long taskId) {
-        obstacleRepository.deleteAllByTaskId(taskId);
-    }
-
-    public List<Obstacle> findAllByTaskId(Long taskId) {
-        return obstacleRepository.findAllByTaskId(taskId);
     }
 
     public Long getNumberOfObstaclesByStatus(ObstacleStatus status) {
