@@ -24,7 +24,6 @@ const NavigationBar = () => {
 
     useEffect(() => {
         numberOfUnverifiedUsersRequest(null, ((number) => {
-            console.log("Number of unverified users: " + number);
             setNumberOfUnverifiedUsers(number);
         }))
 
@@ -32,7 +31,6 @@ const NavigationBar = () => {
     
     useEffect(() => {
         numberOfAwaitingObstaclesRequest(null, ((number) => {
-            console.log("Number of awaiting obstacles: " + number);
             setNumberOfAwaitingObstacles(number);
         }))
     }, [numberOfAwaitingObstaclesRequest]);
