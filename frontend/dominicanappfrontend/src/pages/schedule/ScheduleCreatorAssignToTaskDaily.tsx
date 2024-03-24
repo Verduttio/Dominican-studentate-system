@@ -60,7 +60,6 @@ const ScheduleCreatorAssignToTaskDaily = () => {
     useEffect(() => {
         request(null, (data) => {
             setUserDependencies(data);
-            console.log("userDependencies: ", data);
         });
     }, [request, refreshData]);
 
@@ -187,7 +186,6 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                 <table className="table table-hover table-striped table-rounded table-shadow">
                     <thead className="table-dark">
                     <tr>
-                        <th>UserId</th>
                         <th>Imię i nazwisko</th>
                         <th onClick={() => requestSort('lastAssigned')}>Ostatnio wykonany <SortIcon keyName='lastAssigned'/>
                         </th>
@@ -204,7 +202,6 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                         <tr key={index}
                             className={dep.assignedToTheTask.length > 0 ? 'table-success' : dep.hasObstacle.length > 0 ? 'table-primary' : dep.isInConflict.length > 0 ? 'table-warning' : ''}
                         >
-                            <td>{dep.userId}</td>
                             <td>{dep.userName}</td>
                             <td>{dep.lastAssigned}</td>
                             <td>{dep.numberOfAssignsInLastYear}</td>

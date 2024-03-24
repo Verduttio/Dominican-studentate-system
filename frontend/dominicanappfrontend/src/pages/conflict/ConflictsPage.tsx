@@ -39,7 +39,6 @@ function ConflictsPage() {
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Zadanie 1</th>
                             <th>Zadanie 2</th>
                             {isFunkcyjny && <th>Edytuj</th>}
@@ -48,7 +47,6 @@ function ConflictsPage() {
                         <tbody>
                         {conflicts.map(conflict => (
                             <tr key={conflict.id}>
-                                <td>{conflict.id}</td>
                                 <td>{conflict.task1.name}</td>
                                 <td>{conflict.task2.name}</td>
                                 {isFunkcyjny &&

@@ -41,7 +41,6 @@ function ObstaclesPage () {
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Proszący</th>
                             <th>Zadania</th>
                             <th>Od</th>
@@ -82,7 +81,6 @@ function ObstaclesPage () {
                             return (
                                 <tr key={obstacle.id}
                                     className={className}>
-                                    <td>{obstacle.id}</td>
                                     <td>{obstacle.user.name} {obstacle.user.surname}</td>
                                     <td className='max-column-width-300'>{obstacle.tasks.map(task => task.name).join(", ")}</td>
                                     <td>{obstacle.fromDate}</td>

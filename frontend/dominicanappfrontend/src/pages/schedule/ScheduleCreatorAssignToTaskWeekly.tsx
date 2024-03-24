@@ -159,32 +159,24 @@ const ScheduleCreatorAssignToTaskWeekly = () => {
                 <table className="table table-hover table-stripe table-rounded table-shadow">
                     <thead className="table-dark">
                     <tr>
-                        <th>UserId</th>
                         <th>Imię i nazwisko</th>
                         <th onClick={() => requestSort('lastAssigned')}>Ostatnio wykonany <SortIcon keyName='lastAssigned'/>
                         </th>
                         <th onClick={() => requestSort('numberOfAssignsInLastYear')}>Dni z zadaniem (ostatni rok) <SortIcon
                             keyName='numberOfAssignsInLastYear'/></th>
                         <th>Aktualne taski</th>
-                        <th>Konflikt</th>
-                        <th>Przeszkoda</th>
-                        <th>Już wyznaczony</th>
                         <th>Akcja</th>
                     </tr>
                     </thead>
                     <tbody>
                     {userDependencies.map((dep, index) => (
-                        <tr key={index}
+                        <tr key={dep.userId}
                             className={dep.assignedToTheTask ? 'table-success' : dep.hasObstacle ? 'table-primary' : dep.isInConflict ? 'table-warning' : ''}
                         >
-                            <td>{dep.userId}</td>
                             <td>{dep.userName}</td>
                             <td>{dep.lastAssigned}</td>
                             <td>{dep.numberOfAssignsInLastYear}</td>
                             <td>{dep.assignedTasks.join(', ')}</td>
-                            <td>{dep.isInConflict ? 'Tak' : 'Nie'}</td>
-                            <td>{dep.hasObstacle ? 'Tak' : 'Nie'}</td>
-                            <td>{dep.assignedToTheTask ? 'Tak' : 'Nie'}</td>
                             <td>
                                 {!dep.hasObstacle ? (
                                     dep.assignedToTheTask ? (

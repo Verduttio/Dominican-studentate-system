@@ -37,7 +37,6 @@ function TasksPage () {
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Nazwa</th>
                             <th>Limit uczestników</th>
                             <th>Cały okres</th>
@@ -49,7 +48,6 @@ function TasksPage () {
                         <tbody>
                         {tasks.map(task => (
                             <tr key={task.id}>
-                                <td>{task.id}</td>
                                 <td>[{task.nameAbbrev}] {task.name}</td>
                                 <td>{task.participantsLimit}</td>
                                 <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>

@@ -37,7 +37,6 @@ function ViewRoles() {
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Nazwa</th>
                             <th>Typ</th>
                             {isFunkcyjny && <th>Edytuj</th>}
@@ -46,7 +45,6 @@ function ViewRoles() {
                         <tbody>
                         {roles.map(role => (
                             <tr key={role.id}>
-                                <td>{role.id}</td>
                                 <td>{role.name}</td>
                                 <td>{roleTypeTranslation[role.type]}</td>
                                 {isFunkcyjny &&

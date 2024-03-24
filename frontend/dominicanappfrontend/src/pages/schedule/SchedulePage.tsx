@@ -160,7 +160,6 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Użytkownik</th>
                             <th>Zadania</th>
                         </tr>
@@ -168,7 +167,6 @@ function SchedulePage() {
                         <tbody>
                         {scheduleShortInfo.map(scheduleShortInfo => (
                             <tr key={scheduleShortInfo.userId}>
-                                <td>{scheduleShortInfo.userId}</td>
                                 <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
                                 <td>{scheduleShortInfo.tasksInfoStrings.join(', ')}</td>
                             </tr>
@@ -190,7 +188,6 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Zadanie</th>
                             <th>Użytkownicy</th>
                         </tr>
@@ -198,7 +195,6 @@ function SchedulePage() {
                         <tbody>
                         {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
                             <tr key={scheduleShortInfoForTaskByRole.taskId}>
-                                <td>{scheduleShortInfoForTaskByRole.taskId}</td>
                                 <td>{scheduleShortInfoForTaskByRole.taskName}</td>
                                 <td>
                                     {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
@@ -224,7 +220,6 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
                             <th>Zadanie</th>
                             <th>Użytkownicy</th>
                         </tr>
@@ -232,7 +227,6 @@ function SchedulePage() {
                         <tbody>
                         {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
                             <tr key={scheduleShortInfoForTask.taskId}>
-                                <td>{scheduleShortInfoForTask.taskId}</td>
                                 <td>{scheduleShortInfoForTask.taskName}</td>
                                 <td>
                                     {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
