@@ -68,6 +68,19 @@
     color: white
 }
 
+.card-my-role#button-scale {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white
+}
+
+.card-my-role:hover#button-scale {
+    background-color: #ffffff;
+    transform: scale(1.05);
+    color: black
+}
+
 .card:hover#button-scale {
     background-color: #ffffff;
     transform: scale(1.05);

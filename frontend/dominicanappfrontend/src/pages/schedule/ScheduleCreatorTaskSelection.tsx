@@ -37,7 +37,7 @@ const ScheduleCreatorTaskSelection: React.FC = () => {
             {tasks.length > 0 ? (
                     <>
                         {tasks.map(task => (
-                            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale" key={task.id}>
                                 <div className="card-body text-center" onClick={() => {
                                     navigate(`/schedule-creator/task/chooseMethod?taskId=${task.id}&from=${from}&to=${to}`)
                                 }}>

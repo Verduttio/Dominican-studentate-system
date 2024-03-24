@@ -6,11 +6,13 @@ import { backendUrl } from '../../utils/constants';
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
 import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 
 const ScheduleCreatorRoleSelection: React.FC = () => {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const {currentUser} = useGetOrCreateCurrentUser();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -33,13 +35,14 @@ const ScheduleCreatorRoleSelection: React.FC = () => {
         <div className="fade-in d-flex flex-column align-items-center">
             <h2 className="entity-header-dynamic-size">Wybierz rolę, aby przejść do przypisanych jej zadań</h2>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
-                {supervisorRoles.map((role) => (
-                    <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                        <div className="card-body text-center" onClick={() => {navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}}>
-                            {role.name}
-                        </div>
+            {supervisorRoles.map((role) => (
+                <div className={currentUser?.roles.map(role => role.name).includes(role.name) ? "card card-my-role mb-4 mw-100" : "card mb-4 mw-100"} style={{width: "600px"}} id="button-scale" key={role.id}>
+                    <div className="card-body text-center"
+                         onClick={() => {navigate(`/schedule-creator/tasks?roleName=${role.name}&from=${from}&to=${to}`)}}>
+                        {role.name}
                     </div>
-                ))}
+                </div>
+            ))}
         </div>
     );
 };
