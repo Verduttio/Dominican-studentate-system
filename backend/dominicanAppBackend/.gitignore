@@ -1,5 +1,6 @@
 HELP.md
 /src/main/resources/application-heroku.properties
+/src/main/resources/db/migration/V1__Insert_basic_init_data.sql
 Dockerfile-heroku
 .env
 .gradle

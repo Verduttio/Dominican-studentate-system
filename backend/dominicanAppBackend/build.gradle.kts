@@ -22,6 +22,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.session:spring-session-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.flywaydb:flyway-core")
     implementation("org.apache.pdfbox:pdfbox:2.0.30") {
         exclude(group = "commons-logging", module = "commons-logging")
     }
