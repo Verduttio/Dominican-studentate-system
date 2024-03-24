@@ -283,9 +283,9 @@ public class ScheduleService {
                         String daysOfWeekString = occurrences.stream()
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
-                        return task.getName() + " (" + daysOfWeekString + ")";
+                        return task.getNameAbbrev() + " (" + daysOfWeekString + ")";
                     } else {
-                        return task.getName();
+                        return task.getNameAbbrev();
                     }
                 })
                 .collect(Collectors.toList());
