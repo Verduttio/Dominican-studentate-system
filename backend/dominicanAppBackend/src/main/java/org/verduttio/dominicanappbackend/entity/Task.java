@@ -11,7 +11,8 @@ import java.util.TreeSet;
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_id_generator")
+    @SequenceGenerator(name="task_id_generator", sequenceName = "task_id_seq", allocationSize=1)
     private Long id;
 
     private String name;

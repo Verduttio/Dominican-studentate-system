@@ -10,7 +10,8 @@ import java.util.Set;
 public class Conflict {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "conflict_id_generator")
+    @SequenceGenerator(name="conflict_id_generator", sequenceName = "conflict_id_seq", allocationSize=1)
     private Long id;
 
     @ManyToOne

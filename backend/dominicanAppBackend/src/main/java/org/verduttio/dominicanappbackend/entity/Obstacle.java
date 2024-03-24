@@ -9,7 +9,8 @@ import java.util.Set;
 public class Obstacle {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "obstacle_id_generator")
+    @SequenceGenerator(name="obstacle_id_generator", sequenceName = "obstacle_id_seq", allocationSize=1)
     private Long id;
 
     @ManyToOne

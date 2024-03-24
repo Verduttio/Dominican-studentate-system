@@ -13,7 +13,8 @@ public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_id_generator")
+    @SequenceGenerator(name="role_id_generator", sequenceName = "role_id_seq", allocationSize=1)
     private Long id;
 
     @NotBlank(message="Role name is mandatory")

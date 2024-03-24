@@ -8,7 +8,8 @@ import java.time.LocalDate;
 public class Schedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "schedule_id_generator")
+    @SequenceGenerator(name="schedule_id_generator", sequenceName = "schedule_id_seq", allocationSize=1)
     private Long id;
 
     @ManyToOne
