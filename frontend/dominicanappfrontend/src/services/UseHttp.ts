@@ -37,6 +37,8 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                         setTimeout(() => {
                             navigate('/loginForm');
                         }, 3000);
+                    } else if (status === 404) {
+                        setError("Nie znaleziono zasobu");
                     } else {
                         if (data.message) {
                             setError(`Wystąpił błąd: ${data.message}`);
