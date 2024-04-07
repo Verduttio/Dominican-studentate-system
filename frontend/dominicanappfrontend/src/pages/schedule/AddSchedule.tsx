@@ -12,8 +12,8 @@ function AddSchedule() {
     const navigate = useNavigate();
 
     const handleScheduleCreator = () => {
-        const from = format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy');
-        const to = format(endOfWeek(currentWeek, { weekStartsOn: 1 }), 'dd-MM-yyyy');
+        const from = format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy');
+        const to = format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy');
         navigate(`/schedule-creator?from=${from}&to=${to}`);
     };
 

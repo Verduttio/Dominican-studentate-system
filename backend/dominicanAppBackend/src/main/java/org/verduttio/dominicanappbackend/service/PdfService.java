@@ -84,8 +84,8 @@ public class PdfService {
     }
 
     private void validateDateRange(LocalDate from, LocalDate to) {
-        if (!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Dates must start on Monday and end on Sunday");
+        if (!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Dates must start on Sunday and end on Saturday");
         }
     }
 

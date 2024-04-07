@@ -10,7 +10,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import "./ScheduleCreatorAssignToTaskDaily.css";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSort, faSortDown, faSortUp} from "@fortawesome/free-solid-svg-icons";
-import {daysOfWeekTranslation} from "../../models/DayOfWeek";
+import {daysOfWeekTranslation, daysOrder} from "../../models/DayOfWeek";
 import AlertBox from "../../components/AlertBox";
 import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
@@ -192,7 +192,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                         <th onClick={() => requestSort('numberOfAssignsInLastYear')}>Dni z zadaniem (ostatni rok) <SortIcon
                             keyName='numberOfAssignsInLastYear'/></th>
                         <th>Aktualne taski</th>
-                        {task?.daysOfWeek.map((day, index) => (
+                        {task?.daysOfWeek.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b)).map((day, index) => (
                             <th key={index}>{daysOfWeekTranslation[day]}</th>
                         ))}
                     </tr>
@@ -206,7 +206,7 @@ const ScheduleCreatorAssignToTaskDaily = () => {
                             <td>{dep.lastAssigned}</td>
                             <td>{dep.numberOfAssignsInLastYear}</td>
                             <td>{dep.assignedTasks.join(', ')}</td>
-                            {task?.daysOfWeek.map((day, index) => (
+                            {task?.daysOfWeek.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b)).map((day, index) => (
                                 <td key={index}>
                                     {(dep.hasObstacle.includes(day)) ? (
                                         <button

@@ -10,8 +10,8 @@ interface WeekSelectorProps {
 }
 
 const WeekSelector: React.FC<WeekSelectorProps> = ({ currentWeek, setCurrentWeek }) => {
-    const startOfWeekDate = startOfWeek(currentWeek, { weekStartsOn: 1 });
-    const endOfWeekDate = endOfWeek(currentWeek, { weekStartsOn: 1 });
+    const startOfWeekDate = startOfWeek(currentWeek, { weekStartsOn: 0 });
+    const endOfWeekDate = endOfWeek(currentWeek, { weekStartsOn: 0 });
 
     const handlePreviousWeek = () => {
         setCurrentWeek(subDays(startOfWeekDate, 7));

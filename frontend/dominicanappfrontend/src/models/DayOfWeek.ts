@@ -3,13 +3,13 @@ interface DaysOfWeekAbbreviation {
 }
 
 export const daysOfWeekAbbreviation: DaysOfWeekAbbreviation = {
+    "SUNDAY": "Niedz",
     "MONDAY": "Pon",
     "TUESDAY": "Wt",
     "WEDNESDAY": "Śr",
     "THURSDAY": "Czw",
     "FRIDAY": "Pt",
-    "SATURDAY": "Sob",
-    "SUNDAY": "Niedz"
+    "SATURDAY": "Sob"
 };
 
 interface DaysOfWeekTranslation {
@@ -17,11 +17,13 @@ interface DaysOfWeekTranslation {
 }
 
 export const daysOfWeekTranslation: DaysOfWeekTranslation = {
+    "SUNDAY": "Niedziela",
     "MONDAY": "Poniedziałek",
     "TUESDAY": "Wtorek",
     "WEDNESDAY": "Środa",
     "THURSDAY": "Czwartek",
     "FRIDAY": "Piątek",
-    "SATURDAY": "Sobota",
-    "SUNDAY": "Niedziela"
+    "SATURDAY": "Sobota"
 };
+
+export const daysOrder = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];

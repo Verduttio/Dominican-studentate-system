@@ -158,8 +158,8 @@ public class ScheduleService {
     }
 
     public List<UserTaskDependencyWeeklyDTO> getAllUserDependenciesForTaskWeekly(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         Task task = taskService.getTaskById(taskId)
@@ -197,8 +197,8 @@ public class ScheduleService {
     }
 
     public List<UserTaskDependencyDailyDTO> getAllUserDependenciesForTaskDaily(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         Task task = taskService.getTaskById(taskId)
@@ -251,13 +251,13 @@ public class ScheduleService {
         // Possible days of the week
         // Dictionary of DayOfWeek enum and its abbreviation in polish
         Map<DayOfWeek, String> dayOfWeekAbbreviations = Map.of(
+                DayOfWeek.SUNDAY, "Nd",
                 DayOfWeek.MONDAY, "Pn",
                 DayOfWeek.TUESDAY, "Wt",
                 DayOfWeek.WEDNESDAY, "Śr",
                 DayOfWeek.THURSDAY, "Cz",
                 DayOfWeek.FRIDAY, "Pt",
-                DayOfWeek.SATURDAY, "So",
-                DayOfWeek.SUNDAY, "Nd"
+                DayOfWeek.SATURDAY, "So"
         );
 
         // Create a map of tasks and their DaysOfWeek assigns from task.date
@@ -312,7 +312,7 @@ public class ScheduleService {
 
     public void validateAddScheduleForWholePeriodTask(AddScheduleForWholePeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate from, LocalDate to)
         throws IllegalArgumentException, EntityNotFoundException, RoleNotMeetRequirementsException, EntityAlreadyExistsException, ScheduleIsInConflictException {
-        validate(!DateValidator.dateStartsMondayEndsSunday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+        validate(!DateValidator.dateStartsSundayEndsSaturday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week."));
 
         User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
@@ -337,7 +337,7 @@ public class ScheduleService {
 
     public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate)
         throws IllegalArgumentException, EntityNotFoundException, RoleNotMeetRequirementsException, EntityAlreadyExistsException, ScheduleIsInConflictException {
-        validate(!DateValidator.dateStartsMondayEndsSunday(dateStartWeek, dateEndWeek), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+        validate(!DateValidator.dateStartsSundayEndsSaturday(dateStartWeek, dateEndWeek), new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week."));
         validate(!DateValidator.isDateInRange(taskDate, dateStartWeek, dateEndWeek), new IllegalArgumentException("Task date is not in the date range"));
 
         User user = userService.getUserById(addScheduleDTO.getUserId()).orElseThrow(() ->
@@ -494,8 +494,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesByUserIdForSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         if(!userService.existsById(userId)) {
@@ -506,8 +506,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForUser> getScheduleShortInfoForEachUserForSpecifiedWeek(LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         List<User> users = userService.getAllUsers();
@@ -532,7 +532,7 @@ public class ScheduleService {
         LocalDate from = addScheduleForWholePeriodTaskDTO.getFromDate();
         LocalDate to = addScheduleForWholePeriodTaskDTO.getToDate();
 
-        validate(!DateValidator.dateStartsMondayEndsSunday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+        validate(!DateValidator.dateStartsSundayEndsSaturday(from, to), new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week."));
 
         if(!taskService.existsById(addScheduleForWholePeriodTaskDTO.getTaskId())) {
             throw new EntityNotFoundException("Task with given id does not exist");
@@ -559,7 +559,7 @@ public class ScheduleService {
         LocalDate weekEndDate = addScheduleForDailyPeriodTaskDTO.getWeekEndDate();
         LocalDate taskDate = addScheduleForDailyPeriodTaskDTO.getTaskDate();
 
-        validate(!DateValidator.dateStartsMondayEndsSunday(weekStartDate, weekEndDate), new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week."));
+        validate(!DateValidator.dateStartsSundayEndsSaturday(weekStartDate, weekEndDate), new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week."));
         validate(!DateValidator.isDateInRange(taskDate, weekStartDate, weekEndDate), new IllegalArgumentException("Task date is not in the date range"));
 
         if(!taskService.existsById(addScheduleForDailyPeriodTaskDTO.getTaskId())) {
@@ -582,8 +582,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesForTaskForSpecifiedWeek(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         if(!taskService.existsById(taskId)) {
@@ -594,8 +594,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForEachTaskForSpecifiedWeek(LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         List<Task> tasks = taskService.getAllTasks();
@@ -624,13 +624,13 @@ public class ScheduleService {
         // Possible days of the week
         // Dictionary of DayOfWeek enum and its abbreviation in polish
         Map<DayOfWeek, String> dayOfWeekAbbreviations = Map.of(
+                DayOfWeek.SUNDAY, "Nd",
                 DayOfWeek.MONDAY, "Pn",
                 DayOfWeek.TUESDAY, "Wt",
                 DayOfWeek.WEDNESDAY, "Śr",
                 DayOfWeek.THURSDAY, "Cz",
                 DayOfWeek.FRIDAY, "Pt",
-                DayOfWeek.SATURDAY, "So",
-                DayOfWeek.SUNDAY, "Nd"
+                DayOfWeek.SATURDAY, "So"
         );
 
         // Create a map of users and their DaysOfWeek assigns from schedule.date
@@ -664,8 +664,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskByRoleForSpecifiedWeek(String supervisorRole, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsMondayEndsSunday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Monday and end on Sunday, covering exactly one week.");
+        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         Role role = roleService.findByNameAndType(supervisorRole, RoleType.SUPERVISOR)

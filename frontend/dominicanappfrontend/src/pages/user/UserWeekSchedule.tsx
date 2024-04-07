@@ -19,7 +19,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
         request: fetchSchedule,
         error,
         loading
-    } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${format(startOfWeek(currentWeek, {weekStartsOn: 1}), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, {weekStartsOn: 1}), 'dd-MM-yyyy')}`, 'GET');
+    } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy')}`, 'GET');
     const todayDate = new Date();
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
@@ -37,7 +37,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     }, [fetchSchedule]);
 
     const weekDays = useMemo(() => {
-        let weekStart = startOfWeek(currentWeek, {weekStartsOn: 1});
+        let weekStart = startOfWeek(currentWeek, {weekStartsOn: 0});
         return Array.from({length: 7}).map((_, i) => addDays(weekStart, i));
     }, [currentWeek]);
 
