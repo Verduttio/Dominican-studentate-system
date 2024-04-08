@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.Role;
@@ -226,6 +227,27 @@ public class UserService {
 
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserNameSurnameFields(Long userId, UserNameSurnameDTO userNameSurnameDTO) throws EntityNotFoundException{
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long currentUserId = userDetails.getUser().getId();
+        boolean hasFunctionalRole = userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FUNKCYJNY"));
+
+        if (!currentUserId.equals(userId) && !hasFunctionalRole) {
+            throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        user.setName(userNameSurnameDTO.getName());
+        user.setSurname(userNameSurnameDTO.getSurname());
+        userRepository.save(user);
+        userSessionService.expireUserSessions(user.getEmail());
     }
 
     public Long getNumberOfNotVerifiedUsers() {

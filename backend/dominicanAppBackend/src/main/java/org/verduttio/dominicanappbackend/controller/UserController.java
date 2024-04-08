@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.auth.PasswordUpdateDTO;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
@@ -163,6 +164,21 @@ public class UserController {
                                                 @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
         try {
             userService.updateUserPassword(userId, passwordUpdateDTO.getNewPassword());
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{userId}/name_surname")
+    public ResponseEntity<?> updateUserPassword(@PathVariable Long userId,
+                                                @Valid
+                                                @RequestBody UserNameSurnameDTO userNameSurnameDTO) {
+        try {
+            userService.updateUserNameSurnameFields(userId, userNameSurnameDTO);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {

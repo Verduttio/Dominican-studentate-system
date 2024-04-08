@@ -6,9 +6,11 @@ import CurrentUserObstaclesTable from "./CurrentUserObstaclesTable";
 import {useLocation, useNavigate} from "react-router-dom";
 import AlertBox from "../../components/AlertBox";
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
+import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
 
 function UserProfilePage () {
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
     const { currentUser, errorCurrent } = useGetOrCreateCurrentUser()
     const navigate = useNavigate();
     const location = useLocation();
@@ -36,19 +38,28 @@ function UserProfilePage () {
                                     <div><strong>Email:</strong> {currentUser.email}</div>
                                     <div><strong>Id:</strong> {currentUser.id}</div>
                                     <div><strong>Zarejestrowany przez:</strong> {currentUser.provider}</div>
-                                    {currentUser.provider === Provider.LOCAL &&
-                                        <div className="d-flex justify-content-center p-3">
-                                            <button
-                                                className="btn btn-danger"
-                                                onClick={() => setShowChangePassword(true)}
-                                            >
-                                                Zmień hasło
-                                            </button>
-                                        </div>
-                                    }
+                                    <div className={"d-flex justify-content-between mt-1"}>
+                                        <button
+                                            className="btn btn-info"
+                                            onClick={() => setShowChangeNameSurname(true)}
+                                        >
+                                            Zmień imię i nazwisko
+                                        </button>
+                                        {currentUser.provider === Provider.LOCAL &&
+                                            <div className="d-flex justify-content-center p-3">
+                                                <button
+                                                    className="btn btn-danger"
+                                                    onClick={() => setShowChangePassword(true)}
+                                                >
+                                                    Zmień hasło
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                             {showChangePassword && <ChangePasswordPopup userId={currentUser.id} onClose={() => setShowChangePassword(false)} />}
+                            {showChangeNameSurname && <ChangeNameSurnamePopup userId={currentUser.id} onClose={() => setShowChangeNameSurname(false)} />}
                         </div>
                         <div className="col-md-6 mw-100" style={{width: '400px'}}>
                             <div className="card shadow-sm m-1">

@@ -8,6 +8,7 @@ import ChangePasswordPopup from "./ChangePasswordPopup";
 import AlertBox from "../../components/AlertBox";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -25,6 +26,7 @@ function VerifyUserPage() {
     const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -116,8 +118,24 @@ function VerifyUserPage() {
                     </table>
                 </div>
             </div>
+            <div className="edit-entity-container mw-100 my-1" style={{width: '400px'}}>
+                <div className="d-flex justify-content-between">
+                    <button className="btn btn-info m-1"
+                            disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                            onClick={() => setShowChangeNameSurname(true)}>
+                        Edytuj imię i nazwisko
+                    </button>
+                    {user?.provider === Provider.LOCAL &&
+                        <button className="btn btn-warning m-1"
+                                disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                                onClick={() => setShowChangePassword(true)}>
+                            Zmień hasło
+                        </button>
+                    }
+                </div>
+            </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {requestError && <AlertBox text={requestError} type="danger" width={'500px'} />}
+                {requestError && <AlertBox text={requestError} type="danger" width={'500px'}/>}
                 {deleteUserError && <AlertBox text={deleteUserError} type="danger" width={'500px'} />}
                 {updateRolesError && <AlertBox text={updateRolesError} type="danger" width={'500px'} />}
                 <div className="mb-3">
@@ -171,15 +189,10 @@ function VerifyUserPage() {
                             ) : 'Zweryfikuj użytkownika'}
                         </button>
                     }
-                    {user?.provider === Provider.LOCAL &&
-                        <button className="btn btn-warning m-1"
-                                disabled={requestLoading || deleteUserLoading || updateRolesLoading}
-                                onClick={() => setShowChangePassword(true)}>
-                            Zmień hasło
-                        </button>
-                    }
                     {showChangePassword &&
                         <ChangePasswordPopup userId={user?.id ? user.id : 0} onClose={() => setShowChangePassword(false)}/>}
+                    {showChangeNameSurname &&
+                        <ChangeNameSurnamePopup userId={user?.id ? user.id : 0} onClose={() => setShowChangeNameSurname(false)}/>}
                     <button className="btn btn-danger m-1" onClick={handleDelete}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>
