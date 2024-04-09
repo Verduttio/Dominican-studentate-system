@@ -99,25 +99,17 @@ const NavigationBar = () => {
                     </button>
                 }
 
-                {isAdmin &&
-                    <button
-                        className="bg-primary"
-                        onClick={() => navigateTo('/obstacles')}
-                    >
-                        Przeszkody
-                        {numberOfAwaitingObstacles > 0 && (
-                            <span className="notification-icon">
-                            <FontAwesomeIcon icon={faNoteSticky}/>
-                            <span className="notification-count">{numberOfAwaitingObstacles}</span>
-                        </span>
-                        )}
-                    </button>
-                }
-
                 <button onClick={() => {
                     navigateTo('/other')
                 }}>Inne
+                    {isAdmin && numberOfAwaitingObstacles > 0 && (
+                        <span className="notification-icon">
+                                <FontAwesomeIcon icon={faNoteSticky}/>
+                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                            </span>
+                    )}
                 </button>
+
                 <LogoutButton/>
             </div>
 
@@ -153,24 +145,16 @@ const NavigationBar = () => {
                     </button>
                 }
 
-                {isAdmin &&
-                    <button
-                        className="bg-primary"
-                        onClick={() => navigateTo('/obstacles')}
-                    >
-                        Przeszkody
-                        {numberOfAwaitingObstacles > 0 && (
-                            <span className="notification-icon">
-                                <FontAwesomeIcon icon={faNoteSticky}/>
-                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
-                            </span>
-                        )}
-                    </button>
-                }
 
                 <button onClick={() => {
                     navigateTo('/other')
                 }}>Inne
+                    {isAdmin && numberOfAwaitingObstacles > 0 && (
+                        <span className="notification-icon">
+                                <FontAwesomeIcon icon={faNoteSticky}/>
+                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                            </span>
+                    )}
                 </button>
 
                 <LogoutButton/>
