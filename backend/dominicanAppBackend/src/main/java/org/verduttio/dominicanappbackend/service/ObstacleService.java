@@ -122,7 +122,7 @@ public class ObstacleService {
 
         Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
 
-        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_FUNKCYJNY"))
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))
             || currentUser.getId().equals(obstacle.getUser().getId())) {
             obstacleRepository.deleteById(obstacleId);
         } else {

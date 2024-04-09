@@ -72,7 +72,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (!user.isEnabled()) {
             System.out.println("Not verified user");
-            throw new DisabledException("Konto pomyslnie zarejestrowane. Czeka na weryfikacje przez funkcyjnego.");
+            throw new DisabledException("Konto pomyslnie zarejestrowane. Czeka na weryfikacje przez administratora.");
         }
 
         return new UserDetailsImpl(user, oAuth2User.getAttributes());

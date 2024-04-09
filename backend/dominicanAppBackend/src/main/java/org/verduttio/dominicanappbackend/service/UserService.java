@@ -216,7 +216,7 @@ public class UserService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long currentUserId = userDetails.getUser().getId();
         boolean hasFunctionalRole = userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FUNKCYJNY"));
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
         if (!currentUserId.equals(userId) && !hasFunctionalRole) {
             throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
@@ -235,7 +235,7 @@ public class UserService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long currentUserId = userDetails.getUser().getId();
         boolean hasFunctionalRole = userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FUNKCYJNY"));
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
         if (!currentUserId.equals(userId) && !hasFunctionalRole) {
             throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
