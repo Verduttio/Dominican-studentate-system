@@ -4,14 +4,14 @@ import { Task } from "../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import useIsAdmin from "../../services/UseIsFunkcyjny";
 import AlertBox from "../../components/AlertBox";
 
 
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;

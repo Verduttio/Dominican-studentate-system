@@ -7,7 +7,7 @@ import RoleFormFields from "./RoleFormFields";
 import '../../components/AddEditForm.css';
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 
 function AddRole() {
     const initialRoleState : Role= {
@@ -19,7 +19,7 @@ function AddRole() {
     const [roleData, setRoleData] = useState<Role | null>(initialRoleState);
     const [validationError, setValidationError] = useState<string>('');
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'POST');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const { isAdmin, isAdminLoading, isAdminInitialized } = useIsAdmin();
     const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -34,9 +34,9 @@ function AddRole() {
         });
     };
 
-    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+    if(isAdminLoading || isAdminInitialized) {
         return <LoadingSpinner/>;
-    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    } else if(!isAdmin) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

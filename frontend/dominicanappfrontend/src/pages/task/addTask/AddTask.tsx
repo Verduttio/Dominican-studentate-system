@@ -6,7 +6,7 @@ import {backendUrl} from "../../../utils/constants";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import TaskFormFields from "./TaskFormFields";
 import AlertBox from "../../../components/AlertBox";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -56,7 +56,7 @@ function AddTask() {
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { error: postError, request: postTask, loading: postTaskLoading } = useHttp(`${backendUrl}/api/tasks`, 'POST');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsAdmin();
     const [validationError, setValidationError] = useState<string>('');
     const navigate = useNavigate();
 

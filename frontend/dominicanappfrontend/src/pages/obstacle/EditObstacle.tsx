@@ -6,7 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
@@ -19,7 +19,7 @@ function EditObstacle() {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [recipientAnswer, setRecipientAnswer] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const { isAdmin, isAdminLoading, isAdminInitialized } = useIsAdmin();
 
     let loading = patchLoading || deleteLoading || getCurrentLoading;
 
@@ -46,9 +46,9 @@ function EditObstacle() {
         }).then(() => setShowConfirmationPopup(false));
     };
 
-    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+    if(isAdminLoading || isAdminInitialized) {
         return <LoadingSpinner/>;
-    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    } else if(!isAdmin) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (getLoading) return <LoadingSpinner/>;
     if (getError || getCurrentError) return <AlertBox text={getError || getCurrentError} type={'danger'} width={'500px'}/>;
@@ -99,11 +99,11 @@ function EditObstacle() {
                             </td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Funkcyjny</th>
+                            <th className="table-dark">Rozpatrujący</th>
                             <td>{obstacle?.recipientUser ? obstacle.recipientUser.name + " " + obstacle.recipientUser.surname : "-"}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Odpowiedź funkcyjnego</th>
+                            <th className="table-dark">Odpowiedź rozpatrującego</th>
                             <td>{obstacle?.recipientAnswer ? obstacle.recipientAnswer : "-"}</td>
                         </tr>
                         </tbody>

@@ -19,3 +19,11 @@ export const isFunkcyjnyUser = () => {
     }
     return null;
 }
+
+export const isAdminUser = () => {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        return currentUser.roles.some(role => role.name === 'ROLE_ADMIN');
+    }
+    return null;
+}

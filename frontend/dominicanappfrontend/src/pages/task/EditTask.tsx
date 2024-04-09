@@ -7,7 +7,7 @@ import {Role, Task} from "../../models/Interfaces";
 import TaskFormFields from "./addTask/TaskFormFields";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 
 interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRole'> {
@@ -60,7 +60,7 @@ function EditTask() {
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { error: postError, request: postTask, loading: postLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'PUT');
     const { request: deleteTask, error: deleteError, loading: deleteLoading } = useHttp(`${backendUrl}/api/tasks/${taskId}`, 'DELETE');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsAdmin();
     const [validationError, setValidationError] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
     const navigate = useNavigate();

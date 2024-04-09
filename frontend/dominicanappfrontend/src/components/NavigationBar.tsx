@@ -6,14 +6,14 @@ import useHttp from '../services/UseHttp';
 import {backendUrl} from "../utils/constants";
 import { faUserPlus, faNoteSticky, faBars, faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useIsFunkcyjny from "../services/UseIsFunkcyjny";
+import useIsAdmin from "../services/UseIsAdmin";
 
 
 const NavigationBar = () => {
     const navigate = useNavigate();
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsFunkcyjny();
+    const { isAdmin, isAdminLoading, isAdminError } = useIsAdmin();
     const { request: numberOfUnverifiedUsersRequest, error: numberOfUnverifiedUsersError, loading: numberOfUnverifiedUsersLoading } = useHttp(
         `${backendUrl}/api/users/notVerified/count`, 'GET'
     );
@@ -48,7 +48,7 @@ const NavigationBar = () => {
         <div className="navigation-bar">
             <button className="hamburger-menu" onClick={toggleMenu}>
                 Opcje
-                {numberOfUnverifiedUsers + numberOfAwaitingObstacles > 0 && isFunkcyjny ? (
+                {numberOfUnverifiedUsers + numberOfAwaitingObstacles > 0 && isAdmin ? (
                     <span className="notification-icon">
                         <FontAwesomeIcon icon={faBars}/>
                         <span
@@ -74,7 +74,7 @@ const NavigationBar = () => {
                     onClick={() => navigateTo('/users')}
                 >
                     Użytkownicy
-                    {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
+                    {numberOfUnverifiedUsers > 0 && isAdmin && (
                         <span className="notification-icon">
                         <FontAwesomeIcon icon={faUserPlus}/>
                         <span className="notification-count">{numberOfUnverifiedUsers}</span>
@@ -88,7 +88,7 @@ const NavigationBar = () => {
                     Harmonogram
                 </button>
 
-                {isFunkcyjny &&
+                {isAdmin &&
                     <button
                         className="bg-primary"
                         onClick={() => navigateTo('/obstacles')}
@@ -119,7 +119,7 @@ const NavigationBar = () => {
                     onClick={() => navigateTo('/users')}
                 >
                     Użytkownicy
-                    {numberOfUnverifiedUsers > 0 && isFunkcyjny && (
+                    {numberOfUnverifiedUsers > 0 && isAdmin && (
                         <span className="notification-icon">
                             <FontAwesomeIcon icon={faUserPlus}/>
                             <span className="notification-count">{numberOfUnverifiedUsers}</span>
@@ -133,7 +133,7 @@ const NavigationBar = () => {
                     Harmonogram
                 </button>
 
-                {isFunkcyjny &&
+                {isAdmin &&
                     <button
                         className="bg-primary"
                         onClick={() => navigateTo('/obstacles')}

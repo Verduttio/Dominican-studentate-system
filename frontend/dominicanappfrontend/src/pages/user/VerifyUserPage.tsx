@@ -6,8 +6,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import ChangePasswordPopup from "./ChangePasswordPopup";
 import AlertBox from "../../components/AlertBox";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
-import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useIsAdmin from "../../services/UseIsAdmin";
+import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
 
 function VerifyUserPage() {
@@ -19,7 +19,7 @@ function VerifyUserPage() {
     const { request: deleteUserRequest, error: deleteUserError, loading: deleteUserLoading} = useHttp(`${backendUrl}/api/users/${userId}`, 'DELETE');
     const { request: verifyUserRequest, error: requestError, loading: requestLoading} = useHttp(`${backendUrl}/api/users/${userId}/verification/assignRoles`, 'PUT');
     const { request: updateRolesRequest, error: updateRolesError, loading: updateRolesLoading } = useHttp(`${backendUrl}/api/users/${userId}/roles`, 'PATCH');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const { isAdmin, isAdminLoading, isAdminInitialized } = useIsAdmin();
 
     const [user, setUser] = useState<User | null>(null);
     const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
@@ -64,9 +64,9 @@ function VerifyUserPage() {
         });
     }
 
-    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+    if(isAdminLoading || isAdminInitialized) {
         return <LoadingSpinner/>;
-    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    } else if(!isAdmin) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if(loadingSupervisorRoles || loadingTaskPerformerRoles || loadingUser) return <LoadingSpinner/>;
     if(errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser) return <AlertBox text={errorFetchSupervisorRoles || errorFetchTaskPerformerRoles || errorFetchUser} type="danger" width={'500px'} />;

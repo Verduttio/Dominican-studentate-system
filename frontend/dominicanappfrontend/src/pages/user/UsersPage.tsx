@@ -5,14 +5,14 @@ import {backendUrl} from "../../utils/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import "./UsersPage.css";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import useIsAdmin from "../../services/UseIsAdmin";
 import AlertBox from "../../components/AlertBox";
 
 
 function UsersPage () {
     const [users, setUsers] = useState<User[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/users`, 'GET');
-    const { isFunkcyjny } = useIsFunkcyjny();
+    const { isAdmin } = useIsAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -39,7 +39,7 @@ function UsersPage () {
                             <th>Imię</th>
                             <th>Nazwisko</th>
                             <th>Akcja</th>
-                            {isFunkcyjny && <th>Edytuj</th>}
+                            {isAdmin && <th>Edytuj</th>}
                         </tr>
                         </thead>
                         <tbody>
@@ -51,7 +51,7 @@ function UsersPage () {
                                 <td>
                                     <button className="btn btn-dark" onClick={() => {navigate(`/users/${user.id}/viewer/details`)}}>Szczegóły</button>
                                 </td>
-                                {isFunkcyjny &&
+                                {isAdmin &&
                                     <td>
                                         <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"} onClick={() => navigate(`/users/${user.id}/verify`)}>
                                             {user.enabled ? "Edytuj" : "Zweryfikuj"}

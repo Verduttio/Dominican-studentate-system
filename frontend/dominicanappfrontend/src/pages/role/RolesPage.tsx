@@ -4,13 +4,13 @@ import {Role, RoleType, roleTypeTranslation} from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import useIsAdmin from "../../services/UseIsAdmin";
 import AlertBox from "../../components/AlertBox";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
-    const { isFunkcyjny } = useIsFunkcyjny();
+    const { isAdmin } = useIsAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -39,7 +39,7 @@ function ViewRoles() {
                         <tr>
                             <th>Nazwa</th>
                             <th>Typ</th>
-                            {isFunkcyjny && <th>Edytuj</th>}
+                            {isAdmin && <th>Edytuj</th>}
                         </tr>
                         </thead>
                         <tbody>
@@ -47,7 +47,7 @@ function ViewRoles() {
                             <tr key={role.id}>
                                 <td>{role.name}</td>
                                 <td>{roleTypeTranslation[role.type]}</td>
-                                {isFunkcyjny &&
+                                {isAdmin &&
                                     <td>
                                         {role.type !== RoleType.SYSTEM && <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>}
                                     </td>
@@ -58,7 +58,7 @@ function ViewRoles() {
                     </table>
                 </div>
             </div>
-            {isFunkcyjny &&
+            {isAdmin &&
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-primary m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
                 </div>
