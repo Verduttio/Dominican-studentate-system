@@ -4,6 +4,7 @@ import UserWeekSchedule from "./user/UserWeekSchedule";
 import UserTasksStatistics from "./user/UserTasksStatistics";
 import AlertBox from "../components/AlertBox";
 import useGetOrCreateCurrentUser from "../services/UseGetOrCreateCurrentUser";
+import UserProfilePage from "./user/UserProfilePage";
 
 
 function Home() {
@@ -16,17 +17,16 @@ function Home() {
     else if (currentUser) {
         return (
             <div className="fade-in">
+                <UserProfilePage/>
                 <div className="d-flex justify-content-center">
-                    <h2 className="entity-header">Witaj {currentUser.name} {currentUser.surname}</h2>
-                </div>
-                <div className="d-flex justify-content-center">
-                    <h2 className="entity-header">Twój harmonogram na</h2>
+                    <h2 className="entity-header mb-0">Mój harmonogram</h2>
                 </div>
                 <UserWeekSchedule userId={currentUser.id}/>
                 <div className="d-flex justify-content-center">
                     <h4 className="entity-header-dynamic-size mb-2 mt-0">Statystyki</h4>
                 </div>
                 <UserTasksStatistics userId={currentUser.id}/>
+
             </div>
         );
     } else {

@@ -70,8 +70,6 @@ const NavigationBar = () => {
             <div className={`mobile-menu ${isMenuOpen ? 'active' : 'hidden'}`}>
                 <button onClick={() => navigateTo('/home')}>Home</button>
 
-                <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
-
                 <button
                     onClick={() => navigateTo('/users')}
                 >
@@ -115,8 +113,6 @@ const NavigationBar = () => {
 
             <div className="navbar-buttons-pc">
                 <button onClick={() => navigateTo('/home')}>Home</button>
-
-                <button onClick={() => navigateTo('/user-profile')}>Mój profil</button>
 
                 <button
                     onClick={() => navigateTo('/users')}
