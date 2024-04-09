@@ -136,8 +136,20 @@ function VerifyUserPage() {
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
                 {requestError && <AlertBox text={requestError} type="danger" width={'500px'}/>}
-                {deleteUserError && <AlertBox text={deleteUserError} type="danger" width={'500px'} />}
-                {updateRolesError && <AlertBox text={updateRolesError} type="danger" width={'500px'} />}
+                {deleteUserError && <AlertBox text={deleteUserError} type="danger" width={'500px'}/>}
+                {updateRolesError && <AlertBox text={updateRolesError} type="danger" width={'500px'}/>}
+                <div className="mb-3">
+                    <label className="form-label">Role systemowe:</label>
+                        <label className="form-check custom-checkbox">
+                            <input
+                                className={"form-check-input"}
+                                type="checkbox"
+                                checked={selectedRoles.includes("ROLE_ADMIN")}
+                                onChange={(e) => handleRoleChange("ROLE_ADMIN", e.target.checked)}
+                            />
+                            ROLE_ADMIN
+                        </label>
+                </div>
                 <div className="mb-3">
                     <label className="form-label">Role funkcyjne:</label>
                     {rolesSupervisor.map((role) => (
@@ -190,9 +202,11 @@ function VerifyUserPage() {
                         </button>
                     }
                     {showChangePassword &&
-                        <ChangePasswordPopup userId={user?.id ? user.id : 0} onClose={() => setShowChangePassword(false)}/>}
+                        <ChangePasswordPopup userId={user?.id ? user.id : 0}
+                                             onClose={() => setShowChangePassword(false)}/>}
                     {showChangeNameSurname &&
-                        <ChangeNameSurnamePopup userId={user?.id ? user.id : 0} onClose={() => setShowChangeNameSurname(false)}/>}
+                        <ChangeNameSurnamePopup userId={user?.id ? user.id : 0}
+                                                onClose={() => setShowChangeNameSurname(false)}/>}
                     <button className="btn btn-danger m-1" onClick={handleDelete}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>
