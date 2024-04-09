@@ -7,6 +7,7 @@ import {backendUrl} from "../utils/constants";
 import { faUserPlus, faNoteSticky, faBars, faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useIsAdmin from "../services/UseIsAdmin";
+import useIsFunkcyjny from "../services/UseIsFunkcyjny";
 
 
 const NavigationBar = () => {
@@ -14,6 +15,7 @@ const NavigationBar = () => {
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
     const { isAdmin, isAdminLoading, isAdminError } = useIsAdmin();
+    const { isFunkcyjny } = useIsFunkcyjny();
     const { request: numberOfUnverifiedUsersRequest, error: numberOfUnverifiedUsersError, loading: numberOfUnverifiedUsersLoading } = useHttp(
         `${backendUrl}/api/users/notVerified/count`, 'GET'
     );
@@ -85,8 +87,17 @@ const NavigationBar = () => {
                 <button
                     onClick={() => navigateTo('/schedule')}
                 >
-                    Harmonogram
+                    Wydruki
                 </button>
+
+                {isFunkcyjny &&
+                    <button
+                        className="bg-primary"
+                        onClick={() => navigateTo('/add-schedule')}
+                    >
+                        Wyznacz
+                    </button>
+                }
 
                 {isAdmin &&
                     <button
@@ -130,8 +141,17 @@ const NavigationBar = () => {
                 <button
                     onClick={() => navigateTo('/schedule')}
                 >
-                    Harmonogram
+                    Wydruki
                 </button>
+
+                {isFunkcyjny &&
+                    <button
+                        className="bg-primary"
+                        onClick={() => navigateTo('/add-schedule')}
+                    >
+                        Wyznacz
+                    </button>
+                }
 
                 {isAdmin &&
                     <button

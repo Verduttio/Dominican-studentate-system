@@ -245,15 +245,6 @@ function SchedulePage() {
 
     return (
         <div className="fade-in">
-            <div className="d-flex justify-content-center">
-                <h1 className="entity-header">Harmonogram</h1>
-            </div>
-            {isFunkcyjny &&
-                <div className="d-flex justify-content-center mb-2">
-                    <button className="btn btn-primary" onClick={() => navigate('/add-schedule')}>Dodaj harmonogram
-                    </button>
-                </div>
-            }
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
