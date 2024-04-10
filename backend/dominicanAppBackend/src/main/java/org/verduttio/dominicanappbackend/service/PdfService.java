@@ -128,7 +128,7 @@ public class PdfService {
         cell.setFillColor(Color.BLACK);
         cell.setTextColor(Color.WHITE);
 
-        cell = headerRow.createCell(50, "Zadanie");
+        cell = headerRow.createCell(50, "Oficjum");
         cell.setFont(font);
         cell.setFontSize(12);
         cell.setFillColor(Color.BLACK);
@@ -156,7 +156,7 @@ public class PdfService {
     private void populateTaskScheduleTable(BaseTable table, List<ScheduleShortInfoForTask> schedules, PDFont font) throws IOException {
         // Create Header row
         Row<PDPage> headerRow = table.createRow(15f);
-        Cell<PDPage> cell = headerRow.createCell(50, "Zadanie");
+        Cell<PDPage> cell = headerRow.createCell(50, "Oficjum");
         cell.setFont(font);
         cell.setFontSize(12);
         cell.setAlign(HorizontalAlignment.CENTER);
