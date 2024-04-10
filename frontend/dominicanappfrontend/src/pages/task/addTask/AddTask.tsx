@@ -16,7 +16,7 @@ interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRol
 
 function validateTaskData(data: TaskFormData) : string {
     if (!data.name) {
-        return('Proszę wypełnić nazwę zadania.');
+        return('Proszę wypełnić nazwę oficjum.');
     }
 
     if (data.participantsLimit == null || data.participantsLimit < 1) {
@@ -71,7 +71,7 @@ function AddTask() {
             setValidationError(error);
             return;
         } else {
-            postTask(taskData, () => navigate('/tasks', { state: { message: 'Pomyślnie dodano zadanie' } }));
+            postTask(taskData, () => navigate('/tasks', { state: { message: 'Pomyślnie dodano oficjum' } }));
         }
     };
 
@@ -123,7 +123,7 @@ function AddTask() {
     return (
         <div className="fade-in">
             <div className="page-header">
-                <h1>Dodaj zadanie</h1>
+                <h1>Dodaj oficjum</h1>
             </div>
             {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/> }
             {postError && <AlertBox text={postError} type={'danger'} width={'500px'}/>}

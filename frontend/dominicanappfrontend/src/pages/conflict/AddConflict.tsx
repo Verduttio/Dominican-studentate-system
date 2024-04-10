@@ -37,10 +37,10 @@ function AddConflict() {
 
     const handleSubmit = () => {
         if (task1Id === 0 || task2Id === 0) {
-            setSubmitError('Proszę wybrać oba zadania.');
+            setSubmitError('Proszę wybrać oba oficja.');
             return;
         } else if (task1Id === task2Id) {
-            setSubmitError('Proszę wybrać dwa różne zadania.');
+            setSubmitError('Proszę wybrać dwa różne oficja.');
             return;
         } else if (formData.daysOfWeek.length === 0) {
             setSubmitError('Proszę wybrać przynajmniej jeden dzień tygodnia.');

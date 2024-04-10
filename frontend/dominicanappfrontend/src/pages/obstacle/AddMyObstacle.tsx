@@ -89,11 +89,11 @@ function AddMyObstacle() {
                 {postError && <AlertBox text={postError} type={'danger'} width={'500px'}/>}
                 {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
                 <form onSubmit={handleSubmit}>
-                    <label className="form-label">Zadania:</label>
+                    <label className="form-label">Oficja:</label>
                     <div className="mb-3">
                         <div className="d-flex justify-content-between">
                         <label className="form-check-label me-2" htmlFor="selectAllTasksSwitch">
-                            Wybierz wszystkie zadania
+                            Wybierz wszystkie oficja
                         </label>
                         <div className="form-check form-switch">
                             <input
@@ -124,7 +124,7 @@ function AddMyObstacle() {
                     {!selectAllTasks &&
                         <div className="mb-3">
                             <select className="form-select" onChange={handleTaskChange}>
-                                    <option value="">Wybierz zadanie</option>
+                                    <option value="">Wybierz oficjum</option>
                                     {tasks.map(task => (
                                         <option key={task.id} value={task.id}>{task.name}</option>
                                     ))}
@@ -136,7 +136,7 @@ function AddMyObstacle() {
                                             <div className="pt-2">
                                                 <button className="btn btn-secondary p-1" type="button"
                                                         onClick={() => handleRemoveTask(taskId)}>
-                                                    {task ? task.name : 'Nieznane zadanie'} <FontAwesomeIcon
+                                                    {task ? task.name : 'Nieznane oficjum'} <FontAwesomeIcon
                                                     icon={faRectangleXmark}/>
                                                 </button>
                                             </div>

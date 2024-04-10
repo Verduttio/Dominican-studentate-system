@@ -64,7 +64,7 @@ public class ObstacleService {
     private Obstacle mapObstacleWithAllTasksToContainOneSpecialTaskForAll(Obstacle obstacle) {
         Task specialTask = new Task();
         specialTask.setId(0L);
-        specialTask.setName("Wszystkie zadania");
+        specialTask.setName("Wszystkie oficja");
         specialTask.setNameAbbrev("Wszystko");
         specialTask.setAllowedRoles(new HashSet<>());
         specialTask.setSupervisorRole(new Role());

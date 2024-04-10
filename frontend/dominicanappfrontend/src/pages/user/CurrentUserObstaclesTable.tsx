@@ -44,7 +44,7 @@ function CurrentUserObstaclesTable () {
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark">
                         <tr>
-                            <th>Zadanie</th>
+                            <th>Oficja</th>
                             <th>Od</th>
                             <th>Do</th>
                             <th>Status</th>

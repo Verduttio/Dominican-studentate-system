@@ -39,8 +39,8 @@ function ConflictsPage() {
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">
                         <tr>
-                            <th>Zadanie 1</th>
-                            <th>Zadanie 2</th>
+                            <th>Oficjum 1</th>
+                            <th>Oficjum 2</th>
                             {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
                         </thead>

@@ -19,7 +19,7 @@ const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData
     return (
         <>
             <div className="mb-3">
-                <label htmlFor="task1Id" className="form-label">Zadanie 1:</label>
+                <label htmlFor="task1Id" className="form-label">Oficjum 1:</label>
                 <select
                     id="task1Id"
                     name="task1Id"
@@ -27,12 +27,12 @@ const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData
                     value={task1Id?.toString()}
                     onChange={onChange}
                 >
-                    <option value="">Wybierz zadanie 1</option>
+                    <option value="">Wybierz oficjum 1</option>
                     {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
                 </select>
             </div>
             <div className="mb-3">
-                <label htmlFor="task2Id" className="form-label">Zadanie 2:</label>
+                <label htmlFor="task2Id" className="form-label">Oficjum 2:</label>
                 <select
                     id="task2Id"
                     name="task2Id"
@@ -40,7 +40,7 @@ const ConflictFormFields: React.FC<ConflictFormFieldsProps> = ({ tasks, formData
                     value={task2Id?.toString()}
                     onChange={onChange}
                 >
-                    <option value="">Wybierz zadanie 2</option>
+                    <option value="">Wybierz oficjum 2</option>
                     {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
                 </select>
             </div>

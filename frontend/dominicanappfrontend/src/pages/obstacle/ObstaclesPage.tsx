@@ -42,7 +42,7 @@ function ObstaclesPage () {
                         <thead className="table-dark">
                         <tr>
                             <th>Proszący</th>
-                            <th>Zadania</th>
+                            <th>Oficja</th>
                             <th>Od</th>
                             <th>Do</th>
                             <th>Status</th>

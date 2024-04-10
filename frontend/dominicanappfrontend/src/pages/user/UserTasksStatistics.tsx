@@ -28,7 +28,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                 <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                     <thead className="table-dark">
                     <tr>
-                        <th>Zadanie</th>
+                        <th>Oficjum</th>
                         <th>Ostatnio wyznaczony</th>
                         <th>Ostatnie 30 dni</th>
                         <th>Ostatnie 90 dni</th>

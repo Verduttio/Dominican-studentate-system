@@ -57,7 +57,7 @@ function SchedulePage() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_użytkownicy_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            link.setAttribute('download', `Harmonogram_bracia_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -88,7 +88,7 @@ function SchedulePage() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_zadan_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            link.setAttribute('download', `Harmonogram_oficjów_wg_roli_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -119,7 +119,7 @@ function SchedulePage() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_zadan_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            link.setAttribute('download', `Harmonogram_oficjów_${selectedSupervisorRoleName}_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -161,7 +161,7 @@ function SchedulePage() {
                         <thead className="table-dark">
                         <tr>
                             <th>Brat</th>
-                            <th>Zadania</th>
+                            <th>Oficjum</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -188,7 +188,7 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>Zadanie</th>
+                            <th>Oficjum</th>
                             <th>Bracia</th>
                         </tr>
                         </thead>
@@ -220,7 +220,7 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>Zadanie</th>
+                            <th>Oficjum</th>
                             <th>Bracia</th>
                         </tr>
                         </thead>
@@ -288,7 +288,7 @@ function SchedulePage() {
             {errorDownloadSchedulePdfForTasks && <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width={'500px'} />}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks} disabled={loadingDownloadSchedulePdfForTasks}>
-                    <span>Pobierz harmonogram według zadań </span>
+                    <span>Pobierz harmonogram według oficjów </span>
                     {loadingDownloadSchedulePdfForTasks &&
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>

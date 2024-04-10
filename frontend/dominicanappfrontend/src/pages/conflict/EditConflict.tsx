@@ -8,7 +8,7 @@ import ConflictFormFields from './ConflictFormFields';
 import "../../components/AddEditForm.css";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
-import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import useisFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 interface FormData {
     task1Id: number;
@@ -27,7 +27,7 @@ function EditConflict() {
     const { request: deleteConflict, error: deleteError , loading: deleteLoading} = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'DELETE');
     const [validationError, setValidationError] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
-    const { isAdmin, isAdminLoading, isAdminInitialized } = useIsAdmin();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useisFunkcyjny();
 
     useEffect(() => {
         fetchTasks(null, setTasks);
@@ -67,9 +67,9 @@ function EditConflict() {
         setFormData({ ...formData, [e.target.name]: parseInt(e.target.value) });
     };
 
-    if(isAdminLoading || isAdminInitialized) {
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
         return <LoadingSpinner/>;
-    } else if(!isAdmin) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (loadingTasks || loadingConflict) return <LoadingSpinner />;
     if (fetchTasksError || fetchConflictError) return <AlertBox text={fetchTasksError || fetchConflictError} type={'danger'} width={'500px'}/>

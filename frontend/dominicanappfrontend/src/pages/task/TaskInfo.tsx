@@ -26,7 +26,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
 
     if (loading) return <LoadingSpinner/>;
     if (error) return <AlertBox text={error} type={'danger'} width={'500px'}/>;
-    if (!task) return <AlertBox text={"Nie znaleziono zadania"} type={'danger'} width={'500px'}/>;
+    if (!task) return <AlertBox text={"Nie znaleziono oficjum"} type={'danger'} width={'500px'}/>;
 
     return (
     <div className="fade-in">
@@ -34,7 +34,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
             <table className="table table-hover table-striped table-rounded table-shadow">
                 <tbody>
                     <tr>
-                        <th className="table-dark">Zadanie</th>
+                        <th className="table-dark">Oficjum</th>
                         <td>[{task.nameAbbrev}] {task.name}</td>
                     </tr>
                 </tbody>
@@ -58,7 +58,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                             <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Role, które mogą wykonać zadanie</th>
+                            <th className="table-dark">Role, które mogą wykonać oficjum</th>
                             <td>
                                 <ul className="list-unstyled">
                                     {task.allowedRoles.map(role => <li key={role.id}>{role.name}</li>)}
@@ -66,7 +66,7 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                             </td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Rola umożliwiająca wyznaczanie zadania</th>
+                            <th className="table-dark">Rola umożliwiająca wyznaczanie oficjum</th>
                             <td>
                                 {task.supervisorRole.name}
                             </td>

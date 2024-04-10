@@ -48,19 +48,19 @@ function VerifyUserPage() {
 
     const handleSubmit = () => {
         verifyUserRequest(selectedRoles, () => {
-            navigate('/users', { state: { message: 'Użytkownik został zweryfikowany' } });
+            navigate('/users', { state: { message: 'Brat został zweryfikowany' } });
         });
     };
 
     const handleUpdateRoles = () => {
         updateRolesRequest(selectedRoles, () => {
-            navigate('/users', { state: { message: 'Role użytkownika zostały zaktualizowane' } });
+            navigate('/users', { state: { message: 'Role brata zostały zaktualizowane' } });
         });
     };
 
     const handleDelete = () => {
         deleteUserRequest(null, () => {
-            navigate('/users', { state: { message: 'Użytkownik został usunięty' } });
+            navigate('/users', { state: { message: 'Brat został usunięty' } });
         });
     }
 
@@ -74,7 +74,7 @@ function VerifyUserPage() {
     return (
         <div className="fade-in">
             <div className="page-header">
-                {user?.enabled ? <h1>Edycja użytkownika</h1> : <h1>Weryfikacja użytkownika</h1>}
+                {user?.enabled ? <h1>Edycja brata</h1> : <h1>Weryfikacja brata</h1>}
             </div>
             <div className="table-responsive d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>

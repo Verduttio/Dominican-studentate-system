@@ -106,14 +106,14 @@ function AddObstacle() {
                 {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label htmlFor="userId" className="form-label">Użytkownik:</label>
+                        <label htmlFor="userId" className="form-label">Brat:</label>
                         <select
                             className="form-select"
                             id="userId"
                             value={obstacleData.userId}
                             onChange={handleUserChange}
                         >
-                            <option value="">Wybierz użytkownika</option>
+                            <option value="">Wybierz brata</option>
                             {users.map(user => (
                                 <option key={user.id} value={user.id}>
                                     {user.name} {user.surname}
@@ -121,11 +121,11 @@ function AddObstacle() {
                             ))}
                         </select>
                     </div>
-                    <label className="form-label">Zadania:</label>
+                    <label className="form-label">Oficja:</label>
                     <div className="mb-3">
                         <div className="d-flex justify-content-between">
                             <label className="form-check-label me-2" htmlFor="selectAllTasksSwitch">
-                                Wybierz wszystkie zadania
+                                Wybierz wszystkie oficja
                             </label>
                             <div className="form-check form-switch">
                                 <input
@@ -156,7 +156,7 @@ function AddObstacle() {
                     {!selectAllTasks &&
                         <div className="mb-3">
                             <select className="form-select" onChange={handleTaskChange}>
-                                <option value="">Wybierz zadanie</option>
+                                <option value="">Wybierz oficjum</option>
                                 {tasks.map(task => (
                                     <option key={task.id} value={task.id}>{task.name}</option>
                                 ))}
@@ -168,7 +168,7 @@ function AddObstacle() {
                                         <div className="pt-2">
                                             <button className="btn btn-secondary p-1" type="button"
                                                     onClick={() => handleRemoveTask(taskId)}>
-                                                {task ? task.name : 'Nieznane zadanie'} <FontAwesomeIcon
+                                                {task ? task.name : 'Nieznane oficjum'} <FontAwesomeIcon
                                                 icon={faRectangleXmark}/>
                                             </button>
                                         </div>

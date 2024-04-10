@@ -17,7 +17,7 @@ interface TaskFormData extends Omit<Task, 'id' | 'allowedRoles' | 'supervisorRol
 
 function validateTaskData(data: TaskFormData) : string {
     if (!data.name) {
-        return('Proszę wypełnić nazwę zadania.');
+        return('Proszę wypełnić nazwę oficjum.');
     }
 
     if (data.participantsLimit == null || data.participantsLimit < 1) {
@@ -91,13 +91,13 @@ function EditTask() {
             setValidationError(error);
             return;
         } else {
-            postTask(taskData, () => navigate('/tasks', { state: { message: 'Pomyślnie uaktualniono zadanie' } }));
+            postTask(taskData, () => navigate('/tasks', { state: { message: 'Pomyślnie uaktualniono oficjum' } }));
         }
     };
 
     const handleDelete = () => {
         deleteTask(null, () => {
-            navigate('/tasks', { state: { message: 'Pomyślnie usunięto zadanie' } });
+            navigate('/tasks', { state: { message: 'Pomyślnie usunięto oficjum' } });
         })
             .then(() => setShowConfirmationPopup(false));
     }
@@ -152,7 +152,7 @@ function EditTask() {
     return (
         <div className="fade-in">
             <div className="page-header">
-                <h1>Edytuj zadanie</h1>
+                <h1>Edytuj oficjum</h1>
             </div>
             {validationError &&  <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
             {postError &&  <AlertBox text={postError} type={'danger'} width={'500px'}/>}
@@ -176,7 +176,7 @@ function EditTask() {
                             </>
                         ) : 'Zaktualizuj'}
                     </button>
-                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)} disabled={postLoading || deleteLoading}>Usuń zadanie</button>
+                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)} disabled={postLoading || deleteLoading}>Usuń oficjum</button>
                     {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
             </div>

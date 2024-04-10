@@ -27,7 +27,7 @@ function TasksPage () {
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
-                <h1 className="entity-header">Zadania</h1>
+                <h1 className="entity-header">Oficja</h1>
             </div>
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
@@ -66,7 +66,7 @@ function TasksPage () {
             </div>
             {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
-                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-task')}>Dodaj zadanie</button>
+                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
                 </div>
             }
         </div>

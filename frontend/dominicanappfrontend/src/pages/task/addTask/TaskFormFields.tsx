@@ -17,7 +17,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
         <>
             <div className="mb-3">
                 <label htmlFor="name" className="form-label">
-                    Nazwa zadania:
+                    Nazwa oficjum:
                 </label>
                 <input
                     className="form-control-sm"
@@ -28,7 +28,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
             </div>
             <div className="mb-3">
                 <label htmlFor="name" className="form-label">
-                    Skrót zadania:
+                    Skrót oficjum:
                 </label>
                 <input
                     className="form-control-sm"
@@ -49,12 +49,12 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                 />
             </div>
             <div className="mb-3">
-                <label className="form-label">Role potrzebne do wykonania zadania:</label>
+                <label className="form-label">Role potrzebne do wykonania oficjum:</label>
                 <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
                                   onRoleChange={handleRoleChange}/>
             </div>
             <div className="mb-3">
-                <label className="form-label">Kto może wyznaczyć do tego zadania:</label>
+                <label className="form-label">Kto może wyznaczyć do tego oficjum:</label>
                 <select
                     id="supervisorRoleName"
                     name="supervisorRoleName"
