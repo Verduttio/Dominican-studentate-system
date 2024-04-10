@@ -73,7 +73,7 @@ const NavigationBar = () => {
                 <button
                     onClick={() => navigateTo('/users')}
                 >
-                    Użytkownicy
+                    Bracia
                     {numberOfUnverifiedUsers > 0 && isAdmin && (
                         <span className="notification-icon">
                         <FontAwesomeIcon icon={faUserPlus}/>
@@ -117,7 +117,7 @@ const NavigationBar = () => {
                 <button
                     onClick={() => navigateTo('/users')}
                 >
-                    Użytkownicy
+                    Bracia
                     {numberOfUnverifiedUsers > 0 && isAdmin && (
                         <span className="notification-icon">
                             <FontAwesomeIcon icon={faUserPlus}/>

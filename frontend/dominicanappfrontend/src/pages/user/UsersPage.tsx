@@ -28,7 +28,7 @@ function UsersPage () {
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
-                <h1 className="entity-header">Użytkownicy</h1>
+                <h1 className="entity-header">Bracia</h1>
             </div>
             {locationStateMessage && <AlertBox text={locationStateMessage} type="success" width={'500px'} />}
             <div className="d-flex justify-content-center">

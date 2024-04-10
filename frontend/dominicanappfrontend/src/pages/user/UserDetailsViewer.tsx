@@ -23,10 +23,7 @@ function UserDetailsViewer () {
 
     return (
         <div className="fade-in">
-            <div className="d-flex justify-content-center">
-                <h1 className="entity-header">Dane użytkownika {user?.name} {user?.surname}</h1>
-            </div>
-            <div className="table-responsive d-flex justify-content-center">
+            <div className="table-responsive d-flex justify-content-center my-3">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <tbody>
@@ -51,7 +48,7 @@ function UserDetailsViewer () {
                 </div>
             </div>
             <div className="d-flex justify-content-center">
-                <h4 className="entity-header-dynamic-size">Harmonogram użytkownika</h4>
+                <h4 className="entity-header-dynamic-size my-0">Harmonogram brata</h4>
             </div>
             <UserWeekSchedule userId={user ? user.id : 0}/>
             <div className="d-flex justify-content-center">

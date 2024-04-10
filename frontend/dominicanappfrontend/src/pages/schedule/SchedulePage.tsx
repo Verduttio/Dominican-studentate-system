@@ -160,7 +160,7 @@ function SchedulePage() {
                     <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
-                            <th>Użytkownik</th>
+                            <th>Brat</th>
                             <th>Zadania</th>
                         </tr>
                         </thead>
@@ -189,7 +189,7 @@ function SchedulePage() {
                         <thead className="table-dark">
                         <tr>
                             <th>Zadanie</th>
-                            <th>Użytkownicy</th>
+                            <th>Bracia</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -221,7 +221,7 @@ function SchedulePage() {
                         <thead className="table-dark">
                         <tr>
                             <th>Zadanie</th>
-                            <th>Użytkownicy</th>
+                            <th>Bracia</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -247,14 +247,14 @@ function SchedulePage() {
         <div className="fade-in">
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             <div className="d-flex justify-content-center">
-                <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według użytkowników</h4>
+                <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według braci</h4>
             </div>
             {renderUsersSchedule()}
             {errorDownloadSchedulePdfForUsers && <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'} />}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}
                         disabled={loadingDownloadSchedulePdfForUsers}>
-                    <span>Pobierz harmonogram według użytkowników </span>
+                    <span>Pobierz harmonogram według braci </span>
                     {loadingDownloadSchedulePdfForUsers &&
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
