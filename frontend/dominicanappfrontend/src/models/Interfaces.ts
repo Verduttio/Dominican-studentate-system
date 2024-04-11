@@ -90,8 +90,8 @@ interface UserTaskDependencyDaily {
 interface UserTaskScheduleInfo {
     taskName: string;
     taskId: number;
-    lastAssigned: string;
-    numberOfAssignsInLastYear: number;
+    lastAssignedWeeksAgo: number;
+    numberOfWeeklyAssignsFromStatsDate: number;
     hasRoleForTheTask: boolean;
     isInConflict: boolean;
     hasObstacle: boolean;

@@ -18,6 +18,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class ScheduleService {
@@ -452,15 +453,6 @@ public class ScheduleService {
     }
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskBetweenDate(LocalDate dateFrom, LocalDate dateTo, Long userId, Long taskId) {
-        System.out.println("Checking if user has valid approved obstacle for task between dates");
-        System.out.println("Date from: " + dateFrom);
-        System.out.println("Date to: " + dateTo);
-        for (Obstacle o : obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo)) {
-            System.out.println("Obstacle: " + o);
-            System.out.println("Obstacle from date: " + o.getFromDate());
-            System.out.println("Obstacle to date: " + o.getToDate());
-            System.out.println("Obstacle user name: " + o.getUser().getName());
-        }
         return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo).isEmpty();
     }
 
@@ -784,8 +776,8 @@ public class ScheduleService {
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
         userTaskScheduleInfo.setTaskName(task.getName());
         userTaskScheduleInfo.setTaskId(task.getId());
-        userTaskScheduleInfo.setLastAssigned(userTaskDependencyWeeklyDTO.getLastAssigned());
-        userTaskScheduleInfo.setNumberOfAssignsInLastYear(userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear());
+        userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyWeeklyDTO.getLastAssigned(), from));
+        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear() / 7);
         userTaskScheduleInfo.setIsInConflict(userTaskDependencyWeeklyDTO.getIsInConflict());
         userTaskScheduleInfo.setHasObstacle(userTaskDependencyWeeklyDTO.getHasObstacle());
         userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyWeeklyDTO.isAssignedToTheTask());
@@ -793,5 +785,18 @@ public class ScheduleService {
         userTaskScheduleInfo.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
 
         return userTaskScheduleInfo;
+    }
+
+    private int getWeeksAgo(LocalDate datePast, LocalDate weekSunday) {
+        if(datePast == null) {
+            return 0;
+        }
+
+        long daysAgo = ChronoUnit.DAYS.between(datePast, weekSunday);
+        if (daysAgo % 7 == 0) {
+            return (int) (daysAgo / 7);
+        } else {
+            return (int) (daysAgo / 7) + 1;
+        }
     }
 }

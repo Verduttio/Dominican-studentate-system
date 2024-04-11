@@ -39,11 +39,14 @@ import AddScheduleWeekly from "./pages/schedule/AddScheduleWeekly";
 const AppContent = () => {
     const location = useLocation();
     const hideBarPaths = ['/loginForm', '/register'];
+    const fluidContainerPaths = ['/add-schedule/weekly'];
+
+    const containerClass = fluidContainerPaths.includes(location.pathname) ? 'container-fluid' : 'container';
 
     return (
         <>
             {hideBarPaths.includes(location.pathname) ? null : <NavigationBar/>}
-            <div className="container">
+            <div className={containerClass}>
                 <Routes>
                     <Route path="/home" Component={Home}/>
                     <Route path="/home/logged" Component={HomeLogged}/>

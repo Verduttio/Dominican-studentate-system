@@ -37,6 +37,9 @@ function AddScheduleWeekly() {
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
+    const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
+        return `${numberOfWeeklyAssignsFromStatsDate}|${lastAssignedWeeksAgo}`;
+    }
 
 
     useEffect(() => {
@@ -167,7 +170,7 @@ function AddScheduleWeekly() {
                                                     }} disabled={assignToTaskLoading || unassignTaskLoading}>
                                             <span
                                                 className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                                    Odznacz
+                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </span>
                                                 </button>
                                             ) : (
@@ -175,7 +178,7 @@ function AddScheduleWeekly() {
                                                     className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
                                                     onClick={() => handleSubmit(dep.userId, udep.taskId)}
                                                     disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    Przypisz
+                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </button>
                                             )
                                         ) : (udep.assignedToTheTask ? (
@@ -185,13 +188,13 @@ function AddScheduleWeekly() {
                                                         }} disabled={assignToTaskLoading || unassignTaskLoading}>
                                             <span
                                                 className='highlighted-text-conflict'>
-                                                    Odznacz
+                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </span>
                                                 </button>
                                             ) : (
                                                 <button className='btn btn-info'
                                                         disabled={true}>
-                                                    Przeszkoda
+                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </button>
                                             )
                                         )}

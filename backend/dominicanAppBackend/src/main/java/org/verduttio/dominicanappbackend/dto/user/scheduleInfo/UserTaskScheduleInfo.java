@@ -1,32 +1,30 @@
 package org.verduttio.dominicanappbackend.dto.user.scheduleInfo;
 
-import java.time.LocalDate;
-
 public class UserTaskScheduleInfo {
     private String taskName;
     private Long taskId;
-    private LocalDate lastAssigned;
-    private int numberOfAssignsInLastYear;
+    private int lastAssignedWeeksAgo;
+    private int numberOfWeeklyAssignsFromStatsDate;
     private boolean hasRoleForTheTask;
     private boolean isInConflict;
     private boolean hasObstacle;
     private boolean assignedToTheTask;
 
     // Getters i Setters
-    public LocalDate getLastAssigned() {
-        return lastAssigned;
+    public int getLastAssignedWeeksAgo() {
+        return lastAssignedWeeksAgo;
     }
 
-    public void setLastAssigned(LocalDate lastAssigned) {
-        this.lastAssigned = lastAssigned;
+    public void setLastAssignedWeeksAgo(int lastAssignedWeeksAgo) {
+        this.lastAssignedWeeksAgo = lastAssignedWeeksAgo;
     }
 
-    public int getNumberOfAssignsInLastYear() {
-        return numberOfAssignsInLastYear;
+    public int getNumberOfWeeklyAssignsFromStatsDate() {
+        return numberOfWeeklyAssignsFromStatsDate;
     }
 
-    public void setNumberOfAssignsInLastYear(int numberOfAssignsInLastYear) {
-        this.numberOfAssignsInLastYear = numberOfAssignsInLastYear;
+    public void setNumberOfWeeklyAssignsFromStatsDate(int numberOfWeeklyAssignsFromStatsDate) {
+        this.numberOfWeeklyAssignsFromStatsDate = numberOfWeeklyAssignsFromStatsDate;
     }
 
     public boolean getHasRoleForTheTask() {
@@ -61,11 +59,11 @@ public class UserTaskScheduleInfo {
         this.assignedToTheTask = assignedToTheTask;
     }
 
-    public UserTaskScheduleInfo(String taskName, Long taskId, LocalDate lastAssigned, int numberOfAssignsInLastYear, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask) {
+    public UserTaskScheduleInfo(String taskName, Long taskId, int lastAssignedWeeksAgo, int numberOfWeeklyAssignsFromStatsDate, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask) {
         this.taskName = taskName;
         this.taskId = taskId;
-        this.lastAssigned = lastAssigned;
-        this.numberOfAssignsInLastYear = numberOfAssignsInLastYear;
+        this.lastAssignedWeeksAgo = lastAssignedWeeksAgo;
+        this.numberOfWeeklyAssignsFromStatsDate = numberOfWeeklyAssignsFromStatsDate;
         this.hasRoleForTheTask = hasRoleForTheTask;
         this.isInConflict = isInConflict;
         this.hasObstacle = hasObstacle;
