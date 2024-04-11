@@ -3,9 +3,9 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
-import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
-import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
-import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
+import org.verduttio.dominicanappbackend.dto.user.*;
+import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleInfo;
+import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -452,6 +452,15 @@ public class ScheduleService {
     }
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskBetweenDate(LocalDate dateFrom, LocalDate dateTo, Long userId, Long taskId) {
+        System.out.println("Checking if user has valid approved obstacle for task between dates");
+        System.out.println("Date from: " + dateFrom);
+        System.out.println("Date to: " + dateTo);
+        for (Obstacle o : obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo)) {
+            System.out.println("Obstacle: " + o);
+            System.out.println("Obstacle from date: " + o.getFromDate());
+            System.out.println("Obstacle to date: " + o.getToDate());
+            System.out.println("Obstacle user name: " + o.getUser().getName());
+        }
         return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo).isEmpty();
     }
 
@@ -712,5 +721,77 @@ public class ScheduleService {
         return schedules.stream()
                 .filter(schedule -> schedule.getDate().isAfter(startDate) && schedule.getDate().isBefore(endDate))
                 .collect(Collectors.groupingBy(Schedule::getTask, Collectors.counting()));
+    }
+
+    public List<UserTasksScheduleInfoWeekly> getUserTasksScheduleInfoWeeklyByRole(String roleName, LocalDate from, LocalDate to) {
+        validateDateRange(from, to);
+
+        Role role = validateRoleExistence(roleName);
+
+        List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
+        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+
+        return usersWhichCanPerformTasks.stream()
+                .map(user -> createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to))
+                .collect(Collectors.toList());
+    }
+
+    private void validateDateRange(LocalDate from, LocalDate to) {
+        if (!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
+            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        }
+    }
+
+    private Role validateRoleExistence(String roleName) {
+        Role role = roleService.getRoleByName(roleName);
+        if (role == null) {
+            throw new EntityNotFoundException("Role with given name does not exist");
+        }
+        return role;
+    }
+
+    private List<User> getUsersEligibleForTasks(List<Task> tasksByRole) {
+        List<String> allowedRoles = tasksByRole.stream()
+                .map(Task::getAllowedRoles)
+                .flatMap(Collection::stream)
+                .map(Role::getName)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return userService.getUsersWhichHaveAnyOfRoles(allowedRoles);
+    }
+
+    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeekly(User user, List<Task> tasksByRole, LocalDate from, LocalDate to) {
+        UserTasksScheduleInfoWeekly userTasksDependencies = new UserTasksScheduleInfoWeekly();
+        userTasksDependencies.setUserId(user.getId());
+        userTasksDependencies.setUserName(user.getName() + " " + user.getSurname());
+
+        List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+        userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
+        userTasksDependencies.setUserTasksScheduleInfo(
+                tasksByRole.stream()
+                        .map(task -> createUserTaskScheduleInfo(user, task, from, to))
+                        .collect(Collectors.toList())
+        );
+
+        return userTasksDependencies;
+    }
+
+    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, LocalDate from, LocalDate to) {
+        UserTaskDependencyWeeklyDTO userTaskDependencyWeeklyDTO = getUserDependenciesForTaskWeekly(task.getId(), user.getId(), from, to);
+
+        UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
+        userTaskScheduleInfo.setTaskName(task.getName());
+        userTaskScheduleInfo.setTaskId(task.getId());
+        userTaskScheduleInfo.setLastAssigned(userTaskDependencyWeeklyDTO.getLastAssigned());
+        userTaskScheduleInfo.setNumberOfAssignsInLastYear(userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear());
+        userTaskScheduleInfo.setIsInConflict(userTaskDependencyWeeklyDTO.getIsInConflict());
+        userTaskScheduleInfo.setHasObstacle(userTaskDependencyWeeklyDTO.getHasObstacle());
+        userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyWeeklyDTO.isAssignedToTheTask());
+
+        userTaskScheduleInfo.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
+
+        return userTaskScheduleInfo;
     }
 }
