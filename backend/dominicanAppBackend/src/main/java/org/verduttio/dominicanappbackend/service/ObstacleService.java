@@ -140,8 +140,8 @@ public class ObstacleService {
 
     public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdBetweenDate(Long userId, Long taskId, LocalDate fromDate, LocalDate toDate) {
         List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
-        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getFromDate().isBefore(toDate) || obstacle.getFromDate().isEqual(toDate) ||
-                                                                                                                obstacle.getToDate().isEqual(fromDate) || obstacle.getToDate().isAfter(fromDate)).toList();
+        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> (obstacle.getFromDate().isBefore(toDate) || obstacle.getFromDate().isEqual(toDate)) &&
+                                                                                                                (obstacle.getToDate().isEqual(fromDate) || obstacle.getToDate().isAfter(fromDate))).toList();
         return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
     }
 
