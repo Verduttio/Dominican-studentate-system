@@ -13,7 +13,7 @@ const ConfirmAssignmentPopup: React.FC<ConfirmAssignmentPopupProps> = ({ onHandl
             <div className="card custom-modal">
                 <div className="card-body">
                     <div className="modal-header">
-                        <h5 className="modal-title">Potwierdzenie wyznaczenia zadania</h5>
+                        <h5 className="modal-title">Potwierdzenie wyznaczenia oficjum</h5>
                     </div>
                     <div className="modal-body">
                         <p>{text}</p>

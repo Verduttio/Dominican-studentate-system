@@ -18,7 +18,7 @@ import AddObstacle from "./pages/obstacle/AddObstacle";
 import SchedulePage from "./pages/schedule/SchedulePage";
 import ViewRoles from "./pages/role/RolesPage";
 import AddRole from "./pages/role/AddRole";
-import AddSchedule from "./pages/schedule/AddSchedule";
+import AddScheduleRoleSelection from "./pages/schedule/AddScheduleRoleSelection";
 import ScheduleCreatorRoleSelection from "./pages/schedule/ScheduleCreatorRoleSelection";
 import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSelection";
 import ScheduleCreatorAssignToTaskWeekly from "./pages/schedule/ScheduleCreatorAssignToTaskWeekly";
@@ -34,6 +34,7 @@ import OtherEntities from "./pages/other/OtherEntities";
 import AddMyObstacle from "./pages/obstacle/AddMyObstacle";
 import UserDetailsViewer from "./pages/user/UserDetailsViewer";
 import HomeLogged from "./pages/HomeLogged";
+import AddScheduleWeekly from "./pages/schedule/AddScheduleWeekly";
 
 const AppContent = () => {
     const location = useLocation();
@@ -63,7 +64,8 @@ const AppContent = () => {
                     <Route path="/add-role" Component={AddRole}/>
                     <Route path="/edit-role/:roleId" Component={EditRole}/>
                     <Route path="/schedule" Component={SchedulePage}/>
-                    <Route path="/add-schedule" Component={AddSchedule}/>
+                    <Route path="/add-schedule/select-role" Component={AddScheduleRoleSelection}/>
+                    <Route path="/add-schedule/weekly" Component={AddScheduleWeekly}/>
                     <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
                     <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
                     <Route path="/schedule-creator/task/chooseMethod" Component={ScheduleCreatorChooseMethod}/>

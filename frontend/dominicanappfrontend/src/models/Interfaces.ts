@@ -87,6 +87,24 @@ interface UserTaskDependencyDaily {
     assignedToTheTask: string[];
 }
 
+interface UserTaskScheduleInfo {
+    taskName: string;
+    taskId: number;
+    lastAssigned: string;
+    numberOfAssignsInLastYear: number;
+    hasRoleForTheTask: boolean;
+    isInConflict: boolean;
+    hasObstacle: boolean;
+    assignedToTheTask: boolean;
+}
+
+interface UserTasksScheduleInfoWeekly {
+    userId: number;
+    userName: string;
+    assignedTasks: string[];
+    userTasksScheduleInfo: UserTaskScheduleInfo[];
+}
+
 type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 export enum ObstacleStatus {
@@ -161,4 +179,5 @@ interface UserTaskStatistics {
 
 export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependencyWeekly, UserTaskDependencyDaily}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
+export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
 export type {DayOfWeek}

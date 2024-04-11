@@ -8,7 +8,7 @@ import ConflictFormFields from './ConflictFormFields';
 import "../../components/AddEditForm.css";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
-import useisFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 
 interface FormData {
     task1Id: number;
@@ -27,7 +27,7 @@ function EditConflict() {
     const { request: deleteConflict, error: deleteError , loading: deleteLoading} = useHttp(`${backendUrl}/api/conflicts/${conflictId}`, 'DELETE');
     const [validationError, setValidationError] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useisFunkcyjny();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     useEffect(() => {
         fetchTasks(null, setTasks);
