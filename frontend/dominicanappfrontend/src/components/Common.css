@@ -22,7 +22,14 @@
     display: block;
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Pozwala na "kinetyczne" przewijanie */
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-fit-content {
+    display: block;
+    width: fit-content;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .entity-header {
@@ -42,6 +49,11 @@
 
 .max-column-width{
     max-width: 250px;
+    word-wrap: break-word;
+}
+
+.max-column-width-200{
+    max-width: 200px;
     word-wrap: break-word;
 }
 

@@ -24,6 +24,12 @@
     justify-content: center; /* Wyrównanie poziome do środka */
 }
 
+.d-flex-no-media-resize {
+    display: flex;
+    align-items: center; /* Wyrównanie pionowe do środka */
+    justify-content: center; /* Wyrównanie poziome do środka */
+}
+
 .login-image img {
     max-width: 100%; /* Sprawia, że obraz jest responsywny */
     height: auto; /* Zachowuje proporcje obrazu */
