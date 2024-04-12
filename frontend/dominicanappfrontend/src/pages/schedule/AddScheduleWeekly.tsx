@@ -13,6 +13,7 @@ import AlertBox from "../../components/AlertBox";
 import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
 import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
+import ButtonLegend from "./ButtonLegend";
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
@@ -38,9 +39,8 @@ function AddScheduleWeekly() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
-        return `${numberOfWeeklyAssignsFromStatsDate}|${lastAssignedWeeksAgo}`;
+        return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
     }
-
 
     useEffect(() => {
         request(null, (data) => {
@@ -53,7 +53,6 @@ function AddScheduleWeekly() {
             setTasks(data);
         });
     }, [requestAllTasksByRole]);
-
 
     function countAssignedUsers(taskId: number) {
         let count = 0;
@@ -139,72 +138,74 @@ function AddScheduleWeekly() {
 
     return (
         <div className="fade-in">
-                <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
-                {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
-                {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
-                <div className="table-responsive">
-                    <table className="table table-hover table-striped table-rounded table-shadow">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Brat</th>
-                            <th>Oficja</th>
-                            {tasks?.map((task) => (
-                                <th key={task.id}>{task.nameAbbrev}</th>
-                            ))}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {userDependencies?.map((dep, index) => (
-                            <tr key={index}
-                            >
-                                <td>{dep.userName}</td>
-                                <td>{dep?.assignedTasks.join(', ')}</td>
-                                {dep.userTasksScheduleInfo?.map(udep => (
-                                    <td>
-                                        {!udep.hasObstacle ? (
-                                            udep.assignedToTheTask ? (
-                                                <button
-                                                    className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
-                                                    onClick={() => {
-                                                        unassignTask(dep.userId, udep.taskId)
-                                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
+            <h3 className=" fw-bold entity-header-dynamic-size mb-0">Oficja - {roleName}</h3>
+            <ButtonLegend/>
+            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
+            {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
+            <div className="table-responsive">
+                <table className="table table-hover table-striped table-rounded table-shadow">
+                    <thead className="table-dark">
+                    <tr>
+                        <th>Brat</th>
+                        <th>Oficja</th>
+                        {tasks?.map((task) => (
+                            <th key={task.id}>{task.nameAbbrev}</th>
+                        ))}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {userDependencies?.map((dep, index) => (
+                        <tr key={index}
+                        >
+                            <td>{dep.userName}</td>
+                            <td>{dep?.assignedTasks.join(', ')}</td>
+                            {dep.userTasksScheduleInfo?.map(udep => (
+                                <td>
+                                    {!udep.hasObstacle ? (
+                                        udep.assignedToTheTask ? (
+                                            <button
+                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
+                                                onClick={() => {
+                                                    unassignTask(dep.userId, udep.taskId)
+                                                }} disabled={assignToTaskLoading || unassignTaskLoading}>
                                             <span
                                                 className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
                                                     {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </span>
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
-                                                    onClick={() => handleSubmit(dep.userId, udep.taskId)}
-                                                    disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                </button>
-                                            )
-                                        ) : (udep.assignedToTheTask ? (
-                                                <button className='btn btn-info'
-                                                        onClick={() => {
-                                                            unassignTask(dep.userId, udep.taskId)
-                                                        }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
+                                                onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                                                disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                            </button>
+                                        )
+                                    ) : (udep.assignedToTheTask ? (
+                                            <button className='btn btn-info'
+                                                    onClick={() => {
+                                                        unassignTask(dep.userId, udep.taskId)
+                                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
                                             <span
                                                 className='highlighted-text-conflict'>
                                                     {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                                                 </span>
-                                                </button>
-                                            ) : (
-                                                <button className='btn btn-info'
-                                                        disabled={true}>
-                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                </button>
-                                            )
-                                        )}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+                                            </button>
+                                        ) : (
+                                            <button className='btn btn-info'
+                                                    disabled={true}>
+                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                            </button>
+                                        )
+                                    )}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)
