@@ -85,8 +85,7 @@ function ButtonLegend() {
                                     </button>
                                 </div>
                                 <div className="col-10">
-                                    <p>Brat <strong>niewyznaczony</strong> do oficjum, posiadający aktualną przeszkodę
-                                        na to oficjum.</p>
+                                    <p>Brat <strong>niewyznaczony</strong> do oficjum, posiadający aktualną <strong>przeszkodę</strong> na to oficjum.</p>
                                 </div>
                             </div>
                         </div>
