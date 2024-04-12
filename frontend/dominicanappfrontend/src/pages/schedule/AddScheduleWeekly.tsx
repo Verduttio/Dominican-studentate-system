@@ -127,22 +127,18 @@ function AddScheduleWeekly() {
         }
     }
 
-    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
-        return <LoadingSpinner/>;
-    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
-    if (loading || loadingAllTasksByRole) return <LoadingSpinner/>;
-    if (error || errorAllTasksByRole) return (
-        <AlertBox text={error } type={'danger'} width={'500px'}/>
-    )
+    const renderTable = () => {
+        if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+            return <LoadingSpinner/>;
+        } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
-    return (
-        <div className="fade-in">
-            <h3 className="fw-bold entity-header-dynamic-size mb-0">Oficja - {roleName}</h3>
-            <ButtonLegend/>
-            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
-            {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
-            {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
+        if (loading || loadingAllTasksByRole) return <LoadingSpinner/>;
+        if (error || errorAllTasksByRole) return (
+            <AlertBox text={error } type={'danger'} width={'500px'}/>
+        )
+
+        return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content">
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
@@ -208,6 +204,17 @@ function AddScheduleWeekly() {
                     </table>
                 </div>
             </div>
+        )
+    }
+
+    return (
+        <div className="fade-in">
+            <h3 className="fw-bold entity-header-dynamic-size mb-0">Oficja - {roleName}</h3>
+            <ButtonLegend/>
+            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
+            {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
+            {renderTable()}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)
