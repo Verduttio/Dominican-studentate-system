@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {addDays, endOfWeek, format, startOfWeek} from "date-fns";
 import useHttp from "../../services/UseHttp";
 import {Schedule} from "../../models/Interfaces";
@@ -14,12 +14,15 @@ interface UserWeekScheduleProps {
 
 const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     const [currentWeek, setCurrentWeek] = useState(new Date());
+    const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
+    const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
+    const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const [userSchedules, setUserSchedules] = useState<Schedule[]>([]);
     const {
         request: fetchSchedule,
         error,
         loading
-    } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy')}`, 'GET');
+    } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${from}&to=${to}`, 'GET');
     const todayDate = new Date();
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
@@ -33,8 +36,15 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     }, []);
 
     useEffect(() => {
-        fetchSchedule(null, (data) => setUserSchedules(data));
-    }, [fetchSchedule]);
+        currentWeekRef.current = currentWeek; // keep the value of currentWeek up to date
+
+        fetchSchedule(null, (data) => {
+            if (format(startOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === from &&
+                format(endOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === to) {
+                setUserSchedules(data);
+            }
+        });
+    }, [fetchSchedule, currentWeek, from, to]);
 
     const weekDays = useMemo(() => {
         let weekStart = startOfWeek(currentWeek, {weekStartsOn: 0});
