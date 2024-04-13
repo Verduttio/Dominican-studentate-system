@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     Task,
     UserTasksScheduleInfoWeekly
@@ -16,6 +16,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import ButtonLegend from "./ButtonLegend";
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
+    const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
     const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeekly[]>([]);
@@ -43,10 +44,15 @@ function AddScheduleWeekly() {
     }
 
     useEffect(() => {
+        currentWeekRef.current = currentWeek; // keep the value of currentWeek up to date
+
         request(null, (data) => {
-            setUserDependencies(data);
+            if (format(startOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === from &&
+                format(endOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === to) {
+                setUserDependencies(data);
+            }
         });
-    }, [request, refreshData]);
+    }, [request, refreshData, currentWeekRef, currentWeek, from, to]);
 
     useEffect(() => {
         requestAllTasksByRole(null, (data) => {
@@ -209,8 +215,14 @@ function AddScheduleWeekly() {
 
     return (
         <div className="fade-in">
-            <h3 className="fw-bold entity-header-dynamic-size mb-0">Oficja - {roleName}</h3>
+            <h3 className="fw-bold entity-header-dynamic-size mb-0 mx-4">Oficja - {roleName}</h3>
             <ButtonLegend/>
+            <div className={"d-flex justify-content-center"}>
+                <button className="btn btn-secondary mt-3" onClick={() => {
+                }}>
+                    Przełącz na kreator dzienny
+                </button>
+            </div>
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
