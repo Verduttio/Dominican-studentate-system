@@ -3,7 +3,8 @@ import { format, addDays, subDays } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import {daysOfWeekAbbreviation} from "../models/DayOfWeek";
 
 interface DaySelectorProps {
     currentDate: Date;
@@ -34,6 +35,9 @@ const DaySelector: React.FC<DaySelectorProps> = ({ currentDate, setCurrentDate }
         handleCalendarClose();
     };
 
+    const dayOfWeek = format(currentDate, 'EEEE').toUpperCase();
+    const formattedDate = format(currentDate, 'dd-MM-yyyy');
+
     return (
         <div className="day-selector d-flex justify-content-center">
             <div className="card my-4" style={{ maxWidth: '400px' }}>
@@ -44,7 +48,9 @@ const DaySelector: React.FC<DaySelectorProps> = ({ currentDate, setCurrentDate }
                         </button>
                         {!calendarOpen && (
                                 <button className={'btn btn-outline-dark'} onClick={handleDateClick}>
-                                    <h5 className={'m-0'}>{format(currentDate, 'dd-MM-yyyy')}</h5>
+                                    <h5 className={'m-0'}>
+                                        {daysOfWeekAbbreviation[dayOfWeek]} | {formattedDate}
+                                    </h5>
                                 </button>
                         )}
                         {calendarOpen && (
