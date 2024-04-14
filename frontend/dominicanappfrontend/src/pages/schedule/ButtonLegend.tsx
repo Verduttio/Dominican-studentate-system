@@ -85,7 +85,24 @@ function ButtonLegend() {
                                     </button>
                                 </div>
                                 <div className="col-10">
-                                    <p>Brat <strong>niewyznaczony</strong> do oficjum, posiadający aktualną <strong>przeszkodę</strong> na to oficjum.</p>
+                                    <p>Brat <strong>niewyznaczony</strong> do oficjum, posiadający
+                                        aktualną <strong>przeszkodę</strong> na to oficjum.</p>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-2 text-center">
+                                    <button className="btn btn-info">
+                                        <span className={'highlighted-text-conflict'}>
+                                        2|5
+                                        </span>
+                                    </button>
+                                </div>
+                                <div className="col-10">
+                                    <p><strong>Dotyczy kreatora tygodniowego</strong>. Brat wyznaczony do
+                                        oficjum, posiadający
+                                        przeszkodę w tym tygodniu na to oficjum. <strong>Wyznaczony w dniu, w którym przeszkoda jeszcze nieobowiązuje</strong>.
+                                        Odznaczenie brata spowoduje usunięcie wszystkich przypisań z tego oficjum do niego w tym tygodniu.
+                                    </p>
                                 </div>
                             </div>
                         </div>
