@@ -17,6 +17,7 @@ import DaySelector from "../../components/DaySelector";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
+import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
 
 function AddScheduleDaily() {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -42,6 +43,13 @@ function AddScheduleDaily() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
     const {currentUser} = useGetOrCreateCurrentUser();
+    const [userScheduleHistoryPopup, setUserScheduleHistoryPopup] = useState(false);
+    const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
+
+    function showUserScheduleHistoryPopup(userId: number) {
+        setUserIdForScheduleHistoryPopup(userId);
+        setUserScheduleHistoryPopup(true);
+    }
 
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
@@ -177,7 +185,12 @@ function AddScheduleDaily() {
                         {userDependencies?.map((dep, index) => (
                             <tr key={index}
                             >
-                                <td>{dep.userName}</td>
+                                <td>
+                                    <button className="btn btn-info p-1"
+                                            onClick={() => showUserScheduleHistoryPopup(dep.userId)}>
+                                        {dep.userName}
+                                    </button>
+                                </td>
                                 <td className='max-column-width-200'>{dep?.assignedTasks.join(', ')}</td>
                                 {dep.userTasksScheduleInfo?.map(udep => (
                                     <td>
@@ -247,6 +260,7 @@ function AddScheduleDaily() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup onClose={() => {setUserScheduleHistoryPopup(false)}} userId={userIdForScheduleHistoryPopup} date={format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'dd-MM-yyyy')} weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)

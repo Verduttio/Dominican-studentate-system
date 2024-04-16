@@ -16,6 +16,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import ButtonLegend from "./ButtonLegend";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
+import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
@@ -41,6 +42,13 @@ function AddScheduleWeekly() {
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
+    const [userScheduleHistoryPopup, setUserScheduleHistoryPopup] = useState(false);
+    const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
+
+    function showUserScheduleHistoryPopup(userId: number) {
+        setUserIdForScheduleHistoryPopup(userId);
+        setUserScheduleHistoryPopup(true);
+    }
 
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
@@ -164,7 +172,12 @@ function AddScheduleWeekly() {
                         {userDependencies?.map((dep, index) => (
                             <tr key={index}
                             >
-                                <td>{dep.userName}</td>
+                                <td>
+                                    <button className="btn btn-info p-1"
+                                            onClick={() => showUserScheduleHistoryPopup(dep.userId)}>
+                                        {dep.userName}
+                                    </button>
+                                </td>
                                 <td className='max-column-width-200'>{dep?.assignedTasks.join(', ')}</td>
                                 {dep.userTasksScheduleInfo?.map(udep => (
                                     <td>
@@ -232,6 +245,7 @@ function AddScheduleWeekly() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup onClose={() => {setUserScheduleHistoryPopup(false)}} userId={userIdForScheduleHistoryPopup} date={from} weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)

@@ -24,6 +24,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/schedules")
@@ -113,6 +114,22 @@ public class ScheduleController {
         }
 
         return new ResponseEntity<>(userSchedulesForSpecifiedWeek, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}/history")
+    public ResponseEntity<?> getScheduleHistoryForUser(@PathVariable Long userId,
+                                                       @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date,
+                                                       @RequestParam("weeks") int numberOfWeeksToDisplay){
+        Map<Integer, List<String>> userScheduleHistory;
+        try {
+            userScheduleHistory = scheduleService.getScheduleHistoryForUser(userId, date, numberOfWeeksToDisplay);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(userScheduleHistory, HttpStatus.OK);
     }
 
     @GetMapping("/tasks/scheduleShortInfo/week")

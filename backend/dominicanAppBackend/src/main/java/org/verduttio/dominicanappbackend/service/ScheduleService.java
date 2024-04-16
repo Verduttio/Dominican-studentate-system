@@ -328,7 +328,7 @@ public class ScheduleService {
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
         List<Task> userWeekAssignedTasks = getTasksFromSchedules(userWeekSchedules);
 
-        validate(checkIfTaskSupervisorRoleAllowsForWholeWeekAssignment(task), new RoleNotMeetRequirementsException("Task's supervisor role does not allow for whole week assignment"));
+        validate(!checkIfTaskSupervisorRoleAllowsForWholeWeekAssignment(task), new RoleNotMeetRequirementsException("Task's supervisor role does not allow for whole week assignment"));
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
@@ -881,5 +881,26 @@ public class ScheduleService {
         userTaskScheduleInfo.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
 
         return userTaskScheduleInfo;
+    }
+
+    public Map<Integer, List<String>> getScheduleHistoryForUser(Long userId, LocalDate date, int numberOfWeeksToDisplay) {
+        if(date.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            throw new IllegalArgumentException("Invalid date. The date must be a Sunday (beginning of the week).");
+        }
+
+        Map<Integer, List<String>> userScheduleHistory = new HashMap<>();
+
+        LocalDate weekStartDate = date.minusWeeks(1);
+        LocalDate weekEndDate = date.minusDays(1);
+        for(int i = 0; i < numberOfWeeksToDisplay; i++) {
+            List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, weekStartDate, weekEndDate);
+            List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
+            userScheduleHistory.put(i+1, tasksInfoStrings);
+
+            weekStartDate = weekStartDate.minusWeeks(1);
+            weekEndDate = weekEndDate.minusWeeks(1);
+        }
+
+        return userScheduleHistory;
     }
 }
