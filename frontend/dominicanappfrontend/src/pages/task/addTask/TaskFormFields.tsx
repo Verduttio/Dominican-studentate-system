@@ -72,18 +72,6 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                 <label className="form-label">Dni tygodnia:</label>
                 <DaysOfWeekCheckboxList selectedDays={taskData.daysOfWeek} onDayChange={handleDayChange}/>
             </div>
-            <div className="mb-3">
-                <label className="form-label custom-checkbox">
-                    Uczestnik na cały okres:
-                    <input
-                        className="form-check-input"
-                        name="participantForWholePeriod"
-                        type="checkbox"
-                        checked={taskData.participantForWholePeriod}
-                        onChange={handleChange}
-                    />
-                </label>
-            </div>
         </>
     );
 }

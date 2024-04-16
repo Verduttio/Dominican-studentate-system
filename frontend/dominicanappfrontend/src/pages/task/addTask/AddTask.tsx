@@ -44,7 +44,6 @@ function AddTask() {
         nameAbbrev: '',
         participantsLimit: 0,
         permanent: false,
-        participantForWholePeriod: false,
         allowedRoleNames: [],
         supervisorRoleName: '',
         daysOfWeek: []

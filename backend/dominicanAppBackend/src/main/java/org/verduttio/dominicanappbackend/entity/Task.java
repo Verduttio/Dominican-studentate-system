@@ -23,8 +23,6 @@ public class Task {
 
     private boolean archived;
 
-    private boolean participantForWholePeriod;
-
     @ManyToMany
     @JoinTable(
             name = "task_allowed_roles",
@@ -87,14 +85,6 @@ public class Task {
         this.archived = archived;
     }
 
-    public boolean isParticipantForWholePeriod() {
-        return participantForWholePeriod;
-    }
-
-    public void setParticipantForWholePeriod(boolean participantForWholePeriod) {
-        this.participantForWholePeriod = participantForWholePeriod;
-    }
-
     public Role getSupervisorRole() {
         return supervisorRole;
     }
@@ -126,13 +116,12 @@ public class Task {
     }
 
     public Task(String name, String nameAbbrev, int participantsLimit, boolean archived,
-                boolean participantForWholePeriod, Set<Role> allowedRoles,
+                Set<Role> allowedRoles,
                 Role supervisorRole, Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.nameAbbrev = nameAbbrev;
         this.participantsLimit = participantsLimit;
         this.archived = archived;
-        this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoles = allowedRoles;
         this.supervisorRole = supervisorRole;
         this.daysOfWeek = daysOfWeek;

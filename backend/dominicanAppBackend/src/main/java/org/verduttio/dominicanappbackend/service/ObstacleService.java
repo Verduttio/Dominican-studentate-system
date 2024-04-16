@@ -69,7 +69,6 @@ public class ObstacleService {
         specialTask.setAllowedRoles(new HashSet<>());
         specialTask.setSupervisorRole(new Role());
         specialTask.setDaysOfWeek(EnumSet.allOf(DayOfWeek.class));
-        specialTask.setParticipantForWholePeriod(true);
         specialTask.setParticipantsLimit(1);
         specialTask.setArchived(false);
 

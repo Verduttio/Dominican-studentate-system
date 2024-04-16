@@ -45,7 +45,6 @@ function EditTask() {
         nameAbbrev: '',
         participantsLimit: 0,
         permanent: false,
-        participantForWholePeriod: false,
         allowedRoleNames: [],
         supervisorRoleName: '',
         daysOfWeek: []
@@ -74,7 +73,6 @@ function EditTask() {
                     nameAbbrev: task.nameAbbrev,
                     participantsLimit: task.participantsLimit,
                     permanent: task.permanent,
-                    participantForWholePeriod: task.participantForWholePeriod,
                     allowedRoleNames: task.allowedRoles.map(role => role.name),
                     supervisorRoleName: task.supervisorRole?.name,
                     daysOfWeek: task.daysOfWeek

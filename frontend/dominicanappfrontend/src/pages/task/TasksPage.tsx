@@ -39,7 +39,6 @@ function TasksPage () {
                         <tr>
                             <th>Nazwa</th>
                             <th>Limit uczestników</th>
-                            <th>Cały okres</th>
                             <th>Dozwolone role</th>
                             <th>Wyznaczający</th>
                             {isFunkcyjny && <th>Edytuj</th>}
@@ -50,7 +49,6 @@ function TasksPage () {
                             <tr key={task.id}>
                                 <td>[{task.nameAbbrev}] {task.name}</td>
                                 <td>{task.participantsLimit}</td>
-                                <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
                                 <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
                                 <td className="max-column-width">{task.supervisorRole?.name}</td>
                                 {isFunkcyjny &&

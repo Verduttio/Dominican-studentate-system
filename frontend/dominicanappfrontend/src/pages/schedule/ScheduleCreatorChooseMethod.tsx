@@ -47,20 +47,20 @@ const ScheduleCreatorChooseMethod: React.FC = () => {
             <h2 className="entity-header-dynamic-size">Wybierz tryb tworzenia harmonogramu</h2>
             <h3 className="entity-header-dynamic-size">Zadanie: {task?.name}</h3>
             <h4 className=" fw-bold entity-header-dynamic-size">Tworzysz harmonogram od: {from}, do: {to}</h4>
-            {task?.participantForWholePeriod && (
-                <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                    <div className="card-body text-center" onClick={() => navigate(getTaskUrlWeekly(task?.id))}>
-                        Kreator tygodniowy
-                    </div>
-                </div>
-            )}
-            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                <div className="card-body text-center" onClick={() => {
-                    navigate(getTaskUrlDaily(task?.id))
-                }}>
-                    Kreator dzienny
-                </div>
-            </div>
+            {/*{task?.participantForWholePeriod && (*/}
+            {/*    <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">*/}
+            {/*        <div className="card-body text-center" onClick={() => navigate(getTaskUrlWeekly(task?.id))}>*/}
+            {/*            Kreator tygodniowy*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*)}*/}
+            {/*<div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">*/}
+            {/*    <div className="card-body text-center" onClick={() => {*/}
+            {/*        navigate(getTaskUrlDaily(task?.id))*/}
+            {/*    }}>*/}
+            {/*        Kreator dzienny*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </div>
     )
 };

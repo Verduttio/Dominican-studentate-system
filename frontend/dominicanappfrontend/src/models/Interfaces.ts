@@ -11,7 +11,6 @@ interface Task {
     nameAbbrev: string;
     participantsLimit: number;
     permanent: boolean;
-    participantForWholePeriod: boolean;
     allowedRoles: Role[];
     supervisorRole: Role;
     daysOfWeek: string[];

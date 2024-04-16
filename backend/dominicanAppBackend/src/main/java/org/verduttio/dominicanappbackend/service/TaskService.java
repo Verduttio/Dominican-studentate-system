@@ -101,7 +101,6 @@ public class TaskService {
         task.setNameAbbrev(updatedTaskDTO.getNameAbbrev());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
         task.setArchived(updatedTaskDTO.isArchived());
-        task.setParticipantForWholePeriod(updatedTaskDTO.isParticipantForWholePeriod());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getAllowedRoleNames());
         if(rolesDB.isEmpty()) {
             throw new IllegalArgumentException("No roles found for given role names");

@@ -328,7 +328,7 @@ public class ScheduleService {
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), from, to);
         List<Task> userWeekAssignedTasks = getTasksFromSchedules(userWeekSchedules);
 
-        validate(!task.isParticipantForWholePeriod(), new IllegalArgumentException("Task does not allow assigning participants for whole period"));
+        validate(checkIfTaskSupervisorRoleAllowsForWholeWeekAssignment(task), new RoleNotMeetRequirementsException("Task's supervisor role does not allow for whole week assignment"));
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
@@ -338,6 +338,10 @@ public class ScheduleService {
 
         validate(checkIfTaskIsInConflictWithGivenTasksWeekly(addScheduleDTO.getTaskId(), userWeekAssignedTasks) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
 
+    }
+
+    private boolean checkIfTaskSupervisorRoleAllowsForWholeWeekAssignment(Task task) {
+        return task.getSupervisorRole().isWeeklyScheduleCreatorDefault();
     }
 
     public void validateAddScheduleForDailyPeriodTask(AddScheduleForDailyPeriodTaskDTO addScheduleDTO, boolean ignoreConflicts, LocalDate dateStartWeek, LocalDate dateEndWeek, LocalDate taskDate)

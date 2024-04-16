@@ -77,13 +77,12 @@ CREATE TABLE task_day_of_week
 
 CREATE TABLE tasks
 (
-    id                           BIGINT  NOT NULL,
-    name                         VARCHAR(255),
-    name_abbrev                  VARCHAR(255),
-    participants_limit           INTEGER NOT NULL,
-    archived                     BOOLEAN NOT NULL,
-    participant_for_whole_period BOOLEAN NOT NULL,
-    role_id                      BIGINT,
+    id                 BIGINT  NOT NULL,
+    name               VARCHAR(255),
+    name_abbrev        VARCHAR(255),
+    participants_limit INTEGER NOT NULL,
+    archived           BOOLEAN NOT NULL,
+    role_id            BIGINT,
     CONSTRAINT pk_tasks PRIMARY KEY (id)
 );
 

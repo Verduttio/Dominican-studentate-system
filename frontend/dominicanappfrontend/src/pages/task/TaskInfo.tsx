@@ -54,10 +54,6 @@ const TaskInfo: React.FC<TaskInfoProps> = ({ taskId }) => {
                             <td>{task.permanent ? 'Tak' : 'Nie'}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Uczestnik na cały okres</th>
-                            <td>{task.participantForWholePeriod ? 'Tak' : 'Nie'}</td>
-                        </tr>
-                        <tr>
                             <th className="table-dark">Role, które mogą wykonać oficjum</th>
                             <td>
                                 <ul className="list-unstyled">

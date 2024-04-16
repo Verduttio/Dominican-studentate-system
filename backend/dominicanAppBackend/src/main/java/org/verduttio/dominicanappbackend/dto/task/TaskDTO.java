@@ -17,8 +17,6 @@ public class TaskDTO {
     private int participantsLimit;
     @NotNull(message="Archived field is mandatory")
     private boolean archived;
-    @NotNull(message="Participant for whole period is mandatory")
-    private boolean participantForWholePeriod;
     @NotEmpty(message="Allowed roles are mandatory")
     private Set<String> allowedRoleNames;
     @NotEmpty(message="Supervisor role is mandatory")
@@ -43,10 +41,6 @@ public class TaskDTO {
         return archived;
     }
 
-    public boolean isParticipantForWholePeriod() {
-        return participantForWholePeriod;
-    }
-
     public Set<String> getAllowedRoleNames() {
         return allowedRoleNames;
     }
@@ -63,13 +57,12 @@ public class TaskDTO {
     public TaskDTO() {
     }
 
-    public TaskDTO(String name, String nameAbbrev, int participantsLimit, boolean archived, boolean participantForWholePeriod,
+    public TaskDTO(String name, String nameAbbrev, int participantsLimit, boolean archived,
                    Set<String> allowedRoleNames, String supervisorRoleName ,Set<DayOfWeek> daysOfWeek) {
         this.name = name;
         this.nameAbbrev = nameAbbrev;
         this.participantsLimit = participantsLimit;
         this.archived = archived;
-        this.participantForWholePeriod = participantForWholePeriod;
         this.allowedRoleNames = allowedRoleNames;
         this.supervisorRoleName = supervisorRoleName;
         this.daysOfWeek = daysOfWeek;
@@ -82,7 +75,6 @@ public class TaskDTO {
         task.setNameAbbrev(this.nameAbbrev);
         task.setParticipantsLimit(this.participantsLimit);
         task.setArchived(this.archived);
-        task.setParticipantForWholePeriod(this.participantForWholePeriod);
         task.setDaysOfWeek(this.daysOfWeek);
         return task;
     }
