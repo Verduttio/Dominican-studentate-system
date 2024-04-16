@@ -2,6 +2,8 @@ package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,6 +24,9 @@ public class Role implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private RoleType type;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean isWeeklyScheduleCreatorDefault;
 
 
     // Getters and setters
@@ -53,9 +58,10 @@ public class Role implements Serializable {
     public Role() {
     }
 
-    public Role(String name, RoleType type) {
+    public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault) {
         this.name = name;
         this.type = type;
+        this.isWeeklyScheduleCreatorDefault = isWeeklyScheduleCreatorDefault;
     }
 
     @Override
@@ -64,6 +70,7 @@ public class Role implements Serializable {
                 "id=" + id +
                 ", name='" + name +
                 ", type='" + type +
+                ", isWeeklyScheduleCreatorDefault=" + isWeeklyScheduleCreatorDefault +
                 '}';
     }
 
@@ -79,4 +86,11 @@ public class Role implements Serializable {
         return name.hashCode();
     }
 
+    public boolean isWeeklyScheduleCreatorDefault() {
+        return isWeeklyScheduleCreatorDefault;
+    }
+
+    public void setWeeklyScheduleCreatorDefault(boolean weeklyScheduleCreatorDefault) {
+        isWeeklyScheduleCreatorDefault = weeklyScheduleCreatorDefault;
+    }
 }

@@ -46,9 +46,10 @@ CREATE TABLE obstacles
 
 CREATE TABLE roles
 (
-    id   BIGINT NOT NULL,
-    name VARCHAR(255),
-    type VARCHAR(255),
+    id                                 BIGINT NOT NULL,
+    name                               VARCHAR(255),
+    type                               VARCHAR(255),
+    is_weekly_schedule_creator_default BOOLEAN DEFAULT FALSE,
     CONSTRAINT pk_roles PRIMARY KEY (id)
 );
 

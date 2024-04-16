@@ -8,7 +8,12 @@ interface RoleFormFieldsProps {
 
 const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const target = e.target as HTMLInputElement;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+
+        console.log(`Name: ${name}, Value: ${value}, Checked: ${target.checked}`); // Logowanie wartości
+
         setRoleData((prev: Role | null) => {
             if (prev === null) return null;
             return {
@@ -48,6 +53,25 @@ const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }
                     ))}
                 </select>
             </div>
+            {roleData?.type === RoleType.SUPERVISOR && (
+                <div className="mb-3">
+                    <div className="d-flex justify-content-between">
+                        <label className="form-check-label me-2" htmlFor="defaultCreatorSelection">
+                            <strong>Kreator tygodniowy jako domyślny</strong>
+                        </label>
+                        <div className="form-check form-switch">
+                            <input
+                                className="form-check-input"
+                                name="weeklyScheduleCreatorDefault"
+                                type="checkbox"
+                                id="defaultCreatorSelection"
+                                checked={roleData?.weeklyScheduleCreatorDefault}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

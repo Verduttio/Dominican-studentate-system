@@ -16,7 +16,10 @@ function ViewRoles() {
     const locationStateMessage = location.state?.message;
 
     useEffect(() => {
-        request(null, (data: Role[]) => setRoles(data));
+        request(null, (data: Role[]) => {
+            setRoles(data);
+            console.log(data);
+        });
     }, [request]);
 
     if (loading) return <LoadingSpinner/>;
@@ -39,6 +42,7 @@ function ViewRoles() {
                         <tr>
                             <th>Nazwa</th>
                             <th>Typ</th>
+                            <th>Kreator</th>
                             {isAdmin && <th>Edytuj</th>}
                         </tr>
                         </thead>
@@ -47,9 +51,11 @@ function ViewRoles() {
                             <tr key={role.id}>
                                 <td>{role.name}</td>
                                 <td>{roleTypeTranslation[role.type]}</td>
+                                <td>{role.type === 'SUPERVISOR' ? role.weeklyScheduleCreatorDefault ? 'Tygodniowy' : 'Dzienny' : 'Nie dotyczy'}</td>
                                 {isAdmin &&
                                     <td>
-                                        {role.type !== RoleType.SYSTEM && <button className="btn btn-primary" onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>}
+                                        {role.type !== RoleType.SYSTEM && <button className="btn btn-primary"
+                                                                                  onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>}
                                     </td>
                                 }
                             </tr>

@@ -13,7 +13,8 @@ function AddRole() {
     const initialRoleState : Role= {
         id: 0,
         name: '',
-        type: ''
+        type: '',
+        weeklyScheduleCreatorDefault: true
     }
 
     const [roleData, setRoleData] = useState<Role | null>(initialRoleState);

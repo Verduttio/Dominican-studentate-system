@@ -65,6 +65,7 @@ public class RoleService {
         }
         existingRole.setName(updatedRole.getName());
         existingRole.setType(updatedRole.getType());
+        existingRole.setWeeklyScheduleCreatorDefault(updatedRole.isWeeklyScheduleCreatorDefault());
         roleRepository.save(existingRole);
     }
 
