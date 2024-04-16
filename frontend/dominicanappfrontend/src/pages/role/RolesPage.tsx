@@ -18,7 +18,6 @@ function ViewRoles() {
     useEffect(() => {
         request(null, (data: Role[]) => {
             setRoles(data);
-            console.log(data);
         });
     }, [request]);
 

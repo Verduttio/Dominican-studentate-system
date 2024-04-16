@@ -12,8 +12,6 @@ const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
 
-        console.log(`Name: ${name}, Value: ${value}, Checked: ${target.checked}`); // Logowanie wartości
-
         setRoleData((prev: Role | null) => {
             if (prev === null) return null;
             return {

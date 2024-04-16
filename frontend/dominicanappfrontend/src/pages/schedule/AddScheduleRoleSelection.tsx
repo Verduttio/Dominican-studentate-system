@@ -4,11 +4,25 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
 import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
+import {Role} from "../../models/Interfaces";
 
 function AddScheduleRoleSelection() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
     const {currentUser} = useGetOrCreateCurrentUser();
+
+    const navigateToDefaultScheduleCreator = (roleName: string) => {
+        const selectedRole: Role | undefined = currentUser?.roles.filter((role) => (role.name === roleName))[0];
+        if(selectedRole) {
+            if(selectedRole.weeklyScheduleCreatorDefault) {
+                navigate(`/add-schedule/weekly?roleName=${roleName}`);
+            } else {
+                navigate(`/add-schedule/daily?roleName=${roleName}`);
+            }
+        } else {
+            console.error("Role not found");
+        }
+    }
 
     if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
         return <LoadingSpinner/>;
@@ -19,7 +33,7 @@ function AddScheduleRoleSelection() {
             {currentUser?.roles.filter((role) => (role.type === "SUPERVISOR")).map((role) => (
                 <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
                     <div className="card-body text-center" onClick={() => {
-                        navigate(`/add-schedule/weekly?roleName=${role.name}`)
+                        navigateToDefaultScheduleCreator(role.name);
                     }}>
                         {role.name}
                     </div>

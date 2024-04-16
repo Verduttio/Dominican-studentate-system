@@ -16,6 +16,7 @@ import ButtonLegend from "./ButtonLegend";
 import DaySelector from "../../components/DaySelector";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 
 function AddScheduleDaily() {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -40,9 +41,14 @@ function AddScheduleDaily() {
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
+    const {currentUser} = useGetOrCreateCurrentUser();
 
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
+    }
+
+    const isRoleWeeklyScheduleCreatorDefault = (roleName: string | null) => {
+        return currentUser?.roles.filter((role) => (role.name === roleName))[0]?.weeklyScheduleCreatorDefault;
     }
 
     useEffect(() => {
@@ -227,14 +233,16 @@ function AddScheduleDaily() {
         <div className="fade-in">
             <h3 className="fw-bold entity-header-dynamic-size mb-0 mx-4">Oficja - {roleName}</h3>
             <ButtonLegend/>
-            <div className={"d-flex justify-content-center"}>
-                <button className="btn btn-secondary mt-3" onClick={() => {
-                    navigate(`/add-schedule/weekly?roleName=${roleName}`);
-                }}>
-                    <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
-                    Przełącz na kreator tygodniowy
-                </button>
-            </div>
+            {isRoleWeeklyScheduleCreatorDefault(roleName) && (
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-secondary mt-3" onClick={() => {
+                        navigate(`/add-schedule/weekly?roleName=${roleName}`);
+                    }}>
+                        <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
+                        Przełącz na kreator tygodniowy
+                    </button>
+                </div>
+            )}
             <DaySelector currentDate={currentDate} setCurrentDate={setCurrentDate}/>
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
