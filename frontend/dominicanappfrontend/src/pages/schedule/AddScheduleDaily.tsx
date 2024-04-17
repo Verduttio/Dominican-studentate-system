@@ -260,7 +260,12 @@ function AddScheduleDaily() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
-            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup onClose={() => {setUserScheduleHistoryPopup(false)}} userId={userIdForScheduleHistoryPopup} date={format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'dd-MM-yyyy')} weeks={5}/>}
+            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
+                onClose={() => {setUserScheduleHistoryPopup(false)}}
+                userId={userIdForScheduleHistoryPopup}
+                userName={currentUser?.name + " " + currentUser?.surname}
+                date={format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'dd-MM-yyyy')}
+                weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)

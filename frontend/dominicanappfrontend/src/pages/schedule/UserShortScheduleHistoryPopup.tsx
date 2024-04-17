@@ -6,12 +6,13 @@ import AlertBox from "../../components/AlertBox";
 
 interface UserShortScheduleHistoryPopupProps {
     userId: number;
+    userName: string;
     date: string;
     weeks: number;
     onClose: () => void;
 }
 
-const UserShortScheduleHistoryPopup: React.FC<UserShortScheduleHistoryPopupProps> = ({ userId, date, weeks, onClose }) => {
+const UserShortScheduleHistoryPopup: React.FC<UserShortScheduleHistoryPopupProps> = ({ userId, userName, date, weeks, onClose }) => {
     const { request, error, loading } = useHttp(`${backendUrl}/api/schedules/users/${userId}/history?date=${date}&weeks=${weeks}`, 'GET');
     const [userScheduleHistory, setUserScheduleHistory] = useState<Map<number, string[]>>(new Map());
 
@@ -38,17 +39,17 @@ const UserShortScheduleHistoryPopup: React.FC<UserShortScheduleHistoryPopupProps
             <div className="card custom-modal">
                 <div className="card-body">
                     <div className="modal-body text-center">
-                        <h5>Historia oficjów brata</h5>
+                        <h5>Historia oficjów {userName}</h5>
                     </div>
                     <div className="modal-body">
                         {userScheduleHistory && (
                             <div className="d-flex justify-content-center">
                                 <div className="table-responsive" style={{maxWidth: '400px'}}>
                                     <table
-                                        className="table table-hover table-striped table-rounded table-shadow">
+                                        className="table table-hover table-striped table-rounded table-shadow text-center">
                                         <thead className="table-dark">
                                         <tr>
-                                            <th>
+                                            <th className="max-column-width-100">
                                                 <strong>N</strong> tygodni temu
                                             </th>
                                             <th>
@@ -59,7 +60,7 @@ const UserShortScheduleHistoryPopup: React.FC<UserShortScheduleHistoryPopupProps
                                         <tbody>
                                         {Array.from(userScheduleHistory.entries()).map(([weekAgo, taskStrings]) => (
                                             <tr key={weekAgo}>
-                                                <td>{weekAgo}</td>
+                                                <td className="max-column-width-100">{weekAgo}</td>
                                                 <td>{taskStrings.length !== 0 ? taskStrings.join(', ') : 'brak'}</td>
                                             </tr>
                                         ))}
@@ -70,7 +71,7 @@ const UserShortScheduleHistoryPopup: React.FC<UserShortScheduleHistoryPopupProps
                         )}
                     </div>
                     <div className="modal-footer d-flex justify-content-center">
-                        <button className="btn btn-secondary m-1" onClick={onClose}>OK</button>
+                        <button className="btn btn-secondary m-1" onClick={onClose}>Zamknij</button>
                     </div>
                 </div>
             </div>

@@ -52,6 +52,11 @@
     word-wrap: break-word;
 }
 
+.max-column-width-100{
+    max-width: 100px;
+    word-wrap: break-word;
+}
+
 .max-column-width-200{
     max-width: 200px;
     word-wrap: break-word;

@@ -17,6 +17,7 @@ import ButtonLegend from "./ButtonLegend";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
+import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
@@ -44,6 +45,7 @@ function AddScheduleWeekly() {
     const navigate = useNavigate();
     const [userScheduleHistoryPopup, setUserScheduleHistoryPopup] = useState(false);
     const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
+    const {currentUser} = useGetOrCreateCurrentUser();
 
     function showUserScheduleHistoryPopup(userId: number) {
         setUserIdForScheduleHistoryPopup(userId);
@@ -245,7 +247,13 @@ function AddScheduleWeekly() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
-            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup onClose={() => {setUserScheduleHistoryPopup(false)}} userId={userIdForScheduleHistoryPopup} date={from} weeks={5}/>}
+            {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
+                onClose={() => {setUserScheduleHistoryPopup(false)}}
+                userId={userIdForScheduleHistoryPopup}
+                userName={currentUser?.name + " " + currentUser?.surname}
+                date={from}
+                weeks={5}
+            />}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)
