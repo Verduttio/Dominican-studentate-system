@@ -18,6 +18,10 @@
     width: 100%;
 }
 
+.d-flex-only {
+    display: flex;
+}
+
 .d-flex {
     display: flex;
     align-items: center; /* Wyrównanie pionowe do środka */

@@ -52,6 +52,12 @@ interface Schedule {
     date: string;
 }
 
+interface SpecialDate {
+    id: number;
+    date: string;
+    type: string;
+}
+
 interface ScheduleShortInfo {
     userId: number;
     userName: string;
@@ -177,7 +183,7 @@ interface UserTaskStatistics {
     totalNumberOfAssigns: number;
 }
 
-export type {Role, Task, User, Obstacle, Conflict, Schedule, UserTaskDependencyWeekly, UserTaskDependencyDaily}
+export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
 export type {DayOfWeek}
