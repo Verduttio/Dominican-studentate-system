@@ -6,6 +6,8 @@ CREATE SEQUENCE IF NOT EXISTS role_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE SEQUENCE IF NOT EXISTS schedule_id_seq START WITH 1 INCREMENT BY 1;
 
+CREATE SEQUENCE IF NOT EXISTS special_date_id_seq START WITH 1 INCREMENT BY 1;
+
 CREATE SEQUENCE IF NOT EXISTS task_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE SEQUENCE IF NOT EXISTS user_id_seq START WITH 1 INCREMENT BY 1;
@@ -60,6 +62,14 @@ CREATE TABLE schedule
     user_id BIGINT,
     date    date,
     CONSTRAINT pk_schedule PRIMARY KEY (id)
+);
+
+CREATE TABLE special_dates
+(
+    id   BIGINT NOT NULL,
+    date date,
+    type VARCHAR(255),
+    CONSTRAINT pk_special_dates PRIMARY KEY (id)
 );
 
 CREATE TABLE task_allowed_roles
