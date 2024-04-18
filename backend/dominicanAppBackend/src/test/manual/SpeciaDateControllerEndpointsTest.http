@@ -1,0 +1,2 @@
+### Get stats date
+GET {{host}}/api/dates/stats
