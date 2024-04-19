@@ -189,7 +189,7 @@ public class ScheduleService {
         List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
         List<Task> userAssignedTasksForWeek = getTasksFromSchedules(userSchedulesForWeek);
 
-        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId);
+        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
@@ -227,7 +227,7 @@ public class ScheduleService {
 
         List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
 
-        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId);
+        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
@@ -250,10 +250,9 @@ public class ScheduleService {
                 userAssignedTasksNamesForWeek, isConflict, hasObstacle, alreadyAssignedToTheTask);
     }
 
-    private long getNumberOfTaskCompletionByUserFromStatsDate(long userId, long taskId) {
+    private long getNumberOfTaskCompletionByUserFromStatsDate(long userId, long taskId, LocalDate to) {
         LocalDate statsDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
-        LocalDate now = LocalDate.now();
-        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, statsDate, now);
+        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, statsDate, to);
     }
 
     private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
