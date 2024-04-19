@@ -43,4 +43,8 @@ public class SpecialDateService {
         specialDate.setType(SpecialDateType.FEAST);
         specialDateRepository.save(specialDate);
     }
+
+    public void deleteFeastDate(Long id) {
+        specialDateRepository.deleteById(id);
+    }
 }

@@ -49,4 +49,10 @@ public class SpecialDateController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @DeleteMapping("/feast/{id}")
+    public ResponseEntity<?> deleteFeastDate(@PathVariable Long id) {
+        specialDateService.deleteFeastDate(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
