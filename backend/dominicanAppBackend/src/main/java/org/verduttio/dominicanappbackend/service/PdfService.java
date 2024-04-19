@@ -234,6 +234,7 @@ public class PdfService {
         emptyTaskCell.setFillColor(Color.LIGHT_GRAY);
         emptyTaskCell.setAlign(HorizontalAlignment.CENTER);
         emptyTaskCell.setTopBorderStyle(new LineStyle(Color.LIGHT_GRAY, 0));
+        emptyTaskCell.setBottomBorderStyle(new LineStyle(Color.LIGHT_GRAY, 0));
 
         // User cell
         Cell<PDPage> userCell = newUserRow.createCell(50, userName);
