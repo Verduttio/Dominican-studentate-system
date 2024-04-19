@@ -6,6 +6,7 @@ import React, {useEffect, useState} from "react";
 import {SpecialDate} from "../../models/Interfaces";
 import PopupDatePicker from "./PopupDatePicker";
 import {format} from "date-fns";
+import Pagination from "../../components/Pagination";
 
 
 function DatesPage() {
@@ -16,6 +17,17 @@ function DatesPage() {
     const [refresh, setRefresh] = useState(false);
     const [refreshMessage, setRefreshMessage] = useState('');
     const [validationError, setValidationError] = useState<string>('');
+    const [showUpdateStatsDatePopup, setShowUpdateStatsDatePopup] = useState(false);
+
+    const [datesPage, setDatesPage] = useState<{ content: SpecialDate[], totalPages: number }>({ content: [], totalPages: 0 });
+    const { error: errorRequestFeastDates, loading: loadingRequestFeastDates, request: requestFeastDates } = useHttp();
+    const [currentPage, setCurrentPage] = useState<number>(0);
+    const pageSize = 10;
+    const [showAddFeastDateForm, setShowAddFeastDateForm] = useState(false)
+    const [showAddFeastDatePopup, setShowAddFeastDatePopup] = useState(false);
+    const [feastDate, setFeastDate] = useState(new Date());
+    const { request: postFeastDate, error: errorPostFeastDate, loading: loadingPostFeastDate } = useHttp(`${backendUrl}/api/dates/feast?date=${format(feastDate, 'dd-MM-yyyy')}`, 'POST');
+    const [refreshFeastDates, setRefreshFeastDates] = useState(false);
 
     useEffect(() => {
         requestStatsDate(null, (data) => {
@@ -23,6 +35,13 @@ function DatesPage() {
             setDate(new Date(data.date));
         });
     }, [requestStatsDate, refresh]);
+
+    useEffect(() => {
+        const baseUrl = `${backendUrl}/api/dates/pageable/feast`;
+        const requestUrl = `${baseUrl}?page=${currentPage}&size=${pageSize}`;
+        requestFeastDates(null, (data) => setDatesPage({ content: data.content, totalPages: data.totalPages }), false, requestUrl, 'GET')
+            .then(() => {});
+    }, [requestFeastDates, currentPage, pageSize, refreshFeastDates]);
 
     const handleUpdateStatsDate = () => {
         if (date > new Date()) {
@@ -38,6 +57,21 @@ function DatesPage() {
         });
     }
 
+    const handleAddFeastDate = () => {
+        if (feastDate < new Date()) {
+            setValidationError('Data nie może być z przeszłości');
+            return;
+        } else {
+            setValidationError('');
+        }
+
+        postFeastDate(null, () => {
+            setRefreshMessage('Data święta została dodana');
+            setShowAddFeastDateForm(false);
+            setRefreshFeastDates(!refreshFeastDates);
+        });
+    }
+
     const renderStatsDate = () => {
         if (loadingStatsDate) return <LoadingSpinner/>;
         if (errorStatsDate) return <AlertBox text={errorStatsDate} type={'danger'} width={'500px'}/>;
@@ -49,7 +83,11 @@ function DatesPage() {
                         <div className="card-body p-0">
                             <div className="d-flex-no-media-resize justify-content-between">
                                     <h6 className="card-title p-2">Data zbierania statystyk:</h6>
-                                    <p className="card-title p-2"> <PopupDatePicker selectedDate={date} onDateChange={setDate} /></p>
+                                    <p className="card-title p-2">
+                                        <button className="btn btn-outline-secondary" onClick={() => setShowUpdateStatsDatePopup(true)}>
+                                            <strong>{date.toLocaleDateString()}</strong>
+                                        </button>
+                                    </p>
                             </div>
                             {statsSpecialDate?.date !== format(date, 'yyyy-MM-dd') && (
                                 <div className="d-flex justify-content-center">
@@ -67,6 +105,68 @@ function DatesPage() {
         )
     }
 
+    const renderAddFeastDateForm = () => {
+        return (
+            <div className="d-flex fade-in">
+                <div className="card my-3 w-100" style={{maxWidth: '400px'}}>
+                    <div className="card-body p-0">
+                        <div className="d-flex-no-media-resize justify-content-between">
+                            <h6 className="card-title p-2">Data święta:</h6>
+                            <p className="card-title p-2">
+                                <button className="btn btn-outline-secondary"
+                                        onClick={() => setShowAddFeastDatePopup(true)}>
+                                    <strong>{feastDate.toLocaleDateString()}</strong>
+                                </button>
+                            </p>
+                        </div>
+                        <div className="d-flex justify-content-between">
+                            <button className="btn btn-success m-2" onClick={handleAddFeastDate}
+                                    disabled={loadingPostFeastDate}>
+                                <span>Dodaj</span>
+                                {loadingPostFeastDate &&
+                                    <span className="spinner-border spinner-border-sm"></span>}
+                            </button>
+                            <button className="btn btn-secondary m-2" onClick={() => setShowAddFeastDateForm(false)}>Anuluj</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderFeastDates = () => {
+        if (loadingRequestFeastDates) return <LoadingSpinner/>;
+        if (errorRequestFeastDates) return <AlertBox text={errorRequestFeastDates} type={'danger'} width={'500px'}/>;
+
+        return (
+            <div className="fade-in">
+                <div className="d-flex justify-content-center">
+                    <div className="table-responsive" style={{maxWidth: '400px'}}>
+                        <table className="table table-hover table-striped table-rounded table-shadow text-center">
+                            <thead className="table-dark">
+                            <tr>
+                                <th>Data</th>
+                                <th>Typ</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {datesPage.content.map((date) => {
+                                return (
+                                    <tr key={date.id}>
+                                        <td>{date.date}</td>
+                                        <td>{date.type}</td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <Pagination currentPage={currentPage} totalPages={datesPage.totalPages} onPageChange={(page) => setCurrentPage(page)}/>
+            </div>
+        )
+    }
+
     return (
         <div className="fade-in">
             <div className="d-flex justify-content-center">
@@ -74,8 +174,28 @@ function DatesPage() {
             </div>
             {refreshMessage && <AlertBox text={refreshMessage} type={'success'} width={'500px'}/>}
             {errorPatchStatsDate && <AlertBox text={errorPatchStatsDate} type={'danger'} width={'500px'}/>}
-            {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/> }
+            {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
             {renderStatsDate()}
+            <div className="d-flex justify-content-center">
+                <h3 className="entity-header-dynamic-size mt-4 mb-0">Daty świąt</h3>
+            </div>
+            <div className="d-flex justify-content-center">
+                {showAddFeastDateForm ? (
+                    renderAddFeastDateForm()
+                ) : (
+                    <button className="btn btn-success m-2" onClick={() => {
+                        setShowAddFeastDateForm(true)
+                    }}>
+                        Dodaj święto
+                    </button>
+                )
+                }
+            </div>
+            {renderFeastDates()}
+            {showUpdateStatsDatePopup && <PopupDatePicker selectedDate={date} onDateChange={setDate}
+                                                          handleCloseCalendar={() => setShowUpdateStatsDatePopup(false)}/>}
+            {showAddFeastDatePopup && <PopupDatePicker selectedDate={feastDate} onDateChange={setFeastDate}
+                                                       handleCloseCalendar={() => setShowAddFeastDatePopup(false)}/>}
         </div>
     )
 }

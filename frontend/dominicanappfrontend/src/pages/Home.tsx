@@ -26,7 +26,6 @@ function Home() {
                     <h4 className="entity-header-dynamic-size mb-2 mt-0">Statystyki</h4>
                 </div>
                 <UserTasksStatistics userId={currentUser.id}/>
-
             </div>
         );
     } else {
