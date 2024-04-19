@@ -7,6 +7,7 @@ import {SpecialDate} from "../../models/Interfaces";
 import PopupDatePicker from "./PopupDatePicker";
 import {format} from "date-fns";
 import Pagination from "../../components/Pagination";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 
 function DatesPage() {
@@ -28,6 +29,9 @@ function DatesPage() {
     const [feastDate, setFeastDate] = useState(new Date());
     const { request: postFeastDate, error: errorPostFeastDate, loading: loadingPostFeastDate } = useHttp(`${backendUrl}/api/dates/feast?date=${format(feastDate, 'dd-MM-yyyy')}`, 'POST');
     const [refreshFeastDates, setRefreshFeastDates] = useState(false);
+
+    const { request: requestDeleteFeastDate, error: errorDeleteFeastDate, loading: loadingDeleteFeastDate } = useHttp();
+    const [showConfirmDeletionPopup, setShowConfirmDeletionPopup] = useState(false);
 
     useEffect(() => {
         requestStatsDate(null, (data) => {
@@ -58,7 +62,8 @@ function DatesPage() {
     }
 
     const handleAddFeastDate = () => {
-        if (feastDate < new Date()) {
+        let fullDayDate = new Date().setHours(0, 0, 0, 0);
+        if (feastDate < new Date(fullDayDate)) {
             setValidationError('Data nie może być z przeszłości');
             return;
         } else {
@@ -66,10 +71,18 @@ function DatesPage() {
         }
 
         postFeastDate(null, () => {
-            setRefreshMessage('Data święta została dodana');
+            setRefreshMessage('Data została dodana');
             setShowAddFeastDateForm(false);
             setRefreshFeastDates(!refreshFeastDates);
         });
+    }
+
+    const handleDeleteFeastDate = (id: number) => {
+        requestDeleteFeastDate(null, () => {
+            setShowConfirmDeletionPopup(false);
+            setRefreshMessage('Data została usunięta');
+            setRefreshFeastDates(!refreshFeastDates);
+        }, false, `${backendUrl}/api/dates/feast/${id}`, 'DELETE');
     }
 
     const renderStatsDate = () => {
@@ -141,12 +154,13 @@ function DatesPage() {
         return (
             <div className="fade-in">
                 <div className="d-flex justify-content-center">
+                    {errorDeleteFeastDate && <AlertBox text={errorDeleteFeastDate} type={'danger'} width={'500px'}/>}
                     <div className="table-responsive" style={{maxWidth: '400px'}}>
                         <table className="table table-hover table-striped table-rounded table-shadow text-center">
                             <thead className="table-dark">
                             <tr>
                                 <th>Data</th>
-                                <th>Typ</th>
+                                <th>Akcja</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -154,7 +168,12 @@ function DatesPage() {
                                 return (
                                     <tr key={date.id}>
                                         <td>{date.date}</td>
-                                        <td>{date.type}</td>
+                                        <td>
+                                            <button className="btn btn-danger" onClick={() => {setShowConfirmDeletionPopup(true)}}>
+                                                Usuń
+                                            </button>
+                                            {showConfirmDeletionPopup && <ConfirmDeletionPopup onHandle={() => handleDeleteFeastDate(date.id)} onClose={() => setShowConfirmDeletionPopup(false)}/>}
+                                        </td>
                                     </tr>
                                 )
                             })}
