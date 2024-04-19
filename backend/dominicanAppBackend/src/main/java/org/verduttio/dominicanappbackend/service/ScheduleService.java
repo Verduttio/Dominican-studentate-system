@@ -900,7 +900,11 @@ public class ScheduleService {
         userTaskScheduleInfo.setTaskName(task.getName());
         userTaskScheduleInfo.setTaskId(task.getId());
         userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyDailyDTO.getLastAssigned(), from));
-        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
+        if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
+            userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
+        } else {
+            userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear());
+        }
         userTaskScheduleInfo.setIsInConflict(userTaskDependencyDailyDTO.getIsInConflict().contains(dateDayOfWeek));
         userTaskScheduleInfo.setHasObstacle(userTaskDependencyDailyDTO.getHasObstacle().contains(dateDayOfWeek));
         userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyDailyDTO.getAssignedToTheTask().contains(dateDayOfWeek));
