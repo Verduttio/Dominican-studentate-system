@@ -65,13 +65,18 @@ public class ScheduleService {
 
         validateAddScheduleForWholePeriodTask(addScheduleDTO, ignoreConflicts, from, to);
 
+        Task task = taskService.getTaskById(addScheduleDTO.getTaskId()).get();
+        User user = userService.getUserById(addScheduleDTO.getUserId()).get();
+
         LocalDate date = from;
         while(date.isBefore(to) || date.isEqual(to)) {
-            Schedule schedule = new Schedule();
-            schedule.setTask(taskService.getTaskById(addScheduleDTO.getTaskId()).get());
-            schedule.setUser(userService.getUserById(addScheduleDTO.getUserId()).get());
-            schedule.setDate(date);
-            scheduleRepository.save(schedule);
+            if (task.getDaysOfWeek().contains(date.getDayOfWeek())) {
+                Schedule schedule = new Schedule();
+                schedule.setTask(task);
+                schedule.setUser(user);
+                schedule.setDate(date);
+                scheduleRepository.save(schedule);
+            }
             date = date.plusDays(1);
         }
 
