@@ -191,7 +191,7 @@ public class ScheduleService {
 
         long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
-        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
+        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
 
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
@@ -229,7 +229,7 @@ public class ScheduleService {
 
         long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
-        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
+        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
 
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
@@ -316,8 +316,18 @@ public class ScheduleService {
         return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, startDate, date);
     }
 
-    public Optional<LocalDate> getLastTaskCompletionDateForUser(Long userId, Long taskId, LocalDate upToDate) {
-        return scheduleRepository.findLatestTaskCompletionDateByUserIdAndTaskId(userId, taskId, upToDate);
+    public Optional<LocalDate> getLastTaskCompletionDateForUserFromStatsDate(Long userId, Long taskId, LocalDate upToDate) {
+        LocalDate statsDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
+        Optional<LocalDate> date = scheduleRepository.findLatestTaskCompletionDateByUserIdAndTaskId(userId, taskId, upToDate);
+        if(date.isPresent()) {
+            if(date.get().isAfter(statsDate) || date.get().equals(statsDate)) {
+                return date;
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
     public List<Schedule> getSchedulesByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to) {
@@ -717,7 +727,15 @@ public class ScheduleService {
 
         List<Schedule> schedules = getAllSchedulesByUserId(userId);
 
-        Map<Task, LocalDate> lastAssignmentDateForTask = schedules.stream()
+        List<Schedule> schedulesFromStatsDate = new ArrayList<>();
+        for (Schedule schedule : schedules) {
+            if (schedule.getDate().isAfter(specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate()) ||
+                schedule.getDate().isEqual(specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate())) {
+                schedulesFromStatsDate.add(schedule);
+            }
+        }
+
+        Map<Task, LocalDate> lastAssignmentDateForTaskFromStatsDate = schedulesFromStatsDate.stream()
                 .collect(Collectors.toMap(Schedule::getTask, Schedule::getDate, (date1, date2) -> date1.isAfter(date2) ? date1 : date2));
 
         Map<Task, Long> taskOccurrencesFromStatsDate = getTaskOccurrencesFromStatsDate(schedules);
@@ -727,7 +745,7 @@ public class ScheduleService {
         // Create list of UserTaskStatisticsDTO objects
         List<UserTaskStatisticsDTO> userTaskStatistics = new ArrayList<>();
         for(Task task : taskOccurrencesInAllTime.keySet()) {
-            LocalDate lastAssignmentDate = lastAssignmentDateForTask.get(task);
+            LocalDate lastAssignmentDate = lastAssignmentDateForTaskFromStatsDate.get(task);
             long occurrencesFromStatsDate = taskOccurrencesFromStatsDate.getOrDefault(task, 0L) / task.getDaysOfWeek().size();
             long occurrencesInAllTime = taskOccurrencesInAllTime.get(task);
             userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesFromStatsDate, occurrencesInAllTime));
