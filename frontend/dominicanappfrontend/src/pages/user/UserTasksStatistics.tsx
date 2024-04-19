@@ -16,7 +16,10 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
     const [userStatisticsForTasks, setUserStatisticsForTasks] = useState<UserTaskStatistics[]>([]);
 
     useEffect(() => {
-        requestFetchUserStatisticsForTasks(null, (data: UserTaskStatistics[]) => setUserStatisticsForTasks(data));
+        requestFetchUserStatisticsForTasks(null, (data: UserTaskStatistics[]) => {
+            setUserStatisticsForTasks(data);
+            console.log(data)
+        });
     }, [requestFetchUserStatisticsForTasks]);
 
 
@@ -30,10 +33,8 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                     <tr>
                         <th>Oficjum</th>
                         <th>Ostatnio wyznaczony</th>
-                        <th>Ostatnie 30 dni</th>
-                        <th>Ostatnie 90 dni</th>
-                        <th>Ostatni rok</th>
-                        <th>Łącznie</th>
+                        <th>Wyznaczony razy (od daty administratora)</th>
+                        <th>Wyznaczony łącznie</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -41,9 +42,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                         <tr key={userStatisticsForTask.taskName}>
                             <td>[{userStatisticsForTask.taskNameAbbrev}] {userStatisticsForTask.taskName}</td>
                             <td>{userStatisticsForTask.lastAssigned}</td>
-                            <td>{userStatisticsForTask.numberOfAssignInLast30Days}</td>
-                            <td>{userStatisticsForTask.numberOfAssignInLast90Days}</td>
-                            <td>{userStatisticsForTask.numberOfAssignInLast365Days}</td>
+                            <td>{userStatisticsForTask.numberOfAssignsFromStatsDate}</td>
                             <td>{userStatisticsForTask.totalNumberOfAssigns}</td>
                         </tr>
                     ))}

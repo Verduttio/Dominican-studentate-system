@@ -8,6 +8,7 @@ import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleI
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
+import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
@@ -29,15 +30,17 @@ public class ScheduleService {
     private final RoleService roleService;
     private final ObstacleService obstacleService;
     private final ConflictService conflictService;
+    private final SpecialDateRepository specialDateRepository;
 
     @Autowired
-    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService) {
+    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
         this.roleService = roleService;
         this.obstacleService = obstacleService;
         this.conflictService = conflictService;
+        this.specialDateRepository = specialDateRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -181,7 +184,7 @@ public class ScheduleService {
         List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
         List<Task> userAssignedTasksForWeek = getTasksFromSchedules(userSchedulesForWeek);
 
-        long numberOfTaskCompletionByUserInLast365days = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
+        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId);
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
@@ -193,7 +196,7 @@ public class ScheduleService {
 
         boolean alreadyAssignedToTheTask = userAssignedTasksForWeek.stream().anyMatch(t -> t.getId().equals(taskId));
 
-        return new UserTaskDependencyWeeklyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
+        return new UserTaskDependencyWeeklyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserFromStatsDate,
                 userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnWeek, alreadyAssignedToTheTask);
     }
 
@@ -219,7 +222,7 @@ public class ScheduleService {
 
         List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
 
-        long numberOfTaskCompletionByUserInLast365days = getTaskCompletionCountForUserInLastNDaysFromDate(userId, taskId, from,365);
+        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId);
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUser(userId, taskId, from).orElse(null);
 
@@ -238,8 +241,14 @@ public class ScheduleService {
                 .map(s -> s.getDate().getDayOfWeek())
                 .collect(Collectors.toSet());
 
-        return new UserTaskDependencyDailyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserInLast365days,
+        return new UserTaskDependencyDailyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserFromStatsDate,
                 userAssignedTasksNamesForWeek, isConflict, hasObstacle, alreadyAssignedToTheTask);
+    }
+
+    private long getNumberOfTaskCompletionByUserFromStatsDate(long userId, long taskId) {
+        LocalDate statsDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
+        LocalDate now = LocalDate.now();
+        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, statsDate, now);
     }
 
     private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
@@ -707,9 +716,7 @@ public class ScheduleService {
         Map<Task, LocalDate> lastAssignmentDateForTask = schedules.stream()
                 .collect(Collectors.toMap(Schedule::getTask, Schedule::getDate, (date1, date2) -> date1.isAfter(date2) ? date1 : date2));
 
-        Map<Task, Long> taskOccurrencesInLast30Days = getTaskOccurrencesInLastNDays(schedules, 30);
-        Map<Task, Long> taskOccurrencesInLast90Days = getTaskOccurrencesInLastNDays(schedules, 90);
-        Map<Task, Long> taskOccurrencesInLast365Days = getTaskOccurrencesInLastNDays(schedules, 365);
+        Map<Task, Long> taskOccurrencesFromStatsDate = getTaskOccurrencesFromStatsDate(schedules);
         Map<Task, Long> taskOccurrencesInAllTime = schedules.stream()
                 .collect(Collectors.groupingBy(Schedule::getTask, Collectors.counting()));
 
@@ -717,18 +724,16 @@ public class ScheduleService {
         List<UserTaskStatisticsDTO> userTaskStatistics = new ArrayList<>();
         for(Task task : taskOccurrencesInAllTime.keySet()) {
             LocalDate lastAssignmentDate = lastAssignmentDateForTask.get(task);
-            long occurrencesInLast30Days = taskOccurrencesInLast30Days.getOrDefault(task, 0L);
-            long occurrencesInLast90Days = taskOccurrencesInLast90Days.getOrDefault(task, 0L);
-            long occurrencesInLast365Days = taskOccurrencesInLast365Days.getOrDefault(task, 0L);
+            long occurrencesFromStatsDate = taskOccurrencesFromStatsDate.getOrDefault(task, 0L) / task.getDaysOfWeek().size();
             long occurrencesInAllTime = taskOccurrencesInAllTime.get(task);
-            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesInLast30Days, occurrencesInLast90Days, occurrencesInLast365Days, occurrencesInAllTime));
+            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesFromStatsDate, occurrencesInAllTime));
         }
 
         return userTaskStatistics;
     }
 
-    private Map<Task, Long> getTaskOccurrencesInLastNDays(List<Schedule> schedules, int n) {
-        LocalDate startDate = LocalDate.now().minusDays(n);
+    private Map<Task, Long> getTaskOccurrencesFromStatsDate(List<Schedule> schedules) {
+        LocalDate startDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
         LocalDate endDate = LocalDate.now().plusDays(1); // We add 1 day to include the current day
         return schedules.stream()
                 .filter(schedule -> schedule.getDate().isAfter(startDate) && schedule.getDate().isBefore(endDate))
@@ -797,7 +802,7 @@ public class ScheduleService {
         userTaskScheduleInfo.setTaskName(task.getName());
         userTaskScheduleInfo.setTaskId(task.getId());
         userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyWeeklyDTO.getLastAssigned(), from));
-        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear() / 7);
+        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
         userTaskScheduleInfo.setIsInConflict(userTaskDependencyWeeklyDTO.getIsInConflict());
         userTaskScheduleInfo.setHasObstacle(userTaskDependencyWeeklyDTO.getHasObstacle());
         userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyWeeklyDTO.isAssignedToTheTask());
@@ -873,7 +878,7 @@ public class ScheduleService {
         userTaskScheduleInfo.setTaskName(task.getName());
         userTaskScheduleInfo.setTaskId(task.getId());
         userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyDailyDTO.getLastAssigned(), from));
-        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / 7);
+        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
         userTaskScheduleInfo.setIsInConflict(userTaskDependencyDailyDTO.getIsInConflict().contains(dateDayOfWeek));
         userTaskScheduleInfo.setHasObstacle(userTaskDependencyDailyDTO.getHasObstacle().contains(dateDayOfWeek));
         userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyDailyDTO.getAssignedToTheTask().contains(dateDayOfWeek));

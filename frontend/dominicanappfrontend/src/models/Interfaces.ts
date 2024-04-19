@@ -177,9 +177,7 @@ interface UserTaskStatistics {
     taskName: string;
     taskNameAbbrev: string;
     lastAssigned: string;
-    numberOfAssignInLast30Days: number;
-    numberOfAssignInLast90Days: number;
-    numberOfAssignInLast365Days: number;
+    numberOfAssignsFromStatsDate: number;
     totalNumberOfAssigns: number;
 }
 
