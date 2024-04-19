@@ -22,10 +22,10 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({ currentWeek, setCurrentWeek
     };
 
     return (
-        <div className="week-selector d-flex justify-content-center">
+        <div className="d-flex justify-content-center">
             <div className="card my-4" style={{maxWidth: '600px'}}>
                 <div className="card-body">
-                    <div className="week-selector d-flex justify-content-center align-items-center">
+                    <div className="d-flex justify-content-center align-items-center">
                         <button className="btn btn-outline-dark mx-2" onClick={handlePreviousWeek}>
                             <FontAwesomeIcon icon={faChevronLeft}/>
                         </button>
