@@ -39,7 +39,7 @@ function AddMyObstacle() {
         }
 
         postObstacle(obstacleData, () => {
-            navigate('/user-profile', {state: {message: 'Pomyślnie dodano przeszkodę'}});
+            navigate('/home', {state: {message: 'Pomyślnie dodano przeszkodę'}});
         });
     };
 
