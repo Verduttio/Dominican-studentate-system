@@ -1,6 +1,8 @@
 package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.SpecialDate;
 import org.verduttio.dominicanappbackend.entity.SpecialDateType;
@@ -18,7 +20,7 @@ public class SpecialDateService {
     }
 
     public SpecialDate getStatsDate() {
-        return specialDateRepository.findByType(SpecialDateType.STATS);
+        return specialDateRepository.findByType(SpecialDateType.STATS).getFirst();
     }
 
     public void updateStatsDate(LocalDate newDate) {
@@ -26,8 +28,19 @@ public class SpecialDateService {
             throw new IllegalArgumentException("New date cannot be from future.");
         }
 
-        SpecialDate specialDate = specialDateRepository.findByType(SpecialDateType.STATS);
+        SpecialDate specialDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst();
         specialDate.setDate(newDate);
+        specialDateRepository.save(specialDate);
+    }
+
+    public Page<SpecialDate> getFeastDates(Pageable pageable) {
+        return specialDateRepository.findByType(SpecialDateType.FEAST, pageable);
+    }
+
+    public void createFeastDate(LocalDate date) {
+        SpecialDate specialDate = new SpecialDate();
+        specialDate.setDate(date);
+        specialDate.setType(SpecialDateType.FEAST);
         specialDateRepository.save(specialDate);
     }
 }

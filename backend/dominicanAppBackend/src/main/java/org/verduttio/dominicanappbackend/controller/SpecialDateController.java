@@ -1,6 +1,8 @@
 package org.verduttio.dominicanappbackend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,18 @@ public class SpecialDateController {
     public ResponseEntity<SpecialDate> getStatsDate() {
         SpecialDate specialDate = specialDateService.getStatsDate();
         return new ResponseEntity<>(specialDate, HttpStatus.OK);
+    }
+
+    @GetMapping("/pageable/feast")
+    public ResponseEntity<Page<SpecialDate>> getFeastDates(Pageable pageable) {
+        Page<SpecialDate> specialDate = specialDateService.getFeastDates(pageable);
+        return new ResponseEntity<>(specialDate, HttpStatus.OK);
+    }
+
+    @PostMapping("/feast")
+    public ResponseEntity<?> createFeastDate(@RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
+        specialDateService.createFeastDate(date);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PatchMapping("/stats")
