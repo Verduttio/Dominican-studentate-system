@@ -2,11 +2,12 @@
     animation: fadeInAnimation ease 0.5s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
+    z-index: 1;
 }
 
 @keyframes fadeInAnimation {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% { opacity: 0; z-index: 1}
+    100% { opacity: 1; z-index: 1}
 }
 
 .table-rounded {
