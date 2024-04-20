@@ -70,13 +70,24 @@ public class ScheduleService {
 
         LocalDate date = from;
         while(date.isBefore(to) || date.isEqual(to)) {
-            if (task.getDaysOfWeek().contains(date.getDayOfWeek())) {
-                Schedule schedule = new Schedule();
-                schedule.setTask(task);
-                schedule.setUser(user);
-                schedule.setDate(date);
-                scheduleRepository.save(schedule);
+            if (specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date)) {
+                if (task.getDaysOfWeek().contains(DayOfWeek.SUNDAY)) {
+                    Schedule schedule = new Schedule();
+                    schedule.setTask(task);
+                    schedule.setUser(user);
+                    schedule.setDate(date);
+                    scheduleRepository.save(schedule);
+                }
+            } else {
+                if (task.getDaysOfWeek().contains(date.getDayOfWeek())) {
+                    Schedule schedule = new Schedule();
+                    schedule.setTask(task);
+                    schedule.setUser(user);
+                    schedule.setDate(date);
+                    scheduleRepository.save(schedule);
+                }
             }
+
             date = date.plusDays(1);
         }
 
@@ -380,7 +391,11 @@ public class ScheduleService {
 
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
 
-        validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
+        if(specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, taskDate)) {
+            validate(!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY), new IllegalArgumentException("Feast date. Task does not occur on Sunday so it cannot be assigned on the feast day"));
+        } else {
+            validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
+        }
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
@@ -849,13 +864,25 @@ public class ScheduleService {
 
     public List<UserTasksScheduleInfoWeekly> getUserTasksScheduleInfoWeeklyForOneDayByRole(String roleName, LocalDate date) {
         Role role = validateRoleExistence(roleName);
+        boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
 
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
-        tasksByRole.removeIf(task -> !task.getDaysOfWeek().contains(date.getDayOfWeek()));
-        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+        List<Task> filteredTasksByRole = new ArrayList<>(tasksByRole);
+        for (Task task : tasksByRole) {
+            if (isFeastDate) {
+                if (!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY)) {
+                    filteredTasksByRole.remove(task);
+                }
+            } else {
+                if (!task.getDaysOfWeek().contains(date.getDayOfWeek())) {
+                    filteredTasksByRole.remove(task);
+                }
+            }
+        }
+        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(filteredTasksByRole);
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, date))
+                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, filteredTasksByRole, date))
                 .collect(Collectors.toList());
     }
 
