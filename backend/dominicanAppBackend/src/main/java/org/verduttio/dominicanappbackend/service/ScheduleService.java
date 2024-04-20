@@ -72,6 +72,16 @@ public class ScheduleService {
         while(date.isBefore(to) || date.isEqual(to)) {
             if (specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date)) {
                 if (task.getDaysOfWeek().contains(DayOfWeek.SUNDAY)) {
+                    //If the task for example does not occur on date.getDayOfWeek() but occurs on Sunday
+                    // then we can assign the task on the feast day
+                    Schedule schedule = new Schedule();
+                    schedule.setTask(task);
+                    schedule.setUser(user);
+                    schedule.setDate(date);
+                    scheduleRepository.save(schedule);
+                } else if (task.getDaysOfWeek().contains(date.getDayOfWeek())) {
+                    // If the task occurs on date.getDayOfWeek() then we can assign the task on the feast day,
+                    // even if the task does not occur on Sunday
                     Schedule schedule = new Schedule();
                     schedule.setTask(task);
                     schedule.setUser(user);
@@ -413,7 +423,9 @@ public class ScheduleService {
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
 
         if(specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, taskDate)) {
-            validate(!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY), new IllegalArgumentException("Feast date. Task does not occur on Sunday so it cannot be assigned on the feast day"));
+            if (!(task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) || task.getDaysOfWeek().contains(taskDate.getDayOfWeek()))) {
+                throw new IllegalArgumentException("Task does not occur on given day of week or it does not occur on feast day");
+            }
         } else {
             validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
         }
@@ -909,7 +921,7 @@ public class ScheduleService {
         List<Task> filteredTasksByRole = new ArrayList<>(tasksByRole);
         for (Task task : tasksByRole) {
             if (isFeastDate) {
-                if (!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY)) {
+                if (!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) && !task.getDaysOfWeek().contains(date.getDayOfWeek())) {
                     filteredTasksByRole.remove(task);
                 }
             } else {
