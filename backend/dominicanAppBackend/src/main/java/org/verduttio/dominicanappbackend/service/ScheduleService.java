@@ -308,8 +308,29 @@ public class ScheduleService {
                 .map(entry -> {
                     Task task = entry.getKey();
                     Set<DayOfWeek> occurrences = entry.getValue();
+
+                    // SUNDAY, MONDAY, ..., SATURDAY order
+                    Comparator<DayOfWeek> customOrderComparator = Comparator
+                            .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
+
+                    // If there is any feast in the week,
+                    // then the string should be: task.name (days of week when assign)
+                    // even if the task occurs on all days of the week.
+                    LocalDate startWeek = schedules.getFirst().getDate().with(DayOfWeek.SUNDAY);
+                    LocalDate endWeek = schedules.getLast().getDate().with(DayOfWeek.SATURDAY);
+                    if(endWeek.isBefore(startWeek)) {
+                        endWeek = endWeek.plusWeeks(1);
+                    }
+                    if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
+                        String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
+                                .map(dayOfWeekAbbreviations::get)
+                                .collect(Collectors.joining(", "));
+                        return task.getNameAbbrev() + " (" + daysOfWeekString + ")";
+                    }
+
+
                     if (occurrences.size() < task.getDaysOfWeek().size()) {
-                        String daysOfWeekString = occurrences.stream()
+                        String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
                         return task.getNameAbbrev() + " (" + daysOfWeekString + ")";
@@ -710,8 +731,26 @@ public class ScheduleService {
                 .map(entry -> {
                     User user = entry.getKey();
                     Set<DayOfWeek> occurrences = entry.getValue();
+
+                    // SUNDAY, MONDAY, ..., SATURDAY order
+                    Comparator<DayOfWeek> customOrderComparator = Comparator
+                            .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
+
+                    LocalDate startWeek = schedules.getFirst().getDate().with(DayOfWeek.SUNDAY);
+                    LocalDate endWeek = schedules.getLast().getDate().with(DayOfWeek.SATURDAY);
+                    if(endWeek.isBefore(startWeek)) {
+                        endWeek = endWeek.plusWeeks(1);
+                    }
+                    if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
+                        String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
+                                .map(dayOfWeekAbbreviations::get)
+                                .collect(Collectors.joining(", "));
+                        return user.getName() + " " + user.getSurname() + " (" + daysOfWeekString + ")";
+                    }
+
+
                     if (occurrences.size() < taskDaysOfWeekCount) {
-                        String daysOfWeekString = occurrences.stream()
+                        String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
                         return user.getName() + " " + user.getSurname() + " (" + daysOfWeekString + ")";
