@@ -9,6 +9,9 @@ import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../components/LoadingScreen";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 import AlertBox from "../../components/AlertBox";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
+import PopupDatePicker from "../specialDate/PopupDatePicker";
 
 
 function SchedulePage() {
@@ -31,25 +34,41 @@ function SchedulePage() {
     const [errorDownloadSchedulePdfForTasksByRole, setErrorDownloadSchedulePdfForTasksByRole] = useState<string | null>(null);
     const [errorDownloadSchedulePdfForTasks, setErrorDownloadSchedulePdfForTasks] = useState<string | null>(null);
 
+    const [showStandardDateSelector, setShowStandardDateSelector] = useState<boolean>(true);
+    const [showPopupDatePickerForStart, setShowPopupDatePickerForStart] = useState<boolean>(false);
+    const [showPopupDatePickerForEnd, setShowPopupDatePickerForEnd] = useState<boolean>(false);
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0, 0);
+    const [nonStandardStartDate, setNonStandardStartDate] = useState<Date>(new Date(midnight));
+    const [nonStandardEndDate, setNonStandardEndDate] = useState<Date>(new Date(midnight));
+    const [nonStandardDateValidationError, setNonStandardDateValidationError] = useState<string | null>(null);
+    const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data));
         fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data));
         fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data));
-    }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles]);
+    }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles, standardDateRefresher]);
 
     useEffect(() => {
-        if (selectedSupervisorRoleName) {
+        if (selectedSupervisorRoleName && showStandardDateSelector) {
             fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
                 `${backendUrl}/api/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         }
-    }, [fetchScheduleByTasksByRoles, selectedSupervisorRoleName, currentWeek]);
+    }, [fetchScheduleByTasksByRoles, selectedSupervisorRoleName, currentWeek, standardDateRefresher, showStandardDateSelector]);
 
     async function downloadSchedulePdfForUsers() {
         setLoadingDownloadSchedulePdfForUsers(true);
+        let targetUrl;
+        if (showStandardDateSelector) {
+            targetUrl = `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`;
+        } else {
+            targetUrl = `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`;
+        }
+
         try {
             const response = await axios({
-                url: `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`,
+                url: targetUrl,
                 method: 'GET',
                 responseType: 'blob',
                 withCredentials: true
@@ -78,9 +97,16 @@ function SchedulePage() {
 
     async function downloadSchedulePdfForTasksByRole() {
         setLoadingDownloadSchedulePdfForTasksByRole(true);
+        let targetUrl;
+        if (showStandardDateSelector) {
+            targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`;
+        } else {
+            targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`;
+        }
+
         try {
             const response = await axios({
-                url: `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`,
+                url: targetUrl,
                 method: 'GET',
                 responseType: 'blob',
                 withCredentials: true
@@ -109,9 +135,16 @@ function SchedulePage() {
 
     async function downloadSchedulePdfForTasks() {
         setLoadingDownloadSchedulePdfForTasks(true);
+        let targetUrl;
+        if (showStandardDateSelector) {
+            targetUrl = `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`;
+        } else {
+            targetUrl = `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`;
+        }
+
         try {
             const response = await axios({
-                url: `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`,
+                url: targetUrl,
                 method: 'GET',
                 responseType: 'blob',
                 withCredentials: true
@@ -138,6 +171,33 @@ function SchedulePage() {
         }
     }
 
+    const validateNonStandardDate = () => {
+        if (nonStandardStartDate > nonStandardEndDate) {
+            setNonStandardDateValidationError('Data początkowa musi być przed datą końcową');
+            return false;
+        }
+        if (nonStandardEndDate.getTime() - nonStandardStartDate.getTime() >= 7 * 24 * 60 * 60 * 1000) {
+            setNonStandardDateValidationError('Zakres dat nie może być dłuższy niż 7 dni');
+            return false;
+        }
+
+        setNonStandardDateValidationError('');
+        return true;
+    }
+
+    const handleFetchScheduleByNonStandardDate = () => {
+        if (!validateNonStandardDate()) return;
+
+        fetchSchedule(null, (data) => setScheduleShortInfo(data), false,
+            `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
+        fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false,
+            `${backendUrl}/api/schedules/tasks/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
+        if(selectedSupervisorRoleName) {
+            fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
+                `${backendUrl}/api/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
+        }
+    }
+
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
@@ -145,8 +205,16 @@ function SchedulePage() {
             setSelectedSupervisorRoleName(null)
         } else {
             setSelectedSupervisorRoleName(selectedRoleName);
+            let targetUrl;
+            if(showStandardDateSelector) {
+                console.log("SHOULD NOT BE HERE");
+                targetUrl = `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`
+            } else {
+                console.log("SHOULD BE HERE")
+                targetUrl = `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`
+            }
             fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
-                `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
+                targetUrl, 'GET');
         }
     }
 
@@ -242,10 +310,71 @@ function SchedulePage() {
         )
     }
 
+    const renderNonStandardDateSelector = () => {
+        return (
+            <>
+            {nonStandardDateValidationError && <AlertBox text={nonStandardDateValidationError} type="danger" width={'500px'} />}
+            <div className="d-flex justify-content-center">
+                <div className="card my-3">
+                    <div className="card-body">
+                        <div className="d-flex justify-content-between mb-2">
+                            <h5 className="card-title mx-2">
+                                Początek:
+                            </h5>
+                            <button className="btn btn-outline-dark mx-2" onClick={() => setShowPopupDatePickerForStart(true)}>
+                                {format(nonStandardStartDate, 'dd-MM-yyyy')}
+                            </button>
+                            {showPopupDatePickerForStart &&
+                                <PopupDatePicker selectedDate={nonStandardStartDate} onDateChange={setNonStandardStartDate}
+                                                 handleCloseCalendar={() => setShowPopupDatePickerForStart(false)}/>
+                            }
+                        </div>
+                        <div className="d-flex justify-content-between mb-2">
+                            <h5 className="card-title mx-2">
+                                Koniec:
+                            </h5>
+                            <button className="btn btn-outline-dark mx-2" onClick={() => setShowPopupDatePickerForEnd(true)}>
+                                {format(nonStandardEndDate, 'dd-MM-yyyy')}
+                            </button>
+                            {showPopupDatePickerForEnd && <PopupDatePicker selectedDate={nonStandardEndDate} onDateChange={setNonStandardEndDate}
+                                                                     handleCloseCalendar={() => setShowPopupDatePickerForEnd(false)}/>
+                            }
+                        </div>
+                        <div className="d-flex justify-content-center">
+                            <button className="btn btn-success" onClick={() => {handleFetchScheduleByNonStandardDate()}}>
+                                Wyszukaj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </>
+        )
+    }
+
 
     return (
         <div className="fade-in">
-            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            {showStandardDateSelector ? (<WeekSelector currentWeek={currentWeek}
+                                                       setCurrentWeek={setCurrentWeek}/>) : renderNonStandardDateSelector()}
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-primary mt-0 mb-3" onClick={() => {
+                    if (!showStandardDateSelector) {
+                        // We are switching to standard date selector,
+                        // so we have to refresh the data
+                        setStandardDateRefresher(!standardDateRefresher);
+                    } else {
+                        // We are switching to non-standard date selector,
+                        // so we have to erase all data.
+                        setScheduleShortInfo([]);
+                        setScheduleShortInfoForTasks([]);
+                        setScheduleShortInfoForTasksByRoles([]);
+                    }
+                    setShowStandardDateSelector(!showStandardDateSelector);
+                }}><span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
+                    {showStandardDateSelector ? 'Zmień na datę niestandardową' : 'Zmień na datę standardową'}
+                </button>
+            </div>
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według braci</h4>
             </div>
