@@ -21,10 +21,10 @@ function SchedulePage() {
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const [selectedSupervisorRoleName, setSelectedSupervisorRoleName] = useState<string | null>(null);
     const [currentWeek, setCurrentWeek] = useState(new Date());
-    const { request: fetchSchedule, error, loading} = useHttp(`${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
-    const { request: fetchScheduleByTasks, error: errorFetchScheduleByTasks, loading: loadingFetchScheduleByTasks} = useHttp(`${backendUrl}/api/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
+    const { request: fetchSchedule, error, loading} = useHttp();
+    const { request: fetchScheduleByTasks, error: errorFetchScheduleByTasks, loading: loadingFetchScheduleByTasks} = useHttp();
     const { request: fetchScheduleByTasksByRoles, error: errorFetchScheduleByTasksByRoles, loading: loadingFetchScheduleByTasksByRoles} = useHttp();
-    const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp();
     const navigate = useNavigate();
     const { isFunkcyjny } = useIsFunkcyjny();
     const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
@@ -45,10 +45,10 @@ function SchedulePage() {
     const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
 
     useEffect(() => {
-        fetchSchedule(null, (data) => setScheduleShortInfo(data));
-        fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data));
-        fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data));
-    }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles, standardDateRefresher]);
+        fetchSchedule(null, (data) => setScheduleShortInfo(data), false, `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
+        fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false, `${backendUrl}/api/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
+        fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data), false, `${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    }, [fetchSchedule, fetchScheduleByTasks, fetchSupervisorRoles, standardDateRefresher, currentWeek]);
 
     useEffect(() => {
         if (selectedSupervisorRoleName && showStandardDateSelector) {
@@ -207,10 +207,8 @@ function SchedulePage() {
             setSelectedSupervisorRoleName(selectedRoleName);
             let targetUrl;
             if(showStandardDateSelector) {
-                console.log("SHOULD NOT BE HERE");
                 targetUrl = `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`
             } else {
-                console.log("SHOULD BE HERE")
                 targetUrl = `${backendUrl}/api/schedules/tasks/byRole/${selectedRoleName}/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`
             }
             fetchScheduleByTasksByRoles(null, (data) => setScheduleShortInfoForTasksByRoles(data), false,
