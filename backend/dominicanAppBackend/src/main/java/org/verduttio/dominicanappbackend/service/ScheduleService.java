@@ -326,11 +326,9 @@ public class ScheduleService {
                     // If there is any feast in the week,
                     // then the string should be: task.name (days of week when assign)
                     // even if the task occurs on all days of the week.
-                    LocalDate startWeek = schedules.getFirst().getDate().with(DayOfWeek.SUNDAY);
-                    LocalDate endWeek = schedules.getLast().getDate().with(DayOfWeek.SATURDAY);
-                    if(endWeek.isBefore(startWeek)) {
-                        endWeek = endWeek.plusWeeks(1);
-                    }
+                    Map<String, LocalDate> weekBoundaries = DateValidator.getWeekBoundaries(schedules.getFirst().getDate());
+                    LocalDate startWeek = weekBoundaries.get("startWeek");
+                    LocalDate endWeek = weekBoundaries.get("endOfWeek");
                     if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
@@ -749,11 +747,9 @@ public class ScheduleService {
                     Comparator<DayOfWeek> customOrderComparator = Comparator
                             .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
 
-                    LocalDate startWeek = schedules.getFirst().getDate().with(DayOfWeek.SUNDAY);
-                    LocalDate endWeek = schedules.getLast().getDate().with(DayOfWeek.SATURDAY);
-                    if(endWeek.isBefore(startWeek)) {
-                        endWeek = endWeek.plusWeeks(1);
-                    }
+                    Map<String, LocalDate> weekBoundaries = DateValidator.getWeekBoundaries(schedules.getFirst().getDate());
+                    LocalDate startWeek = weekBoundaries.get("startWeek");
+                    LocalDate endWeek = weekBoundaries.get("endOfWeek");
                     if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)

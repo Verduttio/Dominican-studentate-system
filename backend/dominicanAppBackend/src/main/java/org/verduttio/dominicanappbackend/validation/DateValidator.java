@@ -2,7 +2,10 @@ package org.verduttio.dominicanappbackend.validation;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DateValidator {
 
@@ -29,5 +32,21 @@ public class DateValidator {
             return daysBetween < 7;
         }
         return false;
+    }
+
+    public static Map<String, LocalDate> getWeekBoundaries(LocalDate date) {
+        int dayOfWeek = date.get(ChronoField.DAY_OF_WEEK);
+
+        int daysToPreviousSunday = (dayOfWeek % 7);
+        int daysToNextSaturday = 6 - (dayOfWeek % 7);
+
+        LocalDate startWeek = date.minusDays(daysToPreviousSunday);
+        LocalDate endOfWeek = date.plusDays(daysToNextSaturday);
+
+        Map<String, LocalDate> result = new HashMap<>();
+        result.put("startWeek", startWeek);
+        result.put("endOfWeek", endOfWeek);
+
+        return result;
     }
 }
