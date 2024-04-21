@@ -586,8 +586,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesByUserIdForSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
         if(!userService.existsById(userId)) {
@@ -598,8 +598,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForUser> getScheduleShortInfoForAllowedUsersForSpecifiedWeek(LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
         List<User> users = userService.getAllUsers();
@@ -675,8 +675,8 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesForTaskForSpecifiedWeek(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
         if(!taskService.existsById(taskId)) {
@@ -687,8 +687,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForEachTaskForSpecifiedWeek(LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
         List<Task> tasks = taskService.getAllTasks();
@@ -775,8 +775,8 @@ public class ScheduleService {
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskByRoleForSpecifiedWeek(String supervisorRole, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
         Role role = roleService.findByNameAndType(supervisorRole, RoleType.SUPERVISOR)
