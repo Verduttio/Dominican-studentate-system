@@ -597,13 +597,14 @@ public class ScheduleService {
         return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
     }
 
-    public List<ScheduleShortInfoForUser> getScheduleShortInfoForEachUserForSpecifiedWeek(LocalDate from, LocalDate to) {
+    public List<ScheduleShortInfoForUser> getScheduleShortInfoForAllowedUsersForSpecifiedWeek(LocalDate from, LocalDate to) {
         if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
             throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
         }
 
         List<User> users = userService.getAllUsers();
         return users.stream()
+                .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
                 .map(user -> createScheduleShortInfoForUser(user.getId(), from, to))
                 .collect(Collectors.toList());
     }

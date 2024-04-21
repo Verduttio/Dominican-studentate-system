@@ -106,7 +106,7 @@ public class ScheduleController {
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         List<ScheduleShortInfoForUser> userSchedulesForSpecifiedWeek;
         try {
-            userSchedulesForSpecifiedWeek = scheduleService.getScheduleShortInfoForEachUserForSpecifiedWeek(from, to);
+            userSchedulesForSpecifiedWeek = scheduleService.getScheduleShortInfoForAllowedUsersForSpecifiedWeek(from, to);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {

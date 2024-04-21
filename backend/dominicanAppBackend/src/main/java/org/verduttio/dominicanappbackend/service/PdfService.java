@@ -39,7 +39,7 @@ public class PdfService {
 
     public byte[] generateSchedulePdfForUsers(LocalDate from, LocalDate to) throws IOException {
         validateDateRange(from, to);
-        List<ScheduleShortInfoForUser> schedules = scheduleService.getScheduleShortInfoForEachUserForSpecifiedWeek(from, to);
+        List<ScheduleShortInfoForUser> schedules = scheduleService.getScheduleShortInfoForAllowedUsersForSpecifiedWeek(from, to);
 
         try (PDDocument doc = new PDDocument()) {
             PDFont font = getFont(doc);
