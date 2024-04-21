@@ -27,12 +27,14 @@ import java.util.List;
 public class PdfService {
 
     private final ScheduleService scheduleService;
+    private final UserService userService;
     private static final float MARGIN = 20;
     private static final String FONT_PATH = "Capsuula.ttf";
 
     @Autowired
-    public PdfService(ScheduleService scheduleService) {
+    public PdfService(ScheduleService scheduleService, UserService userService) {
         this.scheduleService = scheduleService;
+        this.userService = userService;
     }
 
     public byte[] generateSchedulePdfForUsers(LocalDate from, LocalDate to) throws IOException {
@@ -138,16 +140,18 @@ public class PdfService {
 
         // Iterate over schedules and add rows
         for (ScheduleShortInfoForUser schedule : schedules) {
-            String fullName = schedule.userName() + " " + schedule.userSurname();
+            if (userService.checkIfUserHasAnyTaskPerformerRole(schedule.userId())) {
+                String fullName = schedule.userName() + " " + schedule.userSurname();
 
-            Row<PDPage> row = table.createRow(12f);
-            cell = row.createCell(50, fullName);
-            cell.setFont(font);
-            cell.setFontSize(12);
+                Row<PDPage> row = table.createRow(12f);
+                cell = row.createCell(50, fullName);
+                cell.setFont(font);
+                cell.setFontSize(12);
 
-            cell = row.createCell(50, String.join(", ", schedule.tasksInfoStrings()));
-            cell.setFont(font);
-            cell.setFontSize(12);
+                cell = row.createCell(50, String.join(", ", schedule.tasksInfoStrings()));
+                cell.setFont(font);
+                cell.setFontSize(12);
+            }
         }
 
         table.draw();

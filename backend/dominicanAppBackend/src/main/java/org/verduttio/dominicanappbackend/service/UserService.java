@@ -229,6 +229,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public boolean checkIfUserHasAnyTaskPerformerRole(Long userId) {
+        Set<Role> userRoles = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"))
+                .getRoles();
+
+        return userRoles.stream().anyMatch(role -> role.getType().equals(RoleType.TASK_PERFORMER));
+    }
+
     @Transactional
     public void updateUserNameSurnameFields(Long userId, UserNameSurnameDTO userNameSurnameDTO) throws EntityNotFoundException{
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
