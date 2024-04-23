@@ -58,8 +58,10 @@ function UserProfilePage () {
                                     </div>
                                 </div>
                             </div>
-                            {showChangePassword && <ChangePasswordPopup userId={currentUser.id} onClose={() => setShowChangePassword(false)} />}
-                            {showChangeNameSurname && <ChangeNameSurnamePopup userId={currentUser.id} onClose={() => setShowChangeNameSurname(false)} />}
+                            {showChangePassword && <ChangePasswordPopup userId={currentUser.id}
+                                                                        onClose={() => setShowChangePassword(false)}/>}
+                            {showChangeNameSurname && <ChangeNameSurnamePopup userId={currentUser.id}
+                                                                              onClose={() => setShowChangeNameSurname(false)}/>}
                         </div>
                         <div className="col-md-6 mw-100" style={{width: '400px'}}>
                             <div className="card shadow-sm m-1">
@@ -77,11 +79,14 @@ function UserProfilePage () {
                     <div className="d-flex justify-content-center">
                         <h1 className="entity-header">Moje przeszkody</h1>
                     </div>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-success mb-2" onClick={() => {
+                            navigate("/add-obstacle/myself")
+                        }}>Dodaj przeszkodę
+                        </button>
+                    </div>
                     {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
                     <CurrentUserObstaclesTable/>
-                    <div className="d-flex justify-content-center">
-                        <button className="btn btn-success" onClick={() => {navigate("/add-obstacle/myself")}}>Dodaj przeszkodę</button>
-                    </div>
                 </>
             )}
         </div>

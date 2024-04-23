@@ -17,20 +17,20 @@ function Home() {
     else if (currentUser) {
         return (
             <div className="fade-in">
-                <UserProfilePage/>
                 <div className="d-flex justify-content-center">
                     <h2 className="entity-header mb-0">Mój harmonogram</h2>
                 </div>
                 <UserWeekSchedule userId={currentUser.id}/>
+                <UserProfilePage/>
                 <div className="d-flex justify-content-center">
-                    <h4 className="entity-header-dynamic-size mb-2 mt-0">Statystyki</h4>
+                    <h2 className="entity-header-dynamic-size my-2">Statystyki</h2>
                 </div>
                 <UserTasksStatistics userId={currentUser.id}/>
             </div>
         );
     } else {
         return (
-            <AlertBox text={"Nie udało się pobrać danych użytkownika"} type="danger" width={'500px'} />
+            <AlertBox text={"Nie udało się pobrać danych użytkownika"} type="danger" width={'500px'}/>
         );
     }
 }

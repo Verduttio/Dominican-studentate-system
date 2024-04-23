@@ -27,13 +27,13 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
     if (errorFetchUserStatisticsForTasks) return <AlertBox text={errorFetchUserStatisticsForTasks} type={'danger'} width={'500px'}/>;
     return (
         <div className="fade-in d-flex justify-content-center">
-            <div className="table-responsive" style={{maxWidth: '800px'}}>
+            <div className="table-responsive" style={{maxWidth: '600px'}}>
                 <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                     <thead className="table-dark">
                     <tr>
                         <th>Oficjum</th>
                         <th>Ostatnio wyznaczony</th>
-                        <th>Wyznaczony razy (od daty administratora)</th>
+                        <th>Wyznaczony razy</th>
                         <th>Wyznaczony łącznie</th>
                     </tr>
                     </thead>
