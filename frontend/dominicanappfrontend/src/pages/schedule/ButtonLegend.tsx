@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {faChevronDown, faChevronUp} from "@fortawesome/free-solid-svg-icons";
+import {faChevronDown, faChevronUp, faCircleXmark} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function ButtonLegend() {
@@ -100,8 +100,21 @@ function ButtonLegend() {
                                 <div className="col-10">
                                     <p><strong>Dotyczy kreatora tygodniowego</strong>. Brat wyznaczony do
                                         oficjum, posiadający
-                                        przeszkodę w tym tygodniu na to oficjum. <strong>Wyznaczony w dniu, w którym przeszkoda jeszcze nie obowiązuje</strong>.
-                                        Odznaczenie brata spowoduje usunięcie wszystkich przypisań z tego oficjum do niego w tym tygodniu.
+                                        przeszkodę w tym tygodniu na to oficjum. <strong>Wyznaczony w dniu, w którym
+                                            przeszkoda jeszcze nie obowiązuje</strong>.
+                                        Odznaczenie brata spowoduje usunięcie wszystkich przypisań z tego oficjum do
+                                        niego w tym tygodniu.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-2 text-center">
+                                    <button className="btn btn-secondary" disabled={true}>
+                                        <FontAwesomeIcon icon={faCircleXmark}/>
+                                    </button>
+                                </div>
+                                <div className="col-10">
+                                    <p><strong>Dotyczy kreatora dziennego</strong>. Oficjum nie występuje w danym dniu.
                                     </p>
                                 </div>
                             </div>

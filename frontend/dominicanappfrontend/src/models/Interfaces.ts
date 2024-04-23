@@ -102,6 +102,7 @@ interface UserTaskScheduleInfo {
     isInConflict: boolean;
     hasObstacle: boolean;
     assignedToTheTask: boolean;
+    visible: boolean;
 }
 
 interface UserTasksScheduleInfoWeekly {
