@@ -100,7 +100,7 @@ function ButtonLegend() {
                                 <div className="col-10">
                                     <p><strong>Dotyczy kreatora tygodniowego</strong>. Brat wyznaczony do
                                         oficjum, posiadający
-                                        przeszkodę w tym tygodniu na to oficjum. <strong>Wyznaczony w dniu, w którym przeszkoda jeszcze nieobowiązuje</strong>.
+                                        przeszkodę w tym tygodniu na to oficjum. <strong>Wyznaczony w dniu, w którym przeszkoda jeszcze nie obowiązuje</strong>.
                                         Odznaczenie brata spowoduje usunięcie wszystkich przypisań z tego oficjum do niego w tym tygodniu.
                                     </p>
                                 </div>
