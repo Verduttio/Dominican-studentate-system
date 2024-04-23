@@ -13,7 +13,6 @@ import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.service.PdfService;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -33,7 +32,7 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @Autowired
-    public ScheduleController(ScheduleService scheduleService, PdfService pdfService) {
+    public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
 
@@ -192,6 +191,23 @@ public class ScheduleController {
                                                             @PathVariable String roleName,
                                                             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
                                                            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            List<UserTasksScheduleInfoWeekly> dependencies = scheduleService.getUserTasksScheduleInfoWeeklyByRole(roleName, from, to);
+            return ResponseEntity.ok(dependencies);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("task/{roleName}/all/schedule-info/weekly/by-all-days")
+    public ResponseEntity<?> getUserTasksScheduleInfoWeeklyByRoleByAllDays(
+            @PathVariable String roleName,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
             List<UserTasksScheduleInfoWeekly> dependencies = scheduleService.getUserTasksScheduleInfoWeeklyByRole(roleName, from, to);
             return ResponseEntity.ok(dependencies);

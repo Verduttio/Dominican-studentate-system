@@ -127,10 +127,6 @@ public class ScheduleService {
         scheduleRepository.save(schedule);
     }
 
-    public List<Schedule> getSchedulesByUserIdAndDate(Long userId, LocalDate date) {
-        return scheduleRepository.findByUserIdAndDate(userId, date);
-    }
-
     public void deleteSchedule(Long scheduleId) {
         checkIfScheduleExists(scheduleId);
         scheduleRepository.deleteById(scheduleId);
@@ -149,10 +145,6 @@ public class ScheduleService {
 
     public List<Schedule> getCurrentSchedules() {
         return scheduleRepository.findSchedulesLaterOrInDay(LocalDate.now());
-    }
-
-    public void deleteAllSchedulesByTaskId(Long taskId) {
-        scheduleRepository.deleteAllByTaskId(taskId);
     }
 
     public List<Task> getAvailableTasks(LocalDate from, LocalDate to) {
@@ -276,11 +268,6 @@ public class ScheduleService {
         return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, statsDate, to);
     }
 
-    private List<Task> getTasksFromSchedulePerformedByUserAndDateBetween(Long userId, LocalDate from, LocalDate to) {
-        List<Schedule> schedules = getSchedulesByUserIdAndDateBetween(userId, from, to);
-        return getTasksFromSchedules(schedules);
-    }
-
     public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules) {
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
@@ -347,13 +334,6 @@ public class ScheduleService {
                     }
                 })
                 .collect(Collectors.toList());
-    }
-
-    public long getTaskCompletionCountForUserInLastNDaysFromDate(Long userId, Long taskId, LocalDate date, int days) {
-        LocalDate startDate = date.minusDays(days);
-        // We start counting from the day before the given date
-        date = date.minusDays(1);
-        return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, startDate, date);
     }
 
     public Optional<LocalDate> getLastTaskCompletionDateForUserFromStatsDate(Long userId, Long taskId, LocalDate upToDate) {
@@ -531,17 +511,6 @@ public class ScheduleService {
 
     private boolean checkIfUserHasValidApprovedObstacleForTaskBetweenDate(LocalDate dateFrom, LocalDate dateTo, Long userId, Long taskId) {
         return !obstacleService.findApprovedObstaclesByUserIdAndTaskIdBetweenDate(userId, taskId, dateFrom, dateTo).isEmpty();
-    }
-
-    private Set<DayOfWeek> checkIfUserHasValidApprovedObstacleForTaskForWeek(LocalDate weekStartDate, Long userId, Long taskId) {
-        Set<DayOfWeek> daysWhenUserHasValidApprovedObstacle = new HashSet<>();
-        for(DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            LocalDate date = weekStartDate.plusDays(dayOfWeek.getValue() - 1);
-            if(checkIfUserHasValidApprovedObstacleForTaskAtDate(date, userId, taskId)) {
-                daysWhenUserHasValidApprovedObstacle.add(dayOfWeek);
-            }
-        }
-        return daysWhenUserHasValidApprovedObstacle;
     }
 
     private Set<LocalDate> getUserApprovedObstacleForTask(LocalDate from, LocalDate to, Long userId, Long taskId) {
@@ -884,10 +853,11 @@ public class ScheduleService {
         UserTaskDependencyWeeklyDTO userTaskDependencyWeeklyDTO = getUserDependenciesForTaskWeekly(task.getId(), user.getId(), from, to);
 
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
+        userTaskScheduleInfo.setVisible(true);
         userTaskScheduleInfo.setTaskName(task.getName());
         userTaskScheduleInfo.setTaskId(task.getId());
         userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyWeeklyDTO.getLastAssigned(), from));
-        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
+        userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate(userTaskDependencyWeeklyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
         userTaskScheduleInfo.setIsInConflict(userTaskDependencyWeeklyDTO.getIsInConflict());
         userTaskScheduleInfo.setHasObstacle(userTaskDependencyWeeklyDTO.getHasObstacle());
         userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyWeeklyDTO.isAssignedToTheTask());
@@ -912,25 +882,12 @@ public class ScheduleService {
 
     public List<UserTasksScheduleInfoWeekly> getUserTasksScheduleInfoWeeklyForOneDayByRole(String roleName, LocalDate date) {
         Role role = validateRoleExistence(roleName);
-        boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
 
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
-        List<Task> filteredTasksByRole = new ArrayList<>(tasksByRole);
-        for (Task task : tasksByRole) {
-            if (isFeastDate) {
-                if (!task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) && !task.getDaysOfWeek().contains(date.getDayOfWeek())) {
-                    filteredTasksByRole.remove(task);
-                }
-            } else {
-                if (!task.getDaysOfWeek().contains(date.getDayOfWeek())) {
-                    filteredTasksByRole.remove(task);
-                }
-            }
-        }
-        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(filteredTasksByRole);
+        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, filteredTasksByRole, date))
+                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, date))
                 .collect(Collectors.toList());
     }
 
@@ -969,23 +926,41 @@ public class ScheduleService {
     // We should make similar method to fetch data for one day only.
     private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, LocalDate date, LocalDate from, LocalDate to) {
         DayOfWeek dateDayOfWeek = date.getDayOfWeek();
-        UserTaskDependencyDailyDTO userTaskDependencyDailyDTO = getUserDependenciesForTaskDaily(task.getId(), user.getId(), from, to);
 
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
-        userTaskScheduleInfo.setTaskName(task.getName());
-        userTaskScheduleInfo.setTaskId(task.getId());
-        userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyDailyDTO.getLastAssigned(), from));
-        if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
-            userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
+
+        boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
+        boolean taskAppearsOnDate;
+
+        if (isFeastDate) {
+            taskAppearsOnDate = task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) || task.getDaysOfWeek().contains(date.getDayOfWeek());
         } else {
-            userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate((int) userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear());
+            taskAppearsOnDate = task.getDaysOfWeek().contains(date.getDayOfWeek());
         }
-        userTaskScheduleInfo.setIsInConflict(userTaskDependencyDailyDTO.getIsInConflict().contains(dateDayOfWeek));
-        userTaskScheduleInfo.setHasObstacle(userTaskDependencyDailyDTO.getHasObstacle().contains(dateDayOfWeek));
-        userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyDailyDTO.getAssignedToTheTask().contains(dateDayOfWeek));
 
-        userTaskScheduleInfo.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
 
+        if (!taskAppearsOnDate) {
+            userTaskScheduleInfo.setVisible(false);
+        } else {
+            userTaskScheduleInfo.setVisible(true);
+
+            UserTaskDependencyDailyDTO userTaskDependencyDailyDTO = getUserDependenciesForTaskDaily(task.getId(), user.getId(), from, to);
+
+            userTaskScheduleInfo.setTaskName(task.getName());
+            userTaskScheduleInfo.setTaskId(task.getId());
+            userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyDailyDTO.getLastAssigned(), from));
+            if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
+                userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate(userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear() / task.getDaysOfWeek().size());
+            } else {
+                userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate(userTaskDependencyDailyDTO.getNumberOfAssignsInLastYear());
+            }
+            userTaskScheduleInfo.setIsInConflict(userTaskDependencyDailyDTO.getIsInConflict().contains(dateDayOfWeek));
+            userTaskScheduleInfo.setHasObstacle(userTaskDependencyDailyDTO.getHasObstacle().contains(dateDayOfWeek));
+            userTaskScheduleInfo.setAssignedToTheTask(userTaskDependencyDailyDTO.getAssignedToTheTask().contains(dateDayOfWeek));
+
+            userTaskScheduleInfo.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
+
+        }
         return userTaskScheduleInfo;
     }
 

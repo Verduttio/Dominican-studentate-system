@@ -9,6 +9,7 @@ public class UserTaskScheduleInfo {
     private boolean isInConflict;
     private boolean hasObstacle;
     private boolean assignedToTheTask;
+    private boolean isVisible; // This is used to identify whether task appears on a given day or not
 
     // Getters i Setters
     public int getLastAssignedWeeksAgo() {
@@ -59,7 +60,7 @@ public class UserTaskScheduleInfo {
         this.assignedToTheTask = assignedToTheTask;
     }
 
-    public UserTaskScheduleInfo(String taskName, Long taskId, int lastAssignedWeeksAgo, int numberOfWeeklyAssignsFromStatsDate, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask) {
+    public UserTaskScheduleInfo(String taskName, Long taskId, int lastAssignedWeeksAgo, int numberOfWeeklyAssignsFromStatsDate, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask, boolean isVisible) {
         this.taskName = taskName;
         this.taskId = taskId;
         this.lastAssignedWeeksAgo = lastAssignedWeeksAgo;
@@ -68,6 +69,7 @@ public class UserTaskScheduleInfo {
         this.isInConflict = isInConflict;
         this.hasObstacle = hasObstacle;
         this.assignedToTheTask = assignedToTheTask;
+        this.isVisible = isVisible;
     }
 
     public UserTaskScheduleInfo() {
@@ -87,5 +89,13 @@ public class UserTaskScheduleInfo {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
+    }
+
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(boolean visible) {
+        isVisible = visible;
     }
 }
