@@ -69,7 +69,7 @@ function NonStandardPdfPrinterPage() {
     if (errorFetchSupervisorRoles) return <AlertBox text={errorFetchSupervisorRoles} type={'danger'} width={'400px'}/>
 
     return (
-        <div>
+        <div className="fade-in">
             <div className="d-flex justify-content-center">
                 <h2 className="entity-header-dynamic-size">{format(startDate, "dd-MM-yyyy")} - {format(endDate, "dd-MM-yyyy")}</h2>
             </div>
