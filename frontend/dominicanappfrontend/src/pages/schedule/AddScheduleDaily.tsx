@@ -15,7 +15,7 @@ import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import ButtonLegend from "./ButtonLegend";
 import DaySelector from "../../components/DaySelector";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faArrowsRotate, faCircleXmark} from '@fortawesome/free-solid-svg-icons';
+import {faArrowsRotate, faCircleXmark, faXmark} from '@fortawesome/free-solid-svg-icons';
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
 
@@ -196,44 +196,49 @@ function AddScheduleDaily() {
                                 {dep.userTasksScheduleInfo?.map(udep => (
                                     <>
                                         {udep.visible ? (
-                                            <td>
-                                                {!udep.hasObstacle ? (
-                                                    udep.assignedToTheTask ? (
-                                                        <button
-                                                            className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
-                                                            onClick={() => {
-                                                                unassignTask(dep.userId, udep.taskId)
-                                                            }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                        <span
-                                                            className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                            </span>
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
-                                                            onClick={() => handleSubmit(dep.userId, udep.taskId)}
-                                                            disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </button>
-                                                    )
-                                                ) : (udep.assignedToTheTask ? (
-                                                        <button className='btn btn-info'
+                                            <td>{udep.hasRoleForTheTask ? (
+                                                    !udep.hasObstacle ? (
+                                                        udep.assignedToTheTask ? (
+                                                            <button
+                                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
                                                                 onClick={() => {
                                                                     unassignTask(dep.userId, udep.taskId)
                                                                 }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                        <span
-                                                            className='highlighted-text-conflict'>
+                                                            <span
+                                                                className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
+                                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                                </span>
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
+                                                                onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                                                                disabled={assignToTaskLoading || unassignTaskLoading}>
                                                                 {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                            </span>
-                                                        </button>
-                                                    ) : (
-                                                        <button className='btn btn-info'
-                                                                disabled={true}>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </button>
+                                                            </button>
+                                                        )
+                                                    ) : (udep.assignedToTheTask ? (
+                                                            <button className='btn btn-info'
+                                                                    onClick={() => {
+                                                                        unassignTask(dep.userId, udep.taskId)
+                                                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                            <span
+                                                                className='highlighted-text-conflict'>
+                                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                                </span>
+                                                            </button>
+                                                        ) : (
+                                                            <button className='btn btn-info'
+                                                                    disabled={true}>
+                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                            </button>
+                                                        )
                                                     )
-                                                )}
+                                                ) : (
+                                                    <button className='btn btn-secondary' disabled={true}>
+                                                        <FontAwesomeIcon icon={faXmark}/>
+                                                    </button>
+                                            )}
                                             </td>
                                         ) : (
                                             <td>

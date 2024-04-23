@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {faChevronDown, faChevronUp, faCircleXmark} from "@fortawesome/free-solid-svg-icons";
+import {faChevronDown, faChevronUp, faCircleXmark, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function ButtonLegend() {
@@ -115,6 +115,17 @@ function ButtonLegend() {
                                 </div>
                                 <div className="col-10">
                                     <p><strong>Dotyczy kreatora dziennego</strong>. Oficjum nie występuje w danym dniu.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-2 text-center">
+                                    <button className="btn btn-secondary" disabled={true}>
+                                        <FontAwesomeIcon icon={faXmark}/>
+                                    </button>
+                                </div>
+                                <div className="col-10">
+                                    <p>Brat nie posiada roli pozwalającej na wykonanie oficjum.
                                     </p>
                                 </div>
                             </div>
