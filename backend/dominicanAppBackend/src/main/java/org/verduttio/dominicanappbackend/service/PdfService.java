@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,6 +55,25 @@ public class PdfService {
     public byte[] generateSchedulePdfForTasksBySupervisorRole(String roleName, LocalDate from, LocalDate to) throws IOException {
         validateDateRange(from, to);
         List<ScheduleShortInfoForTask> schedules = scheduleService.getScheduleShortInfoForTaskByRoleForSpecifiedWeek(roleName, from, to);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPage(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateTaskScheduleTable(table, schedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
+    public byte[] generateSchedulePdfForTasksBySupervisorRoles(List<String> roleNames, LocalDate from, LocalDate to) throws IOException {
+        validateDateRange(from, to);
+        List<ScheduleShortInfoForTask> schedules = new ArrayList<>();
+        for (String roleName : roleNames) {
+            schedules.addAll(scheduleService.getScheduleShortInfoForTaskByRoleForSpecifiedWeek(roleName, from, to));
+        }
 
         try (PDDocument doc = new PDDocument()) {
             PDFont font = getFont(doc);

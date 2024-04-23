@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.service.PdfService;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pdf")
@@ -89,6 +90,30 @@ public class PdfController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/schedules/tasks/byRoles/scheduleShortInfo/week")
+    public ResponseEntity<?> generateSchedulePdfForTasksByRoles(
+            @RequestBody List<String> supervisorRoles,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForTasksBySupervisorRoles(supervisorRoles, from, to);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Schedules_tasks_by_" + "_" + from.toString() + "-" + to.toString() + ".pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }
