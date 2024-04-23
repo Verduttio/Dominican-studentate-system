@@ -374,6 +374,11 @@ function SchedulePage() {
                 </button>
             </div>
             <div className="d-flex justify-content-center">
+                <button className="btn btn-success" onClick={() => navigate("/pdf/non-standard", showStandardDateSelector ? {state: {startDate: startOfWeek(currentWeek, { weekStartsOn: 0 }), endDate: endOfWeek(currentWeek, { weekStartsOn: 0 })}} : { state: {startDate: nonStandardStartDate, endDate: nonStandardEndDate } })}>
+                    Niestandardowy wydruk
+                </button>
+            </div>
+            <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według braci</h4>
             </div>
             {renderUsersSchedule()}
