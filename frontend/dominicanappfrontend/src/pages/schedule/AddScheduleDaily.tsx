@@ -272,6 +272,14 @@ function AddScheduleDaily() {
                     </button>
                 </div>
             )}
+            <div className={"d-flex justify-content-center"}>
+                <button className="btn btn-secondary mt-3" onClick={() => {
+                    navigate(`/add-schedule/weekly/by-all-days/?roleName=${roleName}`);
+                }}>
+                    <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
+                    Przełącz na kreator z dniami tygodnia
+                </button>
+            </div>
             <DaySelector currentDate={currentDate} setCurrentDate={setCurrentDate}/>
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}

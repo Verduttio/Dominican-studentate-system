@@ -15,7 +15,7 @@ import {endOfWeek, format, startOfWeek} from "date-fns";
 import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
 import ButtonLegend from "./ButtonLegend";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowsRotate, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 function AddScheduleWeekly() {
@@ -221,10 +221,10 @@ function AddScheduleWeekly() {
                                                 )
                                             )
                                         ): (
-                                        <button className='btn btn-secondary' disabled={true}>
-                                            <FontAwesomeIcon icon={faXmark}/>
-                                        </button>
-                                    )}
+                                            <button className='btn btn-info' disabled={true}>
+                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                            </button>
+                                        )}
                                     </td>
                                 ))}
                             </tr>

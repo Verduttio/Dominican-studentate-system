@@ -112,6 +112,13 @@ interface UserTasksScheduleInfoWeekly {
     userTasksScheduleInfo: UserTaskScheduleInfo[];
 }
 
+interface UserTasksScheduleInfoWeeklyByAllDays {
+    userId: number;
+    userName: string;
+    assignedTasks: string[];
+    userTasksScheduleInfo: Map<string, UserTaskScheduleInfo[]>; // key: day of week
+}
+
 type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 
 export enum ObstacleStatus {
@@ -182,7 +189,7 @@ interface UserTaskStatistics {
     totalNumberOfAssigns: number;
 }
 
-export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily}
+export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily, UserTasksScheduleInfoWeeklyByAllDays}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
 export type {DayOfWeek}
