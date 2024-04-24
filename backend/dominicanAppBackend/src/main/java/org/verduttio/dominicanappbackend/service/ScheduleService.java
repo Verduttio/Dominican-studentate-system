@@ -565,6 +565,14 @@ public class ScheduleService {
         return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
     }
 
+    public List<Schedule> getAllSchedulesByUserId(Long userId, LocalDate from, LocalDate to) {
+        if(!userService.existsById(userId)) {
+            throw new EntityNotFoundException("User with given id does not exist");
+        }
+
+        return getAllSchedulesForUserInSpecifiedWeek(userId, from, to);
+    }
+
     public List<ScheduleShortInfoForUser> getScheduleShortInfoForAllowedUsersForSpecifiedWeek(LocalDate from, LocalDate to) {
         if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
             throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
@@ -1023,7 +1031,7 @@ public class ScheduleService {
     public Map<User, List<Schedule>> getScheduleForUsers(List<User> users, LocalDate from, LocalDate to) {
         Map<User, List<Schedule>> userSchedules = new HashMap<>();
         for(User user : users) {
-            List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+            List<Schedule> schedules = getAllSchedulesByUserId(user.getId(), from, to);
             userSchedules.put(user, schedules);
         }
         return userSchedules;
@@ -1032,7 +1040,7 @@ public class ScheduleService {
     public Map<User, List<Schedule>> getScheduleForUsers(List<User> users, LocalDate from, LocalDate to, String taskSupervisorRoleName) {
         Map<User, List<Schedule>> userSchedules = new HashMap<>();
         for(User user : users) {
-            List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+            List<Schedule> schedules = getAllSchedulesByUserId(user.getId(), from, to);
             schedules = schedules.stream()
                     .filter(schedule -> schedule.getTask().getSupervisorRole().getName().equals(taskSupervisorRoleName))
                     .collect(Collectors.toList());
