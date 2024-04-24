@@ -10,7 +10,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 import AlertBox from "../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faRightToBracket} from "@fortawesome/free-solid-svg-icons";
 import PopupDatePicker from "../specialDate/PopupDatePicker";
 
 
@@ -353,6 +353,15 @@ function SchedulePage() {
 
     return (
         <div className="fade-in">
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-info mt-3" onClick={() => {
+                    navigate("/schedule/by-days")
+                }}>
+                    <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
+                    Zmień na harmonogram według dni
+                </button>
+            </div>
+
             {showStandardDateSelector ? (<WeekSelector currentWeek={currentWeek}
                                                        setCurrentWeek={setCurrentWeek}/>) : renderNonStandardDateSelector()}
             <div className="d-flex justify-content-center">
@@ -374,15 +383,23 @@ function SchedulePage() {
                 </button>
             </div>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-success" onClick={() => navigate("/pdf/non-standard", showStandardDateSelector ? {state: {startDate: startOfWeek(currentWeek, { weekStartsOn: 0 }), endDate: endOfWeek(currentWeek, { weekStartsOn: 0 })}} : { state: {startDate: nonStandardStartDate, endDate: nonStandardEndDate } })}>
-                    Niestandardowy wydruk
+                <button className="btn btn-success"
+                        onClick={() => navigate("/pdf/non-standard", showStandardDateSelector ? {
+                            state: {
+                                startDate: startOfWeek(currentWeek, {weekStartsOn: 0}),
+                                endDate: endOfWeek(currentWeek, {weekStartsOn: 0})
+                            }
+                        } : {state: {startDate: nonStandardStartDate, endDate: nonStandardEndDate}})}>
+                    <span><FontAwesomeIcon icon={faRightToBracket}/> </span>
+                    Niestandardowy wydruk wielu roli
                 </button>
             </div>
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według braci</h4>
             </div>
             {renderUsersSchedule()}
-            {errorDownloadSchedulePdfForUsers && <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'} />}
+            {errorDownloadSchedulePdfForUsers &&
+                <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'}/>}
             <div className="text-center">
                 <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}
                         disabled={loadingDownloadSchedulePdfForUsers}>
@@ -404,9 +421,11 @@ function SchedulePage() {
                 </select>
             </div>
             {renderTasksScheduleByRole()}
-            {errorDownloadSchedulePdfForTasksByRole && <AlertBox text={errorDownloadSchedulePdfForTasksByRole} type="danger" width={'500px'} />}
+            {errorDownloadSchedulePdfForTasksByRole &&
+                <AlertBox text={errorDownloadSchedulePdfForTasksByRole} type="danger" width={'500px'}/>}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole} disabled={selectedSupervisorRoleName == null || loadingDownloadSchedulePdfForTasksByRole}>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasksByRole}
+                        disabled={selectedSupervisorRoleName == null || loadingDownloadSchedulePdfForTasksByRole}>
                     <span>Pobierz harmonogram według roli </span>
                     {loadingDownloadSchedulePdfForTasksByRole &&
                         <span className="spinner-border spinner-border-sm"></span>}
@@ -417,9 +436,11 @@ function SchedulePage() {
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich zadań</h4>
             </div>
             {renderTasksSchedule()}
-            {errorDownloadSchedulePdfForTasks && <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width={'500px'} />}
+            {errorDownloadSchedulePdfForTasks &&
+                <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width={'500px'}/>}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks} disabled={loadingDownloadSchedulePdfForTasks}>
+                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForTasks}
+                        disabled={loadingDownloadSchedulePdfForTasks}>
                     <span>Pobierz harmonogram według oficjów </span>
                     {loadingDownloadSchedulePdfForTasks &&
                         <span className="spinner-border spinner-border-sm"></span>}

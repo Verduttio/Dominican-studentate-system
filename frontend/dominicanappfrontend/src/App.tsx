@@ -39,6 +39,7 @@ import AddScheduleDaily from "./pages/schedule/AddScheduleDaily";
 import DatesPage from "./pages/specialDate/DatesPage";
 import NonStandardPdfPrinterPage from "./pages/schedule/NonStandardPdfPrinterPage";
 import AddScheduleWeeklyByAllDays from "./pages/schedule/AddScheduleWeeklyByAllDays";
+import SchedulePageByDays from "./pages/schedule/SchedulePageByDays";
 
 const AppContent = () => {
     const location = useLocation();
@@ -73,6 +74,7 @@ const AppContent = () => {
                     <Route path="/dates" Component={DatesPage}/>
                     <Route path="/pdf/non-standard" Component={NonStandardPdfPrinterPage}/>
                     <Route path="/schedule" Component={SchedulePage}/>
+                    <Route path="/schedule/by-days" Component={SchedulePageByDays}/>
                     <Route path="/add-schedule/select-role" Component={AddScheduleRoleSelection}/>
                     <Route path="/add-schedule/weekly" Component={AddScheduleWeekly}/>
                     <Route path="/add-schedule/daily" Component={AddScheduleDaily}/>
