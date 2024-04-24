@@ -1019,4 +1019,35 @@ public class ScheduleService {
 
         return userScheduleHistory;
     }
+
+    public Map<User, List<Schedule>> getScheduleForUsers(List<User> users, LocalDate from, LocalDate to) {
+        Map<User, List<Schedule>> userSchedules = new HashMap<>();
+        for(User user : users) {
+            List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+            userSchedules.put(user, schedules);
+        }
+        return userSchedules;
+    }
+
+    public Map<User, List<Schedule>> getScheduleForUsers(List<User> users, LocalDate from, LocalDate to, String taskSupervisorRoleName) {
+        Map<User, List<Schedule>> userSchedules = new HashMap<>();
+        for(User user : users) {
+            List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+            schedules = schedules.stream()
+                    .filter(schedule -> schedule.getTask().getSupervisorRole().getName().equals(taskSupervisorRoleName))
+                    .collect(Collectors.toList());
+            userSchedules.put(user, schedules);
+        }
+        return userSchedules;
+    }
+
+    public Map<User, List<Schedule>> getScheduleForAllUsers(LocalDate from, LocalDate to) {
+        List<User> users = userService.getAllUsers();
+        return getScheduleForUsers(users, from, to);
+    }
+
+    public Map<User, List<Schedule>> getScheduleForAllUsers(LocalDate from, LocalDate to, String taskSupervisorRoleName) {
+        List<User> users = userService.getAllUsers();
+        return getScheduleForUsers(users, from, to, taskSupervisorRoleName);
+    }
 }

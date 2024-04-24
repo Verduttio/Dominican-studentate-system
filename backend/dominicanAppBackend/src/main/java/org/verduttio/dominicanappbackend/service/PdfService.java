@@ -8,12 +8,15 @@ import be.quodlibet.boxable.line.LineStyle;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForTask;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForUser;
+import org.verduttio.dominicanappbackend.entity.Schedule;
+import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.validation.DateValidator;
 
 import java.awt.*;
@@ -21,8 +24,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PdfService {
@@ -103,6 +110,38 @@ public class PdfService {
         }
     }
 
+    public byte[] generateSchedulePdfForUsersByDays(LocalDate from, LocalDate to) throws IOException {
+        DateValidator.ensureFromDateNotAfterToDate(from, to);
+        Map<User, List<Schedule>> userSchedules = scheduleService.getScheduleForAllUsers(from, to);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPageHorizontal(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateDayScheduleTable(from, to, table, userSchedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
+    public byte[] generateSchedulePdfForUsersBySupervisorRoleByDays(String taskSupervisorRoleName, LocalDate from, LocalDate to) throws IOException {
+        DateValidator.ensureFromDateNotAfterToDate(from, to);
+        Map<User, List<Schedule>> userSchedules = scheduleService.getScheduleForAllUsers(from, to, taskSupervisorRoleName);
+
+        try (PDDocument doc = new PDDocument()) {
+            PDFont font = getFont(doc);
+            PDPage page = addNewPageHorizontal(doc);
+            float startY = initializeTitle(doc, page, font, from, to);
+            BaseTable table = initializeTable(doc, page, startY);
+
+            populateDayScheduleTable(from, to, table, userSchedules, font);
+
+            return finalizeDocument(doc);
+        }
+    }
+
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
             throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
@@ -111,6 +150,12 @@ public class PdfService {
 
     private static PDPage addNewPage(PDDocument doc) {
         PDPage page = new PDPage();
+        doc.addPage(page);
+        return page;
+    }
+
+    private static PDPage addNewPageHorizontal(PDDocument doc) {
+        PDPage page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
         doc.addPage(page);
         return page;
     }
@@ -214,6 +259,63 @@ public class PdfService {
 
         table.draw();
     }
+
+    private void populateDayScheduleTable(LocalDate from, LocalDate to, BaseTable table, Map<User, List<Schedule>> userSchedules, PDFont font) throws IOException {
+        // Calculate the number of days in the range
+        long daysBetween = ChronoUnit.DAYS.between(from, to) + 1;  // Inclusive of both dates
+
+        // Create Header row
+        Row<PDPage> headerRow = table.createRow(15f);
+        Cell<PDPage> cell = headerRow.createCell(20, "Brat");
+        cell.setFont(font);
+        cell.setFontSize(12);
+        cell.setFillColor(Color.BLACK);
+        cell.setTextColor(Color.WHITE);
+
+        // Adding date headers
+        for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
+            cell = headerRow.createCell((float) 80 / daysBetween, date.toString());  // Divide the width equally among dates
+            cell.setFont(font);
+            cell.setFontSize(12);
+            cell.setAlign(HorizontalAlignment.CENTER);
+            cell.setFillColor(Color.BLACK);
+            cell.setTextColor(Color.WHITE);
+        }
+
+        table.addHeaderRow(headerRow);
+
+        // Populate rows for each user
+        for (Map.Entry<User, List<Schedule>> entry : userSchedules.entrySet()) {
+            User user = entry.getKey();
+            List<Schedule> schedules = entry.getValue();
+
+            // Group schedules by date for quick lookup
+            Map<LocalDate, List<String>> tasksByDate = schedules.stream()
+                    .collect(Collectors.groupingBy(
+                            Schedule::getDate,
+                            Collectors.mapping(s -> s.getTask().getNameAbbrev(), Collectors.toList())
+                    ));
+
+            // Create a row for each user
+            Row<PDPage> row = table.createRow(12f);
+            cell = row.createCell(20, user.getName() + " " + user.getSurname());
+            cell.setFont(font);
+            cell.setFontSize(12);
+
+            // Fill cells with task abbreviations for each date
+            for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
+                List<String> tasksForDate = tasksByDate.getOrDefault(date, Collections.emptyList());
+                cell = row.createCell((float) 80 / daysBetween, String.join(", ", tasksForDate));
+                cell.setFont(font);
+                cell.setFontSize(12);
+                cell.setAlign(HorizontalAlignment.CENTER);
+            }
+        }
+
+        // Draw the table on the document
+        table.draw();
+    }
+
 
     private static void createRowWithTaskNameAndUserName(BaseTable table, String taskName, PDFont font, String userName) {
         Row<PDPage> taskRow = table.createRow(12f);
