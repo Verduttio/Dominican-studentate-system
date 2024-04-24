@@ -6,6 +6,7 @@ import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.*;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleInfo;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
+import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
 import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
@@ -807,6 +808,18 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserTasksScheduleInfoWeeklyByAllDays> getUserTasksScheduleInfoWeeklyByAllDaysByRole(String roleName, LocalDate from, LocalDate to) {
+        Role role = validateRoleExistence(roleName);
+
+        List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
+        List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+
+        return usersWhichCanPerformTasks.stream()
+                .map(user -> createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to))
+                .collect(Collectors.toList());
+
+    }
+
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
             throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
@@ -921,6 +934,28 @@ public class ScheduleService {
         return userTasksDependencies;
     }
 
+    private UserTasksScheduleInfoWeeklyByAllDays createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(User user, List<Task> tasksByRole, LocalDate from, LocalDate to) {
+        UserTasksScheduleInfoWeeklyByAllDays userTasksDependencies = new UserTasksScheduleInfoWeeklyByAllDays();
+        userTasksDependencies.setUserTasksScheduleInfo(new HashMap<>());
+        userTasksDependencies.setUserId(user.getId());
+        userTasksDependencies.setUserName(user.getName() + " " + user.getSurname());
+
+        List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+        userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
+
+
+        for (int i = 0; i < 7; i++) {
+            final LocalDate date = from.plusDays(i);
+            List<UserTaskScheduleInfo> userTaskScheduleInfos = tasksByRole.stream()
+                    .map(task -> createUserTaskScheduleInfo(user, task, date, from, to))
+                    .toList();
+            userTasksDependencies.getUserTasksScheduleInfo().put(date.getDayOfWeek(), userTaskScheduleInfos);
+        }
+
+        return userTasksDependencies;
+    }
+
     //TODO: Optimise this method
     // We do not want to use getUserDependenciesForTaskDaily, because it fetches data for all days in the week
     // We should make similar method to fetch data for one day only.
@@ -946,7 +981,7 @@ public class ScheduleService {
 
             UserTaskDependencyDailyDTO userTaskDependencyDailyDTO = getUserDependenciesForTaskDaily(task.getId(), user.getId(), from, to);
 
-            userTaskScheduleInfo.setTaskName(task.getName());
+            userTaskScheduleInfo.setTaskName(task.getNameAbbrev());
             userTaskScheduleInfo.setTaskId(task.getId());
             userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userTaskDependencyDailyDTO.getLastAssigned(), from));
             if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {

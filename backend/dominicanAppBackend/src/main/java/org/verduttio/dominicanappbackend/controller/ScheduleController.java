@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
+import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
@@ -209,7 +210,7 @@ public class ScheduleController {
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
-            List<UserTasksScheduleInfoWeekly> dependencies = scheduleService.getUserTasksScheduleInfoWeeklyByRole(roleName, from, to);
+            List<UserTasksScheduleInfoWeeklyByAllDays> dependencies = scheduleService.getUserTasksScheduleInfoWeeklyByAllDaysByRole(roleName, from, to);
             return ResponseEntity.ok(dependencies);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
