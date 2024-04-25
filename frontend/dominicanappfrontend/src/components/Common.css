@@ -48,6 +48,11 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.column-width-100{
+    width: 100px;
+    word-wrap: break-word;
+}
+
 .column-width-150{
     width: 150px;
     word-wrap: break-word;

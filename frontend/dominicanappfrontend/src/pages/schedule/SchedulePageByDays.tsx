@@ -14,6 +14,7 @@ import AlertBox from "../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import PopupDatePicker from "../specialDate/PopupDatePicker";
+import {daysOfWeekAbbreviation, daysOrder} from "../../models/DayOfWeek";
 
 
 function SchedulePageByDays() {
@@ -205,13 +206,23 @@ function SchedulePageByDays() {
         return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow text-cente mb-0">
+                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
                             <th>Brat</th>
-                            {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort().map(day => (
-                                <th className="max-column-width-100" key={day}>{day}</th>
-                            ))}
+                            {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort()
+                                .map(date => {
+                                    const day = new Date(date);
+                                    const englishDayOfWeek = daysOrder[day.getDay()];
+                                    const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+
+                                    return (
+                                        <th className="column-width-100" key={date}>
+                                            {polishAbbreviation}<br/>
+                                            {format(date, 'dd.MM.yyyy')}
+                                        </th>
+                                    );
+                                })}
                         </tr>
                         </thead>
                         <tbody>
@@ -220,7 +231,7 @@ function SchedulePageByDays() {
                                 <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
 
                                 {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                    <td className="max-column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                    <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
                                 ))}
                             </tr>
                         ))}
@@ -238,13 +249,23 @@ function SchedulePageByDays() {
         return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow text-center mb-0">
+                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                         <thead className="table-dark">
                         <tr>
                             <th>Brat</th>
-                            {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort().map(day => (
-                                <th className="max-column-width-100" key={day}>{day}</th>
-                            ))}
+                            {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort()
+                                .map(day => {
+                                    const date = new Date(day);
+                                    const englishDayOfWeek = daysOrder[date.getDay()];
+                                    const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+
+                                    return (
+                                    <th className="column-width-100" key={day}>
+                                        {polishAbbreviation}<br/>
+                                        {format(day, 'dd.MM.yyyy')}
+                                    </th>
+                                    );
+                                })}
                         </tr>
                         </thead>
                         <tbody>
@@ -253,7 +274,7 @@ function SchedulePageByDays() {
                                 <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
 
                                 {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                    <td className="max-column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                    <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
                                 ))}
                             </tr>
                         ))}
