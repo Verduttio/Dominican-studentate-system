@@ -52,8 +52,12 @@ public class ConflictService {
         return conflictRepository.existsByTaskIds(task1Id, task2Id);
     }
 
-    public boolean tasksAreInConflict(Long task1Id, Long task2Id, DayOfWeek dayOfWeek) {
-        return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, dayOfWeek);
+    public boolean tasksAreInConflict(Long task1Id, Long task2Id, DayOfWeek dayOfWeek, boolean isFeastDay) {
+        if (isFeastDay) {
+            return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, DayOfWeek.SUNDAY);
+        } else {
+            return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, dayOfWeek);
+        }
     }
 
     public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {
