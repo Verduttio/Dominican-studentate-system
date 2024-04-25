@@ -149,7 +149,8 @@ function AddScheduleWeeklyByAllDays() {
         if (taskId != null) {
             const from = dateFormatter.formatDate(format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy'));
             const to = dateFormatter.formatDate(format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-            const taskDate = currentWeek.setDate(startOfWeek(currentWeek, {weekStartsOn: 0}).getDate() + daysOrder.indexOf(day));
+            const taskDate = new Date(startOfWeek(currentWeek, {weekStartsOn: 0}));
+            taskDate.setDate(taskDate.getDate() + daysOrder.indexOf(day));
             const formattedTaskDate = dateFormatter.formatDate(format(taskDate, 'dd-MM-yyyy'));
 
             const requestData = {
@@ -159,8 +160,6 @@ function AddScheduleWeeklyByAllDays() {
                 weekEndDate: to,
                 taskDate: formattedTaskDate
             };
-
-            console.log(requestData);
 
             assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
                 .then(() => setShowConfirmAssignmentPopup(false));
@@ -173,7 +172,8 @@ function AddScheduleWeeklyByAllDays() {
         if (taskId != null) {
             const from = dateFormatter.formatDate(format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy'));
             const to = dateFormatter.formatDate(format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-            const taskDate = currentWeek.setDate(startOfWeek(currentWeek, {weekStartsOn: 0}).getDate() + daysOrder.indexOf(day));
+            const taskDate = new Date(startOfWeek(currentWeek, {weekStartsOn: 0}));
+            taskDate.setDate(taskDate.getDate() + daysOrder.indexOf(day));
             const formattedTaskDate = dateFormatter.formatDate(format(taskDate, 'dd-MM-yyyy'));
 
             const requestData = {
@@ -183,8 +183,6 @@ function AddScheduleWeeklyByAllDays() {
                 weekEndDate: to,
                 taskDate: formattedTaskDate
             };
-
-            console.log(requestData);
 
             unassignTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
         } else {
