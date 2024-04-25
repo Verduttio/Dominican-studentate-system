@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../services/UseHttp';
-import {Role, Schedule, ScheduleShortInfo, ScheduleShortInfoForTask, User} from '../../models/Interfaces';
+import {
+    Role,
+    UserSchedulesOnDaysDTO
+} from '../../models/Interfaces';
 import {backendUrl} from "../../utils/constants";
 import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
 import WeekSelector from "../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../components/LoadingScreen";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 import AlertBox from "../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
@@ -15,8 +17,8 @@ import PopupDatePicker from "../specialDate/PopupDatePicker";
 
 
 function SchedulePageByDays() {
-    const [usersSchedule, setUsersSchedule] = useState<Map<User, Schedule[]>>(new Map<User, Schedule[]>());
-    const [usersScheduleByTaskSupervisorRole, setUsersScheduleByTaskSupervisorRole] = useState<Map<User, Schedule[]>>(new Map<User, Schedule[]>());
+    const [usersSchedule, setUsersSchedule] = useState<UserSchedulesOnDaysDTO[]>([]);
+    const [usersScheduleByTaskSupervisorRole, setUsersScheduleByTaskSupervisorRole] = useState<UserSchedulesOnDaysDTO[]>([]);
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
     const [selectedSupervisorRoleName, setSelectedSupervisorRoleName] = useState<string | null>(null);
     const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -24,7 +26,6 @@ function SchedulePageByDays() {
     const { request: fetchScheduleByTasksByRoles, error: errorFetchScheduleByTasksByRoles, loading: loadingFetchScheduleByTasksByRoles} = useHttp();
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp();
     const navigate = useNavigate();
-    const { isFunkcyjny } = useIsFunkcyjny();
     const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
     const [errorDownloadSchedulePdfForUsers, setErrorDownloadSchedulePdfForUsers] = useState<string | null>(null);
     const [loadingDownloadSchedulePdfForUsersByTaskSupervisorRole, setLoadingDownloadSchedulePdfForUsersByTaskSupervisorRole] = useState<boolean>(false);
@@ -40,19 +41,13 @@ function SchedulePageByDays() {
     const [nonStandardDateValidationError, setNonStandardDateValidationError] = useState<string | null>(null);
     const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
 
-    const convertToMap = (data: any): Map<User, Schedule[]> => {
-        const map = new Map<User, Schedule[]>();
-        data.forEach((item: { user: User; schedule: Schedule[] }) => {
-            map.set(item.user, item.schedule);
-        });
-        return map;
-    };
-
     useEffect(() => {
         fetchSchedule(null, (data) => {
-            console.log(data);
-            const scheduleMap = convertToMap(data);
-            setUsersSchedule(scheduleMap);
+            const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
+                ...user,
+                schedules: new Map(Object.entries(user.schedules))
+            }));
+            setUsersSchedule(newData);
         }, false, `${backendUrl}/api/schedules/users/days?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data), false, `${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     }, [fetchSchedule, fetchSupervisorRoles, standardDateRefresher, currentWeek]);
@@ -60,8 +55,11 @@ function SchedulePageByDays() {
     useEffect(() => {
         if (selectedSupervisorRoleName && showStandardDateSelector) {
             fetchScheduleByTasksByRoles(null, (data) => {
-                    const scheduleMap = convertToMap(data);
-                    setUsersScheduleByTaskSupervisorRole(scheduleMap);
+                    const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
+                        ...user,
+                        schedules: new Map(Object.entries(user.schedules))
+                    }));
+                    setUsersScheduleByTaskSupervisorRole(newData);
             }, false,
                 `${backendUrl}/api/schedules/byRole/${selectedSupervisorRoleName}/users/days?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         }
@@ -156,10 +154,22 @@ function SchedulePageByDays() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
-        fetchSchedule(null, (data) => setUsersSchedule(data), false,
+        fetchSchedule(null, (data) => {
+            const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
+                ...user,
+                schedules: new Map(Object.entries(user.schedules))
+            }));
+                setUsersSchedule(newData)
+        }, false,
             `${backendUrl}/api/schedules/users/days?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         if(selectedSupervisorRoleName) {
-            fetchScheduleByTasksByRoles(null, (data) => setUsersScheduleByTaskSupervisorRole(data), false,
+            fetchScheduleByTasksByRoles(null, (data) => {
+                const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
+                    ...user,
+                    schedules: new Map(Object.entries(user.schedules))
+                }));
+                    setUsersScheduleByTaskSupervisorRole(newData)
+            }, false,
                 `${backendUrl}/api/schedules/byRole/${selectedSupervisorRoleName}/users/days?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         }
     }
@@ -167,7 +177,7 @@ function SchedulePageByDays() {
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
-            setUsersScheduleByTaskSupervisorRole(new Map<User, Schedule[]>());
+            setUsersScheduleByTaskSupervisorRole([]);
             setSelectedSupervisorRoleName(null)
         } else {
             setSelectedSupervisorRoleName(selectedRoleName);
@@ -177,7 +187,13 @@ function SchedulePageByDays() {
             } else {
                 targetUrl = `${backendUrl}/api/schedules/byRole/${selectedSupervisorRoleName}/users/days?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`
             }
-            fetchScheduleByTasksByRoles(null, (data) => setUsersScheduleByTaskSupervisorRole(data), false,
+            fetchScheduleByTasksByRoles(null, (data) => {
+                const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
+                    ...user,
+                    schedules: new Map(Object.entries(user.schedules))
+                }));
+                setUsersScheduleByTaskSupervisorRole(newData)
+            }, false,
                 targetUrl, 'GET');
         }
     }
@@ -187,71 +203,27 @@ function SchedulePageByDays() {
         if(error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '600px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+            <div className="d-flex-no-media-resize justify-content-center">
+                <div className="table-responsive-fit-content">
+                    <table className="table table-hover table-striped table-rounded table-shadow text-cente mb-0">
                         <thead className="table-dark">
                         <tr>
                             <th>Brat</th>
-                            {showStandardDateSelector ? (
-                                // dates from current week
-                                <>
-                                    {Array.from({length: 7}, (_, i) => {
-                                        const day = new Date(startOfWeek(currentWeek, { weekStartsOn: 0 }));
-                                        day.setDate(day.getDate() + i);
-                                        return (
-                                            <th key={i}>{format(day, 'dd-MM-yyyy')}</th>
-                                        )
-                                    })}
-                                    </>
-                            ) : (
-                                // dates from non-standard date
-                                <th>Od {format(nonStandardStartDate, 'dd-MM-yyyy')} do {format(nonStandardEndDate, 'dd-MM-yyyy')}</th>
-                            )}
+                            {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort().map(day => (
+                                <th className="max-column-width-100" key={day}>{day}</th>
+                            ))}
                         </tr>
                         </thead>
                         <tbody>
-                        {showStandardDateSelector ? (
-                            Array.from(usersSchedule.keys()).map(user => (
-                                <tr key={user.id}>
-                                    <td>{user.name}</td>
-                                    {Array.from({length: 7}, (_, i) => {
-                                        const day = new Date(startOfWeek(currentWeek, { weekStartsOn: 0 }));
-                                        day.setDate(day.getDate() + i);
-                                        const formattedDay = format(day, 'yyyy-MM-dd');
-                                        const dailyTasks = usersSchedule.get(user)?.filter(schedule => schedule.date === formattedDay);
-                                        return (
-                                            <td key={i}>
-                                                {dailyTasks?.map((schedule, index, array) => (
-                                                    <div key={index} style={{
-                                                        borderBottom: index === array.length - 1 ? 'none' : '1px solid black',
-                                                        padding: '2px 0',
-                                                    }}>
-                                                        {schedule.task.name}
-                                                    </div>
-                                                ))}
-                                            </td>
-                                        )
-                                    })}
-                                </tr>
-                            ))
-                        ) : (
-                            Array.from(usersSchedule.keys()).map(user => (
-                                <tr key={user.id}>
-                                    <td>{user.name}</td>
-                                    <td colSpan={7}>
-                                        {usersSchedule.get(user)?.map((schedule, index, array) => (
-                                            <div key={index} style={{
-                                                borderBottom: index === array.length - 1 ? 'none' : '1px solid black',
-                                                padding: '2px 0',
-                                            }}>
-                                                {schedule.task.name}
-                                            </div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                        {usersSchedule.map(userScheduleDTO => (
+                            <tr key={userScheduleDTO.userShortInfo.id}>
+                                <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
+
+                                {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
+                                    <td className="max-column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                ))}
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 </div>
@@ -260,33 +232,34 @@ function SchedulePageByDays() {
     }
 
     const renderUsersScheduleByTaskSupervisorRole = () => {
-        if(loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner />;
-        if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
+        if (loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner/>;
+        if (errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex justify-content-center">
-                {/*<div className="table-responsive" style={{maxWidth: '600px'}}>*/}
-                {/*    <table className="table table-hover table-striped table-rounded table-shadow mb-0">*/}
-                {/*        <thead className="table-dark">*/}
-                {/*        <tr>*/}
-                {/*            <th>Oficjum</th>*/}
-                {/*            <th>Bracia</th>*/}
-                {/*        </tr>*/}
-                {/*        </thead>*/}
-                {/*        <tbody>*/}
-                {/*        {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (*/}
-                {/*            <tr key={scheduleShortInfoForTaskByRole.taskId}>*/}
-                {/*                <td>{scheduleShortInfoForTaskByRole.taskName}</td>*/}
-                {/*                <td>*/}
-                {/*                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (*/}
-                {/*                        <div key={index}>{userInfoString}</div>*/}
-                {/*                    ))}*/}
-                {/*                </td>*/}
-                {/*            </tr>*/}
-                {/*        ))}*/}
-                {/*        </tbody>*/}
-                {/*    </table>*/}
-                {/*</div>*/}
+            <div className="d-flex-no-media-resize justify-content-center">
+                <div className="table-responsive-fit-content">
+                    <table className="table table-hover table-striped table-rounded table-shadow text-center mb-0">
+                        <thead className="table-dark">
+                        <tr>
+                            <th>Brat</th>
+                            {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort().map(day => (
+                                <th className="max-column-width-100" key={day}>{day}</th>
+                            ))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {usersScheduleByTaskSupervisorRole.map(userScheduleDTO => (
+                            <tr key={userScheduleDTO.userShortInfo.id}>
+                                <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
+
+                                {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
+                                    <td className="max-column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                ))}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     }
@@ -294,7 +267,8 @@ function SchedulePageByDays() {
     const renderNonStandardDateSelector = () => {
         return (
             <>
-                {nonStandardDateValidationError && <AlertBox text={nonStandardDateValidationError} type="danger" width={'500px'} />}
+                {nonStandardDateValidationError &&
+                    <AlertBox text={nonStandardDateValidationError} type="danger" width={'500px'}/>}
                 <div className="d-flex justify-content-center">
                     <div className="card my-3">
                         <div className="card-body">
@@ -363,8 +337,8 @@ function SchedulePageByDays() {
                     } else {
                         // We are switching to non-standard date selector,
                         // so we have to erase all data.
-                        setUsersSchedule(new Map<User, Schedule[]>());
-                        setUsersScheduleByTaskSupervisorRole(new Map<User, Schedule[]>());
+                        setUsersSchedule([]);
+                        setUsersScheduleByTaskSupervisorRole([]);
                     }
                     setShowStandardDateSelector(!showStandardDateSelector);
                 }}><span><FontAwesomeIcon icon={faArrowsRotate}/> </span>

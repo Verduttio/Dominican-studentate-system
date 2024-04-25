@@ -71,6 +71,11 @@ interface ScheduleShortInfoForTask {
     usersInfoStrings: string[];
 }
 
+interface UserSchedulesOnDaysDTO {
+    userShortInfo: UserShortInfo;
+    schedules: Map<string, string[]>; // key: day of week, value: task names
+}
+
 interface UserTaskDependencyWeekly {
     userId: number;
     userName: string;
@@ -189,7 +194,7 @@ interface UserTaskStatistics {
     totalNumberOfAssigns: number;
 }
 
-export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily, UserTasksScheduleInfoWeeklyByAllDays}
+export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily, UserTasksScheduleInfoWeeklyByAllDays, UserSchedulesOnDaysDTO}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
 export type {DayOfWeek}
