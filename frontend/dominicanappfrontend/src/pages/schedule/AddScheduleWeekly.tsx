@@ -180,7 +180,26 @@ function AddScheduleWeekly() {
                                         {dep.userName}
                                     </button>
                                 </td>
-                                <td className='max-column-width-200'>{dep?.assignedTasks.join(', ')}</td>
+                                <td className='max-column-width-200'>
+                                    {dep?.assignedTasks.map((task, index) => {
+                                        const [taskName, days] = task.split(' (');
+                                        if (days) {
+                                            return (
+                                                <React.Fragment key={task}>
+                                                    {index !== 0 && ', '}
+                                                    <strong>{taskName}</strong> ({days}
+                                                </React.Fragment>
+                                            );
+                                        } else {
+                                            return (
+                                                <React.Fragment key={task}>
+                                                    {index !== 0 && ', '}
+                                                    <strong>{taskName}</strong>
+                                                </React.Fragment>
+                                            );
+                                        }
+                                    })}
+                                </td>
                                 {dep.userTasksScheduleInfo?.map(udep => (
                                     <td>{udep.hasRoleForTheTask ? (
                                             !udep.hasObstacle ? (

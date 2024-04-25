@@ -234,7 +234,26 @@ function SchedulePage() {
                         {scheduleShortInfo.map(scheduleShortInfo => (
                             <tr key={scheduleShortInfo.userId}>
                                 <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
-                                <td>{scheduleShortInfo.tasksInfoStrings.join(', ')}</td>
+                                <td>
+                                    {scheduleShortInfo?.tasksInfoStrings.map((task, index) => {
+                                        const [taskName, days] = task.split(' (');
+                                        if (days) {
+                                            return (
+                                                <React.Fragment key={task}>
+                                                    {index !== 0 && ', '}
+                                                    <strong>{taskName}</strong> ({days}
+                                                </React.Fragment>
+                                            );
+                                        } else {
+                                            return (
+                                                <React.Fragment key={task}>
+                                                    {index !== 0 && ', '}
+                                                    <strong>{taskName}</strong>
+                                                </React.Fragment>
+                                            );
+                                        }
+                                    })}
+                                </td>
                             </tr>
                         ))}
                         </tbody>
@@ -263,9 +282,16 @@ function SchedulePage() {
                             <tr key={scheduleShortInfoForTaskByRole.taskId}>
                                 <td>{scheduleShortInfoForTaskByRole.taskName}</td>
                                 <td>
-                                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => (
-                                        <div key={index}>{userInfoString}</div>
-                                    ))}
+                                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => {
+                                        const [userName, tasks] = userInfoString.split(' (');
+                                        return (
+                                            <div key={index}>
+                                                <React.Fragment key={index}>
+                                                    <strong>{userName}</strong> ({tasks}
+                                                </React.Fragment>
+                                            </div>
+                                        );
+                                    })}
                                 </td>
                             </tr>
                         ))}
@@ -295,9 +321,16 @@ function SchedulePage() {
                             <tr key={scheduleShortInfoForTask.taskId}>
                                 <td>{scheduleShortInfoForTask.taskName}</td>
                                 <td>
-                                    {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => (
-                                        <div key={index}>{userInfoString}</div>
-                                    ))}
+                                    {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => {
+                                        const [userName, tasks] = userInfoString.split(' (');
+                                        return (
+                                            <div key={index}>
+                                                <React.Fragment key={index}>
+                                                    <strong>{userName}</strong> ({tasks}
+                                                </React.Fragment>
+                                            </div>
+                                        );
+                                    })}
                                 </td>
                             </tr>
                         ))}
