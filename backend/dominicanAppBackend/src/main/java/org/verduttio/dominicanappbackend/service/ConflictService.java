@@ -52,13 +52,9 @@ public class ConflictService {
         return conflictRepository.existsByTaskIds(task1Id, task2Id);
     }
 
-    public boolean tasksAreInConflict(Long task1Id, Long task2Id, LocalDate date) {
-        return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, date.getDayOfWeek());
-    }
     public boolean tasksAreInConflict(Long task1Id, Long task2Id, DayOfWeek dayOfWeek) {
         return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, dayOfWeek);
     }
-
 
     public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {
         Conflict conflict = updatedConflictDTO.onlyIdFieldsAndDaysToConflict();
