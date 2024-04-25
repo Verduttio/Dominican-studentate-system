@@ -3,12 +3,11 @@ package org.verduttio.dominicanappbackend.controller;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
+import org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyDailyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskDependencyWeeklyDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
@@ -16,14 +15,12 @@ import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksSchedule
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
 import org.verduttio.dominicanappbackend.entity.Schedule;
 import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
 import org.verduttio.dominicanappbackend.service.exception.ScheduleIsInConflictException;
 
-import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -405,7 +402,7 @@ public class ScheduleController {
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
-            Map<User, List<Schedule>> schedules = scheduleService.getScheduleForAllUsers(from, to);
+            List<UserSchedulesOnDaysDTO> schedules = scheduleService.getListOfUserSchedulesByDaysDTO(from, to);
             return new ResponseEntity<>(schedules, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -420,7 +417,7 @@ public class ScheduleController {
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
             @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
         try {
-            Map<User, List<Schedule>> schedules = scheduleService.getScheduleForAllUsers(from, to, supervisorRoleName);
+            List<UserSchedulesOnDaysDTO> schedules = scheduleService.getListOfUserSchedulesByDaysDTO(from, to, supervisorRoleName);
             return new ResponseEntity<>(schedules, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

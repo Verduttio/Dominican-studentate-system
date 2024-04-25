@@ -1058,4 +1058,62 @@ public class ScheduleService {
         List<User> users = userService.getAllUsers();
         return getScheduleForUsers(users, from, to, taskSupervisorRoleName);
     }
+
+    public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTO(LocalDate from, LocalDate to) {
+        List<User> users = userService.getAllUsers();
+
+        List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
+
+        for(User user : users) {
+            UserSchedulesOnDaysDTO userSchedulesOnDays = new UserSchedulesOnDaysDTO();
+            UserShortInfo userShortInfo = new UserShortInfo(user.getId(), user.getName(), user.getSurname());
+            userSchedulesOnDays.setUserShortInfo(userShortInfo);
+
+            Map<LocalDate, List<String>> userSchedules = new HashMap<>();
+            LocalDate date = from;
+            while (!date.isAfter(to)) {
+                List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+                List<String> assignedTasksNamesAbbrevs = schedules.stream()
+                        .map(schedule -> schedule.getTask().getNameAbbrev())
+                        .toList();
+                userSchedules.put(date, assignedTasksNamesAbbrevs);
+                date = date.plusDays(1);
+            }
+            userSchedulesOnDays.setSchedules(userSchedules);
+
+            userSchedulesOnDaysDTO.add(userSchedulesOnDays);
+        }
+        return userSchedulesOnDaysDTO;
+
+    }
+
+    public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTO(LocalDate from, LocalDate to, String taskSupervisorRoleName) {
+        List<User> users = userService.getAllUsers();
+
+        List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
+
+        for(User user : users) {
+            UserSchedulesOnDaysDTO userSchedulesOnDays = new UserSchedulesOnDaysDTO();
+            UserShortInfo userShortInfo = new UserShortInfo(user.getId(), user.getName(), user.getSurname());
+            userSchedulesOnDays.setUserShortInfo(userShortInfo);
+
+            Map<LocalDate, List<String>> userSchedules = new HashMap<>();
+            LocalDate date = from;
+            while (!date.isAfter(to)) {
+                List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+                schedules = schedules.stream()
+                        .filter(schedule -> schedule.getTask().getSupervisorRole().getName().equals(taskSupervisorRoleName))
+                        .toList();
+                List<String> assignedTasksNamesAbbrevs = schedules.stream()
+                        .map(schedule -> schedule.getTask().getNameAbbrev())
+                        .toList();
+                userSchedules.put(date, assignedTasksNamesAbbrevs);
+                date = date.plusDays(1);
+            }
+            userSchedulesOnDays.setSchedules(userSchedules);
+
+            userSchedulesOnDaysDTO.add(userSchedulesOnDays);
+        }
+        return userSchedulesOnDaysDTO;
+    }
 }
