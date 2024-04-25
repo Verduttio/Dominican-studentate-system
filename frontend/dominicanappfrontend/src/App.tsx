@@ -19,17 +19,12 @@ import SchedulePage from "./pages/schedule/SchedulePage";
 import ViewRoles from "./pages/role/RolesPage";
 import AddRole from "./pages/role/AddRole";
 import AddScheduleRoleSelection from "./pages/schedule/AddScheduleRoleSelection";
-import ScheduleCreatorRoleSelection from "./pages/schedule/ScheduleCreatorRoleSelection";
-import ScheduleCreatorTaskSelection from "./pages/schedule/ScheduleCreatorTaskSelection";
-import ScheduleCreatorAssignToTaskWeekly from "./pages/schedule/ScheduleCreatorAssignToTaskWeekly";
 import VerifyUserPage from "./pages/user/VerifyUserPage";
-import ScheduleCreatorAssignToTaskDaily from "./pages/schedule/ScheduleCreatorAssignToTaskDaily";
 import NavigationBar from "./components/NavigationBar";
 import EditRole from "./pages/role/EditRole";
 import EditConflict from "./pages/conflict/EditConflict";
 import EditObstacle from "./pages/obstacle/EditObstacle";
 import EditTask from "./pages/task/EditTask";
-import ScheduleCreatorChooseMethod from "./pages/schedule/ScheduleCreatorChooseMethod";
 import OtherEntities from "./pages/other/OtherEntities";
 import AddMyObstacle from "./pages/obstacle/AddMyObstacle";
 import UserDetailsViewer from "./pages/user/UserDetailsViewer";
@@ -79,11 +74,6 @@ const AppContent = () => {
                     <Route path="/add-schedule/weekly" Component={AddScheduleWeekly}/>
                     <Route path="/add-schedule/daily" Component={AddScheduleDaily}/>
                     <Route path="/add-schedule/weekly/by-all-days" Component={AddScheduleWeeklyByAllDays}/>
-                    <Route path="/schedule-creator" Component={ScheduleCreatorRoleSelection}/>
-                    <Route path="/schedule-creator/tasks" Component={ScheduleCreatorTaskSelection}/>
-                    <Route path="/schedule-creator/task/chooseMethod" Component={ScheduleCreatorChooseMethod}/>
-                    <Route path="/schedule-creator/task/assignWeekly" Component={ScheduleCreatorAssignToTaskWeekly}/>
-                    <Route path="/schedule-creator/task/assignDaily" Component={ScheduleCreatorAssignToTaskDaily}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
