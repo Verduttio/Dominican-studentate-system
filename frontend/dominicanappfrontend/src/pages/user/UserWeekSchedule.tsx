@@ -54,18 +54,12 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
     const tasksForDay = (day: Date) => {
         const formattedDay = format(day, 'yyyy-MM-dd');
         const dailyTasks = userSchedules.filter(schedule => schedule.date === formattedDay);
+        const dailyTaskNamesAbbrevs = dailyTasks.map(schedule => schedule.task.nameAbbrev);
 
         return (
-            <>
-                {dailyTasks.map((schedule, index, array) => (
-                    <div key={index} style={{
-                        borderBottom: index === array.length - 1 ? 'none' : '1px solid black',
-                        padding: '2px 0',
-                    }}>
-                        {schedule.task.name}
-                    </div>
-                ))}
-            </>
+            <div key={formattedDay}>
+                {dailyTaskNamesAbbrevs.join(", ")}
+            </div>
         );
     };
 
@@ -76,9 +70,9 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
 
     const renderTablePC = () => {
         return (
-            <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '1000px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow">
+            <div className="d-flex-no-media-resize justify-content-center">
+                <div className="table-responsive-fit-content">
+                    <table className="table table-hover table-striped table-rounded table-shadow text-cente mb-0">
                         <thead className="table-dark">
                         <tr>
                             {weekDays.map((day, index) => {
@@ -87,6 +81,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
 
                                 return (
                                     <th key={index}
+                                        className="column-width-150"
                                         style={{backgroundColor: format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'green' : ''}}>
                                         {polishAbbreviation}
                                         <br/> {format(day, 'dd.MM.yyyy')}
@@ -98,7 +93,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
                         <tbody>
                         <tr>
                             {weekDays.map((day, index) => (
-                                <td key={index}>{tasksForDay(day)}</td>
+                                <td className="column-width-150" key={index}>{tasksForDay(day)}</td>
                             ))}
                         </tr>
                         </tbody>

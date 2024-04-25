@@ -48,6 +48,11 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.column-width-150{
+    width: 150px;
+    word-wrap: break-word;
+}
+
 .max-column-width{
     max-width: 250px;
     word-wrap: break-word;
@@ -55,6 +60,11 @@
 
 .max-column-width-100{
     max-width: 100px;
+    word-wrap: break-word;
+}
+
+.max-column-width-150{
+    max-width: 150px;
     word-wrap: break-word;
 }
 
