@@ -10,7 +10,7 @@ import LoadingSpinner from "../../../components/LoadingScreen";
 import useIsFunkcyjny from "../../../services/UseIsFunkcyjny";
 import AlertBox from "../../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowsRotate, faRightToBracket} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faChevronDown, faChevronUp, faRightToBracket} from "@fortawesome/free-solid-svg-icons";
 import PopupDatePicker from "../../specialDate/PopupDatePicker";
 
 
@@ -43,6 +43,22 @@ function SchedulePage() {
     const [nonStandardEndDate, setNonStandardEndDate] = useState<Date>(new Date(midnight));
     const [nonStandardDateValidationError, setNonStandardDateValidationError] = useState<string | null>(null);
     const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
+    const [isTableOpened, setIsTableOpened] = useState<Map<string, boolean>>(new Map());
+
+    const changeTableState = (id: string) => {
+        setIsTableOpened(prevState => {
+            if (prevState.has(id)) {
+                const newState = new Map(prevState);
+                newState.set(id, !prevState.get(id));
+                return newState;
+            } else {
+                const newState = new Map(prevState);
+                newState.set(id, true);
+                return newState;
+            }
+        });
+    }
+
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false, `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
@@ -221,45 +237,57 @@ function SchedulePage() {
         if(error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '600px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Brat</th>
-                            <th>Oficjum</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scheduleShortInfo.map(scheduleShortInfo => (
-                            <tr key={scheduleShortInfo.userId}>
-                                <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
-                                <td>
-                                    {scheduleShortInfo?.tasksInfoStrings.map((task, index) => {
-                                        const [taskName, days] = task.split(' (');
-                                        if (days) {
-                                            return (
-                                                <React.Fragment key={task}>
-                                                    {index !== 0 && ', '}
-                                                    <strong>{taskName}</strong> ({days}
-                                                </React.Fragment>
-                                            );
-                                        } else {
-                                            return (
-                                                <React.Fragment key={task}>
-                                                    {index !== 0 && ', '}
-                                                    <strong>{taskName}</strong>
-                                                </React.Fragment>
-                                            );
-                                        }
-                                    })}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}>
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                    </button>
                 </div>
-            </div>
+                <div className="collapse" id="collapseUsersSchedule">
+                    <div className="d-flex justify-content-center">
+                        <div className="table-responsive" style={{maxWidth: '600px'}}>
+                            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Brat</th>
+                                    <th>Oficjum</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {scheduleShortInfo.map(scheduleShortInfo => (
+                                    <tr key={scheduleShortInfo.userId}>
+                                        <td>{scheduleShortInfo.userName} {scheduleShortInfo.userSurname}</td>
+                                        <td>
+                                            {scheduleShortInfo?.tasksInfoStrings.map((task, index) => {
+                                                const [taskName, days] = task.split(' (');
+                                                if (days) {
+                                                    return (
+                                                        <React.Fragment key={task}>
+                                                            {index !== 0 && ', '}
+                                                            <strong>{taskName}</strong> ({days}
+                                                        </React.Fragment>
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <React.Fragment key={task}>
+                                                            {index !== 0 && ', '}
+                                                            <strong>{taskName}</strong>
+                                                        </React.Fragment>
+                                                    );
+                                                }
+                                            })}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
         )
     }
 
@@ -268,37 +296,51 @@ function SchedulePage() {
         if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '600px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Oficjum</th>
-                            <th>Bracia</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
-                            <tr key={scheduleShortInfoForTaskByRole.taskId}>
-                                <td>{scheduleShortInfoForTaskByRole.taskName}</td>
-                                <td>
-                                    {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => {
-                                        const [userName, tasks] = userInfoString.split(' (');
-                                        return (
-                                            <div key={index}>
-                                                <React.Fragment key={index}>
-                                                    <strong>{userName}</strong> ({tasks}
-                                                </React.Fragment>
-                                            </div>
-                                        );
-                                    })}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTasksScheduleByRole" aria-expanded="false" aria-controls="collapseTasksScheduleByRole" onClick={() => {changeTableState("collapseTasksScheduleByRole")}}
+                            disabled={selectedSupervisorRoleName == null}
+                    >
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
+                    </button>
                 </div>
-            </div>
+                <div className="collapse" id="collapseTasksScheduleByRole">
+                    <div className="d-flex justify-content-center">
+                        <div className="table-responsive" style={{maxWidth: '600px'}}>
+                            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Oficjum</th>
+                                    <th>Bracia</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {scheduleShortInfoForTasksByRoles.map(scheduleShortInfoForTaskByRole => (
+                                    <tr key={scheduleShortInfoForTaskByRole.taskId}>
+                                        <td>{scheduleShortInfoForTaskByRole.taskName}</td>
+                                        <td>
+                                            {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => {
+                                                const [userName, tasks] = userInfoString.split(' (');
+                                                return (
+                                                    <div key={index}>
+                                                        <React.Fragment key={index}>
+                                                            <strong>{userName}</strong> ({tasks}
+                                                        </React.Fragment>
+                                                    </div>
+                                                );
+                                            })}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
         )
     }
 
@@ -307,37 +349,50 @@ function SchedulePage() {
         if(errorFetchScheduleByTasks) return <AlertBox text={errorFetchScheduleByTasks} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '600px'}}>
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Oficjum</th>
-                            <th>Bracia</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
-                            <tr key={scheduleShortInfoForTask.taskId}>
-                                <td>{scheduleShortInfoForTask.taskName}</td>
-                                <td>
-                                    {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => {
-                                        const [userName, tasks] = userInfoString.split(' (');
-                                        return (
-                                            <div key={index}>
-                                                <React.Fragment key={index}>
-                                                    <strong>{userName}</strong> ({tasks}
-                                                </React.Fragment>
-                                            </div>
-                                        );
-                                    })}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTasksSchedule" aria-expanded="false" aria-controls="collapseTasksSchedule" onClick={() => {changeTableState("collapseTasksSchedule")}}
+                    >
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseTasksSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
+                    </button>
                 </div>
-            </div>
+                <div className="collapse" id="collapseTasksSchedule">
+                    <div className="d-flex justify-content-center">
+                        <div className="table-responsive" style={{maxWidth: '600px'}}>
+                            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Oficjum</th>
+                                    <th>Bracia</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {scheduleShortInfoForTasks.map(scheduleShortInfoForTask => (
+                                    <tr key={scheduleShortInfoForTask.taskId}>
+                                        <td>{scheduleShortInfoForTask.taskName}</td>
+                                        <td>
+                                            {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => {
+                                                const [userName, tasks] = userInfoString.split(' (');
+                                                return (
+                                                    <div key={index}>
+                                                        <React.Fragment key={index}>
+                                                            <strong>{userName}</strong> ({tasks}
+                                                        </React.Fragment>
+                                                    </div>
+                                                );
+                                            })}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
         )
     }
 

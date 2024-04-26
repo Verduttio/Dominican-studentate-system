@@ -12,7 +12,7 @@ import {endOfWeek, format, startOfWeek} from "date-fns";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import AlertBox from "../../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faChevronDown, faChevronUp} from "@fortawesome/free-solid-svg-icons";
 import PopupDatePicker from "../../specialDate/PopupDatePicker";
 import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
 
@@ -41,6 +41,21 @@ function SchedulePageByDays() {
     const [nonStandardEndDate, setNonStandardEndDate] = useState<Date>(new Date(midnight));
     const [nonStandardDateValidationError, setNonStandardDateValidationError] = useState<string | null>(null);
     const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
+    const [isTableOpened, setIsTableOpened] = useState<Map<string, boolean>>(new Map());
+
+    const changeTableState = (id: string) => {
+        setIsTableOpened(prevState => {
+            if (prevState.has(id)) {
+                const newState = new Map(prevState);
+                newState.set(id, !prevState.get(id));
+                return newState;
+            } else {
+                const newState = new Map(prevState);
+                newState.set(id, true);
+                return newState;
+            }
+        });
+    }
 
     useEffect(() => {
         fetchSchedule(null, (data) => {
@@ -204,41 +219,54 @@ function SchedulePageByDays() {
         if(error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex-no-media-resize justify-content-center">
-                <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Brat</th>
-                            {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort()
-                                .map(date => {
-                                    const day = new Date(date);
-                                    const englishDayOfWeek = daysOrder[day.getDay()];
-                                    const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
-
-                                    return (
-                                        <th className="column-width-100" key={date}>
-                                            {polishAbbreviation}<br/>
-                                            {format(date, 'dd.MM.yyyy')}
-                                        </th>
-                                    );
-                                })}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {usersSchedule.map(userScheduleDTO => (
-                            <tr key={userScheduleDTO.userShortInfo.id}>
-                                <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
-
-                                {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                    <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
-                                ))}
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}
+                    >
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                    </button>
                 </div>
-            </div>
+                <div className="collapse" id="collapseUsersSchedule">
+                    <div className="d-flex-no-media-resize justify-content-center">
+                        <div className="table-responsive-fit-content">
+                            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Brat</th>
+                                    {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort()
+                                        .map(date => {
+                                            const day = new Date(date);
+                                            const englishDayOfWeek = daysOrder[day.getDay()];
+                                            const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+
+                                            return (
+                                                <th className="column-width-100" key={date}>
+                                                    {polishAbbreviation}<br/>
+                                                    {format(date, 'dd.MM.yyyy')}
+                                                </th>
+                                            );
+                                        })}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {usersSchedule.map(userScheduleDTO => (
+                                    <tr key={userScheduleDTO.userShortInfo.id}>
+                                        <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
+
+                                        {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
+                                            <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
         )
     }
 
@@ -247,41 +275,55 @@ function SchedulePageByDays() {
         if (errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
 
         return (
-            <div className="d-flex-no-media-resize justify-content-center">
-                <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                        <thead className="table-dark">
-                        <tr>
-                            <th>Brat</th>
-                            {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort()
-                                .map(day => {
-                                    const date = new Date(day);
-                                    const englishDayOfWeek = daysOrder[date.getDay()];
-                                    const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
-
-                                    return (
-                                    <th className="column-width-100" key={day}>
-                                        {polishAbbreviation}<br/>
-                                        {format(day, 'dd.MM.yyyy')}
-                                    </th>
-                                    );
-                                })}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {usersScheduleByTaskSupervisorRole.map(userScheduleDTO => (
-                            <tr key={userScheduleDTO.userShortInfo.id}>
-                                <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
-
-                                {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                    <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
-                                ))}
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseUsersScheduleByTaskSupervisorRole" aria-expanded="false" aria-controls="collapseUsersScheduleByTaskSupervisorRole" onClick={() => {changeTableState("collapseUsersScheduleByTaskSupervisorRole")}}
+                            disabled={selectedSupervisorRoleName == null}
+                    >
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
+                    </button>
                 </div>
-            </div>
+                <div className="collapse" id="collapseUsersScheduleByTaskSupervisorRole">
+                    <div className="d-flex-no-media-resize justify-content-center">
+                        <div className="table-responsive-fit-content">
+                            <table className="table table-hover table-striped table-rounded table-shadow mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Brat</th>
+                                    {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort()
+                                        .map(day => {
+                                            const date = new Date(day);
+                                            const englishDayOfWeek = daysOrder[date.getDay()];
+                                            const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
+
+                                            return (
+                                            <th className="column-width-100" key={day}>
+                                                {polishAbbreviation}<br/>
+                                                {format(day, 'dd.MM.yyyy')}
+                                            </th>
+                                            );
+                                        })}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {usersScheduleByTaskSupervisorRole.map(userScheduleDTO => (
+                                    <tr key={userScheduleDTO.userShortInfo.id}>
+                                        <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
+
+                                        {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
+                                            <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
         )
     }
 
