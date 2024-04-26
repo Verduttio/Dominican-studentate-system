@@ -28,6 +28,10 @@ function AddScheduleRoleSelection() {
         return <LoadingSpinner/>;
     } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
+    if (currentUser?.roles.filter((role) => (role.type === "SUPERVISOR")).length === 0) {
+        return <AlertBox text={"Brak ról funkcyjnych"} type="info" width={'500px'} />;
+    }
+
     return (
         <div className="fade-in d-flex flex-column align-items-center" style={{minHeight: '80vh'}}>
             {currentUser?.roles.filter((role) => (role.type === "SUPERVISOR")).map((role) => (
