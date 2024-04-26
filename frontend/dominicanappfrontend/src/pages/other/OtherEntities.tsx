@@ -54,7 +54,7 @@ const OtherEntities = () => {
                 <div className="card-body text-center" onClick={() => {
                     navigate("/tasks")
                 }}>
-                    Zadania
+                    Oficja
                 </div>
             </div>
 
