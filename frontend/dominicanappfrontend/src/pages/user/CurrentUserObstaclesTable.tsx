@@ -6,6 +6,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
 import Pagination from "../../components/Pagination";
+import {useNavigate} from "react-router-dom";
 
 
 function CurrentUserObstaclesTable () {
@@ -13,9 +14,7 @@ function CurrentUserObstaclesTable () {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const pageSize = 10;
     const { error: userObstaclesError, loading: userObstaclesLoading, request: userObstaclesRequest } = useHttp();
-    const { error: deleteError, loading: deleteLoading, request: deleteRequest } = useHttp();
-    const [refreshData, setRefreshData] = useState<boolean>(false);
-    const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -23,14 +22,7 @@ function CurrentUserObstaclesTable () {
         const requestUrl = `${baseUrl}?page=${currentPage}&size=${pageSize}`;
         userObstaclesRequest(null, (data) => setObstaclePage({ content: data.content, totalPages: data.totalPages }), false, requestUrl, 'GET')
             .then(() => {});
-    }, [userObstaclesRequest, refreshData, pageSize, currentPage]);
-
-    const deleteObstacle = (obstacleId: number) => {
-        deleteRequest(null, () => {
-            setRefreshData(!refreshData);
-        }, false, `${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE')
-            .then(() => setShowConfirmationPopup(false));
-    }
+    }, [userObstaclesRequest, pageSize, currentPage]);
 
     if (userObstaclesLoading) return <LoadingSpinner/>;
     if (obstaclePage.content.length === 0) return <AlertBox text={"Brak przeszkód"} type="info" width={'500px'} />;
@@ -38,7 +30,6 @@ function CurrentUserObstaclesTable () {
 
     return (
         <>
-            {deleteError && <AlertBox text={deleteError} type="danger" width={'500px'}/>}
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '800px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
@@ -96,15 +87,12 @@ function CurrentUserObstaclesTable () {
                                     </span>
                                         </td>
                                         <td>
-                                            <button className="btn btn-danger" onClick={() => {
-                                                setShowConfirmationPopup(true)
-                                            }} disabled={deleteLoading}>Usuń
+                                            <button className="btn btn-dark" onClick={() => {
+                                                navigate(`/obstacles/my/${obstacle.id}`)
+                                            }}>Szczegóły
                                             </button>
                                         </td>
                                     </tr>
-                                    {showConfirmationPopup &&
-                                        <ConfirmDeletionPopup onClose={() => setShowConfirmationPopup(false)}
-                                                              onHandle={() => deleteObstacle(obstacle.id)}/>}
                                 </>
                             )
                         })}

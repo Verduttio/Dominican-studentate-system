@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
-import {Obstacle, ObstacleStatus, User} from "../../models/Interfaces";
+import {Obstacle, ObstacleStatus, obstacleStatusTranslation, User} from "../../models/Interfaces";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
 import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
@@ -94,7 +94,7 @@ function EditObstacle() {
                                         obstacle?.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
                                             obstacle?.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
                                 }>
-                                {obstacle?.status}
+                                {obstacleStatusTranslation[obstacle ? obstacle.status : ""]}
                               </span>
                             </td>
                         </tr>
