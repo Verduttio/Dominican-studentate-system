@@ -369,17 +369,17 @@ function SchedulePageByDays() {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-0">Harmonogram według braci</h4>
             </div>
-            {renderUsersSchedule()}
             {errorDownloadSchedulePdfForUsers &&
                 <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'}/>}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsers}
+                <button className="btn btn-success my-2" onClick={downloadSchedulePdfForUsers}
                         disabled={loadingDownloadSchedulePdfForUsers}>
                     <span>Pobierz harmonogram według braci </span>
                     {loadingDownloadSchedulePdfForUsers &&
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
+            {renderUsersSchedule()}
 
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według roli</h4>
@@ -392,17 +392,17 @@ function SchedulePageByDays() {
                     ))}
                 </select>
             </div>
-            {renderUsersScheduleByTaskSupervisorRole()}
             {errorDownloadSchedulePdfForUsersByTaskSupervisorRole &&
                 <AlertBox text={errorDownloadSchedulePdfForUsersByTaskSupervisorRole} type="danger" width={'500px'}/>}
             <div className="text-center">
-                <button className="btn btn-success mt-2" onClick={downloadSchedulePdfForUsersByTaskSupervisorRole}
+                <button className="btn btn-success my-2" onClick={downloadSchedulePdfForUsersByTaskSupervisorRole}
                         disabled={selectedSupervisorRoleName == null || loadingDownloadSchedulePdfForUsersByTaskSupervisorRole}>
                     <span>Pobierz harmonogram według roli względem dni tygodnia </span>
                     {loadingDownloadSchedulePdfForUsersByTaskSupervisorRole &&
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
+            {renderUsersScheduleByTaskSupervisorRole()}
         </div>
     );
 }

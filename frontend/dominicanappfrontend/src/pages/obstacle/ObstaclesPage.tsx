@@ -37,6 +37,10 @@ function ObstaclesPage () {
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
+                <button className="btn btn-success mb-3" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę
+                </button>
+            </div>
+            <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '900px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark">
@@ -112,10 +116,6 @@ function ObstaclesPage () {
                     totalPages={obstaclePage.totalPages}
                     onPageChange={(page) => setCurrentPage(page)}
                 />
-            </div>
-            <div className="d-flex justify-content-center">
-                <button className="btn btn-success m-1" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę
-                </button>
             </div>
         </div>
     );

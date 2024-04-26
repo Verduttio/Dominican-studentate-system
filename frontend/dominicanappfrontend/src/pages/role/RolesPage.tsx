@@ -34,6 +34,11 @@ function ViewRoles() {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
+            {isAdmin &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary mb-3" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
+                </div>
+            }
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '600px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
@@ -63,11 +68,6 @@ function ViewRoles() {
                     </table>
                 </div>
             </div>
-            {isAdmin &&
-                <div className="d-flex justify-content-center">
-                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
-                </div>
-            }
         </div>
     );
 }

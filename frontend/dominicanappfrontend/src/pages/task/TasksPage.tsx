@@ -32,6 +32,11 @@ function TasksPage () {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary mb-3" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
+                </div>
+            }
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '800px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
@@ -62,11 +67,6 @@ function TasksPage () {
                     </table>
                 </div>
             </div>
-            {isFunkcyjny &&
-                <div className="d-flex justify-content-center">
-                    <button className="btn btn-primary m-1" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
-                </div>
-            }
         </div>
     );
 }
