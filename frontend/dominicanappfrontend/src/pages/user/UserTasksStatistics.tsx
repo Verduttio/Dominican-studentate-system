@@ -27,20 +27,20 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
     if (errorFetchUserStatisticsForTasks) return <AlertBox text={errorFetchUserStatisticsForTasks} type={'danger'} width={'500px'}/>;
     return (
         <div className="fade-in d-flex justify-content-center">
-            <div className="table-responsive" style={{maxWidth: '600px'}}>
+            <div className="table-responsive" style={{maxWidth: '400px'}}>
                 <table className="table table-hover table-striped table-rounded table-shadow mb-0">
                     <thead className="table-dark">
                     <tr>
                         <th>Oficjum</th>
                         <th>Ostatnio wyznaczony</th>
-                        <th>Wyznaczony razy</th>
-                        <th>Wyznaczony łącznie</th>
+                        <th className="max-column-width-100">Wyznaczony razy od daty sys.</th>
+                        <th className="max-column-width-100">Wyznaczony łącznie</th>
                     </tr>
                     </thead>
                     <tbody>
                     {userStatisticsForTasks.map(userStatisticsForTask => (
                         <tr key={userStatisticsForTask.taskName}>
-                            <td>[{userStatisticsForTask.taskNameAbbrev}] {userStatisticsForTask.taskName}</td>
+                            <td>{userStatisticsForTask.taskNameAbbrev}</td>
                             <td>{userStatisticsForTask.lastAssigned}</td>
                             <td>{userStatisticsForTask.numberOfAssignsFromStatsDate}</td>
                             <td>{userStatisticsForTask.totalNumberOfAssigns}</td>
