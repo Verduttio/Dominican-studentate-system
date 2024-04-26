@@ -3,10 +3,10 @@ import {Obstacle, ObstacleStatus, obstacleStatusTranslation} from "../../models/
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
-import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
 import Pagination from "../../components/Pagination";
 import {useNavigate} from "react-router-dom";
+import {format} from "date-fns";
 
 
 function CurrentUserObstaclesTable () {
@@ -75,8 +75,8 @@ function CurrentUserObstaclesTable () {
                                     <tr key={obstacle.id}
                                         className={className}>
                                         <td className='max-column-width-200'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
-                                        <td>{obstacle.fromDate}</td>
-                                        <td>{obstacle.toDate}</td>
+                                        <td>{format(obstacle.fromDate, "dd.MM.yyyy")}</td>
+                                        <td>{format(obstacle.toDate, "dd.MM.yyyy")}</td>
                                         <td>
                                     <span className={
                                         obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :

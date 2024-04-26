@@ -4,6 +4,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import {UserTaskStatistics} from "../../models/Interfaces";
 import AlertBox from "../../components/AlertBox";
+import {format} from "date-fns";
 
 interface UserTasksStatisticsProps {
     userId: number;
@@ -41,7 +42,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                     {userStatisticsForTasks.map(userStatisticsForTask => (
                         <tr key={userStatisticsForTask.taskName}>
                             <td>{userStatisticsForTask.taskNameAbbrev}</td>
-                            <td>{userStatisticsForTask.lastAssigned}</td>
+                            <td>{format(userStatisticsForTask.lastAssigned, 'dd.MM.yyyy')}</td>
                             <td>{userStatisticsForTask.numberOfAssignsFromStatsDate}</td>
                             <td>{userStatisticsForTask.totalNumberOfAssigns}</td>
                         </tr>

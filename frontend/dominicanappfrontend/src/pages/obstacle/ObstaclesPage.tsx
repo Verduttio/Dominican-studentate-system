@@ -7,6 +7,7 @@ import LoadingSpinner from "../../components/LoadingScreen";
 import "./ObstaclesPage.css";
 import AlertBox from "../../components/AlertBox";
 import Pagination from "../../components/Pagination";
+import {format} from "date-fns";
 
 
 function ObstaclesPage () {
@@ -87,8 +88,8 @@ function ObstaclesPage () {
                                     className={className}>
                                     <td>{obstacle.user.name} {obstacle.user.surname}</td>
                                     <td className='max-column-width-300'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
-                                    <td>{obstacle.fromDate}</td>
-                                    <td>{obstacle.toDate}</td>
+                                    <td>{format(obstacle.fromDate, 'dd.MM.yyyy')}</td>
+                                    <td>{format(obstacle.toDate, 'dd.MM.yyyy')}</td>
                                     <td>
                                     <span className={
                                         obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :

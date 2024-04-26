@@ -7,6 +7,7 @@ import {Obstacle, ObstacleStatus, obstacleStatusTranslation, User} from "../../m
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
 import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import {format} from "date-fns";
 
 function EditObstacle() {
     const { obstacleId } = useParams();
@@ -76,11 +77,11 @@ function EditObstacle() {
                         </tr>
                         <tr>
                             <th className="table-dark">Od</th>
-                            <td>{obstacle?.fromDate}</td>
+                            <td>{format(obstacle ? obstacle.fromDate : "1.1.1970", 'dd.MM.yyyy')}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Do</th>
-                            <td>{obstacle?.toDate}</td>
+                            <td>{format(obstacle ? obstacle.toDate : "1.1.1970", 'dd.MM.yyyy')}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Opis</th>

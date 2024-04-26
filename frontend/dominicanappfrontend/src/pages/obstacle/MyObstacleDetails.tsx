@@ -1,12 +1,12 @@
 import {useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {Obstacle, ObstacleStatus, obstacleStatusTranslation, User} from "../../models/Interfaces";
+import {Obstacle, ObstacleStatus, obstacleStatusTranslation} from "../../models/Interfaces";
 import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
-import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import {format} from "date-fns";
 
 function MyObstacleDetails() {
     const { obstacleId } = useParams();
@@ -53,14 +53,14 @@ function MyObstacleDetails() {
                         </tr>
                         <tr>
                             <th className="table-dark">Od</th>
-                            <td>{obstacle?.fromDate}</td>
+                            <td>{format(obstacle ? obstacle.fromDate : "1.1.1970", 'dd.MM.yyyy')}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Do</th>
-                            <td>{obstacle?.toDate}</td>
+                            <td>{format(obstacle ? obstacle.toDate : "1.1.1970", 'dd.MM.yyyy')}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Opis</th>
+                        <th className="table-dark">Opis</th>
                             <td>{obstacle?.applicantDescription ? obstacle.applicantDescription : "-"}</td>
                         </tr>
                         <tr>
