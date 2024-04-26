@@ -80,8 +80,18 @@ public class ObstacleService {
     }
 
     public Obstacle getObstacleById(Long obstacleId) {
-        Obstacle obstacle =  obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
-        return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User currentUser = userDetails.getUser();
+
+        Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
+
+        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))
+                || currentUser.getId().equals(obstacle.getUser().getId())) {
+            return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
+        } else {
+            throw new AccessDeniedException("You are not allowed to delete this obstacle");
+        }
     }
 
     public void saveObstacle(ObstacleRequestDTO obstacleRequestDTO) {
