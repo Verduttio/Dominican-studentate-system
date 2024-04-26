@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import useHttp from '../../services/UseHttp';
+import useHttp from '../../../services/UseHttp';
 import {
     Role,
     UserSchedulesOnDaysDTO
-} from '../../models/Interfaces';
-import {backendUrl} from "../../utils/constants";
+} from '../../../models/Interfaces';
+import {backendUrl} from "../../../utils/constants";
 import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
-import WeekSelector from "../../components/WeekSelector";
+import WeekSelector from "../../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
-import LoadingSpinner from "../../components/LoadingScreen";
-import AlertBox from "../../components/AlertBox";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBox from "../../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
-import PopupDatePicker from "../specialDate/PopupDatePicker";
-import {daysOfWeekAbbreviation, daysOrder} from "../../models/DayOfWeek";
+import PopupDatePicker from "../../specialDate/PopupDatePicker";
+import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
 
 
 function SchedulePageByDays() {

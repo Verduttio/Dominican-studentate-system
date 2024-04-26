@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import LoadingSpinner from "../../components/LoadingScreen";
-import AlertBox from "../../components/AlertBox";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
-import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
-import {Role} from "../../models/Interfaces";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBox from "../../../components/AlertBox";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
+import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
+import {Role} from "../../../models/Interfaces";
 
 function AddScheduleRoleSelection() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();

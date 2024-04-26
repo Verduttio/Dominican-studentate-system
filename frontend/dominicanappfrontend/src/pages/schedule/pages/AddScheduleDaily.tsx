@@ -2,39 +2,38 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     Task,
     UserTasksScheduleInfoWeekly
-} from "../../models/Interfaces";
+} from "../../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
-import {backendUrl} from "../../utils/constants";
-import useHttp from "../../services/UseHttp";
-import {DateFormatter} from "../../utils/DateFormatter";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
-import LoadingSpinner from "../../components/LoadingScreen";
-import AlertBox from "../../components/AlertBox";
-import WeekSelector from "../../components/WeekSelector";
+import {backendUrl} from "../../../utils/constants";
+import useHttp from "../../../services/UseHttp";
+import {DateFormatter} from "../../../utils/DateFormatter";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBox from "../../../components/AlertBox";
 import {endOfWeek, format, startOfWeek} from "date-fns";
-import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
-import ButtonLegend from "./ButtonLegend";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
-import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
-import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
-function AddScheduleWeekly() {
-    const [currentWeek, setCurrentWeek] = useState(new Date());
-    const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
-    const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
-    const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
+import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
+import ButtonLegend from "../common/ButtonLegend";
+import DaySelector from "../../../components/DaySelector";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faArrowsRotate, faCircleXmark, faXmark} from '@fortawesome/free-solid-svg-icons';
+import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
+import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
+
+function AddScheduleDaily() {
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const currentDateRef = useRef(currentDate); // useRef to keep the value of currentDate in the closure of useEffect
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeekly[]>([]);
     const location = useLocation();
     const roleName = new URLSearchParams(location.search).get('roleName');
-    const fetchUrl = `${backendUrl}/api/schedules/task/${roleName}/all/schedule-info/weekly?from=${from}&to=${to}`;
+    const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
+    const fetchUrl = `${backendUrl}/api/schedules/task/${roleName}/all/schedule-info/daily?date=${format(currentDate, 'dd-MM-yyyy')}`;
     const { error: assignToTaskError, request: assignToTaskRequest, loading: assignToTaskLoading } = useHttp(
-        `${backendUrl}/api/schedules/forWholePeriod?ignoreConflicts=true`, 'POST');
+        `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST');
     const { error: unassignTaskError, request: unassignTaskRequest, loading: unassignTaskLoading } = useHttp(
-        `${backendUrl}/api/schedules/forWholePeriod`, 'DELETE');
+        `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
 
     const { request, error, loading } = useHttp(fetchUrl, 'GET');
     const { request: requestAllTasksByRole, error: errorAllTasksByRole, loading: loadingAllTasksByRole } = useHttp(`${backendUrl}/api/tasks/bySupervisorRole/${roleName}`, 'GET');
-    const dateFormatter = new DateFormatter("dd-MM-yyyy", "yyyy-MM-dd");
     const [tasks, setTasks] = useState<Task[] | null>(null);
     const [refreshData, setRefreshData] = useState(false);
     const [showConfirmAssignmentPopup, setShowConfirmAssignmentPopup] = useState(false);
@@ -43,9 +42,9 @@ function AddScheduleWeekly() {
     const [confirmAssignmentPopupText, setConfirmAssignmentPopupText] = useState("Czy na pewno chcesz przypisać użytkownika do zadania?");
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
     const navigate = useNavigate();
+    const {currentUser} = useGetOrCreateCurrentUser();
     const [userScheduleHistoryPopup, setUserScheduleHistoryPopup] = useState(false);
     const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
-    const {currentUser} = useGetOrCreateCurrentUser();
 
     function showUserScheduleHistoryPopup(userId: number) {
         setUserIdForScheduleHistoryPopup(userId);
@@ -56,16 +55,20 @@ function AddScheduleWeekly() {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
     }
 
+    const isRoleWeeklyScheduleCreatorDefault = (roleName: string | null) => {
+        return currentUser?.roles.filter((role) => (role.name === roleName))[0]?.weeklyScheduleCreatorDefault;
+    }
+
     useEffect(() => {
-        currentWeekRef.current = currentWeek; // keep the value of currentWeek up to date
+        currentDateRef.current = currentDate; // keep the value of currentDate up to date
 
         request(null, (data) => {
-            if (format(startOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === from &&
-                format(endOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === to) {
+            if (currentDateRef.current === currentDate) {
                 setUserDependencies(data);
+                console.log(data)
             }
         });
-    }, [request, refreshData, currentWeekRef, currentWeek, from, to]);
+    }, [request, refreshData, currentDateRef, currentDate]);
 
     useEffect(() => {
         requestAllTasksByRole(null, (data) => {
@@ -111,13 +114,17 @@ function AddScheduleWeekly() {
 
 
     function assignToTask(userId: number, taskId: number) {
-        if (taskId != null && from != null && to != null) {
+        if (taskId != null) {
+            const from = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+            const to = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+            const taskDate = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
 
             const requestData = {
                 userId: userId,
                 taskId: taskId,
-                fromDate: dateFormatter.formatDate(from),
-                toDate: dateFormatter.formatDate(to)
+                weekStartDate: from,
+                weekEndDate: to,
+                taskDate: taskDate
             };
 
             console.log(requestData);
@@ -125,24 +132,29 @@ function AddScheduleWeekly() {
             assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
                 .then(() => setShowConfirmAssignmentPopup(false));
         } else {
-            console.log("taskId, from or to is null")
+            console.log("taskId is null")
         }
     }
 
     function unassignTask(userId: number, taskId: number) {
-        if (taskId != null && from != null && to != null) {
+        if (taskId != null) {
+            const from = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+            const to = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+            const taskDate = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+
             const requestData = {
                 userId: userId,
                 taskId: taskId,
-                fromDate: dateFormatter.formatDate(from),
-                toDate: dateFormatter.formatDate(to)
+                weekStartDate: from,
+                weekEndDate: to,
+                taskDate: taskDate
             };
 
             console.log(requestData);
 
             unassignTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
         } else {
-            console.log("taskId, from or to is null")
+            console.log("taskId is null")
         }
     }
 
@@ -200,51 +212,62 @@ function AddScheduleWeekly() {
                                         }
                                     })}
                                 </td>
+
                                 {dep.userTasksScheduleInfo?.map(udep => (
-                                    <td>{udep.hasRoleForTheTask ? (
-                                            !udep.hasObstacle ? (
-                                                udep.assignedToTheTask ? (
-                                                    <button
-                                                        className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
-                                                        onClick={() => {
-                                                            unassignTask(dep.userId, udep.taskId)
-                                                        }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    <span
-                                                        className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </span>
-                                                    </button>
+                                    <>
+                                        {udep.visible ? (
+                                            <td>{udep.hasRoleForTheTask ? (
+                                                !udep.hasObstacle ? (
+                                                        udep.assignedToTheTask ? (
+                                                            <button
+                                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
+                                                                onClick={() => {
+                                                                    unassignTask(dep.userId, udep.taskId)
+                                                                }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                            <span
+                                                                className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
+                                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                                </span>
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
+                                                                onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                                                                disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                            </button>
+                                                        )
+                                                    ) : (udep.assignedToTheTask ? (
+                                                            <button className='btn btn-info'
+                                                                    onClick={() => {
+                                                                        unassignTask(dep.userId, udep.taskId)
+                                                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                            <span
+                                                                className='highlighted-text-conflict'>
+                                                                    {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                                </span>
+                                                            </button>
+                                                        ) : (
+                                                            <button className='btn btn-info'
+                                                                    disabled={true}>
+                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                            </button>
+                                                        )
+                                                    )
                                                 ) : (
-                                                    <button
-                                                        className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
-                                                        onClick={() => handleSubmit(dep.userId, udep.taskId)}
-                                                        disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                        {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                    <button className='btn btn-secondary' disabled={true}>
+                                                        <FontAwesomeIcon icon={faXmark}/>
                                                     </button>
-                                                )
-                                            ) : (udep.assignedToTheTask ? (
-                                                    <button className='btn btn-info'
-                                                            onClick={() => {
-                                                                unassignTask(dep.userId, udep.taskId)
-                                                            }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    <span
-                                                        className='highlighted-text-conflict'>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </span>
-                                                    </button>
-                                                ) : (
-                                                    <button className='btn btn-info'
-                                                            disabled={true}>
-                                                        {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                    </button>
-                                                )
-                                            )
-                                        ): (
-                                            <button className='btn btn-info' disabled={true}>
-                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                            </button>
+                                            )}
+                                            </td>
+                                        ) : (
+                                            <td>
+                                                <button className="btn btn-secondary" disabled={true}>
+                                                    <FontAwesomeIcon icon={faCircleXmark}/>
+                                                </button>
+                                            </td>
                                         )}
-                                    </td>
+                                    </>
                                 ))}
                             </tr>
                         ))}
@@ -259,25 +282,36 @@ function AddScheduleWeekly() {
         <div className="fade-in">
             <h3 className="fw-bold entity-header-dynamic-size mb-0 mx-4">Oficja - {roleName}</h3>
             <ButtonLegend/>
+            {isRoleWeeklyScheduleCreatorDefault(roleName) && (
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-secondary mt-3" onClick={() => {
+                        navigate(`/add-schedule/weekly?roleName=${roleName}`);
+                    }}>
+                        <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
+                        Przełącz na kreator tygodniowy
+                    </button>
+                </div>
+            )}
             <div className={"d-flex justify-content-center"}>
                 <button className="btn btn-secondary mt-3" onClick={() => {
-                    navigate(`/add-schedule/daily?roleName=${roleName}`);
+                    navigate(`/add-schedule/weekly/by-all-days/?roleName=${roleName}`);
                 }}>
                     <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
-                    Przełącz na kreator dzienny
+                    Przełącz na kreator z dniami tygodnia
                 </button>
             </div>
-            <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            <DaySelector currentDate={currentDate} setCurrentDate={setCurrentDate}/>
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
-                onClose={() => {setUserScheduleHistoryPopup(false)}}
+                onClose={() => {
+                    setUserScheduleHistoryPopup(false)
+                }}
                 userId={userIdForScheduleHistoryPopup}
                 userName={currentUser?.name + " " + currentUser?.surname}
-                date={from}
-                weeks={5}
-            />}
+                date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
+                weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup
                 onHandle={() => {
                     assignToTask(userIdAssignPopupData, taskIdAssignPopupData)
@@ -291,4 +325,4 @@ function AddScheduleWeekly() {
     )
 }
 
-export default AddScheduleWeekly
+export default AddScheduleDaily;

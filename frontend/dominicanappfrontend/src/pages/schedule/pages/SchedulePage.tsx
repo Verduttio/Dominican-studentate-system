@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import useHttp from '../../services/UseHttp';
-import {Role, ScheduleShortInfo, ScheduleShortInfoForTask} from '../../models/Interfaces';
-import {backendUrl} from "../../utils/constants";
+import useHttp from '../../../services/UseHttp';
+import {Role, ScheduleShortInfo, ScheduleShortInfoForTask} from '../../../models/Interfaces';
+import {backendUrl} from "../../../utils/constants";
 import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
-import WeekSelector from "../../components/WeekSelector";
+import WeekSelector from "../../../components/WeekSelector";
 import {endOfWeek, format, startOfWeek} from "date-fns";
-import LoadingSpinner from "../../components/LoadingScreen";
-import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
-import AlertBox from "../../components/AlertBox";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import useIsFunkcyjny from "../../../services/UseIsFunkcyjny";
+import AlertBox from "../../../components/AlertBox";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate, faRightToBracket} from "@fortawesome/free-solid-svg-icons";
-import PopupDatePicker from "../specialDate/PopupDatePicker";
+import PopupDatePicker from "../../specialDate/PopupDatePicker";
 
 
 function SchedulePage() {

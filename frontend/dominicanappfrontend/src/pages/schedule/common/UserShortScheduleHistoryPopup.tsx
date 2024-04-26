@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
-import useHttp from "../../services/UseHttp";
-import {backendUrl} from "../../utils/constants";
-import LoadingSpinner from "../../components/LoadingScreen";
-import AlertBox from "../../components/AlertBox";
+import useHttp from "../../../services/UseHttp";
+import {backendUrl} from "../../../utils/constants";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBox from "../../../components/AlertBox";
 
 interface UserShortScheduleHistoryPopupProps {
     userId: number;

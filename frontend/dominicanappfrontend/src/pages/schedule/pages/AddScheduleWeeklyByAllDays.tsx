@@ -2,24 +2,24 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     Task,
     UserTasksScheduleInfoWeeklyByAllDays
-} from "../../models/Interfaces";
+} from "../../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
-import {backendUrl} from "../../utils/constants";
-import useHttp from "../../services/UseHttp";
-import {DateFormatter} from "../../utils/DateFormatter";
-import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsFunkcyjny";
-import LoadingSpinner from "../../components/LoadingScreen";
-import AlertBox from "../../components/AlertBox";
+import {backendUrl} from "../../../utils/constants";
+import useHttp from "../../../services/UseHttp";
+import {DateFormatter} from "../../../utils/DateFormatter";
+import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBox from "../../../components/AlertBox";
 import {endOfWeek, format, startOfWeek} from "date-fns";
-import ConfirmAssignmentPopup from "./ConfirmAssignmentPopup";
-import ButtonLegend from "./ButtonLegend";
+import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
+import ButtonLegend from "../common/ButtonLegend";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faArrowsRotate, faRectangleXmark} from '@fortawesome/free-solid-svg-icons';
-import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
-import UserShortScheduleHistoryPopup from "./UserShortScheduleHistoryPopup";
-import WeekSelector from "../../components/WeekSelector";
-import {daysOfWeekAbbreviation, daysOrder} from "../../models/DayOfWeek";
-import "./AddScheduleWeeklyByAllDays.css";
+import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
+import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
+import WeekSelector from "../../../components/WeekSelector";
+import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
+import "../common/AddScheduleWeeklyByAllDays.css";
 
 interface ExpandedSelects {
     [key: string]: boolean;

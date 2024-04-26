@@ -1,5 +1,5 @@
 import React from 'react';
-import "../../components/Popup.css";
+import "../../../components/Popup.css";
 
 interface ConfirmAssignmentPopupProps {
     onHandle: () => void;
