@@ -11,7 +11,7 @@ import AlertBox from "../../components/AlertBox";
 function TasksPage () {
     const [tasks, setTasks] = useState<Task[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
-    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyError } = useIsAdmin();
+    const { isFunkcyjny} = useIsAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -38,29 +38,28 @@ function TasksPage () {
                 </div>
             }
             <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '800px'}}>
+                <div className="table-responsive" style={{maxWidth: '400px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">
                         <tr>
                             <th>Nazwa</th>
-                            <th>Limit uczestników</th>
-                            <th>Dozwolone role</th>
-                            <th>Wyznaczający</th>
-                            {isFunkcyjny && <th>Edytuj</th>}
+                            <th>Akcja</th>
                         </tr>
                         </thead>
                         <tbody>
                         {tasks.map(task => (
                             <tr key={task.id}>
                                 <td>[{task.nameAbbrev}] {task.name}</td>
-                                <td>{task.participantsLimit}</td>
-                                <td className="max-column-width">{task.allowedRoles.map(role => role.name).join(', ')}</td>
-                                <td className="max-column-width">{task.supervisorRole?.name}</td>
-                                {isFunkcyjny &&
+                                {isFunkcyjny ? (
                                     <td>
                                         <button className="btn btn-primary" onClick={() => navigate(`/edit-task/${task.id}/`)}>Edytuj</button>
                                     </td>
-                                }
+                                ) : (
+                                    <td>
+                                        <button className="btn btn-dark" onClick={() => navigate(`/tasks/details/${task.id}/`)}>Szczegóły</button>
+                                    </td>
+
+                                )}
                             </tr>
                         ))}
                         </tbody>

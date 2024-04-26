@@ -36,6 +36,7 @@ import NonStandardPdfPrinterPage from "./pages/schedule/pages/NonStandardPdfPrin
 import AddScheduleWeeklyByAllDays from "./pages/schedule/pages/AddScheduleWeeklyByAllDays";
 import SchedulePageByDays from "./pages/schedule/pages/SchedulePageByDays";
 import MyObstacleDetails from "./pages/obstacle/MyObstacleDetails";
+import TaskDetails from "./pages/task/TaskDetails";
 
 const AppContent = () => {
     const location = useLocation();
@@ -54,6 +55,7 @@ const AppContent = () => {
                     <Route path="/loginForm" Component={Login}/>
                     <Route path="/register" Component={Register}/>
                     <Route path="/tasks" Component={TasksPage}/>
+                    <Route path="/tasks/details/:taskId" Component={TaskDetails}/>
                     <Route path="/add-task" Component={AddTask}/>
                     <Route path="/edit-task/:taskId" Component={EditTask}/>
                     <Route path="/obstacles" Component={ObstaclesPage}/>

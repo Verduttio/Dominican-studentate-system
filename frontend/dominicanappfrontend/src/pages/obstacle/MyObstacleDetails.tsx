@@ -32,7 +32,7 @@ function MyObstacleDetails() {
     return (
         <div className="fade-in">
             <div className="page-header">
-                <h1>Szczegóły przeszkody</h1>
+                <h2 className="entity-header-dynamic-size">Szczegóły przeszkody</h2>
             </div>
             {deleteError && <AlertBox text={deleteError} type={'danger'} width={'500px'}/>}
             <div className="table-responsive d-flex justify-content-center">
