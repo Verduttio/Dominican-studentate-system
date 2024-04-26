@@ -42,7 +42,7 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
                     {userStatisticsForTasks.map(userStatisticsForTask => (
                         <tr key={userStatisticsForTask.taskName}>
                             <td>{userStatisticsForTask.taskNameAbbrev}</td>
-                            <td>{format(userStatisticsForTask.lastAssigned, 'dd.MM.yyyy')}</td>
+                            {userStatisticsForTask.lastAssigned ? <td>{format(userStatisticsForTask.lastAssigned, 'dd.MM.yyyy')}</td> : <td>Brak</td>}
                             <td>{userStatisticsForTask.numberOfAssignsFromStatsDate}</td>
                             <td>{userStatisticsForTask.totalNumberOfAssigns}</td>
                         </tr>
