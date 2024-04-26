@@ -40,7 +40,7 @@ function CurrentUserObstaclesTable () {
         <>
             {deleteError && <AlertBox text={deleteError} type="danger" width={'500px'}/>}
             <div className="d-flex justify-content-center">
-                <div className="table-responsive" style={{maxWidth: '900px'}}>
+                <div className="table-responsive" style={{maxWidth: '800px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark">
                         <tr>
@@ -83,7 +83,7 @@ function CurrentUserObstaclesTable () {
                                 <>
                                     <tr key={obstacle.id}
                                         className={className}>
-                                        <td className='max-column-width-300'>{obstacle.tasks.map(task => task.name).join(", ")}</td>
+                                        <td className='max-column-width-200'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
                                         <td>{obstacle.fromDate}</td>
                                         <td>{obstacle.toDate}</td>
                                         <td>

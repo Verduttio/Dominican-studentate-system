@@ -86,7 +86,7 @@ function ObstaclesPage () {
                                 <tr key={obstacle.id}
                                     className={className}>
                                     <td>{obstacle.user.name} {obstacle.user.surname}</td>
-                                    <td className='max-column-width-300'>{obstacle.tasks.map(task => task.name).join(", ")}</td>
+                                    <td className='max-column-width-300'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
                                     <td>{obstacle.fromDate}</td>
                                     <td>{obstacle.toDate}</td>
                                     <td>

@@ -184,6 +184,7 @@ interface UserShortInfo {
 interface TaskShortInfo {
     id: number;
     name: string;
+    nameAbbrev: string;
 }
 
 interface UserTaskStatistics {

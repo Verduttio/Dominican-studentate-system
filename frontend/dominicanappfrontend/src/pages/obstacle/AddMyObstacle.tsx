@@ -126,7 +126,7 @@ function AddMyObstacle() {
                             <select className="form-select" onChange={handleTaskChange}>
                                     <option value="">Wybierz oficjum</option>
                                     {tasks.map(task => (
-                                        <option key={task.id} value={task.id}>{task.name}</option>
+                                        <option key={task.id} value={task.id}>{task.nameAbbrev}</option>
                                     ))}
                                 </select>
                                 <div className="selected-tasks">
@@ -136,7 +136,7 @@ function AddMyObstacle() {
                                             <div className="pt-2">
                                                 <button className="btn btn-secondary p-1" type="button"
                                                         onClick={() => handleRemoveTask(taskId)}>
-                                                    {task ? task.name : 'Nieznane oficjum'} <FontAwesomeIcon
+                                                    {task ? task.nameAbbrev : 'Nieznane oficjum'} <FontAwesomeIcon
                                                     icon={faRectangleXmark}/>
                                                 </button>
                                             </div>

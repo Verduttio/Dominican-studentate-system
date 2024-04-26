@@ -71,8 +71,8 @@ function EditObstacle() {
                             <td>{obstacle?.user.name} {obstacle?.user.surname}</td>
                         </tr>
                         <tr>
-                            <th className="table-dark">Oficjum</th>
-                            <td>{obstacle?.tasks.map(task => task.name).join(", ")}</td>
+                            <th className="table-dark">Oficja</th>
+                            <td>{obstacle?.tasks.map(task => task.nameAbbrev).join(", ")}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Od</th>
