@@ -486,6 +486,7 @@ function SchedulePage() {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size my-2">Harmonogram według braci</h4>
             </div>
+            {renderUsersSchedule()}
             {errorDownloadSchedulePdfForUsers &&
                 <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'}/>}
             <div className="text-center">
@@ -496,7 +497,6 @@ function SchedulePage() {
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
-            {renderUsersSchedule()}
 
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według roli</h4>
@@ -509,6 +509,7 @@ function SchedulePage() {
                     ))}
                 </select>
             </div>
+            {renderTasksScheduleByRole()}
             {errorDownloadSchedulePdfForTasksByRole &&
                 <AlertBox text={errorDownloadSchedulePdfForTasksByRole} type="danger" width={'500px'}/>}
             <div className="text-center">
@@ -519,11 +520,11 @@ function SchedulePage() {
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
-            {renderTasksScheduleByRole()}
 
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich zadań</h4>
             </div>
+            {renderTasksSchedule()}
             {errorDownloadSchedulePdfForTasks &&
                 <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width={'500px'}/>}
             <div className="text-center">
@@ -534,7 +535,6 @@ function SchedulePage() {
                         <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
-            {renderTasksSchedule()}
         </div>
     );
 }
