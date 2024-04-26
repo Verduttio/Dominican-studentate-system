@@ -49,12 +49,12 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({ taskData, handleChange,
                 />
             </div>
             <div className="mb-3">
-                <label className="form-label">Role potrzebne do wykonania oficjum:</label>
+                <label className="form-label">Kto może wykonać oficjum:</label>
                 <RoleCheckboxList roles={rolesTaskPerformer} selectedRoles={taskData.allowedRoleNames}
                                   onRoleChange={handleRoleChange}/>
             </div>
             <div className="mb-3">
-                <label className="form-label">Kto może wyznaczyć do tego oficjum:</label>
+                <label className="form-label">Kto może wyznaczyć do oficjum:</label>
                 <select
                     id="supervisorRoleName"
                     name="supervisorRoleName"
