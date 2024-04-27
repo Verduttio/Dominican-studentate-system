@@ -31,12 +31,6 @@ public class ObstacleController {
         this.obstacleService = obstacleService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Obstacle>> getAllObstacles() {
-        List<Obstacle> obstacles = obstacleService.getAllObstacles();
-        return new ResponseEntity<>(obstacles, HttpStatus.OK);
-    }
-
     @GetMapping("/pageable")
     public ResponseEntity<Page<Obstacle>> getAllObstacles(Pageable pageable) {
         Page<Obstacle> obstacles = obstacleService.getAllObstacles(pageable);
@@ -50,18 +44,6 @@ public class ObstacleController {
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @GetMapping("/task/{taskId}")
-    public ResponseEntity<?> getAllObstaclesByTaskId(@PathVariable Long taskId) {
-        List<Obstacle> obstacles;
-        try {
-            obstacles = obstacleService.getAllObstaclesByTaskId(taskId);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(obstacles, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}")
