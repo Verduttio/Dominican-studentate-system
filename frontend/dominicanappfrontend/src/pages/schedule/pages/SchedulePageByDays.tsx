@@ -225,7 +225,7 @@ function SchedulePageByDays() {
                             data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
@@ -282,7 +282,7 @@ function SchedulePageByDays() {
                             disabled={selectedSupervisorRoleName == null}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        {isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? " Ukryj harmonogram " : " Rozwiń "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>

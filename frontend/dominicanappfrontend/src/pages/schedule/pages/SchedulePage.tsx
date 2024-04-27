@@ -242,7 +242,7 @@ function SchedulePage() {
                     <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}>
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
@@ -303,7 +303,7 @@ function SchedulePage() {
                             disabled={selectedSupervisorRoleName == null}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Rozwiń "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
@@ -355,7 +355,7 @@ function SchedulePage() {
                             data-bs-target="#collapseTasksSchedule" aria-expanded="false" aria-controls="collapseTasksSchedule" onClick={() => {changeTableState("collapseTasksSchedule")}}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseTasksSchedule") ? " Ukryj harmonogram " : " Pokaż harmonogram "}
+                        {isTableOpened.get("collapseTasksSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
