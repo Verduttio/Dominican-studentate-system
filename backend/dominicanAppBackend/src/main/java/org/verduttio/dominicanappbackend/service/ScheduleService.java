@@ -209,7 +209,8 @@ public class ScheduleService {
 
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
-        boolean isConflict = checkIfTaskIsInConflictWithOtherTasksFromSchedule(taskId, userSchedulesForWeek);
+        List<LocalDate> feastDates = specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).stream().map(SpecialDate::getDate).toList();
+        boolean isConflict = checkIfTaskIsInConflictWithOtherTasksFromSchedule(taskId, userSchedulesForWeek, feastDates);
 
         boolean hasObstacleForTaskOnWeek = checkIfUserHasValidApprovedObstacleForTaskBetweenDate(from, to, userId, taskId);
 
@@ -247,7 +248,8 @@ public class ScheduleService {
 
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
 
-        Set<DayOfWeek> isConflict = getDaysWhenTaskIsInConflictWithOther(taskId, userSchedulesForWeek);
+        List<LocalDate> feastDates = specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).stream().map(SpecialDate::getDate).collect(Collectors.toList());
+        Set<DayOfWeek> isConflict = getDaysWhenTaskIsInConflictWithOther(taskId, userSchedulesForWeek, feastDates);
 
         Set<LocalDate> userApprovedObstacleForTaskInWeek = getUserApprovedObstacleForTask(from, to, userId, taskId);
         Set<DayOfWeek> hasObstacle = new HashSet<>();
@@ -477,15 +479,16 @@ public class ScheduleService {
         return false;
     }
 
-    private boolean checkIfTaskIsInConflictWithOtherTasksFromSchedule(Long taskId, List<Schedule> schedules) {
-        return !getDaysWhenTaskIsInConflictWithOther(taskId, schedules).isEmpty();
+    private boolean checkIfTaskIsInConflictWithOtherTasksFromSchedule(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates) {
+        return !getDaysWhenTaskIsInConflictWithOther(taskId, schedules, feastDates).isEmpty();
     }
 
-    public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules) {
+    public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates) {
         Set<DayOfWeek> daysWhenTaskIsInConflict = new HashSet<>();
+        List<Conflict> taskConflicts = conflictService.findAllByTaskId(taskId);
         for(Schedule schedule : schedules) {
-            boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, schedule.getDate());
-            if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId(), schedule.getDate().getDayOfWeek(), isFeastDate)) {
+            boolean isFeastDate = feastDates.contains(schedule.getDate());
+            if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId(), taskConflicts, schedule.getDate().getDayOfWeek(), isFeastDate)) {
                 daysWhenTaskIsInConflict.add(schedule.getDate().getDayOfWeek());
             }
         }

@@ -8,7 +8,6 @@ import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.validation.ConflictValidator;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +57,20 @@ public class ConflictService {
         } else {
             return conflictRepository.existsByTaskIdsAndDayOfWeek(task1Id, task2Id, dayOfWeek);
         }
+    }
+
+    public boolean tasksAreInConflict(Long task1Id, Long task2Id, List<Conflict> conflicts, DayOfWeek dayOfWeek, boolean isFeastDay) {
+        if (isFeastDay) {
+            return tasksAreInConflictOnDay(task1Id, task2Id, conflicts, DayOfWeek.SUNDAY);
+        } else {
+            return tasksAreInConflictOnDay(task1Id, task2Id, conflicts, dayOfWeek);
+        }
+    }
+
+    private boolean tasksAreInConflictOnDay(Long task1Id, Long task2Id, List<Conflict> conflicts, DayOfWeek dayOfWeek) {
+        return conflicts.stream()
+                .anyMatch(conflict -> ((conflict.getTask1().getId().equals(task1Id) && conflict.getTask2().getId().equals(task2Id)) || (conflict.getTask1().getId().equals(task2Id) && conflict.getTask2().getId().equals(task1Id)))
+                        && conflict.getDaysOfWeek().contains(dayOfWeek));
     }
 
     public void updateConflict(Long conflictId, ConflictDTO updatedConflictDTO) {

@@ -14,4 +14,5 @@ public interface SpecialDateRepository extends JpaRepository<SpecialDate, Long>{
     boolean existsByTypeAndDateBetween(SpecialDateType type, LocalDate from, LocalDate to);
     List<SpecialDate> findByType(SpecialDateType type);
     Page<SpecialDate> findByType(SpecialDateType type, Pageable pageable);
+    List<SpecialDate> findByTypeAndDateBetween(SpecialDateType type, LocalDate date, LocalDate date2);
 }
