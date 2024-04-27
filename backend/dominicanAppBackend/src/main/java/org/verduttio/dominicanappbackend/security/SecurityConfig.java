@@ -145,12 +145,12 @@ public class SecurityConfig {
 
     @Bean
     public ApiAuthAuthenticationSuccessHandler apiAuthAuthenticationSuccessHandler() {
-        return new ApiAuthAuthenticationSuccessHandler();
+        return new ApiAuthAuthenticationSuccessHandler(userRepository);
     }
 
     @Bean
     public ApiAuthAuthenticationFailureHandler apiAuthAuthenticationFailureHandler() {
-        return new ApiAuthAuthenticationFailureHandler();
+        return new ApiAuthAuthenticationFailureHandler(userRepository);
     }
 
     @Bean

@@ -105,13 +105,15 @@ CREATE TABLE user_roles
 
 CREATE TABLE users
 (
-    id         BIGINT                NOT NULL,
-    email      VARCHAR(255),
-    password   VARCHAR(255),
-    name       VARCHAR(255),
-    surname    VARCHAR(255),
-    provider   VARCHAR(255),
-    is_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    id                    BIGINT                NOT NULL,
+    email                 VARCHAR(255),
+    password              VARCHAR(255),
+    name                  VARCHAR(255),
+    surname               VARCHAR(255),
+    provider              VARCHAR(255),
+    is_enabled            BOOLEAN DEFAULT FALSE NOT NULL,
+    failed_login_attempts INTEGER DEFAULT 0     NOT NULL,
+    lock_time             TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_users PRIMARY KEY (id)
 );
 

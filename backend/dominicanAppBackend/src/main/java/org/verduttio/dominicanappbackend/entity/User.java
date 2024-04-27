@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,8 +42,16 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
+    @JsonIgnore
     @Column(name = "is_enabled", nullable = false, columnDefinition = "boolean default false")
     private boolean isEnabled;
+
+    @Column(name = "failed_login_attempts", nullable = false, columnDefinition = "int default 0")
+    private int failedLoginAttempts;
+
+    @JsonIgnore
+    private LocalDateTime lockTime;
+
 
 
     // Getters and setters
@@ -119,7 +128,7 @@ public class User implements Serializable {
 
     public User(String email, String password, Set<Role> roles,
                 String name, String surname, AuthProvider provider,
-                boolean isEnabled) {
+                boolean isEnabled, int failedLoginAttempts, LocalDateTime lockTime) {
         this.email = email;
         this.password = password;
         this.roles = roles;
@@ -127,6 +136,8 @@ public class User implements Serializable {
         this.surname = surname;
         this.provider = provider;
         this.isEnabled = isEnabled;
+        this.failedLoginAttempts = failedLoginAttempts;
+        this.lockTime = lockTime;
     }
 
     @Override
@@ -139,5 +150,21 @@ public class User implements Serializable {
     @Override
     public int hashCode() {
         return email.hashCode();
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getLockTime() {
+        return lockTime;
+    }
+
+    public void setLockTime(LocalDateTime lockTime) {
+        this.lockTime = lockTime;
     }
 }

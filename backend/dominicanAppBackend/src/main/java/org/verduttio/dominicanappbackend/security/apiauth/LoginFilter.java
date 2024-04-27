@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,6 +20,7 @@ import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.exception.ApiAuthAuthenticationProcessingException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
@@ -43,6 +45,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
         LoginRequest loginRequest = mapper.readValue(request.getInputStream(), LoginRequest.class);
+        request.setAttribute("username", loginRequest.getEmail());
 
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
         User user;
@@ -53,6 +56,16 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
                         user.getProvider() + " account. Please use your " + user.getProvider() +
                         " account to login.");
             }
+
+            if (user.getLockTime() != null && user.getLockTime().isAfter(LocalDateTime.now().minusMinutes(Configuration.LOCK_ACCOUNT_DURATION_MINUTES))) {
+                throw new LockedException("User account is locked due to too many failed attempts. Please try again later.");
+            }
+            if (user.getLockTime() != null && user.getLockTime().isBefore(LocalDateTime.now())) {
+                user.setFailedLoginAttempts(0);
+                user.setLockTime(null);
+                userRepository.save(user);
+            }
+
         }
 
         UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.getEmail(),
