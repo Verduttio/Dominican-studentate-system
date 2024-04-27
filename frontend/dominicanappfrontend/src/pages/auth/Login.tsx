@@ -53,10 +53,13 @@ function Login () {
             if (axios.isAxiosError(error)) {
                 const serverError = error as AxiosError<{ message?: string }>;
                 if (serverError.response) {
+                    console.log(serverError.response);
+                    console.log(serverError.response.data);
+                    console.log(serverError.response.data.message);
                     if (serverError.response.status === 401) {
-                        setErrorMessage(serverError.response.data.message || 'Nieprawidłowy login lub hasło');
+                        setErrorMessage(`${serverError.response.data || 'Niepoprawne dane logowania'}`);
                     } else {
-                        setErrorMessage(`Wystąpił nieznany błąd podczas logowania: ${serverError.response.data.message || 'Spróbuj ponownie później.'}`);
+                        setErrorMessage(`Wystąpił nieznany błąd podczas logowania: ${serverError.response.data || 'Spróbuj ponownie później.'}`);
                     }
                 } else {
                     setErrorMessage('Nie udało się połączyć z serwerem. Spróbuj ponownie później.');
