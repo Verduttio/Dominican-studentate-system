@@ -991,7 +991,7 @@ public class ScheduleService {
             userTaskScheduleInfo.setVisible(false);
         } else {
             userTaskScheduleInfo.setVisible(true);
-            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, from, to);
+            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to);
 
 
             if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
@@ -1012,7 +1012,7 @@ public class ScheduleService {
         return userTaskScheduleInfo;
     }
 
-    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, LocalDate from, LocalDate to) {
+    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to) {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
 
@@ -1025,7 +1025,7 @@ public class ScheduleService {
 
         List<Conflict> taskConflicts = conflictService.findAllByTaskId(taskId);
         boolean isInConflict = scheduleRepository.findByUserIdAndDate(userId, date).stream()
-                .anyMatch(s -> conflictService.tasksAreInConflict(taskId, s.getTask().getId(), taskConflicts, date.getDayOfWeek(), specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date)));
+                .anyMatch(s -> conflictService.tasksAreInConflict(taskId, s.getTask().getId(), taskConflicts, date.getDayOfWeek(), isFeastDate));
 
         boolean hasObstacle = !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, date).isEmpty();
 
