@@ -13,6 +13,7 @@ import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundExcepti
 import org.verduttio.dominicanappbackend.service.exception.SameTasksForConflictException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/conflicts")
@@ -29,6 +30,13 @@ public class ConflictController {
     public ResponseEntity<List<Conflict>> getAllConflicts() {
         List<Conflict> conflicts = conflictService.getAllConflicts();
         return new ResponseEntity<>(conflicts, HttpStatus.OK);
+    }
+
+    @GetMapping("/{conflictId}")
+    public ResponseEntity<Conflict> getConflictById(@PathVariable Long conflictId) {
+        Optional<Conflict> conflict = conflictService.getConflictById(conflictId);
+        return conflict.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
