@@ -324,13 +324,21 @@ function SchedulePage() {
                                         <td>
                                             {scheduleShortInfoForTaskByRole.usersInfoStrings.map((userInfoString, index) => {
                                                 const [userName, tasks] = userInfoString.split(' (');
-                                                return (
-                                                    <div key={index}>
-                                                        <React.Fragment key={index}>
+                                                if (tasks) {
+                                                    return (
+                                                        <React.Fragment key={tasks}>
+                                                            {index !== 0 && ', '}
                                                             <strong>{userName}</strong> ({tasks}
                                                         </React.Fragment>
-                                                    </div>
-                                                );
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <React.Fragment key={tasks}>
+                                                            {index !== 0 && ', '}
+                                                            <strong>{userName}</strong>
+                                                        </React.Fragment>
+                                                    );
+                                                }
                                             })}
                                         </td>
                                     </tr>
@@ -376,13 +384,21 @@ function SchedulePage() {
                                         <td>
                                             {scheduleShortInfoForTask.usersInfoStrings.map((userInfoString, index) => {
                                                 const [userName, tasks] = userInfoString.split(' (');
-                                                return (
-                                                    <div key={index}>
-                                                        <React.Fragment key={index}>
+                                                if (tasks) {
+                                                    return (
+                                                        <React.Fragment key={tasks}>
+                                                            {index !== 0 && ', '}
                                                             <strong>{userName}</strong> ({tasks}
                                                         </React.Fragment>
-                                                    </div>
-                                                );
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <React.Fragment key={tasks}>
+                                                            {index !== 0 && ', '}
+                                                            <strong>{userName}</strong>
+                                                        </React.Fragment>
+                                                    );
+                                                }
                                             })}
                                         </td>
                                     </tr>
