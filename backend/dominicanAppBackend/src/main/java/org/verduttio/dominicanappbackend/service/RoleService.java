@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
+import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
+import org.verduttio.dominicanappbackend.security.UserSessionService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.SensitiveEntityException;
@@ -19,12 +21,14 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final UserSessionService userSessionService;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository, TaskRepository taskRepository, UserRepository userRepository) {
+    public RoleService(RoleRepository roleRepository, TaskRepository taskRepository, UserRepository userRepository, UserSessionService userSessionService) {
         this.roleRepository = roleRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.userSessionService = userSessionService;
     }
 
     public List<Role> getAllRoles() {
@@ -73,9 +77,14 @@ public class RoleService {
         Role role = roleRepository.findById(roleId).orElseThrow(
                 () -> new EntityNotFoundException("Role with given id does not exist"));
 
-        List<String> sensitiveRoleNames = Arrays.asList("ROLE_USER", "ROLE_FUNKCYJNY");
+        List<String> sensitiveRoleNames = Arrays.asList("ROLE_USER", "ROLE_FUNKCYJNY", "ROLE_ADMIN");
         if(sensitiveRoleNames.contains(role.getName())) {
             throw new SensitiveEntityException("Role with given name cannot be deleted");
+        }
+
+        List<User> usersWithRole = userRepository.findAllWhichHaveAnyOfRoles(Collections.singletonList(role.getName()));
+        for (User user : usersWithRole) {
+            userSessionService.expireUserSessions(user.getEmail());
         }
 
         taskRepository.removeRoleFromAllTasks(roleId);
