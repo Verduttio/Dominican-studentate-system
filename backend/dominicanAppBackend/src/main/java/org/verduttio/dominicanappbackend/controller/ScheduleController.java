@@ -249,23 +249,6 @@ public class ScheduleController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{scheduleId}")
-    public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId,
-                                               @Valid @RequestBody ScheduleDTO updatedScheduleDTO,
-                                               @RequestParam(required = false, defaultValue = "false") boolean ignoreConflicts) {
-        try {
-            scheduleService.updateSchedule(scheduleId, updatedScheduleDTO, ignoreConflicts);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ScheduleIsInConflictException | EntityAlreadyExistsException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @DeleteMapping("/forWholePeriod")
     public ResponseEntity<?> deleteScheduleForWholePeriod(@Valid @RequestBody AddScheduleForWholePeriodTaskDTO addScheduleForWholePeriodTaskDTO) {
         try {
@@ -287,17 +270,6 @@ public class ScheduleController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @DeleteMapping("/{scheduleId}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId) {
-        try {
-            scheduleService.deleteSchedule(scheduleId);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
