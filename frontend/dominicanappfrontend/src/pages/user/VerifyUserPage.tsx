@@ -9,6 +9,7 @@ import AlertBox from "../../components/AlertBox";
 import useIsAdmin from "../../services/UseIsAdmin";
 import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
+import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -27,6 +28,7 @@ function VerifyUserPage() {
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
+    const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -207,9 +209,10 @@ function VerifyUserPage() {
                     {showChangeNameSurname &&
                         <ChangeNameSurnamePopup userId={user?.id ? user.id : 0}
                                                 onClose={() => setShowChangeNameSurname(false)}/>}
-                    <button className="btn btn-danger m-1" onClick={handleDelete}
+                    <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>
+                    {showConfirmationPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmationPopup(false)}/>}
                 </div>
             </div>
         </div>

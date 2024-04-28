@@ -144,7 +144,8 @@ function EditObstacle() {
                                     </>
                                 ) : 'Odrzuć'}
                             </button>
-                            <button className="btn btn-danger m-1" onClick={deleteObstacle} disabled={loading}>Usuń z bazy</button>
+                            <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)} disabled={loading}>Usuń z bazy</button>
+                            {showConfirmationPopup && <ConfirmDeletionPopup onHandle={deleteObstacle} onClose={() => setShowConfirmationPopup(false)}/>}
                         </div>
                     </>
                 ) : (
