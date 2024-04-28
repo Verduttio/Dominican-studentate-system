@@ -68,8 +68,7 @@ function SchedulePageByDays() {
 
     const setTableStateFalseAll = () => {
         changeTableStateToValue("collapseUsersSchedule", false);
-        changeTableStateToValue("collapseTasksSchedule", false);
-        changeTableStateToValue("collapseTasksScheduleByRole", false);
+        changeTableStateToValue("collapseUsersScheduleByTaskSupervisorRole", false);
     }
 
     useEffect(() => {
@@ -212,6 +211,7 @@ function SchedulePageByDays() {
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        console.log("handleRoleChange")
         setTableStateFalseAll();
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
