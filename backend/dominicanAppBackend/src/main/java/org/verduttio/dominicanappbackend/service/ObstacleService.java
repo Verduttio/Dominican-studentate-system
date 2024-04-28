@@ -5,8 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
@@ -14,7 +12,7 @@ import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
-import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
+import org.verduttio.dominicanappbackend.security.SecurityUtils;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
@@ -80,17 +78,12 @@ public class ObstacleService {
     }
 
     public Obstacle getObstacleById(Long obstacleId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User currentUser = userDetails.getUser();
-
         Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
 
-        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))
-                || currentUser.getId().equals(obstacle.getUser().getId())) {
+        if (SecurityUtils.isUserOwnerOrAdmin(obstacle.getUser().getId())) {
             return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
         } else {
-            throw new AccessDeniedException("You are not allowed to delete this obstacle");
+            throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
     }
 
@@ -121,21 +114,12 @@ public class ObstacleService {
 
 
     public void deleteObstacle(Long obstacleId) {
-        if(!obstacleRepository.existsById(obstacleId)) {
-            throw new EntityNotFoundException("Obstacle not found with id: " + obstacleId);
-        }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User currentUser = userDetails.getUser();
-
         Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
 
-        if (currentUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))
-            || currentUser.getId().equals(obstacle.getUser().getId())) {
+        if (SecurityUtils.isUserOwnerOrAdmin(obstacle.getUser().getId())) {
             obstacleRepository.deleteById(obstacleId);
         } else {
-            throw new AccessDeniedException("You are not allowed to delete this obstacle");
+            throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
 
         obstacleRepository.deleteById(obstacleId);

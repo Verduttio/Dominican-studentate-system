@@ -18,6 +18,7 @@ import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.AuthProvider;
 import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.security.SecurityUtils;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.UserService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -78,13 +79,9 @@ public class UserController {
 
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User userStateFromLogin = userDetails.getUser();
-
-        User userCurrentState = userService.getUserById(userStateFromLogin.getId()).orElse(null);
-
-        return new ResponseEntity<>(userCurrentState, HttpStatus.OK);
+        User currentUser = SecurityUtils.getCurrentUser();
+        User currentUserDb = userService.getUserByEmail(currentUser.getEmail()).orElse(null);
+        return new ResponseEntity<>(currentUserDb, HttpStatus.OK);
     }
 
     @GetMapping("/current/check")

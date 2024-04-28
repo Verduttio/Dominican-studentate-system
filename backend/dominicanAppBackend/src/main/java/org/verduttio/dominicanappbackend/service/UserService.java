@@ -3,8 +3,6 @@ package org.verduttio.dominicanappbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
-import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
+import org.verduttio.dominicanappbackend.security.SecurityUtils;
 import org.verduttio.dominicanappbackend.security.UserDetailsServiceImpl;
 import org.verduttio.dominicanappbackend.security.UserSessionService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -212,14 +210,8 @@ public class UserService {
     }
 
     public void updateUserPassword(Long userId, String newPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        Long currentUserId = userDetails.getUser().getId();
-        boolean hasFunctionalRole = userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!currentUserId.equals(userId) && !hasFunctionalRole) {
-            throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
+        if (SecurityUtils.isUserOwnerOrAdmin(userId)) {
+            throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
 
         User user = userRepository.findById(userId)
@@ -239,14 +231,8 @@ public class UserService {
 
     @Transactional
     public void updateUserNameSurnameFields(Long userId, UserNameSurnameDTO userNameSurnameDTO) throws EntityNotFoundException{
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        Long currentUserId = userDetails.getUser().getId();
-        boolean hasFunctionalRole = userDetails.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!currentUserId.equals(userId) && !hasFunctionalRole) {
-            throw new AccessDeniedException("Nie masz wystarczających uprawnień do tej operacji");
+        if (SecurityUtils.isUserOwnerOrAdmin(userId)) {
+            throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
 
         User user = userRepository.findById(userId)
