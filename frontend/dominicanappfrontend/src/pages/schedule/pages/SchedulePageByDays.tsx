@@ -57,6 +57,25 @@ function SchedulePageByDays() {
         });
     }
 
+
+    const changeTableStateToValue = (id: string, value: boolean) => {
+        setIsTableOpened(prevState => {
+            const newState = new Map(prevState);
+            newState.set(id, value);
+            return newState;
+        });
+    }
+
+    const setTableStateFalseAll = () => {
+        changeTableStateToValue("collapseUsersSchedule", false);
+        changeTableStateToValue("collapseTasksSchedule", false);
+        changeTableStateToValue("collapseTasksScheduleByRole", false);
+    }
+
+    useEffect(() => {
+        setTableStateFalseAll();
+    }, [currentWeek, showStandardDateSelector]);
+
     useEffect(() => {
         fetchSchedule(null, (data) => {
             const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
@@ -170,6 +189,8 @@ function SchedulePageByDays() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
+        setTableStateFalseAll();
+
         fetchSchedule(null, (data) => {
             const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
                 ...user,
@@ -191,6 +212,7 @@ function SchedulePageByDays() {
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setTableStateFalseAll();
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
             setUsersScheduleByTaskSupervisorRole([]);

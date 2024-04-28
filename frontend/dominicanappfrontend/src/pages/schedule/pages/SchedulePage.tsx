@@ -59,6 +59,24 @@ function SchedulePage() {
         });
     }
 
+    const changeTableStateToValue = (id: string, value: boolean) => {
+        setIsTableOpened(prevState => {
+            const newState = new Map(prevState);
+            newState.set(id, value);
+            return newState;
+        });
+    }
+    
+    const setTableStateFalseAll = () => {
+        changeTableStateToValue("collapseUsersSchedule", false);
+        changeTableStateToValue("collapseTasksSchedule", false);
+        changeTableStateToValue("collapseTasksScheduleByRole", false);
+    }
+    
+    useEffect(() => {
+        setTableStateFalseAll();
+    }, [currentWeek, showStandardDateSelector]);
+
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false, `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
@@ -204,6 +222,8 @@ function SchedulePage() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
+        setTableStateFalseAll();
+
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false,
             `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false,
@@ -215,6 +235,7 @@ function SchedulePage() {
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setTableStateFalseAll();
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
             setScheduleShortInfoForTasksByRoles([]);
