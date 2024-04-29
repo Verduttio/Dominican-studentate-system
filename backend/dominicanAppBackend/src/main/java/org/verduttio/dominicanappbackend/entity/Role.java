@@ -2,8 +2,6 @@ package org.verduttio.dominicanappbackend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -56,6 +54,12 @@ public class Role implements Serializable {
 
     // Constructors
     public Role() {
+    }
+
+    public Role(String name, RoleType type) {
+        this.name = name;
+        this.type = type;
+        this.isWeeklyScheduleCreatorDefault = false;
     }
 
     public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault) {
