@@ -105,7 +105,7 @@ function Register () {
                     <div className="col-md-6 login-box">
                         <div
                             className="d-flex align-items-end mb-4" style={{ justifyContent: 'flex-start' }}>
-                            <button onClick={() => navigate('/login')} className="btn btn-secondary"
+                            <button onClick={() => navigate('/loginForm')} className="btn btn-secondary"
                                     style={{marginRight: '10px'}}>
                                 &larr; Powrót
                             </button>

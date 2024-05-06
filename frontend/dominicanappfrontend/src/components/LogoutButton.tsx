@@ -18,7 +18,7 @@ function LogoutButton () {
             if (response.status === 200) {
                 console.log('Wylogowano pomyślnie');
                 removeCurrentUser();
-                navigate('/login');
+                navigate('/loginForm');
             }
         } catch (err) {
             if (axios.isAxiosError(err)) {
