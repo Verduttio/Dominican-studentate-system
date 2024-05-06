@@ -1100,6 +1100,9 @@ public class ScheduleService {
 
     public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTO(LocalDate from, LocalDate to) {
         List<User> users = userService.getAllUsers();
+        users = users.stream()
+                .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
+                .toList();
 
         List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
 
@@ -1128,6 +1131,9 @@ public class ScheduleService {
 
     public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTO(LocalDate from, LocalDate to, String taskSupervisorRoleName) {
         List<User> users = userService.getAllUsers();
+        users = users.stream()
+                .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
+                .toList();
 
         List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
 
