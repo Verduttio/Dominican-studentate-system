@@ -210,7 +210,7 @@ public class UserService {
     }
 
     public void updateUserPassword(Long userId, String newPassword) {
-        if (SecurityUtils.isUserOwnerOrAdmin(userId)) {
+        if (!SecurityUtils.isUserOwnerOrAdmin(userId)) {
             throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
 
@@ -231,7 +231,7 @@ public class UserService {
 
     @Transactional
     public void updateUserNameSurnameFields(Long userId, UserNameSurnameDTO userNameSurnameDTO) throws EntityNotFoundException{
-        if (SecurityUtils.isUserOwnerOrAdmin(userId)) {
+        if (!SecurityUtils.isUserOwnerOrAdmin(userId)) {
             throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
 
