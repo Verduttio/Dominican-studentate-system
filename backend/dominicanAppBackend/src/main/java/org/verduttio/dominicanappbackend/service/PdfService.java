@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForTask;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForUser;
-import org.verduttio.dominicanappbackend.entity.Schedule;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysDTO;
+import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.validation.DateValidator;
 
 import java.awt.*;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class PdfService {
@@ -112,7 +111,7 @@ public class PdfService {
 
     public byte[] generateSchedulePdfForUsersByDays(LocalDate from, LocalDate to) throws IOException {
         DateValidator.ensureFromDateNotAfterToDate(from, to);
-        Map<User, List<Schedule>> userSchedules = scheduleService.getScheduleForAllUsers(from, to);
+        List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs = scheduleService.getListOfUserSchedulesByDaysDTO(from, to);
 
         try (PDDocument doc = new PDDocument()) {
             PDFont font = getFont(doc);
@@ -120,7 +119,7 @@ public class PdfService {
             float startY = initializeTitle(doc, page, font, from, to);
             BaseTable table = initializeTable(doc, page, startY);
 
-            populateDayScheduleTable(from, to, table, userSchedules, font);
+            populateDayScheduleTable(from, to, table, userSchedulesOnDaysDTOs, font);
 
             return finalizeDocument(doc);
         }
@@ -128,7 +127,7 @@ public class PdfService {
 
     public byte[] generateSchedulePdfForUsersBySupervisorRoleByDays(String taskSupervisorRoleName, LocalDate from, LocalDate to) throws IOException {
         DateValidator.ensureFromDateNotAfterToDate(from, to);
-        Map<User, List<Schedule>> userSchedules = scheduleService.getScheduleForAllUsers(from, to, taskSupervisorRoleName);
+        List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs = scheduleService.getListOfUserSchedulesByDaysDTO(from, to, taskSupervisorRoleName);
 
         try (PDDocument doc = new PDDocument()) {
             PDFont font = getFont(doc);
@@ -136,7 +135,7 @@ public class PdfService {
             float startY = initializeTitle(doc, page, font, from, to);
             BaseTable table = initializeTable(doc, page, startY);
 
-            populateDayScheduleTable(from, to, table, userSchedules, font);
+            populateDayScheduleTable(from, to, table, userSchedulesOnDaysDTOs, font);
 
             return finalizeDocument(doc);
         }
@@ -260,7 +259,7 @@ public class PdfService {
         table.draw();
     }
 
-    private void populateDayScheduleTable(LocalDate from, LocalDate to, BaseTable table, Map<User, List<Schedule>> userSchedules, PDFont font) throws IOException {
+    private void populateDayScheduleTable(LocalDate from, LocalDate to, BaseTable table, List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs, PDFont font) throws IOException {
         // Calculate the number of days in the range
         long daysBetween = ChronoUnit.DAYS.between(from, to) + 1;  // Inclusive of both dates
 
@@ -285,26 +284,20 @@ public class PdfService {
         table.addHeaderRow(headerRow);
 
         // Populate rows for each user
-        for (Map.Entry<User, List<Schedule>> entry : userSchedules.entrySet()) {
-            User user = entry.getKey();
-            List<Schedule> schedules = entry.getValue();
+        for (UserSchedulesOnDaysDTO userSchedulesOnDaysDTO : userSchedulesOnDaysDTOs) {
+            UserShortInfo userShortInfo = userSchedulesOnDaysDTO.getUserShortInfo();
+            Map<LocalDate, List<String>> schedules = userSchedulesOnDaysDTO.getSchedules();
 
-            // Group schedules by date for quick lookup
-            Map<LocalDate, List<String>> tasksByDate = schedules.stream()
-                    .collect(Collectors.groupingBy(
-                            Schedule::getDate,
-                            Collectors.mapping(s -> s.getTask().getNameAbbrev(), Collectors.toList())
-                    ));
 
             // Create a row for each user
             Row<PDPage> row = table.createRow(12f);
-            cell = row.createCell(20, user.getName() + " " + user.getSurname());
+            cell = row.createCell(20, userShortInfo.getName() + " " + userShortInfo.getSurname());
             cell.setFont(font);
             cell.setFontSize(12);
 
             // Fill cells with task abbreviations for each date
             for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
-                List<String> tasksForDate = tasksByDate.getOrDefault(date, Collections.emptyList());
+                List<String> tasksForDate = schedules.getOrDefault(date, Collections.emptyList());
                 cell = row.createCell((float) 80 / daysBetween, String.join(", ", tasksForDate));
                 cell.setFont(font);
                 cell.setFontSize(12);
