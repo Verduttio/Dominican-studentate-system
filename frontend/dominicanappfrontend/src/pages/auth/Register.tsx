@@ -78,8 +78,14 @@ function Register () {
         } catch (err: any) {
             if (axios.isAxiosError(err)) {
                 const serverError = err as AxiosError<{ message?: string }>;
+                console.log(serverError.response);
                 if (serverError.response) {
-                    setError(serverError.response.data.message || 'Wystąpił błąd podczas rejestracji.');
+                    if (serverError.response.data) {
+                        setError(serverError.response.data.message || serverError.response.data.toString());
+                    } else {
+                        setError('Wystąpił błąd podczas rejestracji.');
+                    }
+
                 } else {
                     setError('Nie udało się połączyć z serwerem. Spróbuj ponownie później.');
                 }
