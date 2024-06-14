@@ -45,8 +45,8 @@ function AddRole() {
                 <h1>Dodaj Rolę</h1>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {error && <div className="alert alert-danger">{error}</div>}
-                {validationError && <div className="alert alert-danger">{validationError}</div>}
+                {error && <AlertBox text={error} type={"danger"} width={"500px"}/>}
+                {validationError && <AlertBox text={validationError} type={"danger"} width={"500px"}/>}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData}/>
                     <div className="d-flex justify-content-center">

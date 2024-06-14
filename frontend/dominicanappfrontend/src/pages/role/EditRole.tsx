@@ -63,8 +63,8 @@ function EditRole() {
                 <h1>Edytuj rolę</h1>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
-                {(fetchError || updateError || deleteError) && <div className="alert alert-danger">{fetchError || updateError || deleteError}</div>}
-                {validationError && <div className="alert alert-danger">{validationError}</div>}
+                {(fetchError || updateError || deleteError) && <AlertBox text={(fetchError || updateError || deleteError)} type={'danger'} width={'500px'}/>}
+                {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
                 <div className="needs-validation">
                     <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
                     <div className="d-flex justify-content-between">
