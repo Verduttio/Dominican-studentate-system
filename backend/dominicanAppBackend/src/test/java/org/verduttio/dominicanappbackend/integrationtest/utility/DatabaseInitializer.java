@@ -59,10 +59,11 @@ public class DatabaseInitializer {
         return obstacleRepository.save(obstacle);
     }
 
-    public Conflict addConflict(Task task1, Task task2) {
+    public Conflict addConflict(Task task1, Task task2, Set<DayOfWeek> daysOfWeek) {
         Conflict conflict = new Conflict();
         conflict.setTask1(task1);
         conflict.setTask2(task2);
+        conflict.setDaysOfWeek(daysOfWeek);
         return conflictRepository.save(conflict);
     }
 
@@ -71,7 +72,6 @@ public class DatabaseInitializer {
         task.setName("Wash dishes");
         task.setParticipantsLimit(5);
         task.setArchived(false);
-        task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
         task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
@@ -83,7 +83,6 @@ public class DatabaseInitializer {
         task.setName("Prepare meal");
         task.setParticipantsLimit(15);
         task.setArchived(false);
-        task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
         task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY));
@@ -95,7 +94,6 @@ public class DatabaseInitializer {
         task.setName("Dry dishes");
         task.setParticipantsLimit(12);
         task.setArchived(false);
-        task.setParticipantForWholePeriod(true);
         task.setAllowedRoles(allowedRoles);
         task.setSupervisorRole(supervisorRole);
         task.setDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY));

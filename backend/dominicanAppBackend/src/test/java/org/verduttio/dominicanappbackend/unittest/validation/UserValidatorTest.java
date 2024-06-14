@@ -31,7 +31,8 @@ class UserValidatorTest {
         when(userRepository.existsByEmail(newEmail)).thenReturn(true);
 
         // Then
-        Assertions.assertThrows(EntityAlreadyExistsException.class, () ->userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
+        Assertions.assertThrows(EntityAlreadyExistsException.class,
+                () ->userValidator.validateEmailWhenUpdate(newEmail, currentEmail));
     }
 
     @Test

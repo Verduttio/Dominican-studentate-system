@@ -57,7 +57,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
         User user;
         if(userOptional.isPresent()) {
-            System.out.println("User already exists. Retrieving user from database");
             user = userOptional.get();
             if(!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase()))) {
                 throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
@@ -66,7 +65,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
 
         } else {
-            System.out.println("Creating new user");
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
         }
 

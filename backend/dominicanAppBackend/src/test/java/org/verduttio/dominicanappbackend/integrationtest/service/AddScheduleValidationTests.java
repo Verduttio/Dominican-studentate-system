@@ -111,9 +111,9 @@ public class AddScheduleValidationTests {
 
     @Test
     public void shouldThrowEntityNotFoundExceptionForNonexistentUser() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1); // Monday
-        LocalDate endDate = LocalDate.of(2024, 1, 7); // Sunday
-        LocalDate taskDate = LocalDate.of(2024, 1, 3);
+        LocalDate startDate = LocalDate.of(2024, 1, 7); // Sunday
+        LocalDate endDate = LocalDate.of(2024, 1, 13); // Saturday
+        LocalDate taskDate = LocalDate.of(2024, 1, 9);
 
         AddScheduleForDailyPeriodTaskDTO dto = new AddScheduleForDailyPeriodTaskDTO();
         dto.setUserId(9999L);
@@ -128,9 +128,9 @@ public class AddScheduleValidationTests {
 
     @Test
     public void shouldThrowEntityNotFoundExceptionForNonexistentTask() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1); // Monday
-        LocalDate endDate = LocalDate.of(2024, 1, 7); // Sunday
-        LocalDate taskDate = LocalDate.of(2024, 1, 3);
+        LocalDate startDate = LocalDate.of(2024, 1, 7); // Sunday
+        LocalDate endDate = LocalDate.of(2024, 1, 13); // Saturday
+        LocalDate taskDate = LocalDate.of(2024, 1, 9);
 
         AddScheduleForDailyPeriodTaskDTO dto = new AddScheduleForDailyPeriodTaskDTO();
         dto.setUserId(testUser.getId());
@@ -145,9 +145,9 @@ public class AddScheduleValidationTests {
 
     @Test
     public void shouldThrowWhenTaskNotOccurringOnGivenDayOfWeek() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1); // Monday
-        LocalDate endDate = LocalDate.of(2024, 1, 7); // Sunday
-        LocalDate taskDate = LocalDate.of(2024, 1, 6); // Saturday
+        LocalDate startDate = LocalDate.of(2024, 1, 7); // Sunday
+        LocalDate endDate = LocalDate.of(2024, 1, 13); // Saturday
+        LocalDate taskDate = LocalDate.of(2024, 1, 12); // Friday
 
         AddScheduleForDailyPeriodTaskDTO dto = new AddScheduleForDailyPeriodTaskDTO();
         dto.setUserId(testUser.getId());
@@ -170,8 +170,8 @@ public class AddScheduleValidationTests {
         AddScheduleForDailyPeriodTaskDTO dto = new AddScheduleForDailyPeriodTaskDTO();
         dto.setUserId(testUser.getId());
         dto.setTaskId(testTask.getId());
-        LocalDate startDate = LocalDate.of(2024, 2, 26);
-        LocalDate endDate = LocalDate.of(2024, 3, 3);
+        LocalDate startDate = LocalDate.of(2024, 2, 25); // Sunday
+        LocalDate endDate = LocalDate.of(2024, 3, 2);  // Saturday
 
         dto.setWeekStartDate(startDate);
         dto.setWeekEndDate(endDate);
@@ -183,9 +183,9 @@ public class AddScheduleValidationTests {
 
     @Test
     public void shouldThrowRoleNotMeetRequirementsExceptionForUserWithoutRequiredRole() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1); // Monday
-        LocalDate endDate = LocalDate.of(2024, 1, 7); // Sunday
-        LocalDate taskDate = LocalDate.of(2024, 1, 3); // Wednesday
+        LocalDate startDate = LocalDate.of(2024, 1, 7); // Sunday
+        LocalDate endDate = LocalDate.of(2024, 1, 13); // Saturday
+        LocalDate taskDate = LocalDate.of(2024, 1, 9); // Wednesday
 
         User testUser2 = new User();
         testUser2.setEmail("test@example.com");

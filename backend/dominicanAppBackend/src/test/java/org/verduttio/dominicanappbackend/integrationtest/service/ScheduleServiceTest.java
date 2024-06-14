@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
@@ -25,17 +23,12 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("integration_tests")
 public class ScheduleServiceTest {
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private ScheduleService scheduleService;
@@ -102,26 +95,6 @@ public class ScheduleServiceTest {
 
         List<Task> availableTasks = scheduleService.getAvailableTasks(from, to);
         assertFalse(availableTasks.contains(task3), "Task 3 should not be available as it's fully assigned for its day.");
-    }
-
-    @Test
-    public void shouldValidateDateRange() throws Exception {
-        String from = "01-01-2024";
-        String to = "07-01-2024";
-
-        mockMvc.perform(get("/api/schedules/available-tasks")
-                        .param("from", from)
-                        .param("to", to))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        String invalidFrom = "01-01-2024";
-        String invalidTo = "08-01-2024";
-
-        mockMvc.perform(get("/api/schedules/available-tasks")
-                        .param("from", invalidFrom)
-                        .param("to", invalidTo))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

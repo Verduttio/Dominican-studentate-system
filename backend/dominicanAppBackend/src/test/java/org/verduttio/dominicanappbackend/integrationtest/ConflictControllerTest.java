@@ -13,8 +13,10 @@ import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +50,8 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal, conflictDaysOfWeek);
 
         mockMvc.perform(get("/api/conflicts/" + conflict.getId()))
                 .andExpect(status().isOk())
@@ -68,8 +71,10 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
+        List<DayOfWeek> conflictDaysOfWeek = List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        String conflictDaysOfWeekString = conflictDaysOfWeek.stream().map(day -> "\"" + day + "\"").collect(Collectors.joining(","));
 
-        String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
+        String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+", \"daysOfWeek\":["+conflictDaysOfWeekString+"]"+ "}";
         mockMvc.perform(post("/api/conflicts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(conflictJson))
@@ -86,9 +91,10 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        databaseInitializer.addConflict(washDishes, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        databaseInitializer.addConflict(washDishes, prepareMeal, conflictDaysOfWeek);
 
-        String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+"}";
+        String conflictJson = "{\"task1Id\":"+washDishes.getId()+", \"task2Id\":"+prepareMeal.getId()+", \"daysOfWeek\":[\"MONDAY\",\"TUESDAY\",\"WEDNESDAY\"]}";
         mockMvc.perform(post("/api/conflicts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(conflictJson))
@@ -102,10 +108,11 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal, conflictDaysOfWeek);
         Task dryDishes = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
 
-        String updatedConflictJson = "{\"task1Id\":"+conflict.getTask1().getId()+", \"task2Id\":"+dryDishes.getId()+"}";
+        String updatedConflictJson = "{\"task1Id\":"+conflict.getTask1().getId()+", \"task2Id\":"+dryDishes.getId()+", \"daysOfWeek\":[\"MONDAY\",\"TUESDAY\",\"WEDNESDAY\"]}";
         mockMvc.perform(put("/api/conflicts/" + conflict.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedConflictJson))
@@ -123,7 +130,8 @@ public class ConflictControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         Task washDishes = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        Conflict conflict = databaseInitializer.addConflict(washDishes, prepareMeal, conflictDaysOfWeek);
 
         mockMvc.perform(delete("/api/conflicts/" + conflict.getId()))
                 .andExpect(status().isNoContent());

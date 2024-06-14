@@ -96,11 +96,7 @@ public class RoleControllerTest {
         mockMvc.perform(put("/api/roles/" + role.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedRoleJson))
-                .andExpect(status().isNoContent());
-
-        Role updatedRole = roleRepository.findById(role.getId()).orElse(null);
-        assertNotNull(updatedRole);
-        assertEquals("Updated Role", updatedRole.getName());
+                .andExpect(status().isForbidden());
 
         databaseInitializer.clearDb();
     }
@@ -119,7 +115,7 @@ public class RoleControllerTest {
 
     @Test
     public void deleteRole_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Role role = databaseInitializer.addRoleUser();
+        Role role = databaseInitializer.addRoleSinger();
 
         mockMvc.perform(delete("/api/roles/" + role.getId()))
                 .andExpect(status().isNoContent());

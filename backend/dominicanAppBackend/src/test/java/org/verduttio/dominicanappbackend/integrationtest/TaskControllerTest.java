@@ -63,7 +63,7 @@ public class TaskControllerTest {
         Task task2 = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         databaseInitializer.addPrepareMealTask(Set.of(roleAdmin), roleUser);
 
-        mockMvc.perform(get("/api/tasks/byRole/" + roleUser.getName()))
+        mockMvc.perform(get("/api/tasks/byAllowedRole/" + roleUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", anyOf(is(task.getId().intValue()), is(task2.getId().intValue()))))
@@ -83,7 +83,7 @@ public class TaskControllerTest {
         databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         databaseInitializer.addPrepareMealTask(Set.of(roleAdmin), roleUser);
 
-        mockMvc.perform(get("/api/tasks/byRole/" + roleDev.getName()))
+        mockMvc.perform(get("/api/tasks/bySupervisorRole/" + roleDev.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
 
@@ -99,7 +99,8 @@ public class TaskControllerTest {
     @Test
     public void createTask_WithValidData_ShouldReturnCreated() throws Exception {
         databaseInitializer.addRoleUser();
-        String taskJson = "{\"name\":\"New Task\",\"category\":\"General\",\"participantsLimit\":10,\"permanent\":false,\"participantForWholePeriod\":true,\"allowedRoleNames\":[\"ROLE_USER\"], \"supervisorRoleNames\":[\"ROLE_USER\"], \"daysOfWeek\":[\"MONDAY\",\"WEDNESDAY\"]}";
+        databaseInitializer.addRoleAdmin();
+        String taskJson = "{\"name\":\"New Task\",\"nameAbbrev\":\"UpTsk\",\"participantsLimit\":15,\"permanent\":true,\"archived\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleName\":\"ROLE_ADMIN\",\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +155,7 @@ public class TaskControllerTest {
         Role roleAdmin = databaseInitializer.addRoleAdmin();
         Task task = databaseInitializer.addWashDishesTask(Set.of(roleUser), roleUser);
 
-        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleNames\":[\"ROLE_ADMIN\"],\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
+        String updatedTaskJson = "{\"name\":\"Updated Task\",\"nameAbbrev\":\"UpTsk\",\"participantsLimit\":15,\"permanent\":true,\"archived\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleName\":\"ROLE_ADMIN\",\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
 
         mockMvc.perform(put("/api/tasks/" + task.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -165,8 +166,7 @@ public class TaskControllerTest {
         assert updatedTask != null;
         assertEquals("Updated Task", updatedTask.getName());
         assertEquals(15, updatedTask.getParticipantsLimit());
-        assertTrue(updatedTask.isArchived());
-        assertFalse(updatedTask.isParticipantForWholePeriod());
+        assertFalse(updatedTask.isArchived());
         assertEquals(1, updatedTask.getAllowedRoles().size());
         assertTrue(updatedTask.getAllowedRoles().stream().anyMatch(r -> r.getName().equals(roleAdmin.getName())));
         assertEquals(2, updatedTask.getDaysOfWeek().size());
@@ -177,7 +177,7 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_WithNonExistingId_ShouldReturnNotFound() throws Exception {
-        String updatedTaskJson = "{\"name\":\"Updated Task\",\"category\":\"Updated Category\",\"participantsLimit\":15,\"permanent\":true,\"participantForWholePeriod\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleNames\":[\"ROLE_ADMIN\"], \"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
+        String updatedTaskJson = "{\"name\":\"Updated Task\",\"nameAbbrev\":\"UpTsk\",\"participantsLimit\":15,\"permanent\":true,\"archived\":false,\"allowedRoleNames\":[\"ROLE_ADMIN\"], \"supervisorRoleName\":\"ROLE_ADMIN\",\"daysOfWeek\":[\"TUESDAY\",\"THURSDAY\"]}";
         mockMvc.perform(put("/api/tasks/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatedTaskJson))

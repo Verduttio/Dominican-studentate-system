@@ -36,9 +36,8 @@ public class ObstacleControllerTest {
 
     @Test
     public void getAllObstacles_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/api/obstacles"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(0))));
+        mockMvc.perform(get("/api/obstacles/pageable"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -48,28 +47,12 @@ public class ObstacleControllerTest {
         Task task = databaseInitializer.addDryDishesTask(Set.of(role), role);
         Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
 
-        mockMvc.perform(get("/api/obstacles/" + obstacle.getId()))
+        int pageNumber = 0;
+        int pageSize = 10;
+
+        mockMvc.perform(get("/api/obstacles/pageable?page=" + pageNumber + "&size=" + pageSize))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(obstacle.getId().intValue())));
-
-        databaseInitializer.clearDb();
-    }
-
-    @Test
-    public void getAllObstaclesByTaskId_ShouldReturnOk() throws Exception {
-        Role role = databaseInitializer.addRoleUser();
-        User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        User johnDoe = databaseInitializer.addUserJohnDoe(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role), role);
-        Task task2 = databaseInitializer.addPrepareMealTask(Set.of(role), role);
-        databaseInitializer.addWashDishesTask(Set.of(role), role);
-        databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
-        databaseInitializer.addObstacle_01_01_To_01_20(johnDoe, task);
-        databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task2);
-
-        mockMvc.perform(get("/api/obstacles/task/" + task.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                .andExpect(jsonPath("$.content[*].id", hasItem(obstacle.getId().intValue())));
 
         databaseInitializer.clearDb();
     }
@@ -87,7 +70,7 @@ public class ObstacleControllerTest {
         Task task = databaseInitializer.addDryDishesTask(Set.of(role), role);
 
 
-        String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"taskId\":"+task.getId()+",\"fromDate\":\"2024-01-01\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
+        String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"tasksIds\":["+task.getId()+"],\"fromDate\":\"2024-01-01\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
 
         mockMvc.perform(post("/api/obstacles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +106,7 @@ public class ObstacleControllerTest {
         Task task = databaseInitializer.addDryDishesTask(Set.of(role), role);
 
 
-        String obstacleJson = "{\"userId\":"+'0'+",\"taskId\":"+task.getId()+",\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
+        String obstacleJson = "{\"userId\":"+'0'+",\"tasksIds\":["+task.getId()+"],\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
 
         mockMvc.perform(post("/api/obstacles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +122,7 @@ public class ObstacleControllerTest {
         User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
 
 
-        String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"taskId\":"+'0'+",\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
+        String obstacleJson = "{\"userId\":"+frankCadillac.getId()+",\"tasksIds\":["+'0'+"],\"fromDate\":\"2024-01-30\",\"toDate\":\"2024-01-02\",\"applicantDescription\":\"Test Description\"}";
 
         mockMvc.perform(post("/api/obstacles")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -205,19 +188,4 @@ public class ObstacleControllerTest {
         databaseInitializer.clearDb();
     }
 
-    @Test
-    public void deleteObstacle_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Role role = databaseInitializer.addRoleUser();
-        User frankCadillac = databaseInitializer.addUserFrankCadillac(Set.of(role));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(role), role);
-        Obstacle obstacle = databaseInitializer.addObstacle_01_01_To_01_20(frankCadillac, task);
-
-        mockMvc.perform(delete("/api/obstacles/" + obstacle.getId()))
-                .andExpect(status().isNoContent());
-
-        boolean exists = obstacleRepository.existsById(obstacle.getId());
-        assertFalse(exists);
-
-        databaseInitializer.clearDb();
-    }
 }

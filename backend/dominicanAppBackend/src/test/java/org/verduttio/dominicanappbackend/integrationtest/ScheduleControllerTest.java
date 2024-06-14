@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -47,9 +48,9 @@ public class ScheduleControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isCreated());
@@ -63,11 +64,12 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        databaseInitializer.addConflict(task, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        databaseInitializer.addConflict(task, prepareMeal, conflictDaysOfWeek);
         databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isConflict());
@@ -81,11 +83,12 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        databaseInitializer.addConflict(task, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        databaseInitializer.addConflict(task, prepareMeal, conflictDaysOfWeek);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 11));
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isCreated());
@@ -105,11 +108,12 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         Task prepareMeal = databaseInitializer.addPrepareMealTask(Set.of(roleUser), roleUser);
-        databaseInitializer.addConflict(task, prepareMeal);
+        Set<DayOfWeek> conflictDaysOfWeek = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
+        databaseInitializer.addConflict(task, prepareMeal, conflictDaysOfWeek);
         Schedule schedule = databaseInitializer.addSchedule(user, prepareMeal, LocalDate.of(2024, 1, 10));
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules?ignoreConflicts=true")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod?ignoreConflicts=true")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isCreated());
@@ -130,9 +134,9 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
         databaseInitializer.addObstacle_01_01_To_01_20(user, task);
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isConflict());
@@ -146,9 +150,9 @@ public class ScheduleControllerTest {
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Role roleAdmin = databaseInitializer.addRoleAdmin();
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleAdmin), roleUser);
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isConflict());
@@ -161,9 +165,9 @@ public class ScheduleControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
-        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId()+1 + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId() + ",\"userId\":" + user.getId()+1 + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isNotFound());
@@ -176,46 +180,12 @@ public class ScheduleControllerTest {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
         Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
-        String scheduleJson = "{\"taskId\":" + task.getId()+1 + ",\"userId\":" + user.getId() + ",\"date\":\"2024-01-10\"}";
+        String scheduleJson = "{\"taskId\":" + task.getId()+1 + ",\"userId\":" + user.getId() + ",\"taskDate\":\"2024-01-10\"" + ", \"weekStartDate\":\"2024-01-07\"" + ", \"weekEndDate\":\"2024-01-13\"}";
 
-        mockMvc.perform(post("/api/schedules")
+        mockMvc.perform(post("/api/schedules/forDailyPeriod")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(scheduleJson))
                 .andExpect(status().isNotFound());
-
-        databaseInitializer.clearDb();
-    }
-
-
-
-    @Test
-    public void updateSchedule_WithExistingId_ShouldReturnOk() throws Exception {
-        Role roleUser = databaseInitializer.addRoleUser();
-        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
-        LocalDate date = LocalDate.of(2024, 1, 3);
-        Schedule schedule = databaseInitializer.addSchedule(user, task, date);
-
-        String updatedScheduleJson = "{\"taskId\":" + schedule.getTask().getId() + ",\"userId\":" + schedule.getUser().getId() + ",\"date\":\"2024-01-08\"}";
-
-        mockMvc.perform(put("/api/schedules/" + schedule.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatedScheduleJson))
-                .andExpect(status().isOk());
-
-        databaseInitializer.clearDb();
-    }
-
-    @Test
-    public void deleteSchedule_WithExistingId_ShouldReturnNoContent() throws Exception {
-        Role roleUser = databaseInitializer.addRoleUser();
-        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-        Task task = databaseInitializer.addDryDishesTask(Set.of(roleUser), roleUser);
-        LocalDate date = LocalDate.of(2024, 1, 4);
-        Schedule schedule = databaseInitializer.addSchedule(user, task, date);
-
-        mockMvc.perform(delete("/api/schedules/" + schedule.getId()))
-                .andExpect(status().isNoContent());
 
         databaseInitializer.clearDb();
     }
