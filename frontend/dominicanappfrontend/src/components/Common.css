@@ -12,7 +12,7 @@
 
 .table-rounded {
     border-radius: 15px;
-    overflow: hidden; /* Zapobiega wystawaniu zawartości poza zaokrąglone rogi */
+    overflow: clip; /* Zapobiega wystawaniu zawartości poza zaokrąglone rogi */
 }
 
 .table-shadow {
@@ -30,7 +30,14 @@
     display: block;
     width: fit-content;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-fit-content-height100vh {
+    display: block;
+    width: fit-content;
+    overflow-x: auto;
+    height: 100vh;
+    padding-inline: 10px;
 }
 
 .entity-header {

@@ -171,9 +171,9 @@ function AddScheduleDaily() {
 
         return (
             <div className="d-flex-no-media-resize justify-content-center">
-                <div className="table-responsive-fit-content">
+                <div className="table-responsive-fit-content-height100vh">
                     <table className="table table-hover table-striped table-rounded table-shadow text-center">
-                        <thead className="table-dark">
+                        <thead className="table-dark sticky-top">
                         <tr>
                             <th>Brat</th>
                             <th>Oficja</th>

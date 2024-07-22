@@ -18,6 +18,8 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
+
+
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
@@ -159,9 +161,9 @@ function AddScheduleWeekly() {
 
         return (
             <div className="d-flex-no-media-resize justify-content-center">
-                <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow text-center">
-                        <thead className="table-dark">
+                <div className="table-responsive-fit-content-height100vh">
+                    <table className="table table-hover table-striped table-bordered table-rounded table-shadow text-center">
+                        <thead className="table-dark sticky-top">
                         <tr>
                             <th>Brat</th>
                             <th>Oficja</th>
