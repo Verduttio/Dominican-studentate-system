@@ -18,6 +18,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
+import {countAssignedUsers, isTaskFullyAssigned} from "./ScheduleUtils";
 
 
 function AddScheduleWeekly() {
@@ -75,14 +76,6 @@ function AddScheduleWeekly() {
         });
     }, [requestAllTasksByRole]);
 
-    function countAssignedUsers(taskId: number) {
-        let count = 0;
-        userDependencies.forEach(dep => {
-            let taskDep = dep.userTasksScheduleInfo?.filter(udep => udep.taskId === taskId);
-            if (taskDep && taskDep.length > 0 && taskDep[0].assignedToTheTask) count++;
-        });
-        return count;
-    }
 
     function handleSubmit(userId: number, taskId: number) {
         const userDependency = userDependencies.find(dep => dep.userId === userId);
@@ -90,7 +83,7 @@ function AddScheduleWeekly() {
         const task = tasks?.find(task => task.id === taskId);
         const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
 
-        if (userTaskDependency?.isInConflict && countAssignedUsers(taskId) >= participantsLimit) {
+        if (userTaskDependency?.isInConflict && countAssignedUsers(taskId, userDependencies) >= participantsLimit) {
             setConfirmAssignmentPopupText("Brat wykonuje inne oficjum, które jest w konflikcie z wybranym. Ponadto do oficjum jest już przypisana maksymalna liczba braci. Czy na pewno chcesz wyznaczyć do tego zadania wybranego brata?");
             setUserIdAssignPopupData(userId);
             setTaskIdAssignPopupData(taskId);
@@ -100,7 +93,7 @@ function AddScheduleWeekly() {
             setUserIdAssignPopupData(userId);
             setTaskIdAssignPopupData(taskId);
             setShowConfirmAssignmentPopup(true);
-        } else if (countAssignedUsers(taskId) >= participantsLimit) {
+        } else if (countAssignedUsers(taskId, userDependencies) >= participantsLimit) {
             setConfirmAssignmentPopupText("Do oficjum jest przypisana maksymalna liczba braci. Czy na pewno chcesz wyznaczyć do tego oficjum kolejnego brata?");
             const userId = userDependency?.userId ? userDependency.userId : 0;
             setUserIdAssignPopupData(userId);
@@ -162,7 +155,7 @@ function AddScheduleWeekly() {
         return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content-height100vh">
-                    <table className="table table-hover table-striped table-bordered table-rounded table-shadow text-center">
+                    <table className="table table-hover table-striped table-rounded table-shadow text-center">
                         <thead className="table-dark sticky-top">
                         <tr>
                             <th>Brat</th>
@@ -203,7 +196,7 @@ function AddScheduleWeekly() {
                                     })}
                                 </td>
                                 {dep.userTasksScheduleInfo?.map(udep => (
-                                    <td>{udep.hasRoleForTheTask ? (
+                                    <td className={isTaskFullyAssigned(udep.taskId, tasks, userDependencies) ? "bg-secondary" : ""}>{udep.hasRoleForTheTask ? (
                                             !udep.hasObstacle ? (
                                                 udep.assignedToTheTask ? (
                                                     <button
