@@ -58,23 +58,6 @@ function SchedulePageByDays() {
     }
 
 
-    const changeTableStateToValue = (id: string, value: boolean) => {
-        setIsTableOpened(prevState => {
-            const newState = new Map(prevState);
-            newState.set(id, value);
-            return newState;
-        });
-    }
-
-    const setTableStateFalseAll = () => {
-        changeTableStateToValue("collapseUsersSchedule", false);
-        changeTableStateToValue("collapseUsersScheduleByTaskSupervisorRole", false);
-    }
-
-    useEffect(() => {
-        setTableStateFalseAll();
-    }, [currentWeek, showStandardDateSelector]);
-
     useEffect(() => {
         fetchSchedule(null, (data) => {
             const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
@@ -188,8 +171,6 @@ function SchedulePageByDays() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
-        setTableStateFalseAll();
-
         fetchSchedule(null, (data) => {
             const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
                 ...user,
@@ -211,8 +192,6 @@ function SchedulePageByDays() {
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log("handleRoleChange")
-        setTableStateFalseAll();
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
             setUsersScheduleByTaskSupervisorRole([]);
@@ -221,15 +200,18 @@ function SchedulePageByDays() {
             setSelectedSupervisorRoleName(selectedRoleName);
             let targetUrl;
             if(showStandardDateSelector) {
-                targetUrl = `${backendUrl}/api/schedules/byRole/${selectedSupervisorRoleName}/users/days?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`
+                targetUrl = `${backendUrl}/api/schedules/byRole/${selectedRoleName}/users/days?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`
             } else {
-                targetUrl = `${backendUrl}/api/schedules/byRole/${selectedSupervisorRoleName}/users/days?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`
+                targetUrl = `${backendUrl}/api/schedules/byRole/${selectedRoleName}/users/days?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`
             }
             fetchScheduleByTasksByRoles(null, (data) => {
                 const newData = data.map((user : UserSchedulesOnDaysDTO) => ({
                     ...user,
                     schedules: new Map(Object.entries(user.schedules))
                 }));
+                console.log(newData);
+                console.log("selectedSupervisorRoleName: " + selectedSupervisorRoleName);
+                console.log("selectedRoleName: + " + selectedRoleName);
                 setUsersScheduleByTaskSupervisorRole(newData)
             }, false,
                 targetUrl, 'GET');
@@ -243,15 +225,14 @@ function SchedulePageByDays() {
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseUsersSchedule")}}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
-                <div className="collapse" id="collapseUsersSchedule">
+                <div style={{display: isTableOpened.get("collapseUsersSchedule") ? 'block' : 'none'}}>
                     <div className="d-flex-no-media-resize justify-content-center">
                         <div className="table-responsive-fit-content">
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -279,7 +260,8 @@ function SchedulePageByDays() {
                                         <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
 
                                         {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                            <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                            <td className="column-width-100"
+                                                key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
                                         ))}
                                     </tr>
                                 ))}
@@ -299,16 +281,15 @@ function SchedulePageByDays() {
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseUsersScheduleByTaskSupervisorRole" aria-expanded="false" aria-controls="collapseUsersScheduleByTaskSupervisorRole" onClick={() => {changeTableState("collapseUsersScheduleByTaskSupervisorRole")}}
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseUsersScheduleByTaskSupervisorRole")}}
                             disabled={selectedSupervisorRoleName == null}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? " Ukryj harmonogram " : " Rozwiń "}
+                        {isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? " Ukryj harmonogram " : " Pokaż "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
-                <div className="collapse" id="collapseUsersScheduleByTaskSupervisorRole">
+                <div style={{display: isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? 'block' : 'none'}}>
                     <div className="d-flex-no-media-resize justify-content-center">
                         <div className="table-responsive-fit-content">
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -322,10 +303,10 @@ function SchedulePageByDays() {
                                             const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
 
                                             return (
-                                            <th className="column-width-100" key={day}>
-                                                {polishAbbreviation}<br/>
-                                                {format(day, 'dd.MM.yyyy')}
-                                            </th>
+                                                <th className="column-width-100" key={day}>
+                                                    {polishAbbreviation}<br/>
+                                                    {format(day, 'dd.MM.yyyy')}
+                                                </th>
                                             );
                                         })}
                                 </tr>
@@ -336,7 +317,8 @@ function SchedulePageByDays() {
                                         <td>{userScheduleDTO.userShortInfo.name + " " + userScheduleDTO.userShortInfo.surname}</td>
 
                                         {Array.from(userScheduleDTO.schedules.keys()).sort().map(day => (
-                                            <td className="column-width-100" key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
+                                            <td className="column-width-100"
+                                                key={day}>{userScheduleDTO.schedules.get(day)?.join(', ')}</td>
                                         ))}
                                     </tr>
                                 ))}

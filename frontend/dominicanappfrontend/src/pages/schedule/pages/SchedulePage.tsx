@@ -59,24 +59,6 @@ function SchedulePage() {
         });
     }
 
-    const changeTableStateToValue = (id: string, value: boolean) => {
-        setIsTableOpened(prevState => {
-            const newState = new Map(prevState);
-            newState.set(id, value);
-            return newState;
-        });
-    }
-    
-    const setTableStateFalseAll = () => {
-        changeTableStateToValue("collapseUsersSchedule", false);
-        changeTableStateToValue("collapseTasksSchedule", false);
-        changeTableStateToValue("collapseTasksScheduleByRole", false);
-    }
-    
-    useEffect(() => {
-        setTableStateFalseAll();
-    }, [currentWeek, showStandardDateSelector]);
-
 
     useEffect(() => {
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false, `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
@@ -222,8 +204,6 @@ function SchedulePage() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
-        setTableStateFalseAll();
-
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false,
             `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false,
@@ -235,7 +215,6 @@ function SchedulePage() {
     }
 
     const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setTableStateFalseAll();
         const selectedRoleName = event.target.value;
         if (!selectedRoleName) {
             setScheduleShortInfoForTasksByRoles([]);
@@ -260,14 +239,13 @@ function SchedulePage() {
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseUsersSchedule" aria-expanded="false" aria-controls="collapseUsersSchedule" onClick={() => {changeTableState("collapseUsersSchedule")}}>
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseUsersSchedule")}}>
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
-                <div className="collapse" id="collapseUsersSchedule">
+                <div style={{ display: isTableOpened.get("collapseUsersSchedule") ? 'block' : 'none'}}>
                     <div className="d-flex justify-content-center">
                         <div className="table-responsive" style={{maxWidth: '600px'}}>
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -319,16 +297,15 @@ function SchedulePage() {
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTasksScheduleByRole" aria-expanded="false" aria-controls="collapseTasksScheduleByRole" onClick={() => {changeTableState("collapseTasksScheduleByRole")}}
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseTasksScheduleByRole")}}
                             disabled={selectedSupervisorRoleName == null}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Rozwiń "}
+                        {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Pokaż "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
-                <div className="collapse" id="collapseTasksScheduleByRole">
+                <div style={{display: isTableOpened.get("collapseTasksScheduleByRole") ? 'block' : 'none'}}>
                     <div className="d-flex justify-content-center">
                         <div className="table-responsive" style={{maxWidth: '600px'}}>
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -374,21 +351,20 @@ function SchedulePage() {
     }
 
     const renderTasksSchedule = () => {
-        if(loadingFetchScheduleByTasks) return <LoadingSpinner />;
+        if (loadingFetchScheduleByTasks) return <LoadingSpinner />;
         if(errorFetchScheduleByTasks) return <AlertBox text={errorFetchScheduleByTasks} type="danger" width={'500px'} />;
 
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTasksSchedule" aria-expanded="false" aria-controls="collapseTasksSchedule" onClick={() => {changeTableState("collapseTasksSchedule")}}
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseTasksSchedule")}}
                     >
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
-                        {isTableOpened.get("collapseTasksSchedule") ? " Ukryj harmonogram " : " Rozwiń "}
+                        {isTableOpened.get("collapseTasksSchedule") ? " Ukryj harmonogram " : " Pokaż "}
                         <FontAwesomeIcon icon={isTableOpened.get("collapseTasksSchedule") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
-                <div className="collapse" id="collapseTasksSchedule">
+                <div style={{display: isTableOpened.get("collapseTasksSchedule") ? 'block' : 'none'}}>
                     <div className="d-flex justify-content-center">
                         <div className="table-responsive" style={{maxWidth: '600px'}}>
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
@@ -559,7 +535,7 @@ function SchedulePage() {
             </div>
 
             <div className="d-flex justify-content-center">
-                <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich zadań</h4>
+                <h4 className="entity-header-dynamic-size mb-2 mt-4">Harmonogram według wszystkich oficjów</h4>
             </div>
             {renderTasksSchedule()}
             {errorDownloadSchedulePdfForTasks &&
