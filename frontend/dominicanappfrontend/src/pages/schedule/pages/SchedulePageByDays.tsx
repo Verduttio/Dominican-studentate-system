@@ -234,9 +234,9 @@ function SchedulePageByDays() {
                 </div>
                 <div style={{display: isTableOpened.get("collapseUsersSchedule") ? 'block' : 'none'}}>
                     <div className="d-flex-no-media-resize justify-content-center">
-                        <div className="table-responsive-fit-content">
+                        <div className="table-responsive-fit-content-height100vh">
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                                <thead className="table-dark">
+                                <thead className="table-dark sticky-top">
                                 <tr>
                                     <th>Brat</th>
                                     {usersSchedule[0]?.schedules && Array.from(usersSchedule[0]?.schedules?.keys()).sort()
@@ -291,9 +291,9 @@ function SchedulePageByDays() {
                 </div>
                 <div style={{display: isTableOpened.get("collapseUsersScheduleByTaskSupervisorRole") ? 'block' : 'none'}}>
                     <div className="d-flex-no-media-resize justify-content-center">
-                        <div className="table-responsive-fit-content">
+                        <div className="table-responsive-fit-content-height100vh">
                             <table className="table table-hover table-striped table-rounded table-shadow mb-0">
-                                <thead className="table-dark">
+                                <thead className="table-dark sticky-top">
                                 <tr>
                                     <th>Brat</th>
                                     {usersScheduleByTaskSupervisorRole[0]?.schedules && Array.from(usersScheduleByTaskSupervisorRole[0]?.schedules?.keys()).sort()
