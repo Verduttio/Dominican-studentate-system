@@ -43,6 +43,8 @@ public class Task {
     )
     private Set<DayOfWeek> daysOfWeek;
 
+    private Long sortOrder;
+
 
     // Getters and setters
     public Long getId() {
@@ -111,6 +113,14 @@ public class Task {
         this.daysOfWeek = daysOfWeek;
     }
 
+    public Long getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Long sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
     // Constructors
     public Task() {
     }
@@ -125,6 +135,20 @@ public class Task {
         this.allowedRoles = allowedRoles;
         this.supervisorRole = supervisorRole;
         this.daysOfWeek = daysOfWeek;
+        this.sortOrder = this.id;
+    }
+
+    public Task(String name, String nameAbbrev, int participantsLimit, boolean archived,
+                Set<Role> allowedRoles,
+                Role supervisorRole, Set<DayOfWeek> daysOfWeek, Long sortOrder) {
+        this.name = name;
+        this.nameAbbrev = nameAbbrev;
+        this.participantsLimit = participantsLimit;
+        this.archived = archived;
+        this.allowedRoles = allowedRoles;
+        this.supervisorRole = supervisorRole;
+        this.daysOfWeek = daysOfWeek;
+        this.sortOrder = sortOrder;
     }
 
 }

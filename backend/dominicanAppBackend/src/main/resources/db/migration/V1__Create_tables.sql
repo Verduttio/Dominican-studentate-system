@@ -93,6 +93,7 @@ CREATE TABLE tasks
     participants_limit INTEGER NOT NULL,
     archived           BOOLEAN NOT NULL,
     role_id            BIGINT,
+    sort_order         BIGINT,
     CONSTRAINT pk_tasks PRIMARY KEY (id)
 );
 

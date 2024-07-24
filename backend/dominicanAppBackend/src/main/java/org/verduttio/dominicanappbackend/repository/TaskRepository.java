@@ -15,13 +15,15 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByName(String name);
 
-    @Query("SELECT t FROM Task t JOIN t.allowedRoles r WHERE r.name IN :roleName")
+    List<Task> findAllByOrderBySortOrderAsc();
+
+    @Query("SELECT t FROM Task t JOIN t.allowedRoles r WHERE r.name IN :roleName ORDER BY t.sortOrder ASC")
     List<Task> findTaskByRoleName(String roleName);
 
-    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev) FROM Task t")
+    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev) FROM Task t ORDER BY t.sortOrder ASC")
     List<TaskShortInfo> findAllTasksShortInfo();
 
-    @Query("SELECT t FROM Task t WHERE t.supervisorRole.name = :supervisorName")
+    @Query("SELECT t FROM Task t WHERE t.supervisorRole.name = :supervisorName ORDER BY t.sortOrder ASC")
     List<Task> findTasksBySupervisorRoleName(String supervisorName);
 
     @Modifying
