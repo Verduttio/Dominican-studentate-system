@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
 import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
+import org.verduttio.dominicanappbackend.dto.task.TaskSortOrderUpdateDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
@@ -36,7 +37,7 @@ public class TaskService {
     }
 
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskRepository.findAllByOrderBySortOrderAsc();
     }
 
     public Optional<Task> getTaskById(Long taskId) {
@@ -128,5 +129,17 @@ public class TaskService {
 
     public List<Task> findTasksBySupervisorRoleName(String supervisorName){
         return taskRepository.findTasksBySupervisorRoleName(supervisorName);
+    }
+
+    public void updateTaskSortOrder(List<TaskSortOrderUpdateDTO> taskSortOrderUpdateDTOs) {
+        for (TaskSortOrderUpdateDTO taskSortOrderUpdateDTO : taskSortOrderUpdateDTOs) {
+            Optional<Task> task = taskRepository.findById(taskSortOrderUpdateDTO.id());
+            if (task.isEmpty()) {
+                throw new EntityNotFoundException("Task with id " + taskSortOrderUpdateDTO.id() + " does not exist");
+            }
+            Task taskToUpdate = task.get();
+            taskToUpdate.setSortOrder(taskSortOrderUpdateDTO.sortOrder());
+            taskRepository.save(taskToUpdate);
+        }
     }
 }

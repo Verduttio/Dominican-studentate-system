@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
 import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
+import org.verduttio.dominicanappbackend.dto.task.TaskSortOrderUpdateDTO;
 import org.verduttio.dominicanappbackend.entity.Task;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -65,6 +66,17 @@ public class TaskController {
         }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateTaskSortOrder(@RequestBody List<TaskSortOrderUpdateDTO> taskSortOrderUpdateDTOs) {
+        try {
+            taskService.updateTaskSortOrder(taskSortOrderUpdateDTOs);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{taskId}")
