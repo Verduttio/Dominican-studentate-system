@@ -14,6 +14,7 @@ interface Task {
     allowedRoles: Role[];
     supervisorRole: Role;
     daysOfWeek: string[];
+    sortOrder: number;
 }
 
 interface User {

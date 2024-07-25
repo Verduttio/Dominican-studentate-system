@@ -46,7 +46,8 @@ function AddTask() {
         permanent: false,
         allowedRoleNames: [],
         supervisorRoleName: '',
-        daysOfWeek: []
+        daysOfWeek: [],
+        sortOrder: 0,
     };
 
     const [taskData, setTaskData] = useState(initialTaskState);

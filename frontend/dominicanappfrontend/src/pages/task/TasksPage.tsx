@@ -17,7 +17,10 @@ function TasksPage () {
     const locationStateMessage = location.state?.message;
 
     useEffect(() => {
-        request(null, (data) => setTasks(data))
+        request(null, (data) => {
+            setTasks(data);
+            console.log(data)
+        })
             .then(() => {});
     }, [request]);
 
@@ -33,9 +36,14 @@ function TasksPage () {
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             {isFunkcyjny &&
-                <div className="d-flex justify-content-center">
-                    <button className="btn btn-primary mb-3" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
-                </div>
+                <>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-primary mb-3" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-primary mb-3" onClick={() => navigate('/tasks/order/edit')}>Edytuj kolejność oficjów</button>
+                    </div>
+                </>
             }
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '400px'}}>

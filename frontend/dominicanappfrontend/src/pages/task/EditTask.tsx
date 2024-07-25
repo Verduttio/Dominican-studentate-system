@@ -47,7 +47,8 @@ function EditTask() {
         permanent: false,
         allowedRoleNames: [],
         supervisorRoleName: '',
-        daysOfWeek: []
+        daysOfWeek: [],
+        sortOrder: 0
     };
 
     const { taskId } = useParams();
@@ -75,7 +76,8 @@ function EditTask() {
                     permanent: task.permanent,
                     allowedRoleNames: task.allowedRoles.map(role => role.name),
                     supervisorRoleName: task.supervisorRole?.name,
-                    daysOfWeek: task.daysOfWeek
+                    daysOfWeek: task.daysOfWeek,
+                    sortOrder: task.sortOrder,
                 });
             }
         });
