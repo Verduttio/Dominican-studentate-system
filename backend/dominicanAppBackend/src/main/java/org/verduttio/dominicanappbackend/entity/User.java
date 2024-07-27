@@ -31,6 +31,8 @@ public class User implements Serializable {
 
     private String surname;
 
+    private LocalDateTime entryDate;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -121,6 +123,14 @@ public class User implements Serializable {
         this.provider = provider;
     }
 
+    public LocalDateTime getEntryDate() {
+        return entryDate;
+    }
+
+    public void setEntryDate(LocalDateTime entryDate) {
+        this.entryDate = entryDate;
+    }
+
 
     // Constructors
     public User() {
@@ -128,7 +138,8 @@ public class User implements Serializable {
 
     public User(String email, String password, Set<Role> roles,
                 String name, String surname, AuthProvider provider,
-                boolean isEnabled, int failedLoginAttempts, LocalDateTime lockTime) {
+                boolean isEnabled, int failedLoginAttempts, LocalDateTime lockTime,
+                LocalDateTime entryDate) {
         this.email = email;
         this.password = password;
         this.roles = roles;
@@ -138,6 +149,7 @@ public class User implements Serializable {
         this.isEnabled = isEnabled;
         this.failedLoginAttempts = failedLoginAttempts;
         this.lockTime = lockTime;
+        this.entryDate = entryDate;
     }
 
     @Override

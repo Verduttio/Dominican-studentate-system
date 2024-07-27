@@ -111,6 +111,7 @@ CREATE TABLE users
     password              VARCHAR(255),
     name                  VARCHAR(255),
     surname               VARCHAR(255),
+    entry_date            TIMESTAMP WITHOUT TIME ZONE,
     provider              VARCHAR(255),
     is_enabled            BOOLEAN DEFAULT FALSE NOT NULL,
     failed_login_attempts INTEGER DEFAULT 0     NOT NULL,
