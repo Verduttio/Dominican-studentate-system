@@ -10,11 +10,13 @@ import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
 import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -140,5 +142,33 @@ public class UserRepositoryTest {
         Long actualCount = userRepository.countByNotEnabled();
 
         assertThat(actualCount).isEqualTo(0L);
+    }
+
+    @Test
+    public void testFindAllByOrderByEntryDateAsc() {
+        // Given
+        User user1 = new User();
+        user1.setName("User 1");
+        user1.setEntryDate(LocalDateTime.of(2021, 1, 1, 0, 0));
+        userRepository.save(user1);
+
+        User user2 = new User();
+        user2.setName("User 2");
+        user2.setEntryDate(LocalDateTime.of(2020, 1, 1, 0, 0));
+        userRepository.save(user2);
+
+        User user3 = new User();
+        user3.setName("User 3");
+        user3.setEntryDate(LocalDateTime.of(2020, 1, 1, 0, 30));
+        userRepository.save(user3);
+
+        // When
+        List<User> users = userRepository.findAllByOrderByEntryDateAsc();
+
+        // Then
+        assertEquals(3, users.size(), "All users should be returned");
+        assertEquals("User 2", users.get(0).getName(), "First should be: 'User 2'");
+        assertEquals("User 3", users.get(1).getName(), "Second should be: 'User 3'");
+        assertEquals("User 1", users.get(2).getName(), "Third should be: 'User 1'");
     }
 }
