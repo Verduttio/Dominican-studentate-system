@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/core";
 import {arrayMove, sortableKeyboardCoordinates} from "@dnd-kit/sortable";
 import {Column} from "./Column";
+import Instruction from "./Instruction";
 
 
 function EditTasksOrder () {
@@ -88,11 +89,12 @@ function EditTasksOrder () {
             <div className="d-flex justify-content-center">
                 <h1 className="entity-header">Edycja kolejności oficjów</h1>
             </div>
+            <Instruction/>
             <div className="d-flex justify-content-center">
                 {patchError && <AlertBox text={patchError} type={'danger'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-primary mb-3" onClick={updateTaskOrder} disabled={patchLoading}>
+                <button className="btn btn-primary" onClick={updateTaskOrder} disabled={patchLoading}>
                     Zaktualizuj kolejność {patchLoading && <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
