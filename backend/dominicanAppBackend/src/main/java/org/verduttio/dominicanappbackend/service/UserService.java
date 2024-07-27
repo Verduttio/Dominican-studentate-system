@@ -25,6 +25,7 @@ import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundExcepti
 import org.verduttio.dominicanappbackend.service.exception.UserAlreadyVerifiedException;
 import org.verduttio.dominicanappbackend.validation.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -246,5 +247,18 @@ public class UserService {
 
     public Long getNumberOfNotVerifiedUsers() {
         return userRepository.countByNotEnabled();
+    }
+
+    public void updateEntryDate(Long userId, LocalDateTime entryDate) {
+        if (!SecurityUtils.isUserOwnerOrAdmin(userId)) {
+            throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        user.setEntryDate(entryDate);
+        userRepository.save(user);
+        userSessionService.expireUserSessions(user.getEmail());
     }
 }
