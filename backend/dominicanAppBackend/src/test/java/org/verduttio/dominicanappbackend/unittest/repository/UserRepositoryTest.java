@@ -2,8 +2,7 @@ package org.verduttio.dominicanappbackend.unittest.repository;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -12,20 +11,17 @@ import org.verduttio.dominicanappbackend.entity.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("integration_tests")
 public class UserRepositoryTest {
 
-    @Mock
+    @Autowired
     private UserRepository userRepository;
 
     @Test
@@ -33,8 +29,7 @@ public class UserRepositoryTest {
         String email = "test@example.com";
         User expectedUser = new User();
         expectedUser.setEmail(email);
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(expectedUser));
+        userRepository.save(expectedUser);
 
         Optional<User> actualUser = userRepository.findByEmail(email);
 
@@ -44,8 +39,9 @@ public class UserRepositoryTest {
     @Test
     public void testExistsByEmail() {
         String email = "test@example.com";
-
-        when(userRepository.existsByEmail(email)).thenReturn(true);
+        User user = new User();
+        user.setEmail(email);
+        userRepository.save(user);
 
         boolean exists = userRepository.existsByEmail(email);
 
@@ -54,9 +50,9 @@ public class UserRepositoryTest {
 
     @Test
     public void testExistsById() {
-        Long userId = 1L;
-
-        when(userRepository.existsById(userId)).thenReturn(true);
+        User user = new User();
+        user = userRepository.save(user);
+        Long userId = user.getId();
 
         boolean exists = userRepository.existsById(userId);
 
@@ -65,11 +61,20 @@ public class UserRepositoryTest {
 
     @Test
     public void testFindAllUsersShortInfo() {
-        UserShortInfo userShortInfo1 = new UserShortInfo(1L, "John", "Doe");
-        UserShortInfo userShortInfo2 = new UserShortInfo(2L, "Jane", "Smith");
+        User user1 = new User();
+        user1.setName("John");
+        user1.setSurname("Doe");
+        user1 = userRepository.save(user1);
 
-        List<UserShortInfo> expectedUserShortInfos = Arrays.asList(userShortInfo1, userShortInfo2);
-        when(userRepository.findAllUsersShortInfo()).thenReturn(expectedUserShortInfos);
+        User user2 = new User();
+        user2.setName("Jane");
+        user2.setSurname("Smith");
+        user2 = userRepository.save(user2);
+
+        List<UserShortInfo> expectedUserShortInfos = Arrays.asList(
+                new UserShortInfo(1L, user1.getName(), user1.getSurname()),
+                new UserShortInfo(2L, user2.getName(), user2.getSurname())
+        );
 
         List<UserShortInfo> actualUserShortInfos = userRepository.findAllUsersShortInfo();
 
@@ -77,46 +82,19 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testRemoveRoleFromAllUsers() {
-        Long roleId = 1L;
-
-        doNothing().when(userRepository).removeRoleFromAllUsers(roleId);
-
-        userRepository.removeRoleFromAllUsers(roleId);
-
-        verify(userRepository, times(1)).removeRoleFromAllUsers(roleId);
-    }
-
-    @Test
-    public void testFindAllWhichHaveAnyOfRoles() {
-        List<String> roleNames = Arrays.asList("ROLE_ADMIN", "ROLE_USER");
-        User user1 = new User();
-        User user2 = new User();
-
-        List<User> expectedUsers = Arrays.asList(user1, user2);
-        when(userRepository.findAllWhichHaveAnyOfRoles(roleNames)).thenReturn(expectedUsers);
-
-        List<User> actualUsers = userRepository.findAllWhichHaveAnyOfRoles(roleNames);
-
-        assertThat(actualUsers).isEqualTo(expectedUsers);
-    }
-
-    @Test
     public void testCountByNotEnabled() {
-        Long expectedCount = 5L;
-
-        when(userRepository.countByNotEnabled()).thenReturn(expectedCount);
+        User user = new User();
+        user.setEnabled(false);
+        userRepository.save(user);
 
         Long actualCount = userRepository.countByNotEnabled();
 
-        assertThat(actualCount).isEqualTo(expectedCount);
+        assertThat(actualCount).isEqualTo(1L);
     }
 
     @Test
     public void testFindByEmailWithNonExistingEmail() {
         String email = "nonexisting@example.com";
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         Optional<User> actualUser = userRepository.findByEmail(email);
 
@@ -127,8 +105,6 @@ public class UserRepositoryTest {
     public void testExistsByEmailWithNonExistingEmail() {
         String email = "nonexisting@example.com";
 
-        when(userRepository.existsByEmail(email)).thenReturn(false);
-
         boolean exists = userRepository.existsByEmail(email);
 
         assertThat(exists).isFalse();
@@ -138,8 +114,6 @@ public class UserRepositoryTest {
     public void testExistsByIdWithNonExistingId() {
         Long userId = 999L;
 
-        when(userRepository.existsById(userId)).thenReturn(false);
-
         boolean exists = userRepository.existsById(userId);
 
         assertThat(exists).isFalse();
@@ -147,8 +121,6 @@ public class UserRepositoryTest {
 
     @Test
     public void testFindAllUsersShortInfoWithEmptyResult() {
-        when(userRepository.findAllUsersShortInfo()).thenReturn(Collections.emptyList());
-
         List<UserShortInfo> actualUserShortInfos = userRepository.findAllUsersShortInfo();
 
         assertThat(actualUserShortInfos).isEmpty();
@@ -158,32 +130,15 @@ public class UserRepositoryTest {
     public void testFindAllWhichHaveAnyOfRolesWithEmptyResult() {
         List<String> roleNames = List.of("ROLE_NONEXISTENT");
 
-        when(userRepository.findAllWhichHaveAnyOfRoles(roleNames)).thenReturn(Collections.emptyList());
-
         List<User> actualUsers = userRepository.findAllWhichHaveAnyOfRoles(roleNames);
 
         assertThat(actualUsers).isEmpty();
     }
 
     @Test
-    public void testRemoveRoleFromAllUsersWithNonExistingRole() {
-        Long roleId = 999L;
-
-        doNothing().when(userRepository).removeRoleFromAllUsers(roleId);
-
-        userRepository.removeRoleFromAllUsers(roleId);
-
-        verify(userRepository, times(1)).removeRoleFromAllUsers(roleId);
-    }
-
-    @Test
     public void testCountByNotEnabledWithZeroResult() {
-        Long expectedCount = 0L;
-
-        when(userRepository.countByNotEnabled()).thenReturn(expectedCount);
-
         Long actualCount = userRepository.countByNotEnabled();
 
-        assertThat(actualCount).isEqualTo(expectedCount);
+        assertThat(actualCount).isEqualTo(0L);
     }
 }
