@@ -56,7 +56,7 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "isEnabled"));
+        return userRepository.findAllByOrderByEntryDateAsc(Sort.by(Sort.Direction.ASC, "isEnabled"));
     }
 
     public Optional<User> getUserById(Long userId) {
