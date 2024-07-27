@@ -50,10 +50,10 @@ const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, onC
 
         if (validateFields()) {
             const dateStr = selectedDate?.toISOString().split('T')[0]; // YYYY-MM-DD
-            const dateTimeStr = `${dateStr} ${selectedTime}:00`; // "YYYY-MM-DD HH:mm:00"
+            const dateTimeStr = `${dateStr}T${selectedTime}:00`; // "YYYY-MM-DD HH:mm:00"
 
             try {
-                changeEntryDate(dateTimeStr, () => {
+                changeEntryDate({entryDate: dateTimeStr}, () => {
                     setFieldsSuccessfullyChanged(true);
                 });
             } catch (error) {
