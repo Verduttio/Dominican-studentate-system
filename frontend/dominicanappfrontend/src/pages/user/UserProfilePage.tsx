@@ -7,10 +7,13 @@ import {useLocation, useNavigate} from "react-router-dom";
 import AlertBox from "../../components/AlertBox";
 import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser";
 import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
+import ChangeEntryDatePopup from "./ChangeEntryDatePopup";
+import {formatEntryDate} from "../../utils/LocalDateTimeFormatter";
 
 function UserProfilePage () {
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
+    const [showChangeEntryDate, setShowChangeEntryDate] = useState(false);
     const { currentUser, errorCurrent } = useGetOrCreateCurrentUser()
     const navigate = useNavigate();
     const location = useLocation();
@@ -36,17 +39,24 @@ function UserProfilePage () {
                                     <div><strong>Imię:</strong> {currentUser.name}</div>
                                     <div><strong>Nazwisko:</strong> {currentUser.surname}</div>
                                     <div><strong>Email:</strong> {currentUser.email}</div>
+                                    <div><strong>Data pierwszych ślubów:</strong> {formatEntryDate(currentUser.entryDate)}</div>
                                     <div><strong>Id:</strong> {currentUser.id}</div>
                                     <div><strong>Zarejestrowany przez:</strong> {currentUser.provider}</div>
                                     <div className={"d-flex justify-content-between mt-1"}>
                                         <button
-                                            className="btn btn-info"
+                                            className="btn btn-info m-1"
                                             onClick={() => setShowChangeNameSurname(true)}
                                         >
                                             Zmień imię i nazwisko
                                         </button>
+                                        <button
+                                            className="btn btn-info m-1"
+                                            onClick={() => setShowChangeEntryDate(true)}
+                                        >
+                                            Zmień datę pierwszych ślubów
+                                        </button>
                                         {currentUser.provider === Provider.LOCAL &&
-                                            <div className="d-flex justify-content-center p-3">
+                                            <div className="d-flex justify-content-center m-1">
                                                 <button
                                                     className="btn btn-danger"
                                                     onClick={() => setShowChangePassword(true)}
@@ -62,6 +72,8 @@ function UserProfilePage () {
                                                                         onClose={() => setShowChangePassword(false)}/>}
                             {showChangeNameSurname && <ChangeNameSurnamePopup userId={currentUser.id}
                                                                               onClose={() => setShowChangeNameSurname(false)}/>}
+                            {showChangeEntryDate && <ChangeEntryDatePopup userId={currentUser.id}
+                                                                                onClose={() => setShowChangeEntryDate(false)}/>}
                         </div>
                         <div className="col-md-6 mw-100" style={{width: '400px'}}>
                             <div className="card shadow-sm m-1">

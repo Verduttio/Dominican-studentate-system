@@ -7,6 +7,7 @@ import {useParams} from "react-router-dom";
 import UserWeekSchedule from "./UserWeekSchedule";
 import UserTasksStatistics from "./UserTasksStatistics";
 import AlertBox from "../../components/AlertBox";
+import {formatEntryDate} from "../../utils/LocalDateTimeFormatter";
 
 function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
@@ -38,6 +39,10 @@ function UserDetailsViewer () {
                         <tr>
                             <th className="table-dark">Email</th>
                             <td>{user?.email}</td>
+                        </tr>
+                        <tr>
+                            <th className="table-dark">Data pierwszych ślubów</th>
+                            <td>{user?.entryDate ? formatEntryDate(user?.entryDate) : "BRAK DANYCH"}</td>
                         </tr>
                         <tr>
                             <th className="table-dark">Role</th>

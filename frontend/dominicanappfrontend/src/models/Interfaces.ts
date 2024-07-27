@@ -22,6 +22,7 @@ interface User {
     email: string;
     name: string;
     surname: string;
+    entryDate: string;
     roles: Role[];
     provider: string;
     enabled: boolean;

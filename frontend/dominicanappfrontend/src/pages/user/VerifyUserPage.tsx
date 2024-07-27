@@ -10,6 +10,8 @@ import useIsAdmin from "../../services/UseIsAdmin";
 import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
 import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
+import ChangeEntryDatePopup from "./ChangeEntryDatePopup";
+import {formatEntryDate} from "../../utils/LocalDateTimeFormatter";
 
 function VerifyUserPage() {
     const { id: userId } = useParams();
@@ -29,6 +31,7 @@ function VerifyUserPage() {
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
     const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
+    const [showChangeEntryDate, setShowChangeEntryDate] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -99,6 +102,10 @@ function VerifyUserPage() {
                             <td>{user?.email}</td>
                         </tr>
                         <tr>
+                            <th className="table-dark">Data pierwszych ślubów</th>
+                            <td>{user?.entryDate ? formatEntryDate(user.entryDate) : "BRAK DANYCH"}</td>
+                        </tr>
+                        <tr>
                             <th className="table-dark">Role</th>
                             <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
                         </tr>
@@ -126,6 +133,11 @@ function VerifyUserPage() {
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}
                             onClick={() => setShowChangeNameSurname(true)}>
                         Edytuj imię i nazwisko
+                    </button>
+                    <button className="btn btn-info m-1"
+                            disabled={requestLoading || deleteUserLoading || updateRolesLoading}
+                            onClick={() => setShowChangeEntryDate(true)}>
+                        Edytuj datę pierwszych ślubów
                     </button>
                     {user?.provider === Provider.LOCAL &&
                         <button className="btn btn-warning m-1"
@@ -209,6 +221,9 @@ function VerifyUserPage() {
                     {showChangeNameSurname &&
                         <ChangeNameSurnamePopup userId={user?.id ? user.id : 0}
                                                 onClose={() => setShowChangeNameSurname(false)}/>}
+                    {showChangeEntryDate &&
+                        <ChangeEntryDatePopup userId={user?.id ? user.id : 0}
+                                                onClose={() => setShowChangeEntryDate(false)}/>}
                     <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>
