@@ -22,6 +22,7 @@ import Instruction from "./Instruction";
 
 function EditTasksOrder () {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [initialTasks, setInitialTasks] = useState<Task[]>([]);
     const { error, loading, request } = useHttp(`${backendUrl}/api/tasks`, 'GET');
     const { error: patchError, request: patchTaskOrder, loading: patchLoading } = useHttp(`${backendUrl}/api/tasks`, 'PATCH');
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsAdmin();
@@ -29,10 +30,13 @@ function EditTasksOrder () {
 
     useEffect(() => {
         request(null, (data) => {
-            setTasks(data)
+            setTasks(data);
+            setInitialTasks(data);
         })
             .then(() => {});
     }, [request]);
+
+    const hasOrderChanged = JSON.stringify(tasks) !== JSON.stringify(initialTasks);
 
     const updateTaskOrder = () => {
         const updatedTasks = tasks.map((task, index) => {
@@ -94,7 +98,7 @@ function EditTasksOrder () {
                 {patchError && <AlertBox text={patchError} type={'danger'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-primary" onClick={updateTaskOrder} disabled={patchLoading}>
+                <button className="btn btn-primary" onClick={updateTaskOrder} disabled={!hasOrderChanged || patchLoading}>
                     Zaktualizuj kolejność {patchLoading && <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
