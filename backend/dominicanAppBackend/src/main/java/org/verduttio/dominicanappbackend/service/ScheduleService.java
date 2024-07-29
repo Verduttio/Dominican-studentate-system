@@ -936,7 +936,7 @@ public class ScheduleService {
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
-                        .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to))
+                        .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to, false))
                         .collect(Collectors.toList())
         );
 
@@ -958,7 +958,7 @@ public class ScheduleService {
         for (int i = 0; i < 7; i++) {
             final LocalDate date = from.plusDays(i);
             List<UserTaskScheduleInfo> userTaskScheduleInfos = tasksByRole.stream()
-                    .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to))
+                    .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to, true))
                     .toList();
             userTasksDependencies.getUserTasksScheduleInfo().put(date.getDayOfWeek(), userTaskScheduleInfos);
         }
@@ -967,7 +967,7 @@ public class ScheduleService {
     }
 
 
-    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, List<Conflict> allConflicts, LocalDate date, LocalDate from, LocalDate to) {
+    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, List<Conflict> allConflicts, LocalDate date, LocalDate from, LocalDate to, boolean ignoreLastAssignedStats) {
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
 
         boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
@@ -984,7 +984,7 @@ public class ScheduleService {
             userTaskScheduleInfo.setVisible(false);
         } else {
             userTaskScheduleInfo.setVisible(true);
-            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to, allConflicts);
+            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to, allConflicts, ignoreLastAssignedStats);
 
 
             if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
@@ -1005,16 +1005,23 @@ public class ScheduleService {
         return userTaskScheduleInfo;
     }
 
-    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to, List<Conflict> allConflicts) {
+    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to, List<Conflict> allConflicts, boolean ignoreLastAssignedStats) {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
 
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        int numberOfTaskCompletionByUserFromStatsDate = (int) getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
-        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
+        int numberOfTaskCompletionByUserFromStatsDate;
+        LocalDate userLastCompletionDateForTask;
+        if(!ignoreLastAssignedStats) {
+            numberOfTaskCompletionByUserFromStatsDate = (int) getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
+            userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
+        } else {
+            numberOfTaskCompletionByUserFromStatsDate = 0;
+            userLastCompletionDateForTask = null;
+        }
 
         List<Conflict> taskConflicts = allConflicts.stream().filter(conflict -> conflict.getTask1().getId().equals(taskId) || conflict.getTask2().getId().equals(taskId)).toList();
 
