@@ -128,11 +128,6 @@ public class ScheduleService {
         scheduleRepository.save(schedule);
     }
 
-    public void deleteSchedule(Long scheduleId) {
-        checkIfScheduleExists(scheduleId);
-        scheduleRepository.deleteById(scheduleId);
-    }
-
     public boolean existsById(Long scheduleId) {
         return scheduleRepository.existsById(scheduleId);
     }
@@ -142,10 +137,6 @@ public class ScheduleService {
             throw new EntityNotFoundException("User with given id does not exist");
         }
         return scheduleRepository.findByUserId(userId);
-    }
-
-    public List<Schedule> getCurrentSchedules() {
-        return scheduleRepository.findSchedulesLaterOrInDay(LocalDate.now());
     }
 
     public List<Task> getAvailableTasks(LocalDate from, LocalDate to) {
@@ -915,13 +906,14 @@ public class ScheduleService {
 
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, date))
+                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date))
                 .collect(Collectors.toList());
     }
 
-    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeeklyForOneDay(User user, List<Task> tasksByRole, LocalDate date) {
+    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeeklyForOneDay(User user, List<Task> tasksByRole, List<Conflict> allConflicts, LocalDate date) {
         // Get from and to date using given date
         // from - start of the week - sunday
         // to - end of the week - saturday
@@ -944,7 +936,7 @@ public class ScheduleService {
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
-                        .map(task -> createUserTaskScheduleInfo(user, task, date, from, to))
+                        .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to))
                         .collect(Collectors.toList())
         );
 
@@ -961,11 +953,12 @@ public class ScheduleService {
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
 
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         for (int i = 0; i < 7; i++) {
             final LocalDate date = from.plusDays(i);
             List<UserTaskScheduleInfo> userTaskScheduleInfos = tasksByRole.stream()
-                    .map(task -> createUserTaskScheduleInfo(user, task, date, from, to))
+                    .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to))
                     .toList();
             userTasksDependencies.getUserTasksScheduleInfo().put(date.getDayOfWeek(), userTaskScheduleInfos);
         }
@@ -974,7 +967,7 @@ public class ScheduleService {
     }
 
 
-    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, LocalDate date, LocalDate from, LocalDate to) {
+    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, List<Conflict> allConflicts, LocalDate date, LocalDate from, LocalDate to) {
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
 
         boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
@@ -991,7 +984,7 @@ public class ScheduleService {
             userTaskScheduleInfo.setVisible(false);
         } else {
             userTaskScheduleInfo.setVisible(true);
-            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to);
+            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to, allConflicts);
 
 
             if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
@@ -1012,7 +1005,7 @@ public class ScheduleService {
         return userTaskScheduleInfo;
     }
 
-    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to) {
+    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to, List<Conflict> allConflicts) {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
 
@@ -1023,7 +1016,8 @@ public class ScheduleService {
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
 
-        List<Conflict> taskConflicts = conflictService.findAllByTaskId(taskId);
+        List<Conflict> taskConflicts = allConflicts.stream().filter(conflict -> conflict.getTask1().getId().equals(taskId) || conflict.getTask2().getId().equals(taskId)).toList();
+
         boolean isInConflict = scheduleRepository.findByUserIdAndDate(userId, date).stream()
                 .anyMatch(s -> conflictService.tasksAreInConflict(taskId, s.getTask().getId(), taskConflicts, date.getDayOfWeek(), isFeastDate));
 
