@@ -816,6 +816,16 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    public UserTasksScheduleInfoWeekly getUserTasksScheduleInfoWeeklyByRole(String roleName, Long userId, LocalDate from, LocalDate to) {
+        validateDateRange(from, to);
+
+        List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
+        User user = userService.getUserById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        return createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to);
+    }
+
     public List<UserTasksScheduleInfoWeeklyByAllDays> getUserTasksScheduleInfoWeeklyByAllDaysByRole(String roleName, LocalDate from, LocalDate to) {
         Role role = validateRoleExistence(roleName);
 

@@ -173,6 +173,24 @@ public class ScheduleController {
         }
     }
 
+    @GetMapping("task/{roleName}/{userId}/schedule-info/weekly")
+    public ResponseEntity<?> getUserTasksScheduleInfoWeeklyByRoleForOneUser(
+            @PathVariable String roleName,
+            @PathVariable Long userId,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            UserTasksScheduleInfoWeekly userDependency = scheduleService.getUserTasksScheduleInfoWeeklyByRole(roleName, userId, from, to);
+            return ResponseEntity.ok(userDependency);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("task/{roleName}/all/schedule-info/weekly/by-all-days")
     public ResponseEntity<?> getUserTasksScheduleInfoWeeklyByRoleByAllDays(
             @PathVariable String roleName,
