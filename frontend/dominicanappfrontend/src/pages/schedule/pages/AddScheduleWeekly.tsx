@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    Task,
+    Task, UserTaskScheduleInfo,
     UserTasksScheduleInfoWeekly
 } from "../../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
@@ -49,6 +49,9 @@ function AddScheduleWeekly() {
     const [userScheduleHistoryPopup, setUserScheduleHistoryPopup] = useState(false);
     const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
     const {currentUser} = useGetOrCreateCurrentUser();
+
+    const { request: requestForUser, loading: loadingForUser, error: errorForUser } = useHttp();
+    const [userIdForRequestForUser, setUserIdForRequestForUser] = useState<number>(0);
 
     function showUserScheduleHistoryPopup(userId: number) {
         setUserIdForScheduleHistoryPopup(userId);
@@ -117,10 +120,29 @@ function AddScheduleWeekly() {
 
             console.log(requestData);
 
-            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
+            assignToTaskRequest(requestData, () => {
+                refreshUserData(userId);
+            })
                 .then(() => setShowConfirmAssignmentPopup(false));
         } else {
             console.log("taskId, from or to is null")
+        }
+    }
+
+    function refreshUserData(userId: number) {
+        setUserIdForRequestForUser(userId);
+        const userDependency = userDependencies.find(dep => dep.userId === userId);
+        if (userDependency) {
+            requestForUser(null, (data: UserTasksScheduleInfoWeekly) => {
+                setUserDependencies(prev => {
+                    if (data) {
+                        return prev.map(ud => ud.userId === userId ? data : ud);
+                    } else {
+                        return prev;
+                    }
+                })
+                setUserIdForRequestForUser(0);
+            }, false, `${backendUrl}/api/schedules/task/${roleName}/${userId}/schedule-info/weekly?from=${from}&to=${to}`, 'GET');
         }
     }
 
@@ -135,21 +157,80 @@ function AddScheduleWeekly() {
 
             console.log(requestData);
 
-            unassignTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
+            unassignTaskRequest(requestData, () => {
+                refreshUserData(userId);
+            });
         } else {
             console.log("taskId, from or to is null")
         }
     }
 
+    const renderUserTaskScheduleInfo = (dep: UserTasksScheduleInfoWeekly, udep: UserTaskScheduleInfo) => {
+        if (loadingForUser && userIdForRequestForUser === dep.userId) {
+            return (
+                <td>
+                    <span className="spinner-border spinner-border-sm"></span>
+                </td>
+            )
+        } else {
+            return (
+                <td className={isTaskFullyAssigned(udep.taskId, tasks, userDependencies) ? "bg-secondary" : ""}>{udep.hasRoleForTheTask ? (
+                    !udep.hasObstacle ? (
+                        udep.assignedToTheTask ? (
+                            <button
+                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
+                                onClick={() => {
+                                    unassignTask(dep.userId, udep.taskId)
+                                }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                        <span
+                                                            className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
+                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                            </span>
+                            </button>
+                        ) : (
+                            <button
+                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
+                                onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                                disabled={assignToTaskLoading || unassignTaskLoading}>
+                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                            </button>
+                        )
+                    ) : (udep.assignedToTheTask ? (
+                            <button className='btn btn-info'
+                                    onClick={() => {
+                                        unassignTask(dep.userId, udep.taskId)
+                                    }} disabled={assignToTaskLoading || unassignTaskLoading}>
+                                                        <span
+                                                            className='highlighted-text-conflict'>
+                                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                                            </span>
+                            </button>
+                        ) : (
+                            <button className='btn btn-info'
+                                    disabled={true}>
+                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                            </button>
+                        )
+                    )
+                ) : (
+                    <button className='btn btn-info' disabled={true}>
+                        {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                    </button>
+                )}
+                </td>
+            )
+        }
+    }
+
 
     const renderTable = () => {
-        if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        if (isFunkcyjnyLoading || isFunkcyjnyInitialized) {
             return <LoadingSpinner/>;
-        } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+        } else if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'}/>;
 
         if (loading || loadingAllTasksByRole) return <LoadingSpinner/>;
         if (error || errorAllTasksByRole) return (
-            <AlertBox text={error } type={'danger'} width={'500px'}/>
+            <AlertBox text={error} type={'danger'} width={'500px'}/>
         )
 
         return (
@@ -196,50 +277,7 @@ function AddScheduleWeekly() {
                                     })}
                                 </td>
                                 {dep.userTasksScheduleInfo?.map(udep => (
-                                    <td className={isTaskFullyAssigned(udep.taskId, tasks, userDependencies) ? "bg-secondary" : ""}>{udep.hasRoleForTheTask ? (
-                                            !udep.hasObstacle ? (
-                                                udep.assignedToTheTask ? (
-                                                    <button
-                                                        className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
-                                                        onClick={() => {
-                                                            unassignTask(dep.userId, udep.taskId)
-                                                        }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    <span
-                                                        className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </span>
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
-                                                        onClick={() => handleSubmit(dep.userId, udep.taskId)}
-                                                        disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                        {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                    </button>
-                                                )
-                                            ) : (udep.assignedToTheTask ? (
-                                                    <button className='btn btn-info'
-                                                            onClick={() => {
-                                                                unassignTask(dep.userId, udep.taskId)
-                                                            }} disabled={assignToTaskLoading || unassignTaskLoading}>
-                                                    <span
-                                                        className='highlighted-text-conflict'>
-                                                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                        </span>
-                                                    </button>
-                                                ) : (
-                                                    <button className='btn btn-info'
-                                                            disabled={true}>
-                                                        {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                                    </button>
-                                                )
-                                            )
-                                        ): (
-                                            <button className='btn btn-info' disabled={true}>
-                                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
-                                            </button>
-                                        )}
-                                    </td>
+                                    renderUserTaskScheduleInfo(dep, udep)
                                 ))}
                             </tr>
                         ))}
