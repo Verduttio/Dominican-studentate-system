@@ -42,7 +42,7 @@ import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
 const AppContent = () => {
     const location = useLocation();
     const hideBarPaths = ['/loginForm', '/register'];
-    const fluidContainerPaths = ['/add-schedule/weekly'];
+    const fluidContainerPaths = ['/add-schedule/weekly', '/add-schedule/weekly/by-all-days', '/add-schedule/daily'];
 
     const containerClass = fluidContainerPaths.includes(location.pathname) ? 'container-fluid' : 'container';
 
