@@ -923,6 +923,15 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    public UserTasksScheduleInfoWeekly getUserTasksScheduleInfoWeeklyForOneDayByRole(String roleName, Long userId, LocalDate date) {
+        List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
+        User user = userService.getUserById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
+
+        return createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date);
+    }
+
     private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeeklyForOneDay(User user, List<Task> tasksByRole, List<Conflict> allConflicts, LocalDate date) {
         // Get from and to date using given date
         // from - start of the week - sunday
