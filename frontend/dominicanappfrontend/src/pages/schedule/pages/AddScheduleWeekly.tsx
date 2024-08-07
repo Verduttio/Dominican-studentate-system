@@ -69,6 +69,7 @@ function AddScheduleWeekly() {
             if (format(startOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === from &&
                 format(endOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === to) {
                 setUserDependencies(data);
+                console.log(data)
             }
         });
     }, [request, refreshData, currentWeekRef, currentWeek, from, to]);
