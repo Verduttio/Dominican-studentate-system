@@ -141,8 +141,6 @@ function AddScheduleDaily() {
         const userDependency = userDependencies.find(dep => dep.userId === userId);
         if (userDependency) {
             requestForUser(null, (data: UserTasksScheduleInfoWeekly) => {
-                console.log("data refreshUserData: ");
-                console.log(data);
                 setUserDependencies(prev => {
                     if (data) {
                         return prev.map(ud => ud.userId === userId ? data : ud);

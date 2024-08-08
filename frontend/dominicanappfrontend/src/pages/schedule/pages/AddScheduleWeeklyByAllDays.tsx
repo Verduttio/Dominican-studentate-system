@@ -1,8 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {
-    Task,
-    UserTasksScheduleInfoWeeklyByAllDays
-} from "../../../models/Interfaces";
+import {Task, UserTasksScheduleInfoWeeklyByAllDays} from "../../../models/Interfaces";
 import {useLocation, useNavigate} from "react-router-dom";
 import {backendUrl} from "../../../utils/constants";
 import useHttp from "../../../services/UseHttp";
@@ -13,7 +10,7 @@ import AlertBox from "../../../components/AlertBox";
 import {endOfWeek, format, startOfWeek} from "date-fns";
 import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
 import ButtonLegend from "../common/ButtonLegend";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faArrowsRotate, faRectangleXmark} from '@fortawesome/free-solid-svg-icons';
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
@@ -57,6 +54,9 @@ function AddScheduleWeeklyByAllDays() {
     const [userIdForScheduleHistoryPopup, setUserIdForScheduleHistoryPopup] = useState<number>(0);
 
     const [expandedSelects, setExpandedSelects] = useState<ExpandedSelects>({});
+
+    const { request: requestForUser, loading: loadingForUser, error: errorForUser } = useHttp();
+    const [userIdForRequestForUser, setUserIdForRequestForUser] = useState<number>(0);
 
     function showUserScheduleHistoryPopup(userId: number) {
         setUserIdForScheduleHistoryPopup(userId);
@@ -112,6 +112,7 @@ function AddScheduleWeeklyByAllDays() {
         if(task === undefined) return;
         const userTaskDependency = userDependency?.userTasksScheduleInfo.get(day)?.find(uTask => uTask.taskId === task?.id);
         const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
+        handleSelectFocus(userIndex, day, false);
 
         if (userTaskDependency?.isInConflict && countAssignedUsers(taskId, day) >= participantsLimit) {
             setConfirmAssignmentPopupText("Brat wykonuje inne oficjum, które jest w konflikcie z wybranym. Ponadto do oficjum jest już przypisana maksymalna liczba braci. Czy na pewno chcesz wyznaczyć do tego zadania wybranego brata?");
@@ -144,6 +145,24 @@ function AddScheduleWeeklyByAllDays() {
         }
     }
 
+    function refreshUserData(userId: number) {
+        setUserIdForRequestForUser(userId);
+        const userDependency = userDependencies?.find(dep => dep.userId === userId);
+        if (userDependency) {
+            requestForUser(null, (data: UserTasksScheduleInfoWeeklyByAllDays) => {
+                data.userTasksScheduleInfo = new Map(Object.entries(data.userTasksScheduleInfo));
+                setUserDependencies(prev => {
+                    if (data) {
+                        return prev?.map(ud => ud.userId === userId ? data : ud);
+                    } else {
+                        return prev;
+                    }
+                })
+                setUserIdForRequestForUser(0);
+            }, false, `${backendUrl}/api/schedules/task/${roleName}/${userId}/schedule-info/weekly/by-all-days?from=${from}&to=${to}`, 'GET');
+        }
+    }
+
 
     function assignToTask(userId: number, taskId: number, day: string) {
         if (taskId != null) {
@@ -161,7 +180,9 @@ function AddScheduleWeeklyByAllDays() {
                 taskDate: formattedTaskDate
             };
 
-            assignToTaskRequest(requestData, () => {setRefreshData(prev => !prev);})
+            assignToTaskRequest(requestData, () => {
+                refreshUserData(userId);
+            })
                 .then(() => setShowConfirmAssignmentPopup(false));
         } else {
             console.log("taskId is null")
@@ -184,21 +205,109 @@ function AddScheduleWeeklyByAllDays() {
                 taskDate: formattedTaskDate
             };
 
-            unassignTaskRequest(requestData, () => {setRefreshData(prev => !prev);});
+            unassignTaskRequest(requestData, () => {
+                refreshUserData(userId);
+            });
         } else {
             console.log("taskId is null")
         }
     }
 
+    const renderUserTasksScheduleInfo = (dep: UserTasksScheduleInfoWeeklyByAllDays, indexRow: number, day: string, index: number) => {
+        if (loadingForUser && userIdForRequestForUser === dep.userId) {
+            return (
+                <td>
+                    <span className="spinner-border spinner-border-sm"></span>
+                </td>
+            )
+        } else {
+            return (
+                <td key={index}>
+                    {dep.userTasksScheduleInfo.get(day)?.every(task => !task.visible) ? (
+                        <button className="btn btn-secondary p-1" type="button" disabled={true}>
+                            <FontAwesomeIcon icon={faRectangleXmark}/>
+                        </button>
+                    ) : (
+                        <>
+                            <div className="d-flex justify-content-center">
+                                <select
+                                    className={`form-control p-0 ${expandedSelects[`${indexRow}-${day}`] ? 'select-expanded' : 'select-collapsed'}`}
+                                    onFocus={() => handleSelectFocus(indexRow, day, true)}
+                                    onBlur={() => handleSelectFocus(indexRow, day, false)}
+                                    onChange={(e) => {
+                                        handleSubmit(indexRow, parseInt(e.target.value), day)
+                                    }}
+                                    disabled={assignToTaskLoading || unassignTaskLoading}
+                                >
+                                    <option className="text-center">+</option>
+                                    {dep.userTasksScheduleInfo.get(day)?.filter(task => !task.assignedToTheTask && task.visible).map((task, index) => {
+                                        let optionClassName;
+                                        if (task.isInConflict) {
+                                            optionClassName = "bg-warning";
+                                        } else if (task.hasObstacle) {
+                                            optionClassName = "bg-info";
+                                        } else {
+                                            optionClassName = "";
+                                        }
+                                        optionClassName += " text-center";
+                                        return (
+                                            <option key={index} value={task.taskId}
+                                                    className={optionClassName}>
+                                                {task.taskName}
+                                            </option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                            <div className="selected-tasks">
+                                {dep.userTasksScheduleInfo.get(day)?.filter(task => task.assignedToTheTask && task.visible).map(((task, index) => {
+                                    if (task.isInConflict) {
+                                        return (
+                                            <div className="pt-2">
+                                                <button className="btn btn-warning p-1" type="button"
+                                                        onClick={() => {
+                                                            unassignTask(dep.userId, task.taskId, day)
+                                                        }}
+                                                        disabled={assignToTaskLoading || unassignTaskLoading}
+                                                >
+                                                     <span className={'highlighted-text-conflict'}>
+                                                        {task ? task.taskName : 'Nieznane oficjum'}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        )
+                                    } else {
+                                        return (
+                                            <div className="pt-2">
+                                                <button className="btn btn-success p-1" type="button"
+                                                        onClick={() => {
+                                                            unassignTask(dep.userId, task.taskId, day)
+                                                        }}
+                                                        disabled={assignToTaskLoading || unassignTaskLoading}
+                                                >
+                                                    {task ? task.taskName : 'Nieznane oficjum'}
+                                                </button>
+                                            </div>
+                                        )
+                                    }
+                                }))}
+                            </div>
+                        </>
+                    )}
+                </td>
+            )
+        }
+    }
+
 
     const renderTable = () => {
-        if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+        if (isFunkcyjnyLoading || isFunkcyjnyInitialized) {
             return <LoadingSpinner/>;
-        } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+        } else if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'}/>;
 
         if (loading || loadingAllTasksByRole) return <LoadingSpinner/>;
         if (error || errorAllTasksByRole) return (
-            <AlertBox text={error } type={'danger'} width={'500px'}/>
+            <AlertBox text={error} type={'danger'} width={'500px'}/>
         )
 
         return (
@@ -245,72 +354,7 @@ function AddScheduleWeeklyByAllDays() {
                                     })}
                                 </td>
                                 {Object.values(daysOrder).map((day, index) => (
-                                    <td key={index}>
-                                        {dep.userTasksScheduleInfo.get(day)?.every(task => !task.visible) ? (
-                                            <button className="btn btn-secondary p-1" type="button" disabled={true}>
-                                                <FontAwesomeIcon icon={faRectangleXmark}/>
-                                            </button>
-                                        ) : (
-                                            <>
-                                                <div className="d-flex justify-content-center">
-                                                    <select
-                                                        className={`form-control p-0 ${expandedSelects[`${indexRow}-${day}`] ? 'select-expanded' : 'select-collapsed'}`}
-                                                        onFocus={() => handleSelectFocus(indexRow, day, true)}
-                                                        onBlur={() => handleSelectFocus(indexRow, day, false)}
-                                                        onChange={(e) => {handleSubmit(indexRow, parseInt(e.target.value), day)}}
-                                                    >
-                                                        <option className="text-center">+</option>
-                                                        {dep.userTasksScheduleInfo.get(day)?.filter(task => !task.assignedToTheTask && task.visible).map((task, index) => {
-                                                            let optionClassName;
-                                                            if (task.isInConflict) {
-                                                                optionClassName = "bg-warning";
-                                                            } else if (task.hasObstacle) {
-                                                                optionClassName = "bg-info";
-                                                            } else {
-                                                                optionClassName = "";
-                                                            }
-                                                            optionClassName += " text-center";
-                                                            return (
-                                                                <option key={index} value={task.taskId}
-                                                                        className={optionClassName}>
-                                                                    {task.taskName}
-                                                                </option>
-                                                            )
-                                                        })}
-                                                    </select>
-                                                </div>
-                                                <div className="selected-tasks">
-                                                    {dep.userTasksScheduleInfo.get(day)?.filter(task => task.assignedToTheTask && task.visible).map(((task, index) => {
-                                                        if (task.isInConflict) {
-                                                            return (
-                                                                <div className="pt-2">
-                                                                    <button className="btn btn-warning p-1" type="button"
-                                                                            onClick={() => {
-                                                                                unassignTask(dep.userId, task.taskId, day)
-                                                                            }}>
-                                                                         <span className={'highlighted-text-conflict'}>
-                                                                            {task ? task.taskName : 'Nieznane oficjum'}
-                                                                        </span>
-                                                                    </button>
-                                                                </div>
-                                                            )
-                                                        } else {
-                                                            return (
-                                                                <div className="pt-2">
-                                                                    <button className="btn btn-success p-1" type="button"
-                                                                            onClick={() => {
-                                                                                unassignTask(dep.userId, task.taskId, day)
-                                                                            }}>
-                                                                        {task ? task.taskName : 'Nieznane oficjum'}
-                                                                    </button>
-                                                                </div>
-                                                            )
-                                                        }
-                                                    }))}
-                                                </div>
-                                            </>
-                                        )}
-                                    </td>
+                                    renderUserTasksScheduleInfo(dep, indexRow, day, index)
                                 ))}
                             </tr>
                         ))}
