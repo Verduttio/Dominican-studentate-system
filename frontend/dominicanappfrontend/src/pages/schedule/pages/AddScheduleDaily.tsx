@@ -329,7 +329,7 @@ function AddScheduleDaily() {
             )}
             <div className={"d-flex justify-content-center"}>
                 <button className="btn btn-secondary mt-3" onClick={() => {
-                    navigate(`/add-schedule/weekly/by-all-days/?roleName=${roleName}`);
+                    navigate(`/add-schedule/weekly/by-all-days?roleName=${roleName}`);
                 }}>
                     <span><FontAwesomeIcon icon={faArrowsRotate}/> </span>
                     Przełącz na kreator z dniami tygodnia
