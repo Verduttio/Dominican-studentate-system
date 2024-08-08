@@ -838,6 +838,15 @@ public class ScheduleService {
 
     }
 
+    public UserTasksScheduleInfoWeeklyByAllDays getUserTasksScheduleInfoWeeklyByAllDaysByRole(String roleName, Long userId, LocalDate from, LocalDate to) {
+        List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
+        User user = userService.getUserById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        return createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to);
+
+    }
+
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
             throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
