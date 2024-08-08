@@ -406,7 +406,7 @@ public class ScheduleService {
 
         validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
 
-        validate(checkIfUserIsAlreadyAssignedToDailyTask(user, task, taskDate), new EntityAlreadyExistsException("User is already assigned to the task on given day"));
+        validate(checkIfUserIsAlreadyAssignedToDailyTask(task, userWeekSchedules, taskDate), new EntityAlreadyExistsException("User is already assigned to the task on given day"));
 
         validate(checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(task, userWeekSchedules, taskDate) && !ignoreConflicts, new ScheduleIsInConflictException("Schedule is in conflict with other schedules"));
     }
@@ -422,8 +422,8 @@ public class ScheduleService {
         return schedules.stream().anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), date.getDayOfWeek(), isFeastDate) && s.getDate().equals(date));
     }
 
-    private boolean checkIfUserIsAlreadyAssignedToDailyTask(User user, Task task, LocalDate date) {
-        List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+    private boolean checkIfUserIsAlreadyAssignedToDailyTask(Task task, List<Schedule> userWeekSchedules, LocalDate date) {
+        List<Schedule> schedules = userWeekSchedules.stream().filter(s -> s.getDate().equals(date)).toList();
         return schedules.stream().anyMatch(s -> s.getTask().getId().equals(task.getId()));
     }
 
@@ -964,7 +964,7 @@ public class ScheduleService {
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
-                        .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to, false))
+                        .map(task -> createUserTaskScheduleInfo(user, task, userSchedulesForWeek, allConflicts, date, from, to, false))
                         .collect(Collectors.toList())
         );
 
@@ -986,7 +986,7 @@ public class ScheduleService {
         for (int i = 0; i < 7; i++) {
             final LocalDate date = from.plusDays(i);
             List<UserTaskScheduleInfo> userTaskScheduleInfos = tasksByRole.stream()
-                    .map(task -> createUserTaskScheduleInfo(user, task, allConflicts, date, from, to, true))
+                    .map(task -> createUserTaskScheduleInfo(user, task, userSchedulesForWeek, allConflicts, date, from, to, true))
                     .toList();
             userTasksDependencies.getUserTasksScheduleInfo().put(date.getDayOfWeek(), userTaskScheduleInfos);
         }
@@ -994,8 +994,12 @@ public class ScheduleService {
         return userTasksDependencies;
     }
 
+    private List<Schedule> getAllSchedulesByFromAndToDates(LocalDate from, LocalDate to) {
+        return scheduleRepository.findByDateBetween(from, to);
+    }
 
-    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, List<Conflict> allConflicts, LocalDate date, LocalDate from, LocalDate to, boolean ignoreLastAssignedStats) {
+
+    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, List<Schedule> userSchedulesForWeek, List<Conflict> allConflicts, LocalDate date, LocalDate from, LocalDate to, boolean ignoreLastAssignedStats) {
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
 
         boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
@@ -1012,7 +1016,7 @@ public class ScheduleService {
             userTaskScheduleInfo.setVisible(false);
         } else {
             userTaskScheduleInfo.setVisible(true);
-            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task.getId(), user.getId(), date, isFeastDate, from, to, allConflicts, ignoreLastAssignedStats);
+            UserTaskScheduleInfo userTaskScheduleInfoData = getUserTaskScheduleInfo(task, user, userSchedulesForWeek, date, isFeastDate, from, to, allConflicts, ignoreLastAssignedStats);
 
 
             if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
@@ -1033,38 +1037,31 @@ public class ScheduleService {
         return userTaskScheduleInfo;
     }
 
-    public UserTaskScheduleInfo getUserTaskScheduleInfo(Long taskId, Long userId, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to, List<Conflict> allConflicts, boolean ignoreLastAssignedStats) {
-        Task task = taskService.getTaskById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
-
-        User user = userService.getUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-
-
+    public UserTaskScheduleInfo getUserTaskScheduleInfo(Task task, User user, List<Schedule> userSchedulesForWeek, LocalDate date, boolean isFeastDate, LocalDate from, LocalDate to, List<Conflict> allConflicts, boolean ignoreLastAssignedStats) {
         int numberOfTaskCompletionByUserFromStatsDate;
         LocalDate userLastCompletionDateForTask;
         if(!ignoreLastAssignedStats) {
-            numberOfTaskCompletionByUserFromStatsDate = (int) getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
-            userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
+            numberOfTaskCompletionByUserFromStatsDate = (int) getNumberOfTaskCompletionByUserFromStatsDate(user.getId(), task.getId(), from.minusDays(1));
+            userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(user.getId(), task.getId(), from).orElse(null);
         } else {
             numberOfTaskCompletionByUserFromStatsDate = 0;
             userLastCompletionDateForTask = null;
         }
 
-        List<Conflict> taskConflicts = allConflicts.stream().filter(conflict -> conflict.getTask1().getId().equals(taskId) || conflict.getTask2().getId().equals(taskId)).toList();
+        List<Conflict> taskConflicts = allConflicts.stream().filter(conflict -> conflict.getTask1().getId().equals(task.getId()) || conflict.getTask2().getId().equals(task.getId())).toList();
 
-        boolean isInConflict = scheduleRepository.findByUserIdAndDate(userId, date).stream()
-                .anyMatch(s -> conflictService.tasksAreInConflict(taskId, s.getTask().getId(), taskConflicts, date.getDayOfWeek(), isFeastDate));
+        boolean isInConflict = userSchedulesForWeek.stream()
+                .anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), taskConflicts, date.getDayOfWeek(), isFeastDate));
 
-        boolean hasObstacle = !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(userId, taskId, date).isEmpty();
+        boolean hasObstacle = !obstacleService.findApprovedObstaclesByUserIdAndTaskIdForDate(user.getId(), task.getId(), date).isEmpty();
 
-        boolean isAlreadyAssignedToTheTask = checkIfUserIsAlreadyAssignedToDailyTask(user, task, date);
+        boolean isAlreadyAssignedToTheTask = checkIfUserIsAlreadyAssignedToDailyTask(task, userSchedulesForWeek, date);
 
         boolean hasAllowedRoleForTask = userHasAllowedRoleForTask(user, task);
 
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
         userTaskScheduleInfo.setTaskName(task.getNameAbbrev());
-        userTaskScheduleInfo.setTaskId(taskId);
+        userTaskScheduleInfo.setTaskId(task.getId());
         userTaskScheduleInfo.setLastAssignedWeeksAgo(getWeeksAgo(userLastCompletionDateForTask, from));
         userTaskScheduleInfo.setNumberOfWeeklyAssignsFromStatsDate(numberOfTaskCompletionByUserFromStatsDate);
         userTaskScheduleInfo.setIsInConflict(isInConflict);
