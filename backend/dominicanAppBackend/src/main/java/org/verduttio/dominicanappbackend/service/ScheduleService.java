@@ -171,37 +171,23 @@ public class ScheduleService {
         }).collect(Collectors.toList());
     }
 
-    public List<UserTaskDependencyWeeklyDTO> getAllUserDependenciesForTaskWeekly(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
-        }
-
-        Task task = taskService.getTaskById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with given id does not exist"));
-
-        List<User> users = userService.getUsersWhichHaveAnyOfRoles(task.getAllowedRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        return users.stream()
-                .map(user -> getUserDependenciesForTaskWeekly(taskId, user.getId(), from, to))
-                .collect(Collectors.toList());
-    }
-
-    public UserTaskDependencyWeeklyDTO getUserDependenciesForTaskWeekly(Long taskId, Long userId, LocalDate from, LocalDate to) {
+    public UserTaskDependencyWeeklyDTO getUserDependenciesForTaskWeekly(Long taskId, Long userId, LocalDate from, LocalDate to, List<Schedule> schedulesForThatWeek, List<Conflict> allConflicts) {
         validate(!taskService.existsById(taskId), new EntityNotFoundException("Task with given id does not exist"));
 
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
+        List<Schedule> userSchedulesForWeek = schedulesForThatWeek.stream().filter(s -> s.getUser().getId().equals(userId)).toList();
         List<Task> userAssignedTasksForWeek = getTasksFromSchedules(userSchedulesForWeek);
 
         long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
 
         LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
 
-        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
-
         List<LocalDate> feastDates = specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).stream().map(SpecialDate::getDate).toList();
-        boolean isConflict = checkIfTaskIsInConflictWithOtherTasksFromSchedule(taskId, userSchedulesForWeek, feastDates);
+        boolean weekWithFeast = !feastDates.isEmpty();
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek, weekWithFeast);
+        boolean isConflict = checkIfTaskIsInConflictWithOtherTasksFromSchedule(taskId, userSchedulesForWeek, feastDates, allConflicts);
 
         boolean hasObstacleForTaskOnWeek = checkIfUserHasValidApprovedObstacleForTaskBetweenDate(from, to, userId, taskId);
 
@@ -211,58 +197,12 @@ public class ScheduleService {
                 userAssignedTasksNamesForWeek, isConflict, hasObstacleForTaskOnWeek, alreadyAssignedToTheTask);
     }
 
-    public List<UserTaskDependencyDailyDTO> getAllUserDependenciesForTaskDaily(Long taskId, LocalDate from, LocalDate to) {
-        if(!DateValidator.dateStartsSundayEndsSaturday(from, to)) {
-            throw new IllegalArgumentException("Invalid date range. The period must start on Sunday and end on Saturday, covering exactly one week.");
-        }
-
-        Task task = taskService.getTaskById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with given id does not exist"));
-
-        List<User> users = userService.getUsersWhichHaveAnyOfRoles(task.getAllowedRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        return users.stream()
-                .map(user -> getUserDependenciesForTaskDaily(taskId, user.getId(), from, to))
-                .collect(Collectors.toList());
-    }
-
-    public UserTaskDependencyDailyDTO getUserDependenciesForTaskDaily(Long taskId, Long userId, LocalDate from, LocalDate to) {
-        validate(!taskService.existsById(taskId), new EntityNotFoundException("Task with given id does not exist"));
-
-        User user = userService.getUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-
-        List<Schedule> userSchedulesForWeek = getSchedulesByUserIdAndDateBetween(userId, from, to);
-
-        long numberOfTaskCompletionByUserFromStatsDate = getNumberOfTaskCompletionByUserFromStatsDate(userId, taskId, from.minusDays(1));
-
-        LocalDate userLastCompletionDateForTask = getLastTaskCompletionDateForUserFromStatsDate(userId, taskId, from).orElse(null);
-
-        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
-
-        List<LocalDate> feastDates = specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).stream().map(SpecialDate::getDate).collect(Collectors.toList());
-        Set<DayOfWeek> isConflict = getDaysWhenTaskIsInConflictWithOther(taskId, userSchedulesForWeek, feastDates);
-
-        Set<LocalDate> userApprovedObstacleForTaskInWeek = getUserApprovedObstacleForTask(from, to, userId, taskId);
-        Set<DayOfWeek> hasObstacle = new HashSet<>();
-        for(LocalDate date : userApprovedObstacleForTaskInWeek) {
-            hasObstacle.add(date.getDayOfWeek());
-        }
-
-        Set<DayOfWeek> alreadyAssignedToTheTask = userSchedulesForWeek.stream()
-                .filter(s -> s.getTask().getId().equals(taskId))
-                .map(s -> s.getDate().getDayOfWeek())
-                .collect(Collectors.toSet());
-
-        return new UserTaskDependencyDailyDTO(userId, user.getName()+" "+user.getSurname(), userLastCompletionDateForTask, (int) numberOfTaskCompletionByUserFromStatsDate,
-                userAssignedTasksNamesForWeek, isConflict, hasObstacle, alreadyAssignedToTheTask);
-    }
-
     private long getNumberOfTaskCompletionByUserFromStatsDate(long userId, long taskId, LocalDate to) {
         LocalDate statsDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
         return scheduleRepository.countByUserIdAndTaskIdInLastNDays(userId, taskId, statsDate, to);
     }
 
-    public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules) {
+    public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
         // If task appears less than n times, then it will be converted to "task.name (P, W, Ś)" string,
@@ -307,10 +247,7 @@ public class ScheduleService {
                     // If there is any feast in the week,
                     // then the string should be: task.name (days of week when assign)
                     // even if the task occurs on all days of the week.
-                    Map<String, LocalDate> weekBoundaries = DateValidator.getWeekBoundaries(schedules.getFirst().getDate());
-                    LocalDate startWeek = weekBoundaries.get("startWeek");
-                    LocalDate endWeek = weekBoundaries.get("endOfWeek");
-                    if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
+                    if (weekWithFeast) {
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
@@ -470,13 +407,13 @@ public class ScheduleService {
         return false;
     }
 
-    private boolean checkIfTaskIsInConflictWithOtherTasksFromSchedule(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates) {
-        return !getDaysWhenTaskIsInConflictWithOther(taskId, schedules, feastDates).isEmpty();
+    private boolean checkIfTaskIsInConflictWithOtherTasksFromSchedule(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates, List<Conflict> allConflicts) {
+        return !getDaysWhenTaskIsInConflictWithOther(taskId, schedules, feastDates, allConflicts).isEmpty();
     }
 
-    public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates) {
+    public Set<DayOfWeek> getDaysWhenTaskIsInConflictWithOther(Long taskId, List<Schedule> schedules, List<LocalDate> feastDates, List<Conflict> allConflicts) {
         Set<DayOfWeek> daysWhenTaskIsInConflict = new HashSet<>();
-        List<Conflict> taskConflicts = conflictService.findAllByTaskId(taskId);
+        List<Conflict> taskConflicts = allConflicts.stream().filter(conflict -> conflict.getTask1().getId().equals(taskId) || conflict.getTask2().getId().equals(taskId)).toList();
         for(Schedule schedule : schedules) {
             boolean isFeastDate = feastDates.contains(schedule.getDate());
             if(conflictService.tasksAreInConflict(taskId, schedule.getTask().getId(), taskConflicts, schedule.getDate().getDayOfWeek(), isFeastDate)) {
@@ -579,19 +516,20 @@ public class ScheduleService {
         }
 
         List<User> users = userService.getAllUsers();
+        boolean weekWithFeast = !specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).isEmpty();
         return users.stream()
                 .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
-                .map(user -> createScheduleShortInfoForUser(user.getId(), from, to))
+                .map(user -> createScheduleShortInfoForUser(user.getId(), from, to, weekWithFeast))
                 .collect(Collectors.toList());
     }
 
-    private ScheduleShortInfoForUser createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to) {
+    private ScheduleShortInfoForUser createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to, boolean weekWithFeast) {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
         List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to);
 
-        List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
+        List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, weekWithFeast);
 
         return new ScheduleShortInfoForUser(userId, user.getName(), user.getSurname(), tasksInfoStrings);
     }
@@ -668,23 +606,24 @@ public class ScheduleService {
         }
 
         List<Task> tasks = taskService.getAllTasks();
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
         return tasks.stream()
-                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to))
+                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to, weekWithFeast))
                 .collect(Collectors.toList());
     }
 
-    private ScheduleShortInfoForTask createScheduleShortInfoForTask(Long taskId, LocalDate from, LocalDate to) {
+    private ScheduleShortInfoForTask createScheduleShortInfoForTask(Long taskId, LocalDate from, LocalDate to, boolean weekWithFeast) {
         Task task = taskService.getTaskById(taskId).orElseThrow(() ->
                 new EntityNotFoundException("Task with given id does not exist"));
 
         List<Schedule> schedules = getAllSchedulesForTaskForSpecifiedWeek(taskId, from, to);
 
-        List<String> usersInfoStrings = createInfoStringsOfUsersOccurrenceFromGivenSchedule(schedules, task.getDaysOfWeek().size());
+        List<String> usersInfoStrings = createInfoStringsOfUsersOccurrenceFromGivenSchedule(schedules, task.getDaysOfWeek().size(), weekWithFeast);
 
         return new ScheduleShortInfoForTask(taskId, task.getName(), usersInfoStrings);
     }
 
-    private List<String> createInfoStringsOfUsersOccurrenceFromGivenSchedule(List<Schedule> schedules, int taskDaysOfWeekCount) {
+    private List<String> createInfoStringsOfUsersOccurrenceFromGivenSchedule(List<Schedule> schedules, int taskDaysOfWeekCount, boolean weekWithFeast) {
         // If user appears in the list n times, where n is the user occurrence in the week,
         // then it will be converted to "user.name user.surname" only string.
         // If user appears less than n times, then it will be converted to "user.name user.surname (P, W, Ś)" string,
@@ -724,11 +663,7 @@ public class ScheduleService {
                     // SUNDAY, MONDAY, ..., SATURDAY order
                     Comparator<DayOfWeek> customOrderComparator = Comparator
                             .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
-
-                    Map<String, LocalDate> weekBoundaries = DateValidator.getWeekBoundaries(schedules.getFirst().getDate());
-                    LocalDate startWeek = weekBoundaries.get("startWeek");
-                    LocalDate endWeek = weekBoundaries.get("endOfWeek");
-                    if (specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, startWeek, endWeek)) {
+                    if (weekWithFeast) {
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
@@ -757,8 +692,9 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
 
         List<Task> tasks = taskService.findTasksBySupervisorRoleName(role.getName());
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
         return tasks.stream()
-                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to))
+                .map(task -> createScheduleShortInfoForTask(task.getId(), from, to, weekWithFeast))
                 .collect(Collectors.toList());
     }
 
@@ -810,9 +746,12 @@ public class ScheduleService {
 
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+        boolean weekWithFeast = !specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).isEmpty();
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetween(from, to);
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to))
+                .map(user -> createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to, weekWithFeast, schedulesForThisWeek, allConflicts))
                 .collect(Collectors.toList());
     }
 
@@ -822,8 +761,11 @@ public class ScheduleService {
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetween(from, to);
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
-        return createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to);
+        return createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to, weekWithFeast, schedulesForThisWeek, allConflicts);
     }
 
     public List<UserTasksScheduleInfoWeeklyByAllDays> getUserTasksScheduleInfoWeeklyByAllDaysByRole(String roleName, LocalDate from, LocalDate to) {
@@ -831,9 +773,11 @@ public class ScheduleService {
 
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, from);
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to))
+                .map(user -> createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to, allConflicts, weekWithFeast))
                 .collect(Collectors.toList());
 
     }
@@ -843,7 +787,10 @@ public class ScheduleService {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
-        return createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to);
+        List<Conflict> allConflicts = conflictService.getAllConflicts();
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
+
+        return createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(user, tasksByRole, from, to, allConflicts, weekWithFeast);
 
     }
 
@@ -872,25 +819,25 @@ public class ScheduleService {
         return userService.getUsersWhichHaveAnyOfRoles(allowedRoles);
     }
 
-    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeekly(User user, List<Task> tasksByRole, LocalDate from, LocalDate to) {
+    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeekly(User user, List<Task> tasksByRole, LocalDate from, LocalDate to, boolean weekWithFeast, List<Schedule> schedulesForThisWeek, List<Conflict> allConflicts) {
         UserTasksScheduleInfoWeekly userTasksDependencies = new UserTasksScheduleInfoWeekly();
         userTasksDependencies.setUserId(user.getId());
         userTasksDependencies.setUserName(user.getName() + " " + user.getSurname());
 
         List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
-        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek, weekWithFeast);
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
-                        .map(task -> createUserTaskScheduleInfo(user, task, from, to))
+                        .map(task -> createUserTaskScheduleInfo(user, task, from, to, schedulesForThisWeek, allConflicts))
                         .collect(Collectors.toList())
         );
 
         return userTasksDependencies;
     }
 
-    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, LocalDate from, LocalDate to) {
-        UserTaskDependencyWeeklyDTO userTaskDependencyWeeklyDTO = getUserDependenciesForTaskWeekly(task.getId(), user.getId(), from, to);
+    private UserTaskScheduleInfo createUserTaskScheduleInfo(User user, Task task, LocalDate from, LocalDate to, List<Schedule> schedulesForThisWeek, List<Conflict> allConflicts) {
+        UserTaskDependencyWeeklyDTO userTaskDependencyWeeklyDTO = getUserDependenciesForTaskWeekly(task.getId(), user.getId(), from, to, schedulesForThisWeek, allConflicts);
 
         UserTaskScheduleInfo userTaskScheduleInfo = new UserTaskScheduleInfo();
         userTaskScheduleInfo.setVisible(true);
@@ -926,9 +873,10 @@ public class ScheduleService {
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
         List<Conflict> allConflicts = conflictService.getAllConflicts();
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
 
         return usersWhichCanPerformTasks.stream()
-                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date))
+                .map(user -> createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date, weekWithFeast))
                 .collect(Collectors.toList());
     }
 
@@ -938,10 +886,19 @@ public class ScheduleService {
                 new EntityNotFoundException("User with given id does not exist"));
         List<Conflict> allConflicts = conflictService.getAllConflicts();
 
-        return createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date);
+        LocalDate fromTmp = date.with(DayOfWeek.SUNDAY);
+        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            fromTmp = fromTmp.minusWeeks(1);
+        }
+        LocalDate from = fromTmp;
+
+        LocalDate to = from.plusDays(6);
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
+
+        return createUserTasksScheduleInfoWeeklyForOneDay(user, tasksByRole, allConflicts, date, weekWithFeast);
     }
 
-    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeeklyForOneDay(User user, List<Task> tasksByRole, List<Conflict> allConflicts, LocalDate date) {
+    private UserTasksScheduleInfoWeekly createUserTasksScheduleInfoWeeklyForOneDay(User user, List<Task> tasksByRole, List<Conflict> allConflicts, LocalDate date, boolean weekWithFeast) {
         // Get from and to date using given date
         // from - start of the week - sunday
         // to - end of the week - saturday
@@ -960,7 +917,7 @@ public class ScheduleService {
         userTasksDependencies.setUserName(user.getName() + " " + user.getSurname());
 
         List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
-        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek, weekWithFeast);
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
@@ -971,17 +928,15 @@ public class ScheduleService {
         return userTasksDependencies;
     }
 
-    private UserTasksScheduleInfoWeeklyByAllDays createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(User user, List<Task> tasksByRole, LocalDate from, LocalDate to) {
+    private UserTasksScheduleInfoWeeklyByAllDays createUserTasksScheduleInfoWeeklyForAllDaysOfWeek(User user, List<Task> tasksByRole, LocalDate from, LocalDate to, List<Conflict> allConflicts, boolean weekWithFeast) {
         UserTasksScheduleInfoWeeklyByAllDays userTasksDependencies = new UserTasksScheduleInfoWeeklyByAllDays();
         userTasksDependencies.setUserTasksScheduleInfo(new HashMap<>());
         userTasksDependencies.setUserId(user.getId());
         userTasksDependencies.setUserName(user.getName() + " " + user.getSurname());
 
         List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
-        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek);
+        List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek, weekWithFeast);
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
-
-        List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         for (int i = 0; i < 7; i++) {
             final LocalDate date = from.plusDays(i);
@@ -1081,9 +1036,10 @@ public class ScheduleService {
 
         LocalDate weekStartDate = date.minusWeeks(1);
         LocalDate weekEndDate = date.minusDays(1);
+        boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, weekStartDate, weekEndDate);
         for(int i = 0; i < numberOfWeeksToDisplay; i++) {
             List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, weekStartDate, weekEndDate);
-            List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
+            List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, weekWithFeast);
             userScheduleHistory.put(i+1, tasksInfoStrings);
 
             weekStartDate = weekStartDate.minusWeeks(1);

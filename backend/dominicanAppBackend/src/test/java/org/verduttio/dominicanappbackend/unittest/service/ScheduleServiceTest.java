@@ -29,8 +29,6 @@ public class ScheduleServiceTest {
 
     @Test
     void makeUsersTasksInWeekInfoString_mixOfAllAndPartAssignTasks() {
-        when(specialDateRepository.existsByTypeAndDateBetween(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(false);
-
         Task task1 = new Task("Washing", "Ws",3, true, null, null,
                 Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
         Task task2 = new Task("Cooking", "Co",2, true, null, null,
@@ -60,7 +58,7 @@ public class ScheduleServiceTest {
 
         List<Schedule> schedules = List.of(schedule1, schedule2, schedule3, schedule4, schedule5);
 
-        List<String> testResult = scheduleService.createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules);
+        List<String> testResult = scheduleService.createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, false);
         List<String> expectedResult = List.of("Co", "Dr (So)", "Ws (Pn, Pt)");
 
         assertEquals(expectedResult, testResult);
