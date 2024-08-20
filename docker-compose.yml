@@ -41,6 +41,7 @@ services:
     depends_on:
       - backend
     volumes:
+      - ./frontend/dominicanappfrontend:/app     # Map local files to the container
       - frontend-build:/app/build
 
   nginx:
