@@ -36,6 +36,9 @@ docker volume rm dominican-studentate-system-main-frontend-build || echo "Volume
 echo "Building all services..."
 docker compose build
 
+echo "Removing dangling images..."
+docker image prune
+
 echo "Starting up all services..."
 docker compose up -d
 
