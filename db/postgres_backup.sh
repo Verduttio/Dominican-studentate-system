@@ -12,13 +12,13 @@ source ${SOURCE_ENV}
 set +a  # Stop automatically exporting
 
 # Set the backup directory, relative to the script location
-BACKUP_DIR="${SCRIPT_DIR}/../backup"
+BACKUP_DIR="${SCRIPT_DIR}/backup"
 
 # Create the backup directory if it does not exist
 mkdir -p ${BACKUP_DIR}
 
 # Backup the database
-docker exec dominican-internal-management-system-main-db-1 pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-$(date +%Y-%m-%d_%H-%M-%S).sql
+docker exec -t resource-management-system-main-db-1 pg_dump -c -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-`date +%Y-%m-%d"_"%H_%M_%S`.sql
 
 # Add this to crontab to run the backup automatically
 # crontab -e

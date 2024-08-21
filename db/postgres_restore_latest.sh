@@ -11,17 +11,19 @@ set -a  # Automatically export all variables
 source ${SOURCE_ENV}
 set +a  # Stop automatically exporting
 
-# Check if a backup file is provided as an argument
-if [ -z "$1" ]; then
-  echo "Usage: $0 backup/<backup-file.sql>"
+# Set the backup directory, relative to the script location
+BACKUP_DIR="${SCRIPT_DIR}/backup"
+
+# Get the latest backup file (sorted by time)
+LATEST_BACKUP=$(ls -t ${BACKUP_DIR}/db-backup-*.sql | head -n 1)
+
+# Check if a backup file exists
+if [[ -z "$LATEST_BACKUP" ]]; then
+  echo "No backup file found!"
   exit 1
 fi
 
-# Path to the backup file
-BACKUP_FILE="$1"
-
-# Restore the database
 docker exec -i resource-management-system-main-db-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};"
-cat ${BACKUP_FILE} | docker exec -i resource-management-system-main-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+cat ${LATEST_BACKUP} | docker exec -i resource-management-system-main-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
-echo "Database restored from ${BACKUP_FILE}"
+echo "Database restored from ${LATEST_BACKUP}"
