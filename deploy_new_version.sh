@@ -13,14 +13,25 @@ handle_error() {
 
 trap 'handle_error' ERR
 
-echo "Creating database backup..."
-db/postgres_backup.sh
+# Checking if the database volume exists
+if docker volume ls | grep -q "dominican-studentate-system-main-db-1"; then
+    echo "Creating database backup..."
+    chmod +x db/postgres_backup.sh
+    db/postgres_backup.sh
+else
+    echo "Database volume 'dominican-studentate-system-main-db-1' not found. Skipping backup."
+fi
 
-echo "Shutting down all services..."
-docker compose down
+# Checking if the frontend build volume exists
+if docker compose ps | grep "Up"; then
+    echo "Shutting down all services..."
+    docker compose down
+else
+    echo "No running services found. Skipping shutdown."
+fi
 
 echo "Removing frontend builder volume..."
-docker volume rm dominican-studentate-system-main_frontend-build
+docker volume rm dominican-studentate-system-main-frontend-build || echo "Volume not found, skipping removal."
 
 echo "Building all services..."
 docker compose build
