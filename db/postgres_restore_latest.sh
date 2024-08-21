@@ -23,7 +23,7 @@ if [[ -z "$LATEST_BACKUP" ]]; then
   exit 1
 fi
 
-docker exec -i resource-management-system-main-db-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};"
-cat ${LATEST_BACKUP} | docker exec -i resource-management-system-main-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+docker exec -i dominican-studentate-system-main-db-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};"
+cat ${LATEST_BACKUP} | docker exec -i dominican-studentate-system-main-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
 echo "Database restored from ${LATEST_BACKUP}"

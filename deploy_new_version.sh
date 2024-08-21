@@ -20,7 +20,7 @@ echo "Shutting down all services..."
 docker compose down
 
 echo "Removing frontend builder volume..."
-docker volume rm resource-management-system-main_frontend-build
+docker volume rm dominican-studentate-system-main_frontend-build
 
 echo "Building all services..."
 docker compose build

@@ -18,7 +18,7 @@ BACKUP_DIR="${SCRIPT_DIR}/backup"
 mkdir -p ${BACKUP_DIR}
 
 # Backup the database
-docker exec -t resource-management-system-main-db-1 pg_dump -c -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-`date +%Y-%m-%d"_"%H_%M_%S`.sql
+docker exec -t dominican-studentate-system-main-db-1 pg_dump -c -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-`date +%Y-%m-%d"_"%H_%M_%S`.sql
 
 # Add this to crontab to run the backup automatically
 # crontab -e
