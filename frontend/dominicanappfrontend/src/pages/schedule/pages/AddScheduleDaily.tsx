@@ -55,6 +55,11 @@ function AddScheduleDaily() {
         setUserScheduleHistoryPopup(true);
     }
 
+    function getUserName(userId: number) {
+        let user = userDependencies.find(dep => dep.userId === userId);
+        return user ? user.userName : "unknown";
+    }
+
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
     }
@@ -344,7 +349,7 @@ function AddScheduleDaily() {
                     setUserScheduleHistoryPopup(false)
                 }}
                 userId={userIdForScheduleHistoryPopup}
-                userName={currentUser?.name + " " + currentUser?.surname}
+                userName={getUserName(userIdForScheduleHistoryPopup)}
                 date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
                 weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup

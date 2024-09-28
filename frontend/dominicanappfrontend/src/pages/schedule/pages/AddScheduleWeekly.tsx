@@ -58,6 +58,11 @@ function AddScheduleWeekly() {
         setUserScheduleHistoryPopup(true);
     }
 
+    function getUserName(userId: number) {
+        let user = userDependencies.find(dep => dep.userId === userId);
+        return user ? user.userName : "unknown";
+    }
+
     const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
         return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
     }
@@ -308,7 +313,7 @@ function AddScheduleWeekly() {
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
                 onClose={() => {setUserScheduleHistoryPopup(false)}}
                 userId={userIdForScheduleHistoryPopup}
-                userName={currentUser?.name + " " + currentUser?.surname}
+                userName={getUserName(userIdForScheduleHistoryPopup)}
                 date={from}
                 weeks={5}
             />}

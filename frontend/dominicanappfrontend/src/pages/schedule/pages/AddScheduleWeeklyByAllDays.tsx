@@ -63,6 +63,11 @@ function AddScheduleWeeklyByAllDays() {
         setUserScheduleHistoryPopup(true);
     }
 
+    function getUserName(userId: number) {
+        let user = userDependencies?.find(dep => dep.userId === userId);
+        return user ? user.userName : "unknown";
+    }
+
     const handleSelectFocus = (index:number, day:string, isFocused:boolean) => {
         const key = `${index}-${day}`;
         setExpandedSelects(prev => ({
@@ -396,7 +401,7 @@ function AddScheduleWeeklyByAllDays() {
                     setUserScheduleHistoryPopup(false)
                 }}
                 userId={userIdForScheduleHistoryPopup}
-                userName={currentUser?.name + " " + currentUser?.surname}
+                userName={getUserName(userIdForScheduleHistoryPopup)}
                 date={format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy')}
                 weeks={5}/>}
             {showConfirmAssignmentPopup && <ConfirmAssignmentPopup

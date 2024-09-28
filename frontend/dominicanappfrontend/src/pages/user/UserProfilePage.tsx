@@ -39,7 +39,7 @@ function UserProfilePage () {
                                     <div><strong>Imię:</strong> {currentUser.name}</div>
                                     <div><strong>Nazwisko:</strong> {currentUser.surname}</div>
                                     <div><strong>Email:</strong> {currentUser.email}</div>
-                                    <div><strong>Data pierwszych ślubów:</strong> {formatEntryDate(currentUser.entryDate)}</div>
+                                    <div><strong>Data pierwszych ślubów:</strong> {currentUser.entryDate ? formatEntryDate(currentUser.entryDate) : "BRAK DANYCH"}</div>
                                     <div><strong>Id:</strong> {currentUser.id}</div>
                                     <div><strong>Zarejestrowany przez:</strong> {currentUser.provider}</div>
                                     <div className={"d-flex justify-content-between mt-1"}>
