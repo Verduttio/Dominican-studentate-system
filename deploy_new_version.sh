@@ -14,24 +14,29 @@ handle_error() {
 trap 'handle_error' ERR
 
 # Checking if the database volume exists
-if docker volume ls | grep -q "dominican-studentate-system-main-db-1"; then
+if docker volume ls | grep -q "dominican-studentate-system-main_postgres_data"; then
     echo "Creating database backup..."
     chmod +x db/postgres_backup.sh
     db/postgres_backup.sh
 else
-    echo "Database volume 'dominican-studentate-system-main-db-1' not found. Skipping backup."
+    echo "Database volume 'dominican-studentate-system-main_postgres_data' not found. Could not perform backup. Exiting."
+    exit 1
 fi
 
 # Checking if the frontend build volume exists
+if docker volume rm dominican-studentate-system-main_frontend-build; then
+    echo "Removing frontend builder volume..."
+else
+    echo "Volume not found. Removal is necessary for the build to work. Exiting."
+    exit 1
+fi
+
 if docker compose ps | grep "Up"; then
     echo "Shutting down all services..."
     docker compose down
 else
     echo "No running services found. Skipping shutdown."
 fi
-
-echo "Removing frontend builder volume..."
-docker volume rm dominican-studentate-system-main_frontend-build || echo "Volume not found, skipping removal."
 
 echo "Building all services..."
 docker compose build
