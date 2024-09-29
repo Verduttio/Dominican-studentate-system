@@ -92,9 +92,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "api/conflicts").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.PUT, "api/conflicts/{conflictId}").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.DELETE, "api/conflicts/{conflictId}").hasRole("FUNKCYJNY")
-                        .requestMatchers(HttpMethod.POST, "api/roles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "api/roles/{roleId}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "api/roles/{roleId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "api/roles").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.DELETE, "api/roles/{roleId}").hasRole("FUNKCYJNY")
+                        .requestMatchers(HttpMethod.PUT, "api/roles/{roleId}").hasRole("FUNKCYJNY")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement

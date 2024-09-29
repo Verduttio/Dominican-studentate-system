@@ -8,7 +8,8 @@ import '../../components/AddEditForm.css';
 import RoleFormFields from "./RoleFormFields";
 import ConfirmDeletionPopup from "../../components/ConfirmDeletionPopup";
 import AlertBox from "../../components/AlertBox";
-import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 function EditRole() {
     const { roleId } = useParams();
@@ -19,7 +20,7 @@ function EditRole() {
     const [roleData, setRoleData] = useState<Role | null>(null);
     const [validationError, setValidationError] = useState<string>('');
     const [showConfirmationPopup, setShowConfirmationPopup] = useState<boolean>(false);
-    const { isAdmin, isAdminLoading, isAdminInitialized } = useIsAdmin();
+    const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
 
     useEffect(() => {
         if (roleId) {
@@ -50,9 +51,9 @@ function EditRole() {
         }
     };
 
-    if(isAdminLoading || isAdminInitialized) {
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
         return <LoadingSpinner/>;
-    } else if(!isAdmin) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     if (fetchLoading) return <LoadingSpinner/>;
     if (fetchError) return <AlertBox text={fetchError} type={'danger'} width={'500px'}/>;

@@ -4,13 +4,13 @@ import {Role, RoleType, roleTypeTranslation} from '../../models/Interfaces';
 import { backendUrl } from '../../utils/constants';
 import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
-import useIsAdmin from "../../services/UseIsAdmin";
 import AlertBox from "../../components/AlertBox";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
     const { request, error, loading } = useHttp(`${backendUrl}/api/roles`, 'GET');
-    const { isAdmin } = useIsAdmin();
+    const {isFunkcyjny} = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -34,7 +34,7 @@ function ViewRoles() {
             <div className="d-flex justify-content-center">
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
-            {isAdmin &&
+            {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
                     <button className="btn btn-primary mb-3" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
                 </div>
@@ -47,7 +47,7 @@ function ViewRoles() {
                             <th>Nazwa</th>
                             <th>Typ</th>
                             <th>Kreator</th>
-                            {isAdmin && <th>Edytuj</th>}
+                            {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
                         </thead>
                         <tbody>
@@ -56,7 +56,7 @@ function ViewRoles() {
                                 <td>{role.name}</td>
                                 <td>{roleTypeTranslation[role.type]}</td>
                                 <td>{role.type === 'SUPERVISOR' ? role.weeklyScheduleCreatorDefault ? 'Tygodniowy' : 'Dzienny' : 'Nie dotyczy'}</td>
-                                {isAdmin &&
+                                {isFunkcyjny &&
                                     <td>
                                         {role.type !== RoleType.SYSTEM && <button className="btn btn-primary"
                                                                                   onClick={() => navigate(`/edit-role/${role.id}`)}>Edytuj</button>}
