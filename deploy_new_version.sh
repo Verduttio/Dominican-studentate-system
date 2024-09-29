@@ -31,7 +31,7 @@ else
 fi
 
 echo "Removing frontend builder volume..."
-docker volume rm dominican-studentate-system-main-frontend-builder || echo "Volume not found, skipping removal."
+docker volume rm dominican-studentate-system-main_frontend-build || echo "Volume not found, skipping removal."
 
 echo "Building all services..."
 docker compose build
