@@ -145,7 +145,7 @@ public class TaskService {
     }
 
     public List<Task> getTasksVisibleInObstacleFormForUser() {
-        return null;
+        return taskRepository.findByVisibleInObstacleFormForUserRoleTrueOrderBySortOrderAsc();
     }
 
     @Transactional

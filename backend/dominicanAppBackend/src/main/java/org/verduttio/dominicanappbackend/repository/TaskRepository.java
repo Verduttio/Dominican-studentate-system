@@ -30,4 +30,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Transactional
     @Query(value = "DELETE FROM task_allowed_roles WHERE role_id = :roleId", nativeQuery = true)
     void removeRoleFromAllTasks(@Param("roleId") Long roleId);
+
+    List<Task> findByVisibleInObstacleFormForUserRoleTrueOrderBySortOrderAsc();
 }
