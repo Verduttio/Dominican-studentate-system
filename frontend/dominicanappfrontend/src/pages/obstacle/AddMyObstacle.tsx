@@ -21,7 +21,7 @@ function AddMyObstacle() {
     const [validationError, setValidationError] = useState<string>('');
     const { request: postObstacle, error: postError, loading: postLoading } = useHttp(`${backendUrl}/api/obstacles/users/current`, 'POST');
     const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
-    const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/shortInfo`, 'GET');
+    const { request: fetchTasks, error: fetchTasksError, loading: loadingFetchTasks } = useHttp(`${backendUrl}/api/tasks/visibleInObstacleFormForUser`, 'GET');
     const [fullTasksList, setFullTasksList] = useState<TaskShortInfo[]>([]);
     const [selectAllTasks, setSelectAllTasks] = useState(false);
     const navigate = useNavigate();
