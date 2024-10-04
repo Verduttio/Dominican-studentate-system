@@ -38,6 +38,7 @@ import SchedulePageByDays from "./pages/schedule/pages/SchedulePageByDays";
 import MyObstacleDetails from "./pages/obstacle/MyObstacleDetails";
 import TaskDetails from "./pages/task/TaskDetails";
 import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
+import ObstaclesSettingsPage from "./pages/obstacle/ObstaclesSettingsPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -61,6 +62,7 @@ const AppContent = () => {
                     <Route path="/add-task" Component={AddTask}/>
                     <Route path="/edit-task/:taskId" Component={EditTask}/>
                     <Route path="/obstacles" Component={ObstaclesPage}/>
+                    <Route path="/obstacles/settings" Component={ObstaclesSettingsPage}/>
                     <Route path="/obstacles/my/:obstacleId" Component={MyObstacleDetails}/>
                     <Route path="/add-obstacle" Component={AddObstacle}/>
                     <Route path="/edit-obstacle/:obstacleId" Component={EditObstacle} />

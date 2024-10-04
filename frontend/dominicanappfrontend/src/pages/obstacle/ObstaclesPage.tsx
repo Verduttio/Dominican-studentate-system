@@ -38,6 +38,10 @@ function ObstaclesPage () {
                 {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
             </div>
             <div className="d-flex justify-content-center">
+                <button className="btn btn-secondary mb-3" onClick={() => navigate('/obstacles/settings')}>Ustawienia
+                </button>
+            </div>
+            <div className="d-flex justify-content-center">
                 <button className="btn btn-success mb-3" onClick={() => navigate('/add-obstacle')}>Dodaj przeszkodę
                 </button>
             </div>
