@@ -5,15 +5,15 @@ import { backendUrl } from "../../../utils/constants";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import AlertBox from "../../../components/AlertBox";
 import TaskCard from "./TaskCard";
+import AlertBoxTimed from "../../../components/AlertBoxTimed";
 
 function ObstaclesSettingsPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [workingTasks, setWorkingTasks] = useState<Task[]>([]);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Przechowujemy komunikat o sukcesie
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const { error: errorGetTasks, loading: loadingGetTasks, request: requestGetTasks } = useHttp(`${backendUrl}/api/tasks`, 'GET');
     const { error: updateError, request: updateRequest, loading: updateLoading } = useHttp(`${backendUrl}/api/tasks`, 'PUT');
 
-    // Funkcja pobierająca taski
     const loadTasks = () => {
         requestGetTasks(null, (data: Task[]) => {
             setTasks(data);
@@ -25,15 +25,6 @@ function ObstaclesSettingsPage() {
         loadTasks();
     }, []);
 
-
-    useEffect(() => {
-        if (successMessage) {
-            const timer = setTimeout(() => {
-                setSuccessMessage(null);
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [successMessage]);
 
     const toggleTaskSelection = (taskId: number) => {
         setWorkingTasks(workingTasks.map(task =>
@@ -78,7 +69,13 @@ function ObstaclesSettingsPage() {
             </div>
 
             {successMessage && (
-                <AlertBox text={successMessage} type={'success'} width={'500px'} />
+                <AlertBoxTimed
+                    text={successMessage}
+                    type="success"
+                    width="500px"
+                    duration={5000}
+                    onClose={() => setSuccessMessage(null)}
+                />
             )}
 
             <div className="d-flex justify-content-center">

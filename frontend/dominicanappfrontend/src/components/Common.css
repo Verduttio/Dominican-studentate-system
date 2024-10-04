@@ -10,6 +10,27 @@
     100% { opacity: 1; z-index: 1}
 }
 
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    transition: color 0.3s ease;
+}
+
+
+.close-btn:hover {
+    color: #000;
+}
+
 .table-rounded {
     border-radius: 15px;
     overflow: clip; /* Zapobiega wystawaniu zawartości poza zaokrąglone rogi */
