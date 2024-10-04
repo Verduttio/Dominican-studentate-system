@@ -15,6 +15,7 @@ interface Task {
     supervisorRole: Role;
     daysOfWeek: string[];
     sortOrder: number;
+    visibleInObstacleFormForUserRole: boolean;
 }
 
 interface User {

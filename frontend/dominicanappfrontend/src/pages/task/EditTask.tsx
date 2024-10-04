@@ -48,7 +48,8 @@ function EditTask() {
         allowedRoleNames: [],
         supervisorRoleName: '',
         daysOfWeek: [],
-        sortOrder: 0
+        sortOrder: 0,
+        visibleInObstacleFormForUserRole: true,
     };
 
     const { taskId } = useParams();
@@ -78,6 +79,7 @@ function EditTask() {
                     supervisorRoleName: task.supervisorRole?.name,
                     daysOfWeek: task.daysOfWeek,
                     sortOrder: task.sortOrder,
+                    visibleInObstacleFormForUserRole: task.visibleInObstacleFormForUserRole
                 });
             }
         });
