@@ -38,7 +38,7 @@ import SchedulePageByDays from "./pages/schedule/pages/SchedulePageByDays";
 import MyObstacleDetails from "./pages/obstacle/MyObstacleDetails";
 import TaskDetails from "./pages/task/TaskDetails";
 import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
-import ObstaclesSettingsPage from "./pages/obstacle/ObstaclesSettingsPage";
+import ObstaclesSettingsPage from "./pages/obstacle/settings/ObstaclesSettingsPage";
 
 const AppContent = () => {
     const location = useLocation();
