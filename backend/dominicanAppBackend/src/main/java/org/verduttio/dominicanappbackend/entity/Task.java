@@ -45,6 +45,9 @@ public class Task {
 
     private Long sortOrder;
 
+    @Column(name = "visible_in_obstacle_form_for_user_role", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean visibleInObstacleFormForUserRole = true;
+
 
     // Getters and setters
     public Long getId() {
@@ -121,6 +124,14 @@ public class Task {
         this.sortOrder = sortOrder;
     }
 
+    public boolean isVisibleInObstacleFormForUserRole() {
+        return visibleInObstacleFormForUserRole;
+    }
+
+    public void setVisibleInObstacleFormForUserRole(boolean visibleInObstacleFormForUserRole) {
+        this.visibleInObstacleFormForUserRole = visibleInObstacleFormForUserRole;
+    }
+
     // Constructors
     public Task() {
     }
@@ -140,7 +151,7 @@ public class Task {
 
     public Task(String name, String nameAbbrev, int participantsLimit, boolean archived,
                 Set<Role> allowedRoles,
-                Role supervisorRole, Set<DayOfWeek> daysOfWeek, Long sortOrder) {
+                Role supervisorRole, Set<DayOfWeek> daysOfWeek, Long sortOrder, boolean visibleInObstacleFormForUserRole) {
         this.name = name;
         this.nameAbbrev = nameAbbrev;
         this.participantsLimit = participantsLimit;
@@ -149,6 +160,7 @@ public class Task {
         this.supervisorRole = supervisorRole;
         this.daysOfWeek = daysOfWeek;
         this.sortOrder = sortOrder;
+        this.visibleInObstacleFormForUserRole = visibleInObstacleFormForUserRole;
     }
 
 }
