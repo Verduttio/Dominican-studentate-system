@@ -8,21 +8,42 @@ import TaskCard from "./TaskCard";
 
 function ObstaclesSettingsPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+    const [workingTasks, setWorkingTasks] = useState<Task[]>([]);
     const { error: errorGetTasks, loading: loadingGetTasks, request: requestGetTasks } = useHttp(`${backendUrl}/api/tasks`, 'GET');
 
     useEffect(() => {
-        requestGetTasks(null, (data) => {
+        requestGetTasks(null, (data: Task[]) => {
             setTasks(data);
+            setWorkingTasks(data.map(task => ({ ...task })));
         }).then(() => {});
     }, [requestGetTasks]);
 
     const toggleTaskSelection = (taskId: number) => {
-        if (selectedTasks.includes(taskId)) {
-            setSelectedTasks(selectedTasks.filter(id => id !== taskId));
-        } else {
-            setSelectedTasks([...selectedTasks, taskId]);
-        }
+        setWorkingTasks(workingTasks.map(task =>
+            task.id === taskId
+                ? { ...task, visibleInObstacleFormForUserRole: !task.visibleInObstacleFormForUserRole }
+                : task
+        ));
+    };
+
+    const hasChanges = () => {
+        return workingTasks.some(task => {
+            const originalTask = tasks.find(t => t.id === task.id);
+            return originalTask && originalTask.visibleInObstacleFormForUserRole !== task.visibleInObstacleFormForUserRole;
+        });
+    };
+
+    const getModifiedTasks = () => {
+        return workingTasks.filter(task => {
+            const originalTask = tasks.find(t => t.id === task.id);
+            return originalTask && originalTask.visibleInObstacleFormForUserRole !== task.visibleInObstacleFormForUserRole;
+        });
+    };
+
+    const handleSave = () => {
+        const modifiedTasks = getModifiedTasks();
+        console.log("Zmodyfikowane taski:", modifiedTasks);
+
     };
 
     if (loadingGetTasks) return <LoadingSpinner />;
@@ -37,15 +58,18 @@ function ObstaclesSettingsPage() {
                 <h5 className="entity-header-dynamic-size m-0">Wybór oficjów dla zwykłego użytkownika</h5>
             </div>
             <div className="d-flex justify-content-center">
-                <div className="btn btn-success mt-2">
+                <button
+                    className="btn btn-success mt-2"
+                    disabled={!hasChanges()}
+                    onClick={handleSave}
+                >
                     Zapisz
-                </div>
+                </button>
             </div>
 
             <div className="container mt-2 d-flex justify-content-center">
                 <TaskCard
-                    tasks={tasks}
-                    selectedTasks={selectedTasks}
+                    tasks={workingTasks}
                     toggleTaskSelection={toggleTaskSelection}
                 />
             </div>

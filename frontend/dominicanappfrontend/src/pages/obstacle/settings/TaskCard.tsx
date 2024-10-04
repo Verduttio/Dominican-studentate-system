@@ -3,11 +3,10 @@ import { Task } from "../../../models/Interfaces";
 
 interface TaskCardProps {
     tasks: Task[];
-    selectedTasks: number[];
     toggleTaskSelection: (taskId: number) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ tasks, selectedTasks, toggleTaskSelection }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ tasks, toggleTaskSelection }) => {
     const columnSize = Math.ceil(tasks.length / 3);
 
     return (
@@ -18,7 +17,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ tasks, selectedTasks, toggleTaskSel
                         {tasks.slice(0, columnSize).map((task) => (
                             <button
                                 key={task.id}
-                                className={`btn mb-3 ${selectedTasks.includes(task.id) ? 'btn-success' : 'btn-outline-success'}`}
+                                className={`btn mb-3 ${task.visibleInObstacleFormForUserRole ? 'btn-success' : 'btn-outline-success'}`}
                                 onClick={() => toggleTaskSelection(task.id)}
                             >
                                 {task.nameAbbrev}
@@ -30,7 +29,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ tasks, selectedTasks, toggleTaskSel
                         {tasks.slice(columnSize, 2 * columnSize).map((task) => (
                             <button
                                 key={task.id}
-                                className={`btn mb-3 ${selectedTasks.includes(task.id) ? 'btn-success' : 'btn-outline-success'}`}
+                                className={`btn mb-3 ${task.visibleInObstacleFormForUserRole ? 'btn-success' : 'btn-outline-success'}`}
                                 onClick={() => toggleTaskSelection(task.id)}
                             >
                                 {task.nameAbbrev}
@@ -42,7 +41,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ tasks, selectedTasks, toggleTaskSel
                         {tasks.slice(2 * columnSize).map((task) => (
                             <button
                                 key={task.id}
-                                className={`btn mb-3 ${selectedTasks.includes(task.id) ? 'btn-success' : 'btn-outline-success'}`}
+                                className={`btn mb-3 ${task.visibleInObstacleFormForUserRole ? 'btn-success' : 'btn-outline-success'}`}
                                 onClick={() => toggleTaskSelection(task.id)}
                             >
                                 {task.nameAbbrev}
