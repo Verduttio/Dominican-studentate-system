@@ -32,6 +32,12 @@ public class TaskController {
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
+    @GetMapping("/visibleInObstacleFormForUser")
+    public ResponseEntity<List<Task>> getTasksVisibleInObstacleFormForUser() {
+        List<Task> tasks = taskService.getTasksVisibleInObstacleFormForUser();
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
     @GetMapping("/shortInfo")
     public ResponseEntity<List<TaskShortInfo>> getAllTasksShortInfo() {
         List<TaskShortInfo> tasks = taskService.getAllTasksShortInfo();
@@ -88,6 +94,12 @@ public class TaskController {
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> updateTasks(@RequestBody List<Task> tasks) {
+        taskService.updateTasks(tasks);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{taskId}")
