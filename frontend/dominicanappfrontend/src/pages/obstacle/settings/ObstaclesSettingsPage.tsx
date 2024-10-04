@@ -9,14 +9,31 @@ import TaskCard from "./TaskCard";
 function ObstaclesSettingsPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [workingTasks, setWorkingTasks] = useState<Task[]>([]);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Przechowujemy komunikat o sukcesie
     const { error: errorGetTasks, loading: loadingGetTasks, request: requestGetTasks } = useHttp(`${backendUrl}/api/tasks`, 'GET');
+    const { error: updateError, request: updateRequest, loading: updateLoading } = useHttp(`${backendUrl}/api/tasks`, 'PUT');
 
-    useEffect(() => {
+    // Funkcja pobierająca taski
+    const loadTasks = () => {
         requestGetTasks(null, (data: Task[]) => {
             setTasks(data);
             setWorkingTasks(data.map(task => ({ ...task })));
         }).then(() => {});
-    }, [requestGetTasks]);
+    };
+
+    useEffect(() => {
+        loadTasks();
+    }, []);
+
+
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
 
     const toggleTaskSelection = (taskId: number) => {
         setWorkingTasks(workingTasks.map(task =>
@@ -42,12 +59,14 @@ function ObstaclesSettingsPage() {
 
     const handleSave = () => {
         const modifiedTasks = getModifiedTasks();
-        console.log("Zmodyfikowane taski:", modifiedTasks);
-
+        updateRequest(modifiedTasks, () => {
+            setSuccessMessage('Pomyślnie zaktualizowano widoczność oficjów');
+            loadTasks();
+        });
     };
 
     if (loadingGetTasks) return <LoadingSpinner />;
-    if (errorGetTasks) return <AlertBox text={errorGetTasks} type={'danger'} width={'500px'} />;
+    if (errorGetTasks || updateError) return <AlertBox text={errorGetTasks || updateError} type={'danger'} width={'500px'} />;
 
     return (
         <div className="fade-in">
@@ -57,13 +76,18 @@ function ObstaclesSettingsPage() {
             <div className="d-flex justify-content-center">
                 <h5 className="entity-header-dynamic-size m-0">Wybór oficjów dla zwykłego użytkownika</h5>
             </div>
+
+            {successMessage && (
+                <AlertBox text={successMessage} type={'success'} width={'500px'} />
+            )}
+
             <div className="d-flex justify-content-center">
                 <button
                     className="btn btn-success mt-2"
-                    disabled={!hasChanges()}
+                    disabled={!hasChanges() || updateLoading}
                     onClick={handleSave}
                 >
-                    Zapisz
+                    Zapisz {updateLoading && <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
 
