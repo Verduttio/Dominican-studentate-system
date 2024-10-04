@@ -56,8 +56,21 @@ function ObstaclesSettingsPage() {
         });
     };
 
-    if (loadingGetTasks) return <LoadingSpinner />;
-    if (errorGetTasks || updateError) return <AlertBox text={errorGetTasks || updateError} type={'danger'} width={'500px'} />;
+    const renderTaskCards = () => {
+        if (loadingGetTasks) return <LoadingSpinner />;
+        else return (
+            <div className="container mt-2 d-flex justify-content-center">
+                <TaskCard
+                    tasks={workingTasks}
+                    toggleTaskSelection={toggleTaskSelection}
+                />
+            </div>
+        )
+    }
+
+
+    if (errorGetTasks || updateError) return <AlertBox text={errorGetTasks || updateError} type={'danger'}
+                                                       width={'500px'}/>;
 
     return (
         <div className="fade-in">
@@ -88,12 +101,7 @@ function ObstaclesSettingsPage() {
                 </button>
             </div>
 
-            <div className="container mt-2 d-flex justify-content-center">
-                <TaskCard
-                    tasks={workingTasks}
-                    toggleTaskSelection={toggleTaskSelection}
-                />
-            </div>
+            {renderTaskCards()}
         </div>
     );
 }
