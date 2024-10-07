@@ -25,12 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class PdfService {
@@ -38,6 +36,8 @@ public class PdfService {
     private final ScheduleService scheduleService;
     private static final float MARGIN = 20;
     private static final String FONT_PATH = "Capsuula.ttf";
+    final Color COLOR_LIGHT_GRAY = new Color(217, 217, 217);
+
 
     @Autowired
     public PdfService(ScheduleService scheduleService) {
@@ -261,127 +261,186 @@ public class PdfService {
         table.draw();
     }
 
-    private void populateDayScheduleTable(LocalDate from, LocalDate to, BaseTable table, List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs, PDFont font) throws IOException {
-        final int FONT_SIZE = 4;
-        final int NAME_CELL_WIDTH = 10;
-        final int TASK_CELL_WIDTH = 100 - NAME_CELL_WIDTH;
-        final float ROW_HEIGHT = 7.0F;
+    private void populateDayScheduleTable(
+            LocalDate from,
+            LocalDate to,
+            BaseTable table,
+            List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs,
+            PDFont font) throws IOException {
+
+        final long daysBetween = ChronoUnit.DAYS.between(from, to) + 1;
         final LineStyle BORDER_LINE_STYLE = new LineStyle(Color.BLACK, 0.4f);
-        // Calculate the number of days in the range
-        long daysBetween = ChronoUnit.DAYS.between(from, to) + 1;  // Inclusive of both dates
 
-        // Header row for day of week names
-        Row<PDPage> dayOfWeekRow = table.createRow(ROW_HEIGHT);
-        Cell<PDPage> cell = dayOfWeekRow.createCell(NAME_CELL_WIDTH, "");
-        cell.setFont(font);
-        cell.setFontSize(FONT_SIZE);
-        cell.setAlign(HorizontalAlignment.CENTER);
-        cell.setFillColor(Color.GRAY);
-        cell.setTextColor(Color.BLACK);
-        // Set padding to 0 for day of week cell
-        cell.setTopPadding(0);
-        cell.setBottomPadding(0);
-        cell.setLeftPadding(0);
-        cell.setRightPadding(0);
-        cell.setBorderStyle(BORDER_LINE_STYLE);
-        for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
-            cell = dayOfWeekRow.createCell((float) TASK_CELL_WIDTH / daysBetween, DateUtils.getDayOfWeekPL(date.getDayOfWeek()));  // Divide the width equally among dates
-            cell.setFont(font);
-            cell.setFontSize(FONT_SIZE);
-            cell.setAlign(HorizontalAlignment.CENTER);
-            cell.setFillColor(Color.LIGHT_GRAY);
-            cell.setTextColor(Color.BLACK);
-            // Set padding to 0 for date headers
-            cell.setTopPadding(0);
-            cell.setBottomPadding(0);
-            cell.setLeftPadding(0);
-            cell.setRightPadding(0);
-            cell.setBorderStyle(BORDER_LINE_STYLE);
-        }
-        table.addHeaderRow(dayOfWeekRow);
+        TableParameters params = calculateTableParameters(daysBetween);
 
-        // Create Header row for Brat and dates
-        Row<PDPage> headerRow = table.createRow(ROW_HEIGHT);
-        cell = headerRow.createCell(NAME_CELL_WIDTH, "Brat");
-        cell.setFont(font);
-        cell.setFontSize(FONT_SIZE);
-        cell.setAlign(HorizontalAlignment.CENTER);
-        cell.setFillColor(Color.GRAY);
-        cell.setTextColor(Color.BLACK);
-        // Set padding to 0 for header cell
-        cell.setTopPadding(0);
-        cell.setBottomPadding(0);
-        cell.setLeftPadding(0);
-        cell.setRightPadding(0);
-        cell.setBorderStyle(BORDER_LINE_STYLE);
+        createDayOfWeekHeaderRow(table, from, to, font, params, BORDER_LINE_STYLE, daysBetween);
+        createDateHeaderRow(table, from, to, font, params, BORDER_LINE_STYLE, daysBetween);
 
-        // Adding date headers
-        for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
-            cell = headerRow.createCell((float) TASK_CELL_WIDTH / daysBetween, DateUtils.getDayMonthFormat(date));  // Divide the width equally among dates
-            cell.setFont(font);
-            cell.setFontSize(FONT_SIZE);
-            cell.setAlign(HorizontalAlignment.CENTER);
-            cell.setFillColor(Color.LIGHT_GRAY);
-            cell.setTextColor(Color.BLACK);
-            // Set padding to 0 for date headers
-            cell.setTopPadding(0);
-            cell.setBottomPadding(0);
-            cell.setLeftPadding(0);
-            cell.setRightPadding(0);
-            cell.setBorderStyle(BORDER_LINE_STYLE);
-        }
-        table.addHeaderRow(headerRow);
+        createUserDataRows(table, from, to, userSchedulesOnDaysDTOs, font, params, BORDER_LINE_STYLE, daysBetween);
 
-
-
-
-
-        // Populate rows for each user
-        int loopCounter = 0;
-        for (UserSchedulesOnDaysDTO userSchedulesOnDaysDTO : userSchedulesOnDaysDTOs) {
-
-            UserShortInfo userShortInfo = userSchedulesOnDaysDTO.getUserShortInfo();
-            Map<LocalDate, List<String>> schedules = userSchedulesOnDaysDTO.getSchedules();
-
-
-            // Create a row for each user
-            Row<PDPage> row = table.createRow(ROW_HEIGHT);
-            cell = row.createCell(NAME_CELL_WIDTH, userShortInfo.getName() + " " + userShortInfo.getSurname());
-            cell.setFont(font);
-            cell.setFontSize(FONT_SIZE);
-            cell.setAlign(HorizontalAlignment.CENTER);
-            cell.setFillColor(new Color(217, 225, 242));  // White color
-            // Set padding to 0 for user info cell
-            cell.setTopPadding(0);
-            cell.setBottomPadding(0);
-            cell.setLeftPadding(0);
-            cell.setRightPadding(0);
-            cell.setBorderStyle(BORDER_LINE_STYLE);
-
-            // Fill cells with task abbreviations for each date
-            for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
-                List<String> tasksForDate = schedules.getOrDefault(date, Collections.emptyList());
-                cell = row.createCell((float) TASK_CELL_WIDTH / daysBetween, String.join(", ", tasksForDate));
-                cell.setFont(font);
-                cell.setFontSize(FONT_SIZE);
-                if (loopCounter % 2 == 1) {
-                    cell.setFillColor(Color.LIGHT_GRAY);
-                } else {
-                    cell.setFillColor(Color.WHITE);
-                }
-                cell.setAlign(HorizontalAlignment.CENTER);
-                // Set padding to 0 for task cells
-                cell.setTopPadding(0);
-                cell.setBottomPadding(0);
-                cell.setLeftPadding(0);
-                cell.setRightPadding(0);
-                cell.setBorderStyle(BORDER_LINE_STYLE);
-            }
-            loopCounter++;
-        }
-
-        // Draw the table on the document
         table.draw();
+    }
+
+    private TableParameters calculateTableParameters(long daysBetween) {
+        int fontSize;
+        int nameCellWidth;
+        int taskCellWidth;
+        int rowHeight;
+
+        if (daysBetween < 16) {
+            fontSize = 8;
+            nameCellWidth = 14;
+            rowHeight = 10;
+        } else if (daysBetween < 40) {
+            fontSize = 6;
+            nameCellWidth = 8;
+            rowHeight = 7;
+        } else {
+            fontSize = 4;
+            nameCellWidth = 6;
+            rowHeight = 6;
+        }
+        taskCellWidth = 100 - nameCellWidth;
+
+        return new TableParameters(fontSize, nameCellWidth, taskCellWidth, rowHeight);
+    }
+
+    private void createDayOfWeekHeaderRow(
+            BaseTable table,
+            LocalDate from,
+            LocalDate to,
+            PDFont font,
+            TableParameters params,
+            LineStyle borderLineStyle,
+            long daysBetween) {
+
+        Row<PDPage> dayOfWeekRow = table.createRow(params.rowHeight);
+
+        // Empty cell
+        createHeaderCell(dayOfWeekRow, params.nameCellWidth, "", font, params.fontSize, borderLineStyle, Color.GRAY);
+
+        // Day of week cells
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            String dayOfWeek = DateUtils.getDayOfWeekPL(date.getDayOfWeek());
+            createHeaderCell(dayOfWeekRow, (float) params.taskCellWidth / daysBetween, dayOfWeek, font, params.fontSize, borderLineStyle, COLOR_LIGHT_GRAY);
+        }
+
+        table.addHeaderRow(dayOfWeekRow);
+    }
+
+    private void createDateHeaderRow(
+            BaseTable table,
+            LocalDate from,
+            LocalDate to,
+            PDFont font,
+            TableParameters params,
+            LineStyle borderLineStyle,
+            long daysBetween) {
+
+        Row<PDPage> headerRow = table.createRow(params.rowHeight);
+
+        createHeaderCell(headerRow, params.nameCellWidth, "Brat", font, params.fontSize, borderLineStyle, Color.GRAY);
+
+        // Dates cells
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            String dateStr = DateUtils.getDayMonthFormat(date);
+            createHeaderCell(headerRow, (float) params.taskCellWidth / daysBetween, dateStr, font, params.fontSize, borderLineStyle, COLOR_LIGHT_GRAY);
+        }
+
+        table.addHeaderRow(headerRow);
+    }
+
+    private void createUserDataRows(
+            BaseTable table,
+            LocalDate from,
+            LocalDate to,
+            List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTOs,
+            PDFont font,
+            TableParameters params,
+            LineStyle borderLineStyle,
+            long daysBetween) {
+
+        int rowIndex = 0;
+
+        for (UserSchedulesOnDaysDTO userDTO : userSchedulesOnDaysDTOs) {
+            Row<PDPage> row = table.createRow(params.rowHeight);
+            UserShortInfo userInfo = userDTO.getUserShortInfo();
+
+            // UserName cell
+            createDataCell(row, params.nameCellWidth, userInfo.getName() + " " + userInfo.getSurname(), font, params.fontSize, borderLineStyle, new Color(217, 225, 242), rowIndex);
+
+            // Task cells
+            for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+                List<String> tasks = userDTO.getSchedules().getOrDefault(date, Collections.emptyList());
+                String tasksStr = String.join(", ", tasks);
+                createDataCell(row, (float) params.taskCellWidth / daysBetween, tasksStr, font, params.fontSize, borderLineStyle, Color.WHITE, rowIndex);
+            }
+
+            rowIndex++;
+        }
+    }
+
+    private Cell<PDPage> createHeaderCell(
+            Row<PDPage> row,
+            float width,
+            String text,
+            PDFont font,
+            int fontSize,
+            LineStyle borderLineStyle,
+            Color fillColor) {
+
+        Cell<PDPage> cell = row.createCell(width, text);
+        cell.setFont(font);
+        cell.setFontSize(fontSize);
+        cell.setAlign(HorizontalAlignment.CENTER);
+        cell.setFillColor(fillColor);
+        cell.setTextColor(Color.BLACK);
+        cell.setBorderStyle(borderLineStyle);
+        setCellPadding(cell, 0);
+
+        return cell;
+    }
+
+    private Cell<PDPage> createDataCell(
+            Row<PDPage> row,
+            float width,
+            String text,
+            PDFont font,
+            int fontSize,
+            LineStyle borderLineStyle,
+            Color baseColor,
+            int rowIndex) {
+
+        Cell<PDPage> cell = row.createCell(width, text);
+        cell.setFont(font);
+        cell.setFontSize(fontSize);
+        cell.setAlign(HorizontalAlignment.CENTER);
+        cell.setFillColor((rowIndex % 2 == 1) ? COLOR_LIGHT_GRAY : baseColor);
+        cell.setBorderStyle(borderLineStyle);
+        setCellPadding(cell, 0);
+
+        return cell;
+    }
+
+    private void setCellPadding(Cell<PDPage> cell, float padding) {
+        cell.setTopPadding(padding);
+        cell.setBottomPadding(padding);
+        cell.setLeftPadding(padding);
+        cell.setRightPadding(padding);
+    }
+
+    private static class TableParameters {
+        int fontSize;
+        int nameCellWidth;
+        int taskCellWidth;
+        int rowHeight;
+
+        public TableParameters(int fontSize, int nameCellWidth, int taskCellWidth, int rowHeight) {
+            this.fontSize = fontSize;
+            this.nameCellWidth = nameCellWidth;
+            this.taskCellWidth = taskCellWidth;
+            this.rowHeight = rowHeight;
+        }
     }
 
 
