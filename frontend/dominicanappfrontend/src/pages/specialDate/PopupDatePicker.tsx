@@ -23,7 +23,14 @@ const PopupDatePicker: React.FC<PopupDatePickerProps> = ({ selectedDate, onDateC
                         <DatePicker
                             selected={selectedDate}
                             onChange={handleDateChange}
+                            dateFormat="yyyy-MM-dd"
+                            locale="pl"
+                            className="form-control"
                             inline
+                            showYearDropdown
+                            yearDropdownItemNumber={20}
+                            scrollableYearDropdown
+                            showMonthDropdown
                         />
                     </div>
                     <div className="modal-footer d-flex justify-content-center">
