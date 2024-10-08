@@ -15,14 +15,15 @@ registerLocale('pl', pl);
 
 interface ChangeEntryDatePopupProps {
     userId: number;
+    initialDateTime: string;
     onClose: () => void;
 }
 
-const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, onClose }) => {
+const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, initialDateTime, onClose }) => {
     const { request: changeEntryDate, error: errorChangeEntryDate, loading: loadingChangeEntryDate } = useHttp(
         `${backendUrl}/api/users/${userId}/entry_date`, 'PATCH');
-    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-    const [selectedTime, setSelectedTime] = useState<string>('12:00');
+    const [selectedDate, setSelectedDate] = useState<Date | null>(initialDateTime ? new Date(initialDateTime) : null);
+    const [selectedTime, setSelectedTime] = useState<string>(initialDateTime ? initialDateTime.split('T')[1].split(':')[0] + ':' + initialDateTime.split('T')[1].split(':')[1] : '');
     const [validationError, setValidationError] = useState<string>('');
     const [fieldsSuccessfullyChanged, setFieldsSuccessfullyChanged] = useState(false);
 

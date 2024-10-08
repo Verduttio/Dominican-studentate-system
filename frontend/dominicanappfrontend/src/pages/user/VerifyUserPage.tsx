@@ -223,7 +223,7 @@ function VerifyUserPage() {
                                                 onClose={() => setShowChangeNameSurname(false)}/>}
                     {showChangeEntryDate &&
                         <ChangeEntryDatePopup userId={user?.id ? user.id : 0}
-                                                onClose={() => setShowChangeEntryDate(false)}/>}
+                                                onClose={() => setShowChangeEntryDate(false)} initialDateTime={user ? user.entryDate : "" }/>}
                     <button className="btn btn-danger m-1" onClick={() => setShowConfirmationPopup(true)}
                             disabled={requestLoading || deleteUserLoading || updateRolesLoading}>Usuń użytkownika
                     </button>

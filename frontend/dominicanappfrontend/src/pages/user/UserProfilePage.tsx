@@ -73,7 +73,9 @@ function UserProfilePage () {
                             {showChangeNameSurname && <ChangeNameSurnamePopup userId={currentUser.id}
                                                                               onClose={() => setShowChangeNameSurname(false)}/>}
                             {showChangeEntryDate && <ChangeEntryDatePopup userId={currentUser.id}
-                                                                                onClose={() => setShowChangeEntryDate(false)}/>}
+                                                                                onClose={() => setShowChangeEntryDate(false)}
+                                                                          initialDateTime={currentUser.entryDate}
+                            />}
                         </div>
                         <div className="col-md-6 mw-100" style={{width: '400px'}}>
                             <div className="card shadow-sm m-1">
