@@ -39,6 +39,7 @@ import MyObstacleDetails from "./pages/obstacle/MyObstacleDetails";
 import TaskDetails from "./pages/task/TaskDetails";
 import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
 import ObstaclesSettingsPage from "./pages/obstacle/settings/ObstaclesSettingsPage";
+import UsersRolesByCategory from "./pages/role/UsersRolesByCategory";
 
 const AppContent = () => {
     const location = useLocation();
@@ -72,6 +73,7 @@ const AppContent = () => {
                     <Route path="/users" Component={UsersPage}/>
                     <Route path="/users/:id/verify" Component={VerifyUserPage}/>
                     <Route path="/roles" Component={ViewRoles}/>
+                    <Route path="/roles/users" Component={UsersRolesByCategory}/>
                     <Route path="/add-role" Component={AddRole}/>
                     <Route path="/edit-role/:roleId" Component={EditRole}/>
                     <Route path="/dates" Component={DatesPage}/>

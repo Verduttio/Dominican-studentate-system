@@ -40,6 +40,9 @@ function ViewRoles() {
                 </div>
             }
             <div className="d-flex justify-content-center">
+                <button className="btn btn-secondary mb-3" onClick={() => navigate('/roles/users')}>Podział ról braci</button>
+            </div>
+            <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '600px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
                         <thead className="table-dark">

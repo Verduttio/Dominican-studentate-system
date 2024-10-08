@@ -30,7 +30,11 @@ function UsersPage () {
             <div className="d-flex justify-content-center">
                 <h1 className="entity-header">Bracia</h1>
             </div>
-            {locationStateMessage && <AlertBox text={locationStateMessage} type="success" width={'500px'} />}
+            {locationStateMessage && <AlertBox text={locationStateMessage} type="success" width={'500px'}/>}
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-secondary mb-3" onClick={() => navigate('/roles/users')}>Podział ról braci
+                </button>
+            </div>
             <div className="d-flex justify-content-center">
                 <div className="table-responsive" style={{maxWidth: '500px'}}>
                     <table className="table table-hover table-striped table-rounded table-shadow">
@@ -49,11 +53,15 @@ function UsersPage () {
                                 <td>{user.name}</td>
                                 <td>{user.surname}</td>
                                 <td>
-                                    <button className="btn btn-dark" onClick={() => {navigate(`/users/${user.id}/viewer/details`)}}>Szczegóły</button>
+                                    <button className="btn btn-dark" onClick={() => {
+                                        navigate(`/users/${user.id}/viewer/details`)
+                                    }}>Szczegóły
+                                    </button>
                                 </td>
                                 {isAdmin &&
                                     <td>
-                                        <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"} onClick={() => navigate(`/users/${user.id}/verify`)}>
+                                        <button className={user.enabled ? "btn btn-primary" : "btn btn-danger"}
+                                                onClick={() => navigate(`/users/${user.id}/verify`)}>
                                             {user.enabled ? "Edytuj" : "Zweryfikuj"}
                                         </button>
                                     </td>
