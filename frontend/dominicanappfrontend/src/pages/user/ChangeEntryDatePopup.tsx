@@ -6,6 +6,12 @@ import AlertBox from "../../components/AlertBox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import AlertBoxTimed from "../../components/AlertBoxTimed";
+import { registerLocale } from "react-datepicker";
+import { pl } from 'date-fns/locale';
+
+
+registerLocale('pl', pl);
 
 interface ChangeEntryDatePopupProps {
     userId: number;
@@ -53,7 +59,7 @@ const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, onC
             const dateTimeStr = `${dateStr}T${selectedTime}:00`; // "YYYY-MM-DD HH:mm:00"
 
             try {
-                changeEntryDate({entryDate: dateTimeStr}, () => {
+                changeEntryDate({ entryDate: dateTimeStr }, () => {
                     setFieldsSuccessfullyChanged(true);
                 });
             } catch (error) {
@@ -68,7 +74,7 @@ const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, onC
                 <div className="card-body">
                     <div className="card-title">
                         {fieldsSuccessfullyChanged && <AlertBox text={"Dane zostały zmienione"} type="success" width={'500px'} />}
-                        {validationError && <AlertBox text={validationError} type="danger" width={'500px'} />}
+                        {validationError && <AlertBoxTimed text={validationError} type="danger" width={'500px'} onClose={() => { setValidationError("") }} />}
                         {errorChangeEntryDate && <AlertBox text={errorChangeEntryDate} type="danger" width={'500px'} />}
                     </div>
                     {fieldsSuccessfullyChanged ? (
@@ -91,8 +97,13 @@ const ChangeEntryDatePopup: React.FC<ChangeEntryDatePopupProps> = ({ userId, onC
                                             selected={selectedDate}
                                             onChange={handleDateChange}
                                             dateFormat="yyyy-MM-dd"
+                                            locale="pl"
                                             className="form-control"
                                             inline
+                                            showYearDropdown
+                                            yearDropdownItemNumber={20}
+                                            scrollableYearDropdown
+                                            showMonthDropdown
                                         />
                                     </div>
                                 </div>
