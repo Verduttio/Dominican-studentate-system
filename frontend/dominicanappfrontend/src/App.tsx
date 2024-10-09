@@ -42,6 +42,7 @@ import ObstaclesSettingsPage from "./pages/obstacle/settings/ObstaclesSettingsPa
 import UsersRolesByCategory from "./pages/role/UsersRolesByCategory";
 import LinksPage from "./pages/links/LinksPage";
 import LinksSettingsPage from "./pages/links/LinksSettingsPage";
+import AddLinkPage from "./pages/links/add/AddLinkPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -90,6 +91,7 @@ const AppContent = () => {
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/links" Component={LinksPage}/>
                     <Route path="/links/settings" Component={LinksSettingsPage}/>
+                    <Route path="/links/settings/add" Component={AddLinkPage}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
