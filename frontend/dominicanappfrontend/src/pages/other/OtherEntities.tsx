@@ -76,7 +76,7 @@ const OtherEntities = () => {
 
             <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
                 <div className="card-body text-center" onClick={() => {
-                    navigate("/infos")
+                    navigate("/links")
                 }}>
                     Info
                 </div>

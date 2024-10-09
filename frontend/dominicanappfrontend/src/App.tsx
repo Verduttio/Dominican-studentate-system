@@ -87,7 +87,7 @@ const AppContent = () => {
                     <Route path="/add-schedule/weekly/by-all-days" Component={AddScheduleWeeklyByAllDays}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
-                    <Route path="/infos" Component={LinksPage}/>
+                    <Route path="/links" Component={LinksPage}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
