@@ -40,7 +40,7 @@ import TaskDetails from "./pages/task/TaskDetails";
 import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
 import ObstaclesSettingsPage from "./pages/obstacle/settings/ObstaclesSettingsPage";
 import UsersRolesByCategory from "./pages/role/UsersRolesByCategory";
-import InfoPage from "./pages/info/InfoPage";
+import LinksPage from "./pages/links/LinksPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -87,7 +87,7 @@ const AppContent = () => {
                     <Route path="/add-schedule/weekly/by-all-days" Component={AddScheduleWeeklyByAllDays}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
-                    <Route path="/infos" Component={InfoPage}/>
+                    <Route path="/infos" Component={LinksPage}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>

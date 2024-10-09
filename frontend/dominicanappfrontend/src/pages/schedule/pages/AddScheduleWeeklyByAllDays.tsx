@@ -250,7 +250,7 @@ function AddScheduleWeeklyByAllDays() {
                                         if (task.isInConflict) {
                                             optionClassName = "bg-warning";
                                         } else if (task.hasObstacle) {
-                                            optionClassName = "bg-info";
+                                            optionClassName = "bg-links";
                                         } else {
                                             optionClassName = "";
                                         }
