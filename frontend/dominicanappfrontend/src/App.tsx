@@ -41,6 +41,7 @@ import EditTasksOrder from "./pages/task/editTaskOrder/EditTasksOrder";
 import ObstaclesSettingsPage from "./pages/obstacle/settings/ObstaclesSettingsPage";
 import UsersRolesByCategory from "./pages/role/UsersRolesByCategory";
 import LinksPage from "./pages/links/LinksPage";
+import LinksSettingsPage from "./pages/links/LinksSettingsPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -88,6 +89,7 @@ const AppContent = () => {
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/links" Component={LinksPage}/>
+                    <Route path="/links/settings" Component={LinksSettingsPage}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
