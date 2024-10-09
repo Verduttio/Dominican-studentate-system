@@ -18,8 +18,8 @@ function AddLinkPage() {
 
     return (
         <div className="fade-in">
-            <h3 className="entity-header-dynamic-size">Dodaj link</h3>
-            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
+            <h3 className="entity-header-dynamic-size mb-0">Dodaj link</h3>
+            <div className="edit-entity-container mw-100 mb-0 mt-4" style={{width: '400px'}}>
                 {/*{error && <AlertBox text={error} type={"danger"} width={"500px"}/>}*/}
                 {/*{validationError && <AlertBox text={validationError} type={"danger"} width={"500px"}/>}*/}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -31,6 +31,14 @@ function AddLinkPage() {
                     </div>
                 </form>
             </div>
+            <h4 className="entity-header-dynamic-size mt-4">
+                Podgląd linku
+            </h4>
+            <iframe
+                src={documentLinkData?.url}
+                title={documentLinkData?.title}
+                style={{width: '100%', height: '600px', border: 'none'}}
+            ></iframe>
         </div>
     );
 }
