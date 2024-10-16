@@ -37,6 +37,7 @@ function LinksSettingsPage() {
                         <thead className="table-dark">
                         <tr>
                             <th>Tytuł</th>
+                            <th>SortOrder</th>
                             <th>Edytuj</th>
                         </tr>
                         </thead>
@@ -44,8 +45,9 @@ function LinksSettingsPage() {
                         {documentLinks.map(document => (
                             <tr key={document.id}>
                                 <td>{document.title}</td>
+                                <td>{document.sortOrder}</td>
                                 <td>
-                                    <button className="btn btn-dark">
+                                    <button className="btn btn-dark" onClick={() => {navigate(`/links/settings/edit/${document.id}`)}}>
                                         Edytuj
                                     </button>
                                 </td>
