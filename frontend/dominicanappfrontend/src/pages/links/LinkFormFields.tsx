@@ -60,7 +60,7 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
                     {Object.values(documents).map((document) => (
                         <option key={document.id} value={document.sortOrder}>{document.title}</option>
                     ))}
-                    <option value={documents.length}>{'{--Wstaw na koniec--}'}</option>
+                    <option key={documents.length+1} value={documents.length+1}>{'{--Wstaw na koniec--}'}</option>
                 </select>
             </div>
         </>

@@ -14,6 +14,8 @@ function AddLinkPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        console.log(documentLinkData);
     }
 
     return (
