@@ -1,6 +1,11 @@
 import React, {useState} from "react";
 import LinkFormFields from "../LinkFormFields";
 import {DocumentLink} from "../../../models/Interfaces";
+import useHttp from "../../../services/UseHttp";
+import {backendUrl} from "../../../utils/constants";
+import {useNavigate} from "react-router-dom";
+import AlertBoxTimed from "../../../components/AlertBoxTimed";
+import AlertBox from "../../../components/AlertBox";
 
 function AddLinkPage() {
     const initialDocumentLinkState : DocumentLink = {
@@ -11,24 +16,36 @@ function AddLinkPage() {
     }
 
     const [documentLinkData, setDocumentLinkData] = useState<DocumentLink | null>(initialDocumentLinkState);
+    const { request: postDocumentLinks, error: errorPostDocumentLinks, loading: loadingPostDocumentLinks } = useHttp(`${backendUrl}/api/document-links`, 'POST');
+    const [validationError, setValidationError] = useState<string>();
+    const navigate = useNavigate();
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         console.log(documentLinkData);
+        if (!documentLinkData?.title || !documentLinkData?.url) {
+            setValidationError("Wszystkie pola muszą być wypełnione.");
+            return;
+        }
+
+        postDocumentLinks(documentLinkData, () => {
+            navigate('/links/settings', { state: { message: 'Pomyślnie dodano nowy link' } });
+        });
     }
 
     return (
         <div className="fade-in">
             <h3 className="entity-header-dynamic-size mb-0">Dodaj link</h3>
             <div className="edit-entity-container mw-100 mb-0 mt-4" style={{width: '400px'}}>
-                {/*{error && <AlertBox text={error} type={"danger"} width={"500px"}/>}*/}
-                {/*{validationError && <AlertBox text={validationError} type={"danger"} width={"500px"}/>}*/}
+                {errorPostDocumentLinks && <AlertBox text={errorPostDocumentLinks} type={"danger"} width={"500px"}/>}
+                {validationError && <AlertBoxTimed text={validationError} type={"danger"} width={"500px"} onClose={() => {setValidationError("")}}/>}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                     <LinkFormFields documentLink={documentLinkData} setDocumentLink={setDocumentLinkData}/>
                     <div className="d-flex justify-content-center">
                         <button className="btn btn-success" type="submit" disabled={false}>
-                            Dodaj {false && <span className="spinner-border spinner-border-sm"></span>}
+                            Dodaj {loadingPostDocumentLinks && <span className="spinner-border spinner-border-sm"></span>}
                         </button>
                     </div>
                 </form>

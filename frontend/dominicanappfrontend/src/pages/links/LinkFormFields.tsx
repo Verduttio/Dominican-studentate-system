@@ -1,5 +1,9 @@
-import documents, {DocumentLink} from "../../models/Interfaces";
-import React from "react";
+import {DocumentLink} from "../../models/Interfaces";
+import React, {useEffect, useState} from "react";
+import useHttp from "../../services/UseHttp";
+import {backendUrl} from "../../utils/constants";
+import LoadingSpinner from "../../components/LoadingScreen";
+import AlertBox from "../../components/AlertBox";
 
 interface LinkFormFieldsProps {
     documentLink: DocumentLink | null;
@@ -7,6 +11,15 @@ interface LinkFormFieldsProps {
 }
 
 const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocumentLink }) => {
+    const [documentLinks, setDocumentLinks] = useState<DocumentLink[]>([]);
+    const { request: getDocumentLinks, error: errorGetDocumentLinks, loading: loadingGetDocumentLinks } = useHttp(`${backendUrl}/api/document-links`, 'GET');
+
+    useEffect(() => {
+        getDocumentLinks(null, (data: DocumentLink[]) => {
+            setDocumentLinks(data);
+        });
+    }, [getDocumentLinks]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const target = e.target as HTMLInputElement;
         const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -20,6 +33,9 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
             };
         });
     };
+
+    if (loadingGetDocumentLinks) return <LoadingSpinner/>;
+    if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>;
 
     return (
         <>
@@ -57,10 +73,10 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
                     onChange={handleChange}
                     required
                 >
-                    {Object.values(documents).map((document) => (
+                    {Object.values(documentLinks).map((document) => (
                         <option key={document.id} value={document.sortOrder}>{document.title}</option>
                     ))}
-                    <option key={documents.length+1} value={documents.length+1}>{'{--Wstaw na koniec--}'}</option>
+                    <option key={documentLinks.length+1} value={documentLinks.length+1}>{'{--Wstaw na koniec--}'}</option>
                 </select>
             </div>
         </>
