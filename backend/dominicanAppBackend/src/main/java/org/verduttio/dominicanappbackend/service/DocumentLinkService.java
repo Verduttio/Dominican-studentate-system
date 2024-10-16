@@ -31,13 +31,20 @@ public class DocumentLinkService {
         return documentLinkRepository.save(documentLink);
     }
 
+    @Transactional
     public DocumentLink update(DocumentLink documentLink) {
-        if (documentLinkRepository.existsById(documentLink.getId())) {
+        DocumentLink existingDocumentLink = documentLinkRepository.findById(documentLink.getId())
+                .orElseThrow(() -> new EntityNotFoundException("DocumentLink with id: " + documentLink.getId() + " not found"));
+
+        if (!existingDocumentLink.getSortOrder().equals(documentLink.getSortOrder())) {
             documentLinkRepository.incrementSortOrderGreaterThanOrEqualTo(documentLink.getSortOrder());
-            return documentLinkRepository.save(documentLink);
-        } else {
-            throw new EntityNotFoundException("DocumentLink with id: " + documentLink.getId() + " not found");
         }
+
+        existingDocumentLink.setTitle(documentLink.getTitle());
+        existingDocumentLink.setUrl(documentLink.getUrl());
+        existingDocumentLink.setSortOrder(documentLink.getSortOrder());
+
+        return documentLinkRepository.save(existingDocumentLink);
     }
 
     public void deleteById(Long id) {
