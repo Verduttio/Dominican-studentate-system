@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AlertBoxTimed from "../../../components/AlertBoxTimed";
 import AlertBox from "../../../components/AlertBox";
 import LoadingSpinner from "../../../components/LoadingScreen";
+import ConfirmDeletionPopup from "../../../components/ConfirmDeletionPopup";
 
 function EditLinkPage() {
     const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ function EditLinkPage() {
 
     const [documentLinkData, setDocumentLinkData] = useState<DocumentLink | null>(null);
     const [validationError, setValidationError] = useState<string>();
+    const [showConfirmDeletionPopup, setShowConfirmDeletionPopup] = useState(false);
 
     const {
         request: getDocumentLink,
@@ -97,7 +99,7 @@ function EditLinkPage() {
                                 <span className="spinner-border spinner-border-sm"></span>
                             )}
                         </button>
-                        <button className="btn btn-danger my-1" onClick={handleDelete}
+                        <button className="btn btn-danger my-1" type="button" onClick={() => {setShowConfirmDeletionPopup(true)}}
                                 disabled={loadingUpdateDocumentLink || loadingDeleteDocumentLink}>
                             Usuń{" "}
                             {loadingDeleteDocumentLink && (
@@ -113,6 +115,7 @@ function EditLinkPage() {
                 title={documentLinkData?.title}
                 style={{ width: "100%", height: "600px", border: "none" }}
             ></iframe>
+            {showConfirmDeletionPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmDeletionPopup(false)} />}
         </div>
     );
 }
