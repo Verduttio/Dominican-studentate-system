@@ -58,7 +58,9 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
 
         return (
             <div key={formattedDay}>
-                {dailyTaskNamesAbbrevs.join(", ")}
+                {dailyTaskNamesAbbrevs.map((taskNameAbbrev, index) => (
+                    <div key={index}>{taskNameAbbrev}</div>
+                ))}
             </div>
         );
     };
@@ -72,7 +74,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
         return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow text-cente mb-0">
+                    <table className="table table-hover table-striped table-rounded table-shadow table-bordered text-cente mb-0">
                         <thead className="table-dark">
                         <tr>
                             {weekDays.map((day, index) => {
