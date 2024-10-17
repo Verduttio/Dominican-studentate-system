@@ -27,6 +27,12 @@ function EditLinkPage() {
         loading: loadingUpdateDocumentLink,
     } = useHttp(`${backendUrl}/api/document-links/${id}`, "PUT");
 
+    const {
+        request: deleteDocumentLink,
+        error: errorDeleteDocumentLink,
+        loading: loadingDeleteDocumentLink,
+    } = useHttp(`${backendUrl}/api/document-links/${id}`, "DELETE");
+
     useEffect(() => {
         getDocumentLink(null, (data: DocumentLink) => {
             setDocumentLinkData(data);
@@ -45,6 +51,12 @@ function EditLinkPage() {
             navigate("/links/settings", { state: { message: "Pomyślnie zaktualizowano link" } });
         });
     };
+
+    const handleDelete = () => {
+        deleteDocumentLink(null, () => {
+            navigate("/links/settings", { state: { message: "Pomyślnie usunięto link" } });
+        });
+    }
 
     if (loadingGetDocumentLink) {
         return <LoadingSpinner/>;
@@ -76,11 +88,19 @@ function EditLinkPage() {
                     />
                 )}
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                    {errorDeleteDocumentLink && <AlertBox text={errorDeleteDocumentLink} type={"danger"} width={"500px"}/>}
                     <LinkFormFields documentLink={documentLinkData} setDocumentLink={setDocumentLinkData} />
-                    <div className="d-flex justify-content-center">
-                        <button className="btn btn-primary" type="submit" disabled={loadingUpdateDocumentLink}>
+                    <div className="d-flex justify-content-between">
+                        <button className="btn btn-primary my-1" type="submit" disabled={loadingUpdateDocumentLink || loadingDeleteDocumentLink}>
                             Zapisz zmiany{" "}
                             {loadingUpdateDocumentLink && (
+                                <span className="spinner-border spinner-border-sm"></span>
+                            )}
+                        </button>
+                        <button className="btn btn-danger my-1" onClick={handleDelete}
+                                disabled={loadingUpdateDocumentLink || loadingDeleteDocumentLink}>
+                            Usuń{" "}
+                            {loadingDeleteDocumentLink && (
                                 <span className="spinner-border spinner-border-sm"></span>
                             )}
                         </button>
