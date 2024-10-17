@@ -7,6 +7,7 @@ import org.verduttio.dominicanappbackend.repository.DocumentLinkRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DocumentLinkService {
@@ -47,8 +48,13 @@ public class DocumentLinkService {
         return documentLinkRepository.save(existingDocumentLink);
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        documentLinkRepository.deleteById(id);
+        Optional<DocumentLink> documentLink = documentLinkRepository.findById(id);
+        if (documentLink.isPresent()) {
+            documentLinkRepository.decrementSortOrderGreaterThan(documentLink.get().getSortOrder());
+            documentLinkRepository.deleteById(id);
+        }
     }
 
 }

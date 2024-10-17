@@ -14,4 +14,8 @@ public interface DocumentLinkRepository extends JpaRepository<DocumentLink, Long
     @Modifying
     @Query("UPDATE DocumentLink dl SET dl.sortOrder = dl.sortOrder + 1 WHERE dl.sortOrder >= :sortOrder")
     void incrementSortOrderGreaterThanOrEqualTo(@Param("sortOrder") Long sortOrder);
+
+    @Modifying
+    @Query("UPDATE DocumentLink dl SET dl.sortOrder = dl.sortOrder - 1 WHERE dl.sortOrder > :sortOrder")
+    void decrementSortOrderGreaterThan(@Param("sortOrder") Long sortOrder);
 }
