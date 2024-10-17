@@ -12,7 +12,7 @@ function AddLinkPage() {
         id: 0,
         title: '',
         url: '',
-        sortOrder: 0
+        sortOrder: 1
     }
 
     const [documentLinkData, setDocumentLinkData] = useState<DocumentLink | null>(initialDocumentLinkState);
