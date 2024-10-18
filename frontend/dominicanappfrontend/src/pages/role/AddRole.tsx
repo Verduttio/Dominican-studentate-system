@@ -15,7 +15,9 @@ function AddRole() {
         id: 0,
         name: '',
         type: '',
-        weeklyScheduleCreatorDefault: true
+        weeklyScheduleCreatorDefault: true,
+        assignedTasksGroupName: '',
+        sortOrder: 0
     }
 
     const [roleData, setRoleData] = useState<Role | null>(initialRoleState);

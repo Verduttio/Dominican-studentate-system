@@ -3,6 +3,8 @@ interface Role {
     name: string;
     type: string;
     weeklyScheduleCreatorDefault: boolean;
+    assignedTasksGroupName: string;
+    sortOrder: number;
 }
 
 interface Task {
