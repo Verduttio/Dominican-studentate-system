@@ -9,11 +9,13 @@ import java.util.Optional;
 
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    List<Role> findAllByOrderBySortOrderAsc();
+
     Optional<Role> findByName(String roleName);
 
     boolean existsByName(String roleName);
 
-    List<Role> findByType(RoleType roleType);
+    List<Role> findByTypeOrderBySortOrderAsc(RoleType roleType);
 
     Optional<Role> findByNameAndType(String name, RoleType type);
 }

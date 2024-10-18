@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.verduttio.dominicanappbackend.dto.role.RoleSortOrderUpdateDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.service.RoleService;
@@ -53,6 +54,17 @@ public class RoleController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(role, HttpStatus.CREATED);
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateRoleSortOrder(@RequestBody List<RoleSortOrderUpdateDTO> roleSortOrderUpdateDTOs) {
+        try {
+            roleService.updateRoleSortOrder(roleSortOrderUpdateDTOs);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{roleId}")

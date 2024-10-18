@@ -2,6 +2,8 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.verduttio.dominicanappbackend.dto.role.RoleSortOrderUpdateDTO;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 import org.verduttio.dominicanappbackend.entity.User;
@@ -32,9 +34,7 @@ public class RoleService {
     }
 
     public List<Role> getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
-        roles.sort(Comparator.comparing(Role::getType));
-        return roles;
+        return roleRepository.findAllByOrderBySortOrderAsc();
     }
 
     public Role getRoleById(Long roleId) {
@@ -134,6 +134,19 @@ public class RoleService {
     }
 
     public List<Role> getRolesByType(RoleType roleType) {
-        return roleRepository.findByType(roleType);
+        return roleRepository.findByTypeOrderBySortOrderAsc(roleType);
+    }
+
+    @Transactional
+    public void updateRoleSortOrder(List<RoleSortOrderUpdateDTO> roleSortOrderUpdateDTOs) {
+        for (RoleSortOrderUpdateDTO roleSortOrderUpdateDTO : roleSortOrderUpdateDTOs) {
+            Optional<Role> role = roleRepository.findById(roleSortOrderUpdateDTO.id());
+            if (role.isEmpty()) {
+                throw new EntityNotFoundException("Role with id " + roleSortOrderUpdateDTO.id() + " does not exist");
+            }
+            Role roleToUpdate = role.get();
+            roleToUpdate.setSortOrder(roleSortOrderUpdateDTO.sortOrder());
+            roleRepository.save(roleToUpdate);
+        }
     }
 }
