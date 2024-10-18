@@ -205,34 +205,6 @@ interface DocumentLink {
     sortOrder: number;
 }
 
-const documents: DocumentLink[] = [
-    {
-        id: 1,
-        title: 'Regulamin PDF',
-        url: 'https://docs.google.com/viewer?url=https://example.com/sample.pdf&embedded=true',
-        sortOrder: 1,
-    },
-    {
-        id: 2,
-        title: 'Google Spreadsheet',
-        url: 'https://docs.google.com/spreadsheets/d/1GqPfvxNlo-lsjXWtovIOpsCOh1z8WuUaiM/pubhtml?widget=true&headers=false',
-        sortOrder: 2,
-    },
-    {
-        id: 3,
-        title: 'Google Doc',
-        url: 'https://docs.google.com/document/d/1aA_6_F6LhtX_w9e7m2JvPqR7Al1zfp0M/pub?embedded=true',
-        sortOrder: 3,
-    },
-    {
-        id: 4,
-        title: 'Błędny link',
-        url: 'https://wrong-url.com/invalid.pdf',
-        sortOrder: 4,
-    },
-];
-
-export default documents;
 
 export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily, UserTasksScheduleInfoWeeklyByAllDays, UserSchedulesOnDaysDTO}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
