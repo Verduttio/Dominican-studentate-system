@@ -4,16 +4,21 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
+import {useNavigate} from "react-router-dom";
 
 
 function TasksVisibilitySettingsPage() {
     const [roles, setRoles] = useState<Role[]>([]);
     const [selectedRolesIds, setSelectedRolesIds] = useState<number[]>([]);
     const { error: errorGetRoles, loading: loadingGetRoles, request: requestGetRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const { error: errorPatchRoles, loading: loadingPatchRoles, request: requestPatchRoles } = useHttp(`${backendUrl}/api/roles/visibilityInPrint`, 'PATCH');
+    const navigate = useNavigate();
 
     useEffect(() => {
         requestGetRoles(null, (data) => {
-            setRoles(data);
+            const roles: Role[] = data;
+            setRoles(roles);
+            setSelectedRolesIds(roles.filter(role => role.areTasksVisibleInPrints).map(role => role.id));
         });
     }, [requestGetRoles]);
 
@@ -26,7 +31,9 @@ function TasksVisibilitySettingsPage() {
     };
 
     const handleSave = () => {
-
+        requestPatchRoles(selectedRolesIds, () => {
+            navigate('/tasks', {state: {message: 'Zapisano zmiany'}});
+        });
     }
 
     if (loadingGetRoles) return <LoadingSpinner/>;

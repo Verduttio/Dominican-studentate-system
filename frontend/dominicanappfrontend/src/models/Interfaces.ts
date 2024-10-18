@@ -5,6 +5,7 @@ interface Role {
     weeklyScheduleCreatorDefault: boolean;
     assignedTasksGroupName: string;
     sortOrder: number;
+    areTasksVisibleInPrints: boolean;
 }
 
 interface Task {

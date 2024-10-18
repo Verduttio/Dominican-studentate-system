@@ -17,7 +17,8 @@ function AddRole() {
         type: '',
         weeklyScheduleCreatorDefault: true,
         assignedTasksGroupName: '',
-        sortOrder: 0
+        sortOrder: 0,
+        areTasksVisibleInPrints: true,
     }
 
     const [roleData, setRoleData] = useState<Role | null>(initialRoleState);
