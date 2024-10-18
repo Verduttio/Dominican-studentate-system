@@ -45,6 +45,7 @@ import LinksSettingsPage from "./pages/links/LinksSettingsPage";
 import AddLinkPage from "./pages/links/add/AddLinkPage";
 import EditLinkPage from "./pages/links/edit/EditLinkPage";
 import EditRolesOrderPage from "./pages/role/editRoleOrder/EditRolesOrderPage";
+import TasksVisibilitySettingsPage from "./pages/task/TasksVisibilitySettingsPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -63,6 +64,7 @@ const AppContent = () => {
                     <Route path="/loginForm" Component={Login}/>
                     <Route path="/register" Component={Register}/>
                     <Route path="/tasks" Component={TasksPage}/>
+                    <Route path="/tasks/visibility" Component={TasksVisibilitySettingsPage}/>
                     <Route path="/tasks/order/edit" Component={EditTasksOrder}/>
                     <Route path="/tasks/details/:taskId" Component={TaskDetails}/>
                     <Route path="/add-task" Component={AddTask}/>

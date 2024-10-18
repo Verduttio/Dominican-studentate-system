@@ -39,10 +39,17 @@ function TasksPage () {
             {isFunkcyjny &&
                 <>
                     <div className="d-flex justify-content-center">
-                        <button className="btn btn-primary mb-3" onClick={() => navigate('/add-task')}>Dodaj oficjum</button>
+                        <button className="btn btn-primary mb-3" onClick={() => navigate('/add-task')}>Dodaj oficjum
+                        </button>
                     </div>
                     <div className="d-flex justify-content-center">
-                        <button className="btn btn-primary mb-3" onClick={() => navigate('/tasks/order/edit')}>Edytuj kolejność oficjów</button>
+                        <button className="btn btn-primary mb-3" onClick={() => navigate('/tasks/order/edit')}>Edytuj
+                            kolejność oficjów
+                        </button>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <button className="btn btn-primary mb-3" onClick={() => navigate('/tasks/visibility')}>Ustawienia widoczności
+                        </button>
                     </div>
                 </>
             }
