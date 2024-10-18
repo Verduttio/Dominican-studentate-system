@@ -4,9 +4,10 @@ import {Role, RoleType, roleTypeTranslation} from '../../models/Interfaces';
 interface RoleFormFieldsProps {
     roleData: Role | null;
     setRoleData: React.Dispatch<React.SetStateAction<Role | null>>;
+    editForm?: boolean;
 }
 
-const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }) => {
+const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData, editForm }) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const target = e.target as HTMLInputElement;
         const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -43,6 +44,7 @@ const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }
                     className="form-select"
                     value={roleData?.type}
                     onChange={handleChange}
+                    disabled={editForm}
                     required
                 >
                     <option value="">Wybierz typ roli</option>

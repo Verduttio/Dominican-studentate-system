@@ -67,7 +67,7 @@ function EditRole() {
                 {(fetchError || updateError || deleteError) && <AlertBox text={(fetchError || updateError || deleteError)} type={'danger'} width={'500px'}/>}
                 {validationError && <AlertBox text={validationError} type={'danger'} width={'500px'}/>}
                 <div className="needs-validation">
-                    <RoleFormFields roleData={roleData} setRoleData={setRoleData} />
+                    <RoleFormFields roleData={roleData} setRoleData={setRoleData} editForm={true} />
                     <div className="d-flex justify-content-between">
                         <button className="btn btn-success m-1" onClick={handleSubmit} disabled={updateLoading || deleteLoading}>
                             {updateLoading ? (

@@ -6,6 +6,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
+import AlertBoxTimed from "../../components/AlertBoxTimed";
 
 function ViewRoles() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -13,7 +14,7 @@ function ViewRoles() {
     const {isFunkcyjny} = useIsFunkcyjny();
     const navigate = useNavigate();
     const location = useLocation();
-    const locationStateMessage = location.state?.message;
+    const [locationStateMessage, setLocationStateMessage] = useState(location.state?.message);
 
     useEffect(() => {
         request(null, (data: Role[]) => {
@@ -32,7 +33,7 @@ function ViewRoles() {
                 </div>
             </div>
             <div className="d-flex justify-content-center">
-                {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
+                {locationStateMessage && <AlertBoxTimed text={locationStateMessage} type={'success'} width={'500px'} onClose={() => {setLocationStateMessage(null)}}/>}
             </div>
             {isFunkcyjny &&
                 <div className="d-flex justify-content-center">
