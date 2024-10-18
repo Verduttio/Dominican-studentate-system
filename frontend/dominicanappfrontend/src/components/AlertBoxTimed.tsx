@@ -41,7 +41,7 @@ const AlertBoxTimed: React.FC<AlertBoxTimedProps> = ({ text, type, width, durati
     };
 
     return (
-        <div className={`d-flex flex-column align-items-center ${fadeIn ? 'fade-in' : ''} ${fadeOut ? 'fade-out' : ''}`} style={{ transition: 'opacity 0.3s', marginBottom: '0' }}>
+        <div className={`d-flex flex-column align-items-center mb-2 ${fadeIn ? 'fade-in' : ''} ${fadeOut ? 'fade-out' : ''}`} style={{ transition: 'opacity 0.3s', marginBottom: '0' }}>
             <div className={`alert alert-${type} mw-100 text-center position-relative mt-2`} style={{ width, marginBottom: '0' }}>
                 <button
                     type="button"
