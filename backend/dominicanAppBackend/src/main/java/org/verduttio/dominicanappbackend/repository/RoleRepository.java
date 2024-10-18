@@ -1,6 +1,9 @@
 package org.verduttio.dominicanappbackend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.entity.RoleType;
 
@@ -18,4 +21,18 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findByTypeOrderBySortOrderAsc(RoleType roleType);
 
     Optional<Role> findByNameAndType(String name, RoleType type);
+
+    @Modifying
+    @Query("UPDATE Role rl SET rl.sortOrder = rl.sortOrder + 1 WHERE rl.sortOrder >= :sortOrder")
+    void incrementSortOrderGreaterThanOrEqualTo(@Param("sortOrder") Long sortOrder);
+
+    @Modifying
+    @Query("UPDATE Role rl SET rl.sortOrder = rl.sortOrder + 1 WHERE rl.sortOrder > :sortOrder")
+    void incrementSortOrderGreaterThan(@Param("sortOrder") Long sortOrder);
+
+    @Modifying
+    @Query("UPDATE Role rl SET rl.sortOrder = rl.sortOrder - 1 WHERE rl.sortOrder > :sortOrder")
+    void decrementSortOrderGreaterThan(@Param("sortOrder") Long sortOrder);
+
+    Role findFirstByTypeOrderBySortOrderDesc(RoleType type);
 }

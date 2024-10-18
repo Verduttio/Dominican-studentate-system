@@ -45,10 +45,14 @@ public class RoleService {
         return roleRepository.findByName(roleName).orElse(null);
     }
 
+    @Transactional
     public void saveRole(Role role) {
         if (roleRepository.existsByName(role.getName())) {
            throw new EntityAlreadyExistsException("Role with given name already exists");
         }
+        Role roleWithHighestSortOrderForSameType = roleRepository.findFirstByTypeOrderBySortOrderDesc(role.getType());
+        role.setSortOrder(roleWithHighestSortOrderForSameType.getSortOrder() + 1);
+        roleRepository.incrementSortOrderGreaterThan(roleWithHighestSortOrderForSameType.getSortOrder());
         roleRepository.save(role);
     }
 
@@ -75,6 +79,7 @@ public class RoleService {
         roleRepository.save(existingRole);
     }
 
+    @Transactional
     public void deleteRole(Long roleId) {
         Role role = roleRepository.findById(roleId).orElseThrow(
                 () -> new EntityNotFoundException("Role with given id does not exist"));
@@ -91,6 +96,7 @@ public class RoleService {
 
         taskRepository.removeRoleFromAllTasks(roleId);
         userRepository.removeRoleFromAllUsers(roleId);
+        roleRepository.decrementSortOrderGreaterThan(role.getSortOrder());
         roleRepository.deleteById(roleId);
     }
 
