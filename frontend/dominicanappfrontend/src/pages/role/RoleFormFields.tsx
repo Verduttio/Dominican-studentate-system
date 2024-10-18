@@ -52,6 +52,20 @@ const RoleFormFields: React.FC<RoleFormFieldsProps> = ({ roleData, setRoleData }
                 </select>
             </div>
             {roleData?.type === RoleType.SUPERVISOR && (
+            <div className="mb-3">
+                <label htmlFor="roleAssignedTasksGroupName" className="form-label">Nazwa grupy oficjów:</label>
+                <input
+                    id="roleAssignedTasksGroupName"
+                    name="assignedTasksGroupName"
+                    type="text"
+                    className="form-control"
+                    value={roleData?.assignedTasksGroupName}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+            )}
+            {roleData?.type === RoleType.SUPERVISOR && (
                 <div className="mb-3">
                     <div className="d-flex justify-content-between">
                         <label className="form-check-label me-2" htmlFor="defaultCreatorSelection">

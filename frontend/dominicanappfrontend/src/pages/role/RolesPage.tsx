@@ -50,6 +50,7 @@ function ViewRoles() {
                             <th>Nazwa</th>
                             <th>Typ</th>
                             <th>Kreator</th>
+                            <th>Nazwa grupy oficjów</th>
                             {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
                         </thead>
@@ -59,6 +60,7 @@ function ViewRoles() {
                                 <td>{role.name}</td>
                                 <td>{roleTypeTranslation[role.type]}</td>
                                 <td>{role.type === 'SUPERVISOR' ? role.weeklyScheduleCreatorDefault ? 'Tygodniowy' : 'Dzienny' : 'Nie dotyczy'}</td>
+                                <td>{role.type === 'SUPERVISOR' ? role.assignedTasksGroupName : 'Nie dotyczy'}</td>
                                 {isFunkcyjny &&
                                     <td>
                                         {role.type !== RoleType.SYSTEM && <button className="btn btn-primary"
