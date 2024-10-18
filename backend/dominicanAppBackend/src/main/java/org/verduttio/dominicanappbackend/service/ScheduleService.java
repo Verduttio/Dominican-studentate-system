@@ -207,8 +207,7 @@ public class ScheduleService {
     }
 
     public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
-        List<Role> rolesVisibleInPrints = roleRepository.findByAreTasksVisibleInPrintsOrderBySortOrderAsc(true);
-        schedules = schedules.stream().filter(s -> rolesVisibleInPrints.contains(s.getTask().getSupervisorRole())).toList();
+        schedules = schedules.stream().filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints()).toList();
 
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
