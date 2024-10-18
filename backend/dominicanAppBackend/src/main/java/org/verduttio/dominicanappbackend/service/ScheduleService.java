@@ -141,13 +141,13 @@ public class ScheduleService {
 
     public List<Task> getAvailableTasks(LocalDate from, LocalDate to) {
         List<Task> allTasks = taskService.getAllTasks();
-        List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
 
         return getNotFullyAssignedTasks(allTasks, schedulesInPeriod);
     }
 
     public List<Schedule> getAllSchedulesForUserInSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
-        return scheduleRepository.findByUserIdAndDateBetween(userId, from, to);
+        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
     }
 
     public List<Task> getAvailableTasksBySupervisorRole(String supervisor, LocalDate from, LocalDate to) {
@@ -155,7 +155,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
 
         List<Task> allTasks = taskService.findTasksBySupervisorRoleName(supervisorRole.getName());
-        List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> schedulesInPeriod = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
 
         return getNotFullyAssignedTasks(allTasks, schedulesInPeriod);
     }
@@ -282,7 +282,7 @@ public class ScheduleService {
     }
 
     public List<Schedule> getSchedulesByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to) {
-        return scheduleRepository.findByUserIdAndDateBetween(userId, from, to);
+        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
     }
 
     private List<Task> getTasksFromSchedules(List<Schedule> schedules) {
@@ -369,7 +369,7 @@ public class ScheduleService {
     }
 
     public boolean isScheduleInConflictWithOtherSchedules(Schedule schedule) {
-        List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(schedule.getUser().getId(), schedule.getDate());
+        List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(schedule.getUser().getId(), schedule.getDate());
         for(Schedule otherSchedule : schedules) {
             boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, otherSchedule.getDate());
             if(conflictService.tasksAreInConflict(schedule.getTask().getId(), otherSchedule.getTask().getId(), otherSchedule.getDate().getDayOfWeek(), isFeastDate)) {
@@ -597,7 +597,7 @@ public class ScheduleService {
             throw new EntityNotFoundException("Task with given id does not exist");
         }
 
-        return scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to);
+        return scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to);
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForEachTaskForSpecifiedWeek(LocalDate from, LocalDate to) {
@@ -747,7 +747,7 @@ public class ScheduleService {
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole);
         boolean weekWithFeast = !specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).isEmpty();
-        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
         List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return usersWhichCanPerformTasks.stream()
@@ -762,7 +762,7 @@ public class ScheduleService {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
         boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
-        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
         List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to, weekWithFeast, schedulesForThisWeek, allConflicts);
@@ -950,7 +950,7 @@ public class ScheduleService {
     }
 
     private List<Schedule> getAllSchedulesByFromAndToDates(LocalDate from, LocalDate to) {
-        return scheduleRepository.findByDateBetween(from, to);
+        return scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
     }
 
 
@@ -1096,7 +1096,7 @@ public class ScheduleService {
             Map<LocalDate, List<String>> userSchedules = new HashMap<>();
             LocalDate date = from;
             while (!date.isAfter(to)) {
-                List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+                List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(user.getId(), date);
                 List<String> assignedTasksNamesAbbrevs = schedules.stream()
                         .map(schedule -> schedule.getTask().getNameAbbrev())
                         .toList();
@@ -1127,7 +1127,7 @@ public class ScheduleService {
             Map<LocalDate, List<String>> userSchedules = new HashMap<>();
             LocalDate date = from;
             while (!date.isAfter(to)) {
-                List<Schedule> schedules = scheduleRepository.findByUserIdAndDate(user.getId(), date);
+                List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(user.getId(), date);
                 schedules = schedules.stream()
                         .filter(schedule -> schedule.getTask().getSupervisorRole().getName().equals(taskSupervisorRoleName))
                         .toList();

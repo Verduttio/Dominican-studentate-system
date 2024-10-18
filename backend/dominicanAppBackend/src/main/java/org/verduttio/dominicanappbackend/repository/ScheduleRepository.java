@@ -15,13 +15,14 @@ import java.util.Optional;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByUserId(Long userId);
 
-    List<Schedule> findByDateBetween(LocalDate from, LocalDate to);
+    List<Schedule> findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(LocalDate from, LocalDate to);
 
-    List<Schedule> findByTaskIdAndDateBetween(Long taskId, LocalDate from, LocalDate to);
+    List<Schedule> findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(Long taskId, LocalDate from, LocalDate to);
 
-    List<Schedule> findByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to);
+    List<Schedule> findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(
+            Long userId, LocalDate from, LocalDate to);
 
-    List<Schedule> findByUserIdAndDate(Long userId, LocalDate date);
+    List<Schedule> findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(Long userId, LocalDate date);
 
     @Query("SELECT s FROM Schedule s WHERE s.date >= :targetDate")
     List<Schedule> findSchedulesLaterOrInDay(@Param("targetDate") LocalDate targetDate);

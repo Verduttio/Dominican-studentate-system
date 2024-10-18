@@ -50,9 +50,9 @@ public class ScheduleRepositoryTest {
         Schedule schedule2 = new Schedule();
 
         List<Schedule> expectedSchedules = Arrays.asList(schedule1, schedule2);
-        when(scheduleRepository.findByDateBetween(from, to)).thenReturn(expectedSchedules);
+        when(scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to)).thenReturn(expectedSchedules);
 
-        List<Schedule> actualSchedules = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
 
         assertThat(actualSchedules).isEqualTo(expectedSchedules);
     }
@@ -66,9 +66,9 @@ public class ScheduleRepositoryTest {
         Schedule schedule2 = new Schedule();
 
         List<Schedule> expectedSchedules = Arrays.asList(schedule1, schedule2);
-        when(scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to)).thenReturn(expectedSchedules);
+        when(scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to)).thenReturn(expectedSchedules);
 
-        List<Schedule> actualSchedules = scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to);
 
         assertThat(actualSchedules).isEqualTo(expectedSchedules);
     }
@@ -82,9 +82,9 @@ public class ScheduleRepositoryTest {
         Schedule schedule2 = new Schedule();
 
         List<Schedule> expectedSchedules = Arrays.asList(schedule1, schedule2);
-        when(scheduleRepository.findByUserIdAndDateBetween(userId, from, to)).thenReturn(expectedSchedules);
+        when(scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to)).thenReturn(expectedSchedules);
 
-        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDateBetween(userId, from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
 
         assertThat(actualSchedules).isEqualTo(expectedSchedules);
     }
@@ -97,9 +97,9 @@ public class ScheduleRepositoryTest {
         Schedule schedule2 = new Schedule();
 
         List<Schedule> expectedSchedules = Arrays.asList(schedule1, schedule2);
-        when(scheduleRepository.findByUserIdAndDate(userId, date)).thenReturn(expectedSchedules);
+        when(scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, date)).thenReturn(expectedSchedules);
 
-        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDate(userId, date);
+        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, date);
 
         assertThat(actualSchedules).isEqualTo(expectedSchedules);
     }
@@ -199,9 +199,9 @@ public class ScheduleRepositoryTest {
         LocalDate from = LocalDate.of(2023, 1, 1);
         LocalDate to = LocalDate.of(2023, 12, 31);
 
-        when(scheduleRepository.findByDateBetween(from, to)).thenReturn(Collections.emptyList());
+        when(scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to)).thenReturn(Collections.emptyList());
 
-        List<Schedule> actualSchedules = scheduleRepository.findByDateBetween(from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
 
         assertThat(actualSchedules).isEmpty();
     }
@@ -212,9 +212,9 @@ public class ScheduleRepositoryTest {
         LocalDate from = LocalDate.of(2023, 1, 1);
         LocalDate to = LocalDate.of(2023, 12, 31);
 
-        when(scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to)).thenReturn(Collections.emptyList());
+        when(scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to)).thenReturn(Collections.emptyList());
 
-        List<Schedule> actualSchedules = scheduleRepository.findByTaskIdAndDateBetween(taskId, from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to);
 
         assertThat(actualSchedules).isEmpty();
     }
@@ -225,9 +225,9 @@ public class ScheduleRepositoryTest {
         LocalDate from = LocalDate.of(2023, 1, 1);
         LocalDate to = LocalDate.of(2023, 12, 31);
 
-        when(scheduleRepository.findByUserIdAndDateBetween(userId, from, to)).thenReturn(Collections.emptyList());
+        when(scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to)).thenReturn(Collections.emptyList());
 
-        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDateBetween(userId, from, to);
+        List<Schedule> actualSchedules = scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
 
         assertThat(actualSchedules).isEmpty();
     }
