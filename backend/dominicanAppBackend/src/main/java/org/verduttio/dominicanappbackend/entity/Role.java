@@ -26,6 +26,10 @@ public class Role implements Serializable {
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isWeeklyScheduleCreatorDefault;
 
+    private String assignedTasksGroupName;
+
+    private Long sortOrder;
+
 
     // Getters and setters
     public Long getId() {
@@ -62,10 +66,12 @@ public class Role implements Serializable {
         this.isWeeklyScheduleCreatorDefault = false;
     }
 
-    public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault) {
+    public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault, String assignedTasksGroupName, Long sortOrder) {
         this.name = name;
         this.type = type;
         this.isWeeklyScheduleCreatorDefault = isWeeklyScheduleCreatorDefault;
+        this.assignedTasksGroupName = assignedTasksGroupName;
+        this.sortOrder = sortOrder;
     }
 
     @Override
@@ -96,5 +102,21 @@ public class Role implements Serializable {
 
     public void setWeeklyScheduleCreatorDefault(boolean weeklyScheduleCreatorDefault) {
         isWeeklyScheduleCreatorDefault = weeklyScheduleCreatorDefault;
+    }
+
+    public String getAssignedTasksGroupName() {
+        return assignedTasksGroupName;
+    }
+
+    public void setAssignedTasksGroupName(String assignedTasksGroupName) {
+        this.assignedTasksGroupName = assignedTasksGroupName;
+    }
+
+    public Long getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Long sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }
