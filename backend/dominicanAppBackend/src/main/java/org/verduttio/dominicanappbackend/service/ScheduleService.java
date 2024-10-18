@@ -241,7 +241,10 @@ public class ScheduleService {
 
 
         return taskDaysWhenItIsAssignedInSchedule.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Task::getName)))
+                .sorted(Map.Entry.comparingByKey(
+                        Comparator.comparing((Task t) -> t.getSupervisorRole().getSortOrder())
+                                .thenComparing(Task::getSortOrder)
+                ))
                 .map(entry -> {
                     Task task = entry.getKey();
                     Set<DayOfWeek> occurrences = entry.getValue();
