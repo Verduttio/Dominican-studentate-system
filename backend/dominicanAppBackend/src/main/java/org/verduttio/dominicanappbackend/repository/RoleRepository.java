@@ -22,6 +22,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Optional<Role> findByNameAndType(String name, RoleType type);
 
+    List<Role> findByAreTasksVisibleInPrintsOrderBySortOrderAsc(boolean areTasksVisibleInPrints);
+
     @Modifying
     @Query("UPDATE Role rl SET rl.sortOrder = rl.sortOrder + 1 WHERE rl.sortOrder >= :sortOrder")
     void incrementSortOrderGreaterThanOrEqualTo(@Param("sortOrder") Long sortOrder);

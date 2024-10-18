@@ -8,6 +8,7 @@ import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleI
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
 import org.verduttio.dominicanappbackend.entity.*;
+import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
@@ -32,9 +33,11 @@ public class ScheduleService {
     private final ObstacleService obstacleService;
     private final ConflictService conflictService;
     private final SpecialDateRepository specialDateRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
+                           RoleRepository roleRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
@@ -42,6 +45,7 @@ public class ScheduleService {
         this.obstacleService = obstacleService;
         this.conflictService = conflictService;
         this.specialDateRepository = specialDateRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -203,6 +207,9 @@ public class ScheduleService {
     }
 
     public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
+        List<Role> rolesVisibleInPrints = roleRepository.findByAreTasksVisibleInPrintsOrderBySortOrderAsc(true);
+        schedules = schedules.stream().filter(s -> rolesVisibleInPrints.contains(s.getTask().getSupervisorRole())).toList();
+
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
         // If task appears less than n times, then it will be converted to "task.name (P, W, Ś)" string,
