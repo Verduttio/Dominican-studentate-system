@@ -42,7 +42,7 @@ public class TaskRepositoryTest {
         taskRepository.save(task3);
 
         // When
-        List<Task> tasks = taskRepository.findAllByOrderBySortOrderAsc();
+        List<Task> tasks = taskRepository.findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder();
 
         // Then
         assertEquals(3, tasks.size(), "All tasks should be returned");

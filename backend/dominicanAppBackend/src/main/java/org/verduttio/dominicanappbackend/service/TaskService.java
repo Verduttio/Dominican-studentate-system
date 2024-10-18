@@ -38,7 +38,7 @@ public class TaskService {
     }
 
     public List<Task> getAllTasks() {
-        return taskRepository.findAllByOrderBySortOrderAsc();
+        return taskRepository.findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder();
     }
 
     public Optional<Task> getTaskById(Long taskId) {
@@ -145,7 +145,7 @@ public class TaskService {
     }
 
     public List<Task> getTasksVisibleInObstacleFormForUser() {
-        return taskRepository.findByVisibleInObstacleFormForUserRoleTrueOrderBySortOrderAsc();
+        return taskRepository.findByVisibleInObstacleFormForUserRoleTrueOrderBySupervisorRole_SortOrderAscSortOrderAsc();
     }
 
     @Transactional

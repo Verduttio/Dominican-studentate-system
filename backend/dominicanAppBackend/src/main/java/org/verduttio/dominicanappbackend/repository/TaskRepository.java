@@ -15,12 +15,13 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByName(String name);
 
-    List<Task> findAllByOrderBySortOrderAsc();
+    @Query("SELECT t FROM Task t JOIN t.supervisorRole sr ORDER BY sr.sortOrder ASC, t.sortOrder ASC")
+    List<Task> findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder();
 
     @Query("SELECT t FROM Task t JOIN t.allowedRoles r WHERE r.name IN :roleName ORDER BY t.sortOrder ASC")
     List<Task> findTaskByRoleName(String roleName);
 
-    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev) FROM Task t ORDER BY t.sortOrder ASC")
+    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev) FROM Task t JOIN t.supervisorRole sr ORDER BY sr.sortOrder ASC, t.sortOrder ASC")
     List<TaskShortInfo> findAllTasksShortInfo();
 
     @Query("SELECT t FROM Task t WHERE t.supervisorRole.name = :supervisorName ORDER BY t.sortOrder ASC")
@@ -31,5 +32,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query(value = "DELETE FROM task_allowed_roles WHERE role_id = :roleId", nativeQuery = true)
     void removeRoleFromAllTasks(@Param("roleId") Long roleId);
 
-    List<Task> findByVisibleInObstacleFormForUserRoleTrueOrderBySortOrderAsc();
+    List<Task> findByVisibleInObstacleFormForUserRoleTrueOrderBySupervisorRole_SortOrderAscSortOrderAsc();
 }
