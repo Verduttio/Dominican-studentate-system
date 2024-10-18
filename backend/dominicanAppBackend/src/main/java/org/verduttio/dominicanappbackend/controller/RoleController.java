@@ -67,6 +67,17 @@ public class RoleController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PatchMapping("/visibilityInPrint")
+    public ResponseEntity<?> updateRoleTasksVisibilityInPrint(@RequestBody List<Long> roleIds) {
+        try {
+            roleService.updateRoleTasksVisibilityInPrint(roleIds);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PutMapping("/{roleId}")
     public ResponseEntity<?> updateRole(@PathVariable Long roleId, @Valid @RequestBody Role updatedRole) {
         try {

@@ -28,6 +28,9 @@ public class Role implements Serializable {
 
     private String assignedTasksGroupName;
 
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean areTasksVisibleInPrints;
+
     private Long sortOrder;
 
 
@@ -64,14 +67,17 @@ public class Role implements Serializable {
         this.name = name;
         this.type = type;
         this.isWeeklyScheduleCreatorDefault = false;
+        this.areTasksVisibleInPrints = true;
     }
 
-    public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault, String assignedTasksGroupName, Long sortOrder) {
+    public Role(String name, RoleType type, boolean isWeeklyScheduleCreatorDefault, String assignedTasksGroupName, Long sortOrder,
+                boolean areTasksVisibleInPrints) {
         this.name = name;
         this.type = type;
         this.isWeeklyScheduleCreatorDefault = isWeeklyScheduleCreatorDefault;
         this.assignedTasksGroupName = assignedTasksGroupName;
         this.sortOrder = sortOrder;
+        this.areTasksVisibleInPrints = areTasksVisibleInPrints;
     }
 
     @Override
@@ -118,5 +124,13 @@ public class Role implements Serializable {
 
     public void setSortOrder(Long sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public boolean isAreTasksVisibleInPrints() {
+        return areTasksVisibleInPrints;
+    }
+
+    public void setAreTasksVisibleInPrints(boolean areTasksVisibleInPrints) {
+        this.areTasksVisibleInPrints = areTasksVisibleInPrints;
     }
 }

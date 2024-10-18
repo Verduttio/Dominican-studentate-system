@@ -155,4 +155,14 @@ public class RoleService {
             roleRepository.save(roleToUpdate);
         }
     }
+
+    @Transactional
+    public void updateRoleTasksVisibilityInPrint(List<Long> roleIds) {
+        System.out.println(roleIds);
+        List<Role> allRoles = roleRepository.findAll();
+        for (Role role : allRoles) {
+            role.setAreTasksVisibleInPrints(roleIds.contains(role.getId()));
+            roleRepository.save(role);
+        }
+    }
 }
