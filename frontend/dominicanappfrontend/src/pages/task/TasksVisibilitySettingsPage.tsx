@@ -47,6 +47,7 @@ function TasksVisibilitySettingsPage() {
                 Zaznaczone role będą wyświetlały się w wydrukach, oraz w kreatorach oficjów w miejscu wyświetlania
                 oficjów, do których dani bracia są już przypisani.
             </h6>
+            {errorPatchRoles && <AlertBox text={errorPatchRoles} type={"danger"} width={"500px"}/>}
             <div className="edit-entity-container mw-100" style={{width: '300px'}}>
                 <div className="mb-3">
                     {roles.map((role) => (
@@ -63,7 +64,9 @@ function TasksVisibilitySettingsPage() {
                     <div className="d-flex justify-content-center">
                         <button className="btn btn-primary mt-3" onClick={() => {
                             handleSave();
-                        }}>Zapisz
+                        }}
+                        disabled={loadingPatchRoles}>
+                            Zapisz{" "} {loadingPatchRoles && <span className="spinner-border spinner-border-sm"></span>}
                         </button>
                     </div>
                 </div>
