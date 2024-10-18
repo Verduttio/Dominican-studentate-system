@@ -6,6 +6,7 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import useIsAdmin from "../../services/UseIsFunkcyjny";
 import AlertBox from "../../components/AlertBox";
+import AlertBoxTimed from "../../components/AlertBoxTimed";
 
 
 function TasksPage () {
@@ -14,7 +15,7 @@ function TasksPage () {
     const { isFunkcyjny} = useIsAdmin();
     const navigate = useNavigate();
     const location = useLocation();
-    const locationStateMessage = location.state?.message;
+    const [locationStateMessage, setLocationStateMessage] = useState(location.state?.message);
 
     useEffect(() => {
         request(null, (data) => {
@@ -33,7 +34,7 @@ function TasksPage () {
                 <h1 className="entity-header">Oficja</h1>
             </div>
             <div className="d-flex justify-content-center">
-                {locationStateMessage && <AlertBox text={locationStateMessage} type={'success'} width={'500px'}/>}
+                {locationStateMessage && <AlertBoxTimed text={locationStateMessage} type={'success'} width={'500px'} onClose={() => {setLocationStateMessage(null)}}/>}
             </div>
             {isFunkcyjny &&
                 <>
