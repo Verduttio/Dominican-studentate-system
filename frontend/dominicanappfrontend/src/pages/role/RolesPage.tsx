@@ -39,6 +39,11 @@ function ViewRoles() {
                     <button className="btn btn-primary mb-3" onClick={() => navigate('/add-role')}>Dodaj rolę</button>
                 </div>
             }
+            {isFunkcyjny &&
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-primary mb-3" onClick={() => navigate('/roles/edit-order')}>Edytuj kolejność ról</button>
+                </div>
+            }
             <div className="d-flex justify-content-center">
                 <button className="btn btn-secondary mb-3" onClick={() => navigate('/roles/users')}>Podział ról braci</button>
             </div>
@@ -51,6 +56,7 @@ function ViewRoles() {
                             <th>Typ</th>
                             <th>Kreator</th>
                             <th>Nazwa grupy oficjów</th>
+                            <th>Sort</th>
                             {isFunkcyjny && <th>Edytuj</th>}
                         </tr>
                         </thead>
@@ -61,6 +67,7 @@ function ViewRoles() {
                                 <td>{roleTypeTranslation[role.type]}</td>
                                 <td>{role.type === 'SUPERVISOR' ? role.weeklyScheduleCreatorDefault ? 'Tygodniowy' : 'Dzienny' : 'Nie dotyczy'}</td>
                                 <td>{role.type === 'SUPERVISOR' ? role.assignedTasksGroupName : 'Nie dotyczy'}</td>
+                                <td>{role.sortOrder}</td>
                                 {isFunkcyjny &&
                                     <td>
                                         {role.type !== RoleType.SYSTEM && <button className="btn btn-primary"

@@ -44,6 +44,7 @@ import LinksPage from "./pages/links/LinksPage";
 import LinksSettingsPage from "./pages/links/LinksSettingsPage";
 import AddLinkPage from "./pages/links/add/AddLinkPage";
 import EditLinkPage from "./pages/links/edit/EditLinkPage";
+import EditRolesOrderPage from "./pages/role/editRoleOrder/EditRolesOrderPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -78,6 +79,7 @@ const AppContent = () => {
                     <Route path="/users/:id/verify" Component={VerifyUserPage}/>
                     <Route path="/roles" Component={ViewRoles}/>
                     <Route path="/roles/users" Component={UsersRolesByCategory}/>
+                    <Route path="/roles/edit-order" Component={EditRolesOrderPage}/>
                     <Route path="/add-role" Component={AddRole}/>
                     <Route path="/edit-role/:roleId" Component={EditRole}/>
                     <Route path="/dates" Component={DatesPage}/>
