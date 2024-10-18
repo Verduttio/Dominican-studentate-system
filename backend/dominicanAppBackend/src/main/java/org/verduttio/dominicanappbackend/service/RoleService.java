@@ -70,6 +70,8 @@ public class RoleService {
         existingRole.setName(updatedRole.getName());
         existingRole.setType(updatedRole.getType());
         existingRole.setWeeklyScheduleCreatorDefault(updatedRole.isWeeklyScheduleCreatorDefault());
+        existingRole.setAssignedTasksGroupName(updatedRole.getAssignedTasksGroupName());
+        existingRole.setSortOrder(updatedRole.getSortOrder());
         roleRepository.save(existingRole);
     }
 
