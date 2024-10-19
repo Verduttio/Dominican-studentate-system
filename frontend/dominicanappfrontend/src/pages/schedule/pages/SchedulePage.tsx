@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useHttp from '../../../services/UseHttp';
-import {Role, ScheduleShortInfo, ScheduleShortInfoForTask} from '../../../models/Interfaces';
+import {GroupedScheduleShortInfo, Role, ScheduleShortInfo, ScheduleShortInfoForTask} from '../../../models/Interfaces';
 import {backendUrl} from "../../../utils/constants";
 import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
@@ -16,6 +16,7 @@ import PopupDatePicker from "../../specialDate/PopupDatePicker";
 
 function SchedulePage() {
     const [scheduleShortInfo, setScheduleShortInfo] = useState<ScheduleShortInfo[]>([]);
+    const [groupedScheduleShortInfo, setGroupedScheduleShortInfo] = useState<GroupedScheduleShortInfo[]>([]);
     const [scheduleShortInfoForTasks, setScheduleShortInfoForTasks] = useState<ScheduleShortInfoForTask[]>([]);
     const [scheduleShortInfoForTasksByRoles, setScheduleShortInfoForTasksByRoles] = useState<ScheduleShortInfoForTask[]>([]);
     const [supervisorRoles, setSupervisorRoles] = useState<Role[]>([]);
@@ -45,6 +46,15 @@ function SchedulePage() {
     const [standardDateRefresher, setStandardDateRefresher] = useState<boolean>(false);
     const [isTableOpened, setIsTableOpened] = useState<Map<string, boolean>>(new Map());
 
+    const [rolesVisibleInPrints, setRolesVisibleInPrints] = useState<Role[]>([]);
+    const {request: requestGetRoles, loading: loadingGetRoles, error: errorGetRoles} = useHttp(`${backendUrl}/api/roles?areTasksVisibleInPrints=true`, 'GET');
+
+    useEffect(() => {
+        requestGetRoles(null, (data: Role[]) => {
+            setRolesVisibleInPrints(data);
+        });
+    }, [requestGetRoles]);
+
     const changeTableState = (id: string) => {
         setIsTableOpened(prevState => {
             if (prevState.has(id)) {
@@ -61,6 +71,14 @@ function SchedulePage() {
 
 
     useEffect(() => {
+        fetchSchedule(null, (data: GroupedScheduleShortInfo[]) => {
+            const transformedData = data.map(info => ({
+                ...info,
+                groupedTasksInfoStrings: new Map(Object.entries(info.groupedTasksInfoStrings))
+            }));
+
+            setGroupedScheduleShortInfo(transformedData);
+        }, false, `${backendUrl}/api/schedules/users/groupedScheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false, `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false, `${backendUrl}/api/schedules/tasks/scheduleShortInfo/week?from=${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}&to=${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}`, 'GET');
         fetchSupervisorRoles(null, (data: Role[]) => setSupervisorRoles(data), false, `${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
@@ -204,6 +222,15 @@ function SchedulePage() {
     const handleFetchScheduleByNonStandardDate = () => {
         if (!validateNonStandardDate()) return;
 
+        fetchSchedule(null, (data: GroupedScheduleShortInfo[]) => {
+                const transformedData = data.map(info => ({
+                    ...info,
+                    groupedTasksInfoStrings: new Map(Object.entries(info.groupedTasksInfoStrings))
+                }));
+
+                setGroupedScheduleShortInfo(transformedData);
+            }, false,
+            `${backendUrl}/api/schedules/users/groupedScheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         fetchSchedule(null, (data) => setScheduleShortInfo(data), false,
             `${backendUrl}/api/schedules/users/scheduleShortInfo/week?from=${format(nonStandardStartDate, 'dd-MM-yyyy')}&to=${format(nonStandardEndDate, 'dd-MM-yyyy')}`, 'GET');
         fetchScheduleByTasks(null, (data) => setScheduleShortInfoForTasks(data), false,
@@ -290,19 +317,87 @@ function SchedulePage() {
         )
     }
 
-    const renderTasksScheduleByRole = () => {
-        if(loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner />;
-        if(errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'} />;
+    const renderUsersGroupedTasksSchedule = () => {
+        if(loading || loadingGetRoles) return <LoadingSpinner />;
+        if(error) return <AlertBox text={error} type="danger" width={'500px'} />;
 
         return (
             <>
                 <div className={"d-flex justify-content-center"}>
-                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseTasksScheduleByRole")}}
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {changeTableState("collapseUsersSchedule")}}>
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                        {isTableOpened.get("collapseUsersSchedule") ? " Ukryj harmonogram " : " Pokaż "}
+                        <FontAwesomeIcon icon={isTableOpened.get("collapseUsersSchedule") ? faChevronUp : faChevronDown}/>
+                    </button>
+                </div>
+                <div style={{ display: isTableOpened.get("collapseUsersSchedule") ? 'block' : 'none'}}>
+                    <div className="d-flex justify-content-center">
+                        <div className="table-responsive" style={{maxWidth: '700px'}}>
+                            <table className="table table-hover table-striped table-rounded table-shadow table-bordered mb-0">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>Brat</th>
+                                    {rolesVisibleInPrints.map(role => {
+                                        return <th key={role.id}>{role.assignedTasksGroupName}</th>
+                                    })}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {groupedScheduleShortInfo.map(groupedScheduleShortInfo => (
+                                    <tr key={groupedScheduleShortInfo.userId}>
+                                        <td>{groupedScheduleShortInfo.userName} {groupedScheduleShortInfo.userSurname}</td>
+                                        {rolesVisibleInPrints.map(role => (
+                                            <td key={role.name}>
+                                                {groupedScheduleShortInfo.groupedTasksInfoStrings.get(role.name)?.map((task, index) => {
+                                                    const [taskName, days] = task.split(' (');
+                                                    if (days) {
+                                                        return (
+                                                            <React.Fragment key={task}>
+                                                                {index !== 0 && ', '}
+                                                                <strong>{taskName}</strong> ({days}
+                                                            </React.Fragment>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <React.Fragment key={task}>
+                                                                {index !== 0 && ', '}
+                                                                <strong>{taskName}</strong>
+                                                            </React.Fragment>
+                                                        );
+                                                    }
+                                                })}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </>
+        )
+    }
+
+    const renderTasksScheduleByRole = () => {
+        if (loadingFetchScheduleByTasksByRoles || loadingSupervisorRoles) return <LoadingSpinner/>;
+        if (errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles) return <AlertBox
+            text={errorFetchScheduleByTasksByRoles || errorFetchSupervisorRoles} type="danger" width={'500px'}/>;
+
+        return (
+            <>
+                <div className={"d-flex justify-content-center"}>
+                    <button className="btn btn-dark mb-1" type="button" onClick={() => {
+                        changeTableState("collapseTasksScheduleByRole")
+                    }}
                             disabled={selectedSupervisorRoleName == null}
                     >
-                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
+                        <FontAwesomeIcon
+                            icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
                         {isTableOpened.get("collapseTasksScheduleByRole") ? " Ukryj harmonogram " : " Pokaż "}
-                        <FontAwesomeIcon icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
+                        <FontAwesomeIcon
+                            icon={isTableOpened.get("collapseTasksScheduleByRole") ? faChevronUp : faChevronDown}/>
                     </button>
                 </div>
                 <div style={{display: isTableOpened.get("collapseTasksScheduleByRole") ? 'block' : 'none'}}>
@@ -499,7 +594,8 @@ function SchedulePage() {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size my-2">Harmonogram według braci</h4>
             </div>
-            {renderUsersSchedule()}
+            {/*{renderUsersSchedule()}*/}
+            {renderUsersGroupedTasksSchedule()}
             {errorDownloadSchedulePdfForUsers &&
                 <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width={'500px'}/>}
             <div className="text-center">

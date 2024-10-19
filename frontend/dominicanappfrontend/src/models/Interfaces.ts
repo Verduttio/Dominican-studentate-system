@@ -71,6 +71,13 @@ interface ScheduleShortInfo {
     tasksInfoStrings: string[];
 }
 
+interface GroupedScheduleShortInfo {
+    userId: number;
+    userName: string;
+    userSurname: string;
+    groupedTasksInfoStrings: Map<string, string[]>; // key: role name, value: task info strings
+}
+
 interface ScheduleShortInfoForTask {
     taskId: number;
     taskName: string;
@@ -212,4 +219,4 @@ interface DocumentLink {
 export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTaskDependencyWeekly, UserTaskDependencyDaily, UserTasksScheduleInfoWeeklyByAllDays, UserSchedulesOnDaysDTO}
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
-export type {DayOfWeek, DocumentLink}
+export type {DayOfWeek, DocumentLink, GroupedScheduleShortInfo}
