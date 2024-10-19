@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.entity.*;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
+import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;
@@ -34,10 +35,12 @@ public class ScheduleService {
     private final ConflictService conflictService;
     private final SpecialDateRepository specialDateRepository;
     private final RoleRepository roleRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           TaskRepository taskRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
@@ -46,6 +49,7 @@ public class ScheduleService {
         this.conflictService = conflictService;
         this.specialDateRepository = specialDateRepository;
         this.roleRepository = roleRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -737,7 +741,18 @@ public class ScheduleService {
             userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesFromStatsDate, occurrencesInAllTime));
         }
 
-        return userTaskStatistics;
+        return sortUserTaskStatisticsDTOByTaskAllOrder(userTaskStatistics, taskRepository.findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder());
+    }
+
+    private List<UserTaskStatisticsDTO> sortUserTaskStatisticsDTOByTaskAllOrder(List<UserTaskStatisticsDTO> userTaskStatistics, List<Task> orderedTasks) {
+        Map<String, Integer> taskOrderMap = new HashMap<>();
+        for (int i = 0; i < orderedTasks.size(); i++) {
+            taskOrderMap.put(orderedTasks.get(i).getName(), i);
+        }
+
+        return userTaskStatistics.stream()
+                .sorted(Comparator.comparingInt(u -> taskOrderMap.getOrDefault(u.taskName(), Integer.MAX_VALUE)))
+                .collect(Collectors.toList());
     }
 
     private Map<Task, Long> getTaskOccurrencesFromStatsDate(List<Schedule> schedules) {

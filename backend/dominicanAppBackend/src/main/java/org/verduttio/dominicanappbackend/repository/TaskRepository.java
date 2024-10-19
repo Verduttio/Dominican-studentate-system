@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByName(String name);
 
+    List<Task> findAllByOrderBySupervisorRole_SortOrderAscSortOrderAsc();
+
     @Query("SELECT t FROM Task t JOIN t.supervisorRole sr ORDER BY sr.sortOrder ASC, t.sortOrder ASC")
     List<Task> findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder();
 
