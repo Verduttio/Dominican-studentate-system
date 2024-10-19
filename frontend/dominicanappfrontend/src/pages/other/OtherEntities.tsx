@@ -5,11 +5,13 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faNoteSticky} from "@fortawesome/free-solid-svg-icons";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 const OtherEntities = () => {
     const navigate = useNavigate();
     const {isAdmin} = useIsAdmin();
+    const {isFunkcyjny} = useIsFunkcyjny();
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
     const { request: numberOfAwaitingObstaclesRequest, error: numberOfAwaitingObstaclesError, loading: numberOfAwaitingObstaclesLoading } = useHttp(
         `${backendUrl}/api/obstacles/AWAITING/count`, 'GET'
@@ -74,13 +76,15 @@ const OtherEntities = () => {
                 </div>
             </div>
 
-            <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                <div className="card-body text-center" onClick={() => {
-                    navigate("/links")
-                }}>
-                    Info
+            {(isAdmin || isFunkcyjny) && (
+                <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
+                    <div className="card-body text-center" onClick={() => {
+                        navigate("/links")
+                    }}>
+                        Info
+                    </div>
                 </div>
-            </div>
+            )}
 
         </div>
     );

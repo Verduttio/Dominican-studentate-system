@@ -6,6 +6,8 @@ import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
 import AlertBoxTimed from "../../components/AlertBoxTimed";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 function LinksSettingsPage() {
@@ -14,6 +16,8 @@ function LinksSettingsPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const [locationStateMessage, setLocationStateMessage] = useState(location.state?.message);
+    const {isAdmin, isAdminLoading} = useIsAdmin();
+    const {isFunkcyjny, isFunkcyjnyLoading} = useIsFunkcyjny();
 
     useEffect(() => {
         getDocumentLinks(null, (data: DocumentLink[]) => {
@@ -23,6 +27,7 @@ function LinksSettingsPage() {
 
     if (loadingGetDocumentLinks) return <LoadingSpinner/>;
     if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>
+    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

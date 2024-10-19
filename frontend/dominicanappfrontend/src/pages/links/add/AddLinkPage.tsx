@@ -6,6 +6,8 @@ import {backendUrl} from "../../../utils/constants";
 import {useNavigate} from "react-router-dom";
 import AlertBoxTimed from "../../../components/AlertBoxTimed";
 import AlertBox from "../../../components/AlertBox";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsAdmin";
+import useIsFunkcyjny from "../../../services/UseIsFunkcyjny";
 
 function AddLinkPage() {
     const initialDocumentLinkState : DocumentLink = {
@@ -19,7 +21,8 @@ function AddLinkPage() {
     const { request: postDocumentLinks, error: errorPostDocumentLinks, loading: loadingPostDocumentLinks } = useHttp(`${backendUrl}/api/document-links`, 'POST');
     const [validationError, setValidationError] = useState<string>();
     const navigate = useNavigate();
-
+    const {isAdmin, isAdminLoading} = useIsAdmin();
+    const {isFunkcyjny, isFunkcyjnyLoading} = useIsFunkcyjny();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,6 +37,8 @@ function AddLinkPage() {
             navigate('/links/settings', { state: { message: 'Pomyślnie dodano nowy link' } });
         });
     }
+
+    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

@@ -8,6 +8,8 @@ import AlertBoxTimed from "../../../components/AlertBoxTimed";
 import AlertBox from "../../../components/AlertBox";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import ConfirmDeletionPopup from "../../../components/ConfirmDeletionPopup";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsAdmin";
+import useIsFunkcyjny from "../../../services/UseIsFunkcyjny";
 
 function EditLinkPage() {
     const { id } = useParams<{ id: string }>();
@@ -16,6 +18,8 @@ function EditLinkPage() {
     const [documentLinkData, setDocumentLinkData] = useState<DocumentLink | null>(null);
     const [validationError, setValidationError] = useState<string>();
     const [showConfirmDeletionPopup, setShowConfirmDeletionPopup] = useState(false);
+    const {isAdmin, isAdminLoading} = useIsAdmin();
+    const {isFunkcyjny, isFunkcyjnyLoading} = useIsFunkcyjny();
 
     const {
         request: getDocumentLink,
@@ -71,6 +75,7 @@ function EditLinkPage() {
             </div>
         );
     }
+    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

@@ -5,11 +5,15 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
+import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
 const LinksPage: React.FC = () => {
     const [documentLinks, setDocumentLinks] = useState<DocumentLink[]>([]);
     const { request: getDocumentLinks, error: errorGetDocumentLinks, loading: loadingGetDocumentLinks } = useHttp(`${backendUrl}/api/document-links`, 'GET');
+    const {isAdmin, isAdminLoading} = useIsAdmin();
+    const {isFunkcyjny, isFunkcyjnyLoading} = useIsFunkcyjny();
 
     useEffect(() => {
         getDocumentLinks(null, (data: DocumentLink[]) => {
@@ -20,7 +24,8 @@ const LinksPage: React.FC = () => {
     const navigate = useNavigate();
 
     if (loadingGetDocumentLinks) return <LoadingSpinner/>;
-    if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>
+    if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>;
+    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">
