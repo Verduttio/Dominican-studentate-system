@@ -68,6 +68,8 @@ function EditLinkPage() {
         return <LoadingSpinner/>;
     }
 
+    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+
     if (errorGetDocumentLink) {
         return (
             <div className="fade-in">
@@ -75,7 +77,6 @@ function EditLinkPage() {
             </div>
         );
     }
-    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
     return (
         <div className="fade-in">

@@ -24,8 +24,8 @@ const LinksPage: React.FC = () => {
     const navigate = useNavigate();
 
     if (loadingGetDocumentLinks) return <LoadingSpinner/>;
-    if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>;
     if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>;
 
     return (
         <div className="fade-in">
