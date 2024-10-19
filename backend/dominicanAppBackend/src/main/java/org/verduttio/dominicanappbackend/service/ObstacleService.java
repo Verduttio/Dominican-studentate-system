@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.comparator.TaskComparator;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.entity.*;
@@ -18,10 +19,8 @@ import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ObstacleService {
@@ -30,6 +29,7 @@ public class ObstacleService {
     private final ObstacleValidator obstacleValidator;
     private final ScheduleRepository scheduleRepository;
     private final TaskRepository taskRepository;
+    private final TaskComparator taskComparator = new TaskComparator();
 
     @Autowired
     public ObstacleService(ObstacleRepository obstacleRepository,
@@ -42,11 +42,13 @@ public class ObstacleService {
 
     public List<Obstacle> getAllObstacles() {
         List<Obstacle> obstacles = obstacleRepository.findAllSorted();
+        obstacles.forEach(this::sortTasksInObstacle);
         return obstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
     }
 
     public Page<Obstacle> getAllObstacles(Pageable pageable) {
         Page<Obstacle> obstacles = obstacleRepository.findAllSorted(pageable);
+        obstacles.forEach(this::sortTasksInObstacle);
         List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
         return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
@@ -79,6 +81,7 @@ public class ObstacleService {
 
     public Obstacle getObstacleById(Long obstacleId) {
         Obstacle obstacle = obstacleRepository.findById(obstacleId).orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
+        sortTasksInObstacle(obstacle);
 
         if (SecurityUtils.isUserOwnerOrAdmin(obstacle.getUser().getId())) {
             return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
@@ -139,13 +142,28 @@ public class ObstacleService {
     }
 
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {
-       List<Obstacle> obstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId);
-       return obstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        List<Obstacle> obstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId);
+        obstacles.forEach(this::sortTasksInObstacle);
+
+        return obstacles.stream()
+                .map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded)
+                .collect(Collectors.toList());
+    }
+
+    private void sortTasksInObstacle(Obstacle obstacle) {
+        Set<Task> sortedTasks = obstacle.getTasks().stream()
+                .sorted(taskComparator)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        obstacle.setTasks(sortedTasks);
     }
 
     public Page<Obstacle> getAllObstaclesByUserId(Long userId, Pageable pageable) {
         Page<Obstacle> obstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId, pageable);
-        List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        obstacles.forEach(this::sortTasksInObstacle);
+
+        List<Obstacle> modifiedList = obstacles.stream()
+                .map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded)
+                .collect(Collectors.toList());
         return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
 
