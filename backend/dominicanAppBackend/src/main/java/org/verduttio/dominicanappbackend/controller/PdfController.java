@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.service.PdfService;
+import org.verduttio.dominicanappbackend.service.pdf.PdfService;
 
 import java.io.IOException;
 import java.time.LocalDate;
