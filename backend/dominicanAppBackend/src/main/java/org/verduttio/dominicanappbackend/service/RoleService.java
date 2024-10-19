@@ -45,6 +45,10 @@ public class RoleService {
         return roleRepository.findByName(roleName).orElse(null);
     }
 
+    public List<Role> getRolesByAreTasksVisibleInPrints(boolean areTasksVisibleInPrints) {
+        return roleRepository.findAllByAreTasksVisibleInPrintsOrderBySortOrderAsc(areTasksVisibleInPrints);
+    }
+
     @Transactional
     public void saveRole(Role role) {
         if (roleRepository.existsByName(role.getName())) {

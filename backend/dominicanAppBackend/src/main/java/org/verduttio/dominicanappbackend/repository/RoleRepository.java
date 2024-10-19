@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findAllByOrderBySortOrderAsc();
 
+    List<Role> findAllByAreTasksVisibleInPrintsOrderBySortOrderAsc(boolean areTasksVisibleInPrints);
+
     Optional<Role> findByName(String roleName);
 
     boolean existsByName(String roleName);

@@ -32,6 +32,13 @@ public class RoleController {
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 
+    @GetMapping(params = "areTasksVisibleInPrints")
+    public ResponseEntity<List<Role>> getAllRolesByAreTasksVisibleInPrints(@RequestParam boolean areTasksVisibleInPrints) {
+        List<Role> roles = roleService.getRolesByAreTasksVisibleInPrints(areTasksVisibleInPrints);
+        return new ResponseEntity<>(roles, HttpStatus.OK);
+    }
+
+
     @GetMapping("/types/{roleType}")
     public ResponseEntity<List<Role>> getRolesByType(@PathVariable RoleType roleType) {
         List<Role> roles = roleService.getRolesByType(roleType);
