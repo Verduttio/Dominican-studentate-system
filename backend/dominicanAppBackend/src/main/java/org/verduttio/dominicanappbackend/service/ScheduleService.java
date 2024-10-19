@@ -536,6 +536,30 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    public List<GroupedTasksByRolesInScheduleInfoForUser> getGroupedTasksByRolesInScheduleInfoForAllowedUsersForSpecifiedWeek(LocalDate from, LocalDate to) {
+        if(!DateValidator.isStartDateMax6daysBeforeEndDate(from, to)) {
+            throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
+        }
+
+        List<User> users = userService.getAllUsers();
+        boolean weekWithFeast = !specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).isEmpty();
+        return users.stream()
+                .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
+                .map(user -> createGroupedTasksByRolesInScheduleInfoForUser(user.getId(), from, to, weekWithFeast))
+                .collect(Collectors.toList());
+    }
+
+    private GroupedTasksByRolesInScheduleInfoForUser createGroupedTasksByRolesInScheduleInfoForUser(Long userId, LocalDate from, LocalDate to, boolean weekWithFeast) {
+        User user = userService.getUserById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with given id does not exist"));
+
+        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to);
+
+        Map<String, List<String>> groupedTasksInfoStrings = createGroupedTasksInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, weekWithFeast);
+
+        return new GroupedTasksByRolesInScheduleInfoForUser(userId, user.getName(), user.getSurname(), groupedTasksInfoStrings);
+    }
+
     private ScheduleShortInfoForUser createScheduleShortInfoForUser(Long userId, LocalDate from, LocalDate to, boolean weekWithFeast) {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
@@ -694,6 +718,83 @@ public class ScheduleService {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, List<String>> createGroupedTasksInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
+        schedules = schedules.stream().filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints()).toList();
+        List<Role> roles = schedules.stream().map(Schedule::getTask).map(Task::getSupervisorRole).distinct().toList();
+
+        Map<String, List<String>> groupedTasksInfoStrings = new HashMap<>();
+
+        for (Role role: roles) {
+            List<Schedule> filteredSchedules = schedules.stream().filter(s -> s.getTask().getSupervisorRole().equals(role)).toList();
+            // If task appears in the list n times, where n is the task occurrence in the week,
+            // then it will be converted to "task.name" only string.
+            // If task appears less than n times, then it will be converted to "task.name (P, W, Ś)" string,
+            // where P, W, Ś are the days of the week when the task occurs.
+
+            // Possible days of the week
+            // Dictionary of DayOfWeek enum and its abbreviation in polish
+            Map<DayOfWeek, String> dayOfWeekAbbreviations = Map.of(
+                    DayOfWeek.SUNDAY, "Nd",
+                    DayOfWeek.MONDAY, "Pn",
+                    DayOfWeek.TUESDAY, "Wt",
+                    DayOfWeek.WEDNESDAY, "Śr",
+                    DayOfWeek.THURSDAY, "Cz",
+                    DayOfWeek.FRIDAY, "Pt",
+                    DayOfWeek.SATURDAY, "So"
+            );
+
+            // Create a map of tasks and their DaysOfWeek assigns from task.date
+            // Example: {task: [MONDAY, WEDNESDAY, FRIDAY], task2: [TUESDAY, THURSDAY]}
+            Map<Task, Set<DayOfWeek>> taskDaysWhenItIsAssignedInSchedule = filteredSchedules.stream()
+                    .collect(Collectors.groupingBy(Schedule::getTask, Collectors.mapping(
+                            schedule -> schedule.getDate().getDayOfWeek(),
+                            Collectors.collectingAndThen(
+                                    Collectors.toList(),
+                                    list -> {
+                                        Collections.sort(list);
+                                        return new LinkedHashSet<>(list);
+                                    })
+                    )));
+
+
+            groupedTasksInfoStrings.put(role.getName(), taskDaysWhenItIsAssignedInSchedule.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey(
+                            Comparator.comparing((Task t) -> t.getSupervisorRole().getSortOrder())
+                                    .thenComparing(Task::getSortOrder)
+                    ))
+                    .map(entry -> {
+                        Task task = entry.getKey();
+                        Set<DayOfWeek> occurrences = entry.getValue();
+
+                        // SUNDAY, MONDAY, ..., SATURDAY order
+                        Comparator<DayOfWeek> customOrderComparator = Comparator
+                                .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
+
+                        // If there is any feast in the week,
+                        // then the string should be: task.name (days of week when assign)
+                        // even if the task occurs on all days of the week.
+                        if (weekWithFeast) {
+                            String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
+                                    .map(dayOfWeekAbbreviations::get)
+                                    .collect(Collectors.joining(", "));
+                            return task.getNameAbbrev() + " (" + daysOfWeekString + ")";
+                        }
+
+
+                        if (occurrences.size() < task.getDaysOfWeek().size()) {
+                            String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
+                                    .map(dayOfWeekAbbreviations::get)
+                                    .collect(Collectors.joining(", "));
+                            return task.getNameAbbrev() + " (" + daysOfWeekString + ")";
+                        } else {
+                            return task.getNameAbbrev();
+                        }
+                    })
+                    .collect(Collectors.toList()));
+        }
+        return groupedTasksInfoStrings;
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskByRoleForSpecifiedWeek(String supervisorRole, LocalDate from, LocalDate to) {

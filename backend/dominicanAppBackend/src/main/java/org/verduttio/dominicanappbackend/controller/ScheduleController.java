@@ -94,6 +94,22 @@ public class ScheduleController {
         return new ResponseEntity<>(userSchedulesForSpecifiedWeek, HttpStatus.OK);
     }
 
+    @GetMapping("/users/groupedScheduleShortInfo/week")
+    public ResponseEntity<?> getGroupedShortScheduleInfoForSpecifiedWeek(
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        List<GroupedTasksByRolesInScheduleInfoForUser> userSchedulesForSpecifiedWeek;
+        try {
+            userSchedulesForSpecifiedWeek = scheduleService.getGroupedTasksByRolesInScheduleInfoForAllowedUsersForSpecifiedWeek(from, to);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(userSchedulesForSpecifiedWeek, HttpStatus.OK);
+    }
+
     @GetMapping("/tasks/scheduleShortInfo/week")
     public ResponseEntity<?> getShortScheduleInfoForSpecifiedWeekForTasks(
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
