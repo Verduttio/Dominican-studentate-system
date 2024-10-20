@@ -36,14 +36,14 @@ const UsersGroupedTasksScheduleTable: React.FC<Props> = ({
                 </button>
             </div>
             {isOpen && (
-                <div className="d-flex justify-content-center">
-                    <div className="table-responsive" style={{ maxWidth: '700px' }}>
-                        <table className="table table-hover table-striped table-rounded table-shadow table-bordered mb-0">
-                            <thead className="table-dark">
+                <div className="d-flex-no-media-resize justify-content-center">
+                    <div className="table-responsive-fit-content-height100vh">
+                        <table className="table table-hover table-striped table-rounded table-shadow text-center table-bordered">
+                            <thead className="table-dark sticky-top">
                             <tr>
                                 <th>Brat</th>
                                 {roles.map((role) => (
-                                    <th key={role.id}>{role.assignedTasksGroupName}</th>
+                                    <th className={"column-width-100"} key={role.id}>{role.assignedTasksGroupName}</th>
                                 ))}
                             </tr>
                             </thead>
