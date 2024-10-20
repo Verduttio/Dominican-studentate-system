@@ -40,8 +40,8 @@ public class TableBuilder {
     private void styleHeaderCell(Cell<PDPage> cell) {
         cell.setFont(font);
         cell.setFontSize(12);
-        cell.setFillColor(Color.BLACK);
-        cell.setTextColor(Color.WHITE);
+        cell.setFillColor(Color.LIGHT_GRAY);
+        cell.setTextColor(Color.BLACK);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
 
