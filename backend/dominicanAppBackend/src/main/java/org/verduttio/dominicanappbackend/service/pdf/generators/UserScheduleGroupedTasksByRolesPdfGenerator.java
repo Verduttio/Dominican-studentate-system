@@ -6,7 +6,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.verduttio.dominicanappbackend.dto.schedule.GroupedTasksByRolesInScheduleInfoForUser;
 import org.verduttio.dominicanappbackend.entity.Role;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
-import org.verduttio.dominicanappbackend.service.pdf.builders.TableBuilder;
+import org.verduttio.dominicanappbackend.service.pdf.builders.GroupedTasksTableBuilder;
 import org.verduttio.dominicanappbackend.util.DateUtils;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class UserScheduleGroupedTasksByRolesPdfGenerator extends AbstractPdfGene
     }
 
     private void populateTable(BaseTable table, List<GroupedTasksByRolesInScheduleInfoForUser> groupedByTasksSchedules) throws IOException {
-        TableBuilder tableBuilder = new TableBuilder(table, font);
+        GroupedTasksTableBuilder tableBuilder = new GroupedTasksTableBuilder(table, font);
         String[] headers = createHeaderRow();
         tableBuilder.addHeaderRow(headers);
 
