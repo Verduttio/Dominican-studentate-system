@@ -68,22 +68,22 @@ public class DayTableBuilder {
 
     private void addDayOfWeekHeaderRow(TableParameters params) {
         Row<PDPage> dayOfWeekRow = table.createRow(params.rowHeight);
-        createHeaderCell(dayOfWeekRow, params.nameCellWidth, "", Color.GRAY);
+        createHeaderCell(dayOfWeekRow, params.nameCellWidth, params.fontSize, "", Color.GRAY);
 
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             String dayOfWeek = DateUtils.getDayOfWeekPL(date.getDayOfWeek());
-            createHeaderCell(dayOfWeekRow, (float) params.taskCellWidth / daysBetween(), dayOfWeek, COLOR_LIGHT_GRAY);
+            createHeaderCell(dayOfWeekRow, (float) params.taskCellWidth / daysBetween(), params.fontSize, dayOfWeek, COLOR_LIGHT_GRAY);
         }
         table.addHeaderRow(dayOfWeekRow);
     }
 
     private void addDateHeaderRow(TableParameters params) {
         Row<PDPage> dateRow = table.createRow(params.rowHeight);
-        createHeaderCell(dateRow, params.nameCellWidth, "Brat", Color.GRAY);
+        createHeaderCell(dateRow, params.nameCellWidth, params.fontSize, "Brat", Color.GRAY);
 
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             String dateStr = DateUtils.getDayMonthFormat(date);
-            createHeaderCell(dateRow, (float) params.taskCellWidth / daysBetween(), dateStr, COLOR_LIGHT_GRAY);
+            createHeaderCell(dateRow, (float) params.taskCellWidth / daysBetween(), params.fontSize, dateStr, COLOR_LIGHT_GRAY);
         }
         table.addHeaderRow(dateRow);
     }
@@ -96,31 +96,31 @@ public class DayTableBuilder {
             String fullName = userInfo.getName() + " " + userInfo.getSurname();
             Color rowColor = (rowIndex % 2 == 1) ? COLOR_LIGHT_GRAY : Color.WHITE;
 
-            createDataCell(row, params.nameCellWidth, fullName, new Color(217, 225, 242));
+            createDataCell(row, params.nameCellWidth, params.fontSize, fullName, new Color(217, 225, 242));
 
             for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
                 List<String> tasks = userDTO.getSchedules().getOrDefault(date, Collections.emptyList());
                 String tasksStr = String.join(", ", tasks);
-                createDataCell(row, (float) params.taskCellWidth / daysBetween(), tasksStr, rowColor);
+                createDataCell(row, (float) params.taskCellWidth / daysBetween(), params.fontSize, tasksStr, rowColor);
             }
             rowIndex++;
         }
     }
 
-    private void createHeaderCell(Row<PDPage> row, float width, String text, Color fillColor) {
+    private void createHeaderCell(Row<PDPage> row, float width, float fontSize, String text, Color fillColor) {
         Cell<PDPage> cell = row.createCell(width, text);
         cell.setFont(font);
-        cell.setFontSize(8);
+        cell.setFontSize(fontSize);
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setFillColor(fillColor);
         cell.setBorderStyle(BORDER_LINE_STYLE);
         setCellPadding(cell, 0);
     }
 
-    private void createDataCell(Row<PDPage> row, float width, String text, Color fillColor) {
+    private void createDataCell(Row<PDPage> row, float width, float fontSize, String text, Color fillColor) {
         Cell<PDPage> cell = row.createCell(width, text);
         cell.setFont(font);
-        cell.setFontSize(8);
+        cell.setFontSize(fontSize);
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setFillColor(fillColor);
         cell.setBorderStyle(BORDER_LINE_STYLE);
