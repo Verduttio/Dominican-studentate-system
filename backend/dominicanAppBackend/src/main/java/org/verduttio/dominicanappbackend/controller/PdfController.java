@@ -46,6 +46,28 @@ public class PdfController {
         }
     }
 
+    @GetMapping("/schedules/users/groupedTasksByRoles/week")
+    public ResponseEntity<?> generateSchedulePdfForUsersGroupedTasksByRoles(
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForUsersGroupedTasksByRoles(from, to);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Schedules_users_grouped_tasks_by_roles_" + from.toString() + "-" + to.toString() + ".pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/schedules/tasks/byRole/{supervisorRole}/scheduleShortInfo/week")
     public ResponseEntity<?> generateSchedulePdfForTasksByRole(
             @PathVariable String supervisorRole,

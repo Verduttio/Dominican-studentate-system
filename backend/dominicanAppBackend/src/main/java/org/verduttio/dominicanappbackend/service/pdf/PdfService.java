@@ -2,11 +2,10 @@ package org.verduttio.dominicanappbackend.service.pdf;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.service.RoleService;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
-import org.verduttio.dominicanappbackend.service.pdf.generators.DaySchedulePdfGenerator;
-import org.verduttio.dominicanappbackend.service.pdf.generators.PdfGenerator;
-import org.verduttio.dominicanappbackend.service.pdf.generators.TaskSchedulePdfGenerator;
-import org.verduttio.dominicanappbackend.service.pdf.generators.UserSchedulePdfGenerator;
+import org.verduttio.dominicanappbackend.service.pdf.generators.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -18,10 +17,12 @@ import java.util.List;
 public class PdfService {
 
     private final ScheduleService scheduleService;
+    private final RoleService roleService;
 
     @Autowired
-    public PdfService(ScheduleService scheduleService) {
+    public PdfService(ScheduleService scheduleService, RoleService roleService) {
         this.scheduleService = scheduleService;
+        this.roleService = roleService;
     }
 
     public byte[] generateSchedulePdfForUsers(LocalDate from, LocalDate to) throws IOException {
@@ -52,6 +53,13 @@ public class PdfService {
 
     public byte[] generateSchedulePdfForUsersBySupervisorRoleByDays(String supervisorRoleName, LocalDate from, LocalDate to) throws IOException {
         PdfGenerator generator = new DaySchedulePdfGenerator(scheduleService, from, to, supervisorRoleName);
+        return generator.generatePdf();
+    }
+
+    public byte[] generateSchedulePdfForUsersGroupedTasksByRoles(LocalDate from, LocalDate to) throws IOException {
+        List<Role> visibleRoles = roleService.getRolesByAreTasksVisibleInPrints(true);
+
+        PdfGenerator generator = new UserScheduleGroupedTasksByRolesPdfGenerator(scheduleService, from, to, visibleRoles);
         return generator.generatePdf();
     }
 }
