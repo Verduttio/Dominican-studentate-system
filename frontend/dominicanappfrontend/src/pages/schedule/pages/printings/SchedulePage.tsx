@@ -124,7 +124,7 @@ function SchedulePage() {
 
     // Functions for downloading PDFs
     const downloadSchedulePdfForUsers = async () => {
-        let targetUrl = `${backendUrl}/api/pdf/schedules/users/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
+        let targetUrl = `${backendUrl}/api/pdf/schedules/users/groupedTasksByRoles/week?from=${fromDateString}&to=${toDateString}`;
         const filename = `Harmonogram_bracia_${fromDateString}-${toDateString}.pdf`;
         await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers);
     };
