@@ -26,6 +26,7 @@ import UsersGroupedTasksScheduleTable from './components/tables/UsersGroupedTask
 import { backendUrl } from '../../../../utils/constants';
 import { downloadPdf } from './utils/downloadPdf';
 import NonStandardDateSelector from "./components/NonStandardDateSelector";
+import TasksScheduleTable from "./components/tables/TasksScheduleTable";
 
 function SchedulePage() {
     const navigate = useNavigate();
@@ -44,6 +45,7 @@ function SchedulePage() {
 
     // Opened state for tables
     const [isGroupedTasksScheduleOpened, setIsGroupedTasksScheduleOpened] = useState(false);
+    const [isTasksScheduleOpened, setIsTasksScheduleOpened] = useState(false);
     // Similar state for other tables
 
     // Date range
@@ -91,10 +93,14 @@ function SchedulePage() {
     const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
     const [errorDownloadSchedulePdfForUsers, setErrorDownloadSchedulePdfForUsers] = useState<string | null>(null);
 
+    const [loadingDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks] = useState<boolean>(false);
+    const [errorDownloadSchedulePdfForTasks, setErrorDownloadSchedulePdfForTasks] = useState<string | null>(null);
+
     // Similar state variables for other PDFs
 
     // Functions for toggling table visibility
     const toggleGroupedTasksSchedule = () => setIsGroupedTasksScheduleOpened(!isGroupedTasksScheduleOpened);
+    const toggleTasksSchedule = () => setIsTasksScheduleOpened(!isTasksScheduleOpened);
     // Similar toggle functions for other tables
 
     // Handle role change
@@ -129,6 +135,12 @@ function SchedulePage() {
         await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers);
     };
 
+    const downloadSchedulePdfForTasks = async () => {
+        let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
+        const filename = `Harmonogram_oficja_${fromDateString}-${toDateString}.pdf`;
+        await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks);
+    };
+
     // Similar functions for other PDFs
 
     return (
@@ -136,14 +148,14 @@ function SchedulePage() {
             <div className="d-flex justify-content-center">
                 <button className="btn btn-info mt-3" onClick={() => navigate('/schedule/by-days')}>
           <span>
-            <FontAwesomeIcon icon={faArrowsRotate} />{' '}
+            <FontAwesomeIcon icon={faArrowsRotate}/>{' '}
           </span>
                     Zmień na harmonogram według dni
                 </button>
             </div>
 
             {showStandardDateSelector ? (
-                <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek} />
+                <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
             ) : (
                 <NonStandardDateSelector
                     nonStandardStartDate={nonStandardStartDate}
@@ -169,7 +181,7 @@ function SchedulePage() {
                     }}
                 >
           <span>
-            <FontAwesomeIcon icon={faArrowsRotate} />{' '}
+            <FontAwesomeIcon icon={faArrowsRotate}/>{' '}
           </span>
                     {showStandardDateSelector ? 'Zmień na datę niestandardową' : 'Zmień na datę standardową'}
                 </button>
@@ -181,7 +193,7 @@ function SchedulePage() {
                 <h4 className="entity-header-dynamic-size my-2">Harmonogram według braci</h4>
             </div>
             {errorDownloadSchedulePdfForUsers && (
-                <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width="500px" />
+                <AlertBox text={errorDownloadSchedulePdfForUsers} type="danger" width="500px"/>
             )}
             <UsersGroupedTasksScheduleTable
                 data={groupedScheduleShortInfo || []}
@@ -199,6 +211,30 @@ function SchedulePage() {
                 >
                     <span>Pobierz harmonogram według braci </span>
                     {loadingDownloadSchedulePdfForUsers && <span className="spinner-border spinner-border-sm"></span>}
+                </button>
+            </div>
+
+            <div className="d-flex justify-content-center">
+                <h4 className="entity-header-dynamic-size my-2">Harmonogram według oficjów</h4>
+            </div>
+            {errorDownloadSchedulePdfForTasks && (
+                <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width="500px"/>
+            )}
+            <TasksScheduleTable
+                data={scheduleShortInfoForTasks || []}
+                loading={tasksScheduleLoading}
+                error={tasksScheduleError}
+                isOpen={isTasksScheduleOpened}
+                toggle={toggleTasksSchedule}
+            />
+            <div className="text-center">
+                <button
+                    className="btn btn-success my-2"
+                    onClick={downloadSchedulePdfForTasks}
+                    disabled={loadingDownloadSchedulePdfForTasks}
+                >
+                    <span>Pobierz harmonogram według oficjów </span>
+                    {loadingDownloadSchedulePdfForTasks && <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
 
