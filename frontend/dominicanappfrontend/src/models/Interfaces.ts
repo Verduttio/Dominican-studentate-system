@@ -202,10 +202,10 @@ interface TaskShortInfo {
 
 interface UserTaskStatistics {
     taskName: string;
-    taskNameAbbrev: string;
-    lastAssigned: string;
-    numberOfAssignsFromStatsDate: number;
-    totalNumberOfAssigns: number;
+    taskAbbrev: string;
+    lastAssignmentDate: string;
+    normalizedOccurrencesFromStatsDate: number;
+    normalizedOccurrencesAllTime: number;
 }
 
 interface DocumentLink {
