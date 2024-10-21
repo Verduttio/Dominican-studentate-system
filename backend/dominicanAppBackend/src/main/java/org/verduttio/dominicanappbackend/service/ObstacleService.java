@@ -21,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ObstacleService {
@@ -43,21 +44,80 @@ public class ObstacleService {
     public List<Obstacle> getAllObstacles() {
         List<Obstacle> obstacles = obstacleRepository.findAllSorted();
         obstacles.forEach(this::sortTasksInObstacle);
-        return obstacles.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        return obstacles.stream().map(this::normalizeObstacleTaskListToRoleNamesOrOneTask).toList();
     }
 
     public Page<Obstacle> getAllObstacles(Pageable pageable) {
         Page<Obstacle> obstacles = obstacleRepository.findAllSorted(pageable);
         obstacles.forEach(this::sortTasksInObstacle);
-        List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        List<Obstacle> modifiedList = obstacles.getContent().stream().map(this::normalizeObstacleTaskListToRoleNamesOrOneTask).toList();
         return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
 
-    private Obstacle mapObstacleWithAllTasksToOnlyOneIfNeeded(Obstacle obstacle) {
-        int numberOfTasks = taskRepository.findAll().size();
-        if (obstacle.getTasks().size() == numberOfTasks) {
+
+    private Obstacle normalizeObstacleTaskListToRoleNamesOrOneTask(Obstacle obstacle) {
+        List<Task> allTasks = taskRepository.findAll();
+        if (obstacle.getTasks().size() == allTasks.size()) {
             return mapObstacleWithAllTasksToContainOneSpecialTaskForAll(obstacle);
+        } else {
+            return mapObstacleWithListOfTaskNames(obstacle, getNormalizedTaskNamesForObstacle(obstacle, allTasks));
         }
+    }
+
+    private List<String> getNormalizedTaskNamesForObstacle(Obstacle obstacle, List<Task> allTasks) {
+        List<Role> supervisorRolesWhichHaveAllTasksInObstacle = getSupervisorRolesWhichHaveAllTasksInObstacle(obstacle, allTasks);
+        List<String> supervisorRolesNames = supervisorRolesWhichHaveAllTasksInObstacle.stream()
+                .map(Role::getAssignedTasksGroupName)
+                .toList();
+        List<String> restTasksNames = obstacle.getTasks().stream().filter(task -> !supervisorRolesWhichHaveAllTasksInObstacle.contains(task.getSupervisorRole()))
+                .map(Task::getNameAbbrev)
+                .toList();
+        return Stream.concat(supervisorRolesNames.stream(), restTasksNames.stream())
+                .toList();
+    }
+
+    private List<Role> getSupervisorRolesWhichHaveAllTasksInObstacle(Obstacle obstacle, List<Task> allTasks) {
+        Set<Role> supervisorRolesFromObstacleTasks = getSupervisorRolesOfAllTasksFromObstacle(obstacle);
+        Map<Role, Long> supervisorRolesWithTaskCount = supervisorRolesFromObstacleTasks.stream()
+                .collect(Collectors.toMap(role -> role, role -> countNumberOfTasksBySupervisorRole(obstacle, role)));
+        Map<Role, Long> supervisorRolesWithAllTaskCount = allTasks.stream()
+                .map(Task::getSupervisorRole)
+                .collect(Collectors.groupingBy(role -> role, Collectors.counting()));
+        return supervisorRolesWithTaskCount.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(supervisorRolesWithAllTaskCount.get(entry.getKey())))
+                .map(Map.Entry::getKey)
+                .toList();
+    }
+
+
+    private long countNumberOfTasksBySupervisorRole(Obstacle obstacle, Role supervisorRole) {
+        return obstacle.getTasks().stream()
+                .filter(task -> task.getSupervisorRole().equals(supervisorRole))
+                .count();
+    }
+
+
+    private Set<Role> getSupervisorRolesOfAllTasksFromObstacle(Obstacle obstacle) {
+        return obstacle.getTasks().stream()
+                .map(Task::getSupervisorRole)
+                .collect(Collectors.toSet());
+    }
+
+    private Obstacle mapObstacleWithListOfTaskNames(Obstacle obstacle, List<String> namesForTasks) {
+        Task specialTask = new Task();
+        specialTask.setId(0L);
+        specialTask.setName("Special form of obstacle");
+        specialTask.setNameAbbrev(String.join(", ", namesForTasks));
+        specialTask.setAllowedRoles(new HashSet<>());
+        specialTask.setSupervisorRole(new Role());
+        specialTask.setDaysOfWeek(EnumSet.allOf(DayOfWeek.class));
+        specialTask.setParticipantsLimit(1);
+        specialTask.setArchived(false);
+
+        Set<Task> tasks = new HashSet<>();
+        tasks.add(specialTask);
+
+        obstacle.setTasks(tasks);
         return obstacle;
     }
 
@@ -84,7 +144,7 @@ public class ObstacleService {
         sortTasksInObstacle(obstacle);
 
         if (SecurityUtils.isUserOwnerOrAdmin(obstacle.getUser().getId())) {
-            return mapObstacleWithAllTasksToOnlyOneIfNeeded(obstacle);
+            return normalizeObstacleTaskListToRoleNamesOrOneTask(obstacle);
         } else {
             throw new AccessDeniedException(SecurityUtils.ACCESS_DENIED_MESSAGE);
         }
@@ -146,7 +206,7 @@ public class ObstacleService {
         obstacles.forEach(this::sortTasksInObstacle);
 
         return obstacles.stream()
-                .map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded)
+                .map(this::normalizeObstacleTaskListToRoleNamesOrOneTask)
                 .collect(Collectors.toList());
     }
 
@@ -162,7 +222,7 @@ public class ObstacleService {
         obstacles.forEach(this::sortTasksInObstacle);
 
         List<Obstacle> modifiedList = obstacles.stream()
-                .map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded)
+                .map(this::normalizeObstacleTaskListToRoleNamesOrOneTask)
                 .collect(Collectors.toList());
         return new PageImpl<>(modifiedList, pageable, obstacles.getTotalElements());
     }
@@ -184,7 +244,7 @@ public class ObstacleService {
     public List<Obstacle> getAllObstaclesByTaskId(Long taskId) {
         obstacleValidator.validateTaskExistence(taskId);
         List<Obstacle> obstaclesByTask = obstacleRepository.findAllByTaskId(taskId);
-        return obstaclesByTask.stream().map(this::mapObstacleWithAllTasksToOnlyOneIfNeeded).toList();
+        return obstaclesByTask.stream().map(this::normalizeObstacleTaskListToRoleNamesOrOneTask).toList();
     }
 
     public Long getNumberOfObstaclesByStatus(ObstacleStatus status) {
