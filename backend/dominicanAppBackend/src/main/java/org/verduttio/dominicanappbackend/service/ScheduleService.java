@@ -21,6 +21,7 @@ import org.verduttio.dominicanappbackend.validation.DateValidator;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.time.temporal.ChronoUnit;
 
@@ -813,48 +814,71 @@ public class ScheduleService {
     }
 
     public List<UserTaskStatisticsDTO> getStatisticsForUserTasks(Long userId) {
+        // Retrieve user
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with given id does not exist"));
 
+        // Retrieve all schedules for the user
         List<Schedule> schedules = getAllSchedulesByUserId(userId);
 
-        List<Schedule> schedulesFromStatsDate = new ArrayList<>();
-        for (Schedule schedule : schedules) {
-            if (schedule.getDate().isAfter(specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate()) ||
-                schedule.getDate().isEqual(specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate())) {
-                schedulesFromStatsDate.add(schedule);
-            }
-        }
+        // Retrieve the special stats date once
+        LocalDate statsDate = specialDateRepository.findByType(SpecialDateType.STATS)
+                .getFirst()
+                .getDate();
 
-        Map<Task, LocalDate> lastAssignmentDateForTaskFromStatsDate = schedulesFromStatsDate.stream()
-                .collect(Collectors.toMap(Schedule::getTask, Schedule::getDate, (date1, date2) -> date1.isAfter(date2) ? date1 : date2));
+        // Filter schedules from stats date
+        List<Schedule> schedulesFromStatsDate = schedules.stream()
+                .filter(schedule -> !schedule.getDate().isBefore(statsDate))
+                .collect(Collectors.toList());
 
-        Map<Task, Long> taskOccurrencesFromStatsDate = getTaskOccurrencesFromStatsDate(schedules);
-        Map<Task, Long> taskOccurrencesInAllTime = schedules.stream()
-                .collect(Collectors.groupingBy(Schedule::getTask, Collectors.counting()));
+        // Map of last assignment dates
+        Map<Task, LocalDate> lastAssignmentDateMap = schedulesFromStatsDate.stream()
+                .collect(Collectors.toMap(
+                        Schedule::getTask,
+                        Schedule::getDate,
+                        BinaryOperator.maxBy(LocalDate::compareTo)));
 
-        // Create list of UserTaskStatisticsDTO objects
-        List<UserTaskStatisticsDTO> userTaskStatistics = new ArrayList<>();
-        for(Task task : taskOccurrencesInAllTime.keySet()) {
-            LocalDate lastAssignmentDate = lastAssignmentDateForTaskFromStatsDate.get(task);
-            long occurrencesFromStatsDate = taskOccurrencesFromStatsDate.getOrDefault(task, 0L) / task.getDaysOfWeek().size();
-            long occurrencesInAllTime = taskOccurrencesInAllTime.get(task);
-            userTaskStatistics.add(new UserTaskStatisticsDTO(task.getName(), task.getNameAbbrev(), lastAssignmentDate, occurrencesFromStatsDate, occurrencesInAllTime));
-        }
+        // Count occurrences
+        Map<Task, Long> taskOccurrencesFromStatsDate = countTaskOccurrences(schedulesFromStatsDate);
+        Map<Task, Long> taskOccurrencesAllTime = countTaskOccurrences(schedules);
 
-        return sortUserTaskStatisticsDTOByTaskAllOrder(userTaskStatistics, taskRepository.findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder());
+        // Build statistics
+        List<UserTaskStatistic> statistics = taskOccurrencesAllTime.keySet().stream()
+                .map(task -> new UserTaskStatistic.Builder(task)
+                        .lastAssignmentDate(lastAssignmentDateMap.get(task))
+                        .occurrencesFromStatsDate(taskOccurrencesFromStatsDate.getOrDefault(task, 0L))
+                        .occurrencesAllTime(taskOccurrencesAllTime.get(task))
+                        .build())
+                .collect(Collectors.toList());
+
+        // Sort statistics
+        List<UserTaskStatistic> sortedStatistics = sortStatistics(statistics);
+
+        // Convert to DTOs
+        return sortedStatistics.stream()
+                .map(UserTaskStatisticsDTO::new)
+                .collect(Collectors.toList());
     }
 
-    private List<UserTaskStatisticsDTO> sortUserTaskStatisticsDTOByTaskAllOrder(List<UserTaskStatisticsDTO> userTaskStatistics, List<Task> orderedTasks) {
+    private Map<Task, Long> countTaskOccurrences(List<Schedule> schedules) {
+        return schedules.stream()
+                .collect(Collectors.groupingBy(
+                        Schedule::getTask,
+                        Collectors.counting()));
+    }
+
+    private List<UserTaskStatistic> sortStatistics(List<UserTaskStatistic> statistics) {
+        List<Task> orderedTasks = taskRepository.findAllTasksOrderBySupervisorRoleSortOrderAndTaskSortOrder();
         Map<String, Integer> taskOrderMap = new HashMap<>();
         for (int i = 0; i < orderedTasks.size(); i++) {
             taskOrderMap.put(orderedTasks.get(i).getName(), i);
         }
 
-        return userTaskStatistics.stream()
-                .sorted(Comparator.comparingInt(u -> taskOrderMap.getOrDefault(u.taskName(), Integer.MAX_VALUE)))
+        return statistics.stream()
+                .sorted(Comparator.comparingInt(s -> taskOrderMap.getOrDefault(s.getTask().getName(), Integer.MAX_VALUE)))
                 .collect(Collectors.toList());
     }
+
 
     private Map<Task, Long> getTaskOccurrencesFromStatsDate(List<Schedule> schedules) {
         LocalDate startDate = specialDateRepository.findByType(SpecialDateType.STATS).getFirst().getDate();
