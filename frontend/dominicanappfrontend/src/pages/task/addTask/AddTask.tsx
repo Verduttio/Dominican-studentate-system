@@ -48,7 +48,7 @@ function AddTask() {
         supervisorRoleName: '',
         daysOfWeek: [],
         sortOrder: 0,
-        visibleInObstacleFormForUserRole: true,
+        visibleInObstacleFormForUserRole: false,
     };
 
     const [taskData, setTaskData] = useState(initialTaskState);
