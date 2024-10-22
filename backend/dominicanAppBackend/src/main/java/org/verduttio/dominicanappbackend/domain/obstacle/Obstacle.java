@@ -1,6 +1,10 @@
-package org.verduttio.dominicanappbackend.entity;
+package org.verduttio.dominicanappbackend.domain.obstacle;
 
 import jakarta.persistence.*;
+import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
+import org.verduttio.dominicanappbackend.domain.Task;
+import org.verduttio.dominicanappbackend.domain.User;
+
 import java.time.LocalDate;
 import java.util.Set;
 

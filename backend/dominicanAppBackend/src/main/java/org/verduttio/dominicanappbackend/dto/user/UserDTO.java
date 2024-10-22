@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.User;
 
 import java.util.Set;
 

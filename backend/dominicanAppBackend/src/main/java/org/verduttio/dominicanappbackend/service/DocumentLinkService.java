@@ -2,7 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.verduttio.dominicanappbackend.entity.DocumentLink;
+import org.verduttio.dominicanappbackend.domain.DocumentLink;
 import org.verduttio.dominicanappbackend.repository.DocumentLinkRepository;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 

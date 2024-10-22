@@ -1,7 +1,7 @@
 package org.verduttio.dominicanappbackend.comparator;
 
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.Task;
 
 import java.util.Comparator;
 

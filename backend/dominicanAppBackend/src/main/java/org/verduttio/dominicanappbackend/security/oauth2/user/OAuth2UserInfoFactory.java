@@ -1,6 +1,6 @@
 package org.verduttio.dominicanappbackend.security.oauth2.user;
 
-import org.verduttio.dominicanappbackend.entity.AuthProvider;
+import org.verduttio.dominicanappbackend.domain.AuthProvider;
 import org.verduttio.dominicanappbackend.service.exception.OAuth2AuthenticationProcessingException;
 
 import java.util.Map;

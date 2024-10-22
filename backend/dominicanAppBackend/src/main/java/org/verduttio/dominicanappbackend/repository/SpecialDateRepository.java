@@ -3,8 +3,8 @@ package org.verduttio.dominicanappbackend.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.verduttio.dominicanappbackend.entity.SpecialDate;
-import org.verduttio.dominicanappbackend.entity.SpecialDateType;
+import org.verduttio.dominicanappbackend.domain.SpecialDate;
+import org.verduttio.dominicanappbackend.domain.SpecialDateType;
 
 import java.time.LocalDate;
 import java.util.List;

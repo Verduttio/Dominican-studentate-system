@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.entity;
+package org.verduttio.dominicanappbackend.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

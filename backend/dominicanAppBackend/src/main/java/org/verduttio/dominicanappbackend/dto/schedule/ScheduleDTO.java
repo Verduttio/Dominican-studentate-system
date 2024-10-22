@@ -1,9 +1,9 @@
 package org.verduttio.dominicanappbackend.dto.schedule;
 
 import jakarta.validation.constraints.NotNull;
-import org.verduttio.dominicanappbackend.entity.Schedule;
-import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.Schedule;
+import org.verduttio.dominicanappbackend.domain.Task;
+import org.verduttio.dominicanappbackend.domain.User;
 
 import java.time.LocalDate;
 

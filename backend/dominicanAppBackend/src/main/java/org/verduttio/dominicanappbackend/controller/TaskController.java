@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
 import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
 import org.verduttio.dominicanappbackend.dto.task.TaskSortOrderUpdateDTO;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 

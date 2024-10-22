@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.entity;
+package org.verduttio.dominicanappbackend.domain;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;

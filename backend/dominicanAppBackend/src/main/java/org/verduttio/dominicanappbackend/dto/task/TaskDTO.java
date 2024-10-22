@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.dto.task;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Task;
 
 import java.time.DayOfWeek;
 import java.util.Set;

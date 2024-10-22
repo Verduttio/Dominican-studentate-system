@@ -2,8 +2,8 @@ package org.verduttio.dominicanappbackend.dto.conflict;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.verduttio.dominicanappbackend.entity.Conflict;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Conflict;
+import org.verduttio.dominicanappbackend.domain.Task;
 
 import java.time.DayOfWeek;
 import java.util.Set;

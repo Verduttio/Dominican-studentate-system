@@ -14,8 +14,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.verduttio.dominicanappbackend.dto.auth.LoginRequest;
-import org.verduttio.dominicanappbackend.entity.AuthProvider;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.AuthProvider;
+import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.exception.ApiAuthAuthenticationProcessingException;
 

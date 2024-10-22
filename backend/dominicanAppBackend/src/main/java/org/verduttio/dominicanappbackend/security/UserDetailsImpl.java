@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.User;
 
 import java.io.Serial;
 import java.io.Serializable;

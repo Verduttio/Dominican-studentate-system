@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.entity.DocumentLink;
+import org.verduttio.dominicanappbackend.domain.DocumentLink;
 import org.verduttio.dominicanappbackend.service.DocumentLinkService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
