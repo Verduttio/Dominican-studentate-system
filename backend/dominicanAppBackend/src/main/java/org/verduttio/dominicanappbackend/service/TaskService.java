@@ -55,10 +55,12 @@ public class TaskService {
     }
 
     public void deleteTask(Long taskId) {
-        if (taskRepository.existsById(taskId)) {
+        Optional<Task> task = taskRepository.findById(taskId);
+        if (task.isPresent()) {
             scheduleRepository.deleteAllByTaskId(taskId);
             obstacleRepository.deleteAllByTaskId(taskId);
             conflictRepository.deleteAllByTaskId(taskId);
+            taskRepository.decrementByRoleSortOrderGreaterThan(task.get().getSupervisorRole().getId(), task.get().getSortOrder());
             taskRepository.deleteById(taskId);
         } else {
             throw new EntityNotFoundException("Task with id " + taskId + " does not exist");
