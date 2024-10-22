@@ -93,7 +93,7 @@ function AddMyObstacle() {
                     <div className="mb-3">
                         <div className="d-flex justify-content-between">
                         <label className="form-check-label me-2" htmlFor="selectAllTasksSwitch">
-                            Wybierz wszystkie oficja
+                            Wybierz wszystkie dostępne oficja
                         </label>
                         <div className="form-check form-switch">
                             <input
