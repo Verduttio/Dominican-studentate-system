@@ -45,20 +45,12 @@ public class TaskService {
         return taskRepository.findById(taskId);
     }
 
-    public boolean taskExistsById(Long taskId) {
-        return taskRepository.existsById(taskId);
-    }
-
     public boolean existsById(Long taskId) {
         return taskRepository.existsById(taskId);
     }
 
     public void saveTask(TaskDTO taskDTO) {
         Task task = convertTaskDTOToTask(taskDTO);
-        taskRepository.save(task);
-    }
-
-    public void saveTask(Task task) {
         taskRepository.save(task);
     }
 
@@ -75,20 +67,30 @@ public class TaskService {
 
     private Task convertTaskDTOToTask(TaskDTO taskDTO) {
         Task task = taskDTO.basicFieldsToTask();
-        Set<Role> rolesDB = roleService.getRolesByRoleNames(taskDTO.getAllowedRoleNames());
-        Role supervisorRoleDB = roleService.getRoleByName(taskDTO.getSupervisorRoleName());
-        if(rolesDB.isEmpty()) {
-            throw new IllegalArgumentException("No roles found for given role names");
-        }
 
-        if(supervisorRoleDB == null) {
-            throw new IllegalArgumentException("No supervisor role found for given role name");
-        }
+        Set<Role> rolesDB = getValidatedRoles(taskDTO);
+        Role supervisorRoleDB = getValidatedSupervisorRole(taskDTO.getSupervisorRoleName());
 
         task.setAllowedRoles(rolesDB);
         task.setSupervisorRole(supervisorRoleDB);
 
         return task;
+    }
+
+    private Set<Role> getValidatedRoles(TaskDTO taskDTO) {
+        Set<Role> rolesDB = roleService.getRolesByRoleNames(taskDTO.getAllowedRoleNames());
+        if (rolesDB.isEmpty()) {
+            throw new IllegalArgumentException("No roles found for given role names");
+        }
+        return rolesDB;
+    }
+
+    private Role getValidatedSupervisorRole(String supervisorRoleName) {
+        Role supervisorRoleDB = roleService.getRoleByName(supervisorRoleName);
+        if (supervisorRoleDB == null) {
+            throw new IllegalArgumentException("No supervisor role found for given role name");
+        }
+        return supervisorRoleDB;
     }
 
     public void updateTask(Long taskId, TaskDTO updatedTaskDTO) {
@@ -103,18 +105,8 @@ public class TaskService {
         task.setNameAbbrev(updatedTaskDTO.getNameAbbrev());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
         task.setArchived(updatedTaskDTO.isArchived());
-        Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedTaskDTO.getAllowedRoleNames());
-        if(rolesDB.isEmpty()) {
-            throw new IllegalArgumentException("No roles found for given role names");
-        }
-        task.setAllowedRoles(rolesDB);
-
-        Role supervisorRoleDB = roleService.getRoleByName(updatedTaskDTO.getSupervisorRoleName());
-        if(supervisorRoleDB == null) {
-            throw new IllegalArgumentException("No supervisor roles found for given role names");
-        }
-        task.setSupervisorRole(supervisorRoleDB);
-
+        task.setAllowedRoles(getValidatedRoles(updatedTaskDTO));
+        task.setSupervisorRole(getValidatedSupervisorRole(updatedTaskDTO.getSupervisorRoleName()));
         task.setDaysOfWeek(updatedTaskDTO.getDaysOfWeek());
 
         taskRepository.save(task);
