@@ -2,12 +2,11 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
 import org.verduttio.dominicanappbackend.dto.task.TaskShortInfo;
 import org.verduttio.dominicanappbackend.dto.task.TaskSortOrderUpdateDTO;
-import org.verduttio.dominicanappbackend.domain.Role;
-import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
@@ -51,6 +50,7 @@ public class TaskService {
 
     public void saveTask(TaskDTO taskDTO) {
         Task task = convertTaskDTOToTask(taskDTO);
+        task.setSortOrder(taskRepository.countBySupervisorRoleName(taskDTO.getSupervisorRoleName()) + 1);
         taskRepository.save(task);
     }
 
@@ -138,10 +138,5 @@ public class TaskService {
 
     public List<Task> getTasksVisibleInObstacleFormForUser() {
         return taskRepository.findByVisibleInObstacleFormForUserRoleTrueOrderBySupervisorRole_SortOrderAscSortOrderAsc();
-    }
-
-    @Transactional
-    public void updateTasks(List<Task> tasks) {
-        taskRepository.saveAll(tasks);
     }
 }

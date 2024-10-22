@@ -35,4 +35,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     void removeRoleFromAllTasks(@Param("roleId") Long roleId);
 
     List<Task> findByVisibleInObstacleFormForUserRoleTrueOrderBySupervisorRole_SortOrderAscSortOrderAsc();
+
+    @Modifying
+    @Query("UPDATE Task t SET t.sortOrder = t.sortOrder + 1 WHERE t.sortOrder >= :sortOrder")
+    void incrementSortOrderGreaterThanOrEqualTo(@Param("sortOrder") Long sortOrder);
+
+    @Modifying
+    @Query("UPDATE Task t SET t.sortOrder = t.sortOrder - 1 WHERE t.sortOrder > :sortOrder")
+    void decrementSortOrderGreaterThan(@Param("sortOrder") Long sortOrder);
+
+    long countBySupervisorRoleName(String supervisorRoleId);
 }
