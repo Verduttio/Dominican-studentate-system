@@ -23,7 +23,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t JOIN t.allowedRoles r WHERE r.name IN :roleName ORDER BY t.sortOrder ASC")
     List<Task> findTaskByRoleName(String roleName);
 
-    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev) FROM Task t JOIN t.supervisorRole sr ORDER BY sr.sortOrder ASC, t.sortOrder ASC")
+    @Query("SELECT new org.verduttio.dominicanappbackend.dto.task.TaskShortInfo(t.id, t.name, t.nameAbbrev, t.supervisorRole.id) FROM Task t JOIN t.supervisorRole sr ORDER BY sr.sortOrder ASC, t.sortOrder ASC")
     List<TaskShortInfo> findAllTasksShortInfo();
 
     @Query("SELECT t FROM Task t WHERE t.supervisorRole.name = :supervisorName ORDER BY t.sortOrder ASC")
