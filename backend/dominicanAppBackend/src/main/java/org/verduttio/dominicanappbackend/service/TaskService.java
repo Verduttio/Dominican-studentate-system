@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.verduttio.dominicanappbackend.domain.Role;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.dto.task.TaskDTO;
@@ -149,5 +150,10 @@ public class TaskService {
 
     public List<Task> getTasksVisibleInObstacleFormForUser() {
         return taskRepository.findByVisibleInObstacleFormForUserRoleTrueOrderBySupervisorRole_SortOrderAscSortOrderAsc();
+    }
+
+    @Transactional
+    public void updateTasks(List<Task> tasks) {
+        taskRepository.saveAll(tasks);
     }
 }

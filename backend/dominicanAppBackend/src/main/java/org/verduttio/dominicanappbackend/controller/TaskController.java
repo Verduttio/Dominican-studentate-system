@@ -96,6 +96,13 @@ public class TaskController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    //TODO: We use it only in updating obstacle visibility, so it should be Patch method
+    @PutMapping
+    public ResponseEntity<Void> updateTasks(@RequestBody List<Task> tasks) {
+        taskService.updateTasks(tasks);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         try {
