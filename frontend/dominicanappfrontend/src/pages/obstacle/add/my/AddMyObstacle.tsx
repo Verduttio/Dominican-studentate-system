@@ -51,8 +51,11 @@ const AddMyObstacle: React.FC = () => {
         return true;
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setObstacleData({ ...obstacleData, [e.target.name]: e.target.value });
+    const handleInputChange = (name: string, value: string) => {
+        setObstacleData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
     };
 
     if (loadingFetchTasks || loadingFetchAllTasks) return <LoadingSpinner />;

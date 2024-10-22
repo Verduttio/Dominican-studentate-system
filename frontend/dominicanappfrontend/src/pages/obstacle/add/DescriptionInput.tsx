@@ -2,10 +2,15 @@ import React from 'react';
 
 interface DescriptionInputProps {
     applicantDescription: string;
-    handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    handleInputChange: (name: string, value: string) => void;
 }
 
 const DescriptionInput: React.FC<DescriptionInputProps> = ({ applicantDescription, handleInputChange }) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        handleInputChange(name, value);
+    };
+
     return (
         <div className="mb-3">
             <label htmlFor="applicantDescription" className="form-label">
@@ -16,7 +21,7 @@ const DescriptionInput: React.FC<DescriptionInputProps> = ({ applicantDescriptio
                 id="applicantDescription"
                 name="applicantDescription"
                 value={applicantDescription}
-                onChange={handleInputChange}
+                onChange={handleChange}
             />
         </div>
     );
