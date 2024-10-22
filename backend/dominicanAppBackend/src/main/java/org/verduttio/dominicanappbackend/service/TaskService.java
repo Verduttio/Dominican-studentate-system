@@ -103,6 +103,8 @@ public class TaskService {
 
         Task task = existingTask.get();
 
+        updateTaskSortOrderIfSupervisorRoleChanged(updatedTaskDTO, task);
+
         task.setName(updatedTaskDTO.getName());
         task.setNameAbbrev(updatedTaskDTO.getNameAbbrev());
         task.setParticipantsLimit(updatedTaskDTO.getParticipantsLimit());
@@ -112,6 +114,13 @@ public class TaskService {
         task.setDaysOfWeek(updatedTaskDTO.getDaysOfWeek());
 
         taskRepository.save(task);
+    }
+
+    private void updateTaskSortOrderIfSupervisorRoleChanged(TaskDTO updatedTaskDTO, Task task) {
+        if (!updatedTaskDTO.getSupervisorRoleName().equals(task.getSupervisorRole().getName())) {
+            taskRepository.decrementByRoleSortOrderGreaterThan(task.getSupervisorRole().getId(), task.getSortOrder());
+            task.setSortOrder(taskRepository.countBySupervisorRoleName(updatedTaskDTO.getSupervisorRoleName()) + 1);
+        }
     }
 
     public List<Task> findTasksByRoleName(String roleName) {
