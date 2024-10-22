@@ -198,6 +198,7 @@ interface TaskShortInfo {
     id: number;
     name: string;
     nameAbbrev: string;
+    supervisorRoleId: number;
 }
 
 interface UserTaskStatistics {

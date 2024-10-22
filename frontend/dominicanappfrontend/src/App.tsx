@@ -26,7 +26,7 @@ import EditConflict from "./pages/conflict/EditConflict";
 import EditObstacle from "./pages/obstacle/EditObstacle";
 import EditTask from "./pages/task/EditTask";
 import OtherEntities from "./pages/other/OtherEntities";
-import AddMyObstacle from "./pages/obstacle/AddMyObstacle";
+import AddMyObstacle from "./pages/obstacle/add/AddMyObstacle";
 import UserDetailsViewer from "./pages/user/UserDetailsViewer";
 import HomeLogged from "./pages/HomeLogged";
 import AddScheduleWeekly from "./pages/schedule/pages/AddScheduleWeekly";
