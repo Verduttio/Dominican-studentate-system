@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Task, TaskShortInfo, ObstacleData } from "../../../models/Interfaces";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRectangleXmark } from "@fortawesome/free-solid-svg-icons";
-import { getRoleNamesOfTasksWhichAreAllVisibleInGroup } from "./utils/taskUtils";
+import { getIncompleteRoleNames } from "./utils/taskUtils";
 
 interface TaskSelectorProps {
     obstacleData: ObstacleData;
@@ -21,15 +21,19 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({
     const [selectAllVisibleTasks, setSelectAllVisibleTasks] = useState<boolean>(false);
 
     useEffect(() => {
-        setAvailableTasks(visibleTasksList);
-    }, [visibleTasksList]);
+        setAvailableTasks(visibleTasksList.filter(task => !obstacleData.tasksIds.includes(task.id)));
+    }, [visibleTasksList, obstacleData.tasksIds]);
 
-    const roleNames = getRoleNamesOfTasksWhichAreAllVisibleInGroup(visibleTasksList, allTasks);
+    const incompleteRoleNames = getIncompleteRoleNames(
+        visibleTasksList,
+        obstacleData.tasksIds,
+        allTasks
+    );
 
     const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = e.target.value;
 
-        if (roleNames.includes(selectedValue)) {
+        if (incompleteRoleNames.includes(selectedValue)) {
             addTasksByRole(selectedValue);
         } else {
             addSingleTask(parseInt(selectedValue));
@@ -122,7 +126,7 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({
                 <div className="mt-2">
                     <select className="form-select" value="" onChange={handleTaskChange}>
                         <option value="">Wybierz oficjum</option>
-                        {roleNames.map(roleName => (
+                        {incompleteRoleNames.map(roleName => (
                             <option key={roleName} value={roleName}>
                                 {'{Wszystkie oficja} '} {roleName.toUpperCase()}
                             </option>

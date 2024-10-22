@@ -1,6 +1,9 @@
 import { Task, TaskShortInfo } from "../../../../models/Interfaces";
 
-export const getUniqueRolesOfVisibleTasks = (visibleTasks: TaskShortInfo[], allTasks: Task[]): number[] => {
+export const getUniqueRolesOfVisibleTasks = (
+    visibleTasks: TaskShortInfo[],
+    allTasks: Task[]
+): number[] => {
     const uniqueRoles = new Set<number>();
     visibleTasks.forEach(task => {
         const foundTask = allTasks.find(t => t.id === task.id);
@@ -19,14 +22,42 @@ export const getRolesWhichHaveAllTasksVisible = (visibleTasks: TaskShortInfo[], 
     });
 };
 
-export const getRoleNamesByRoleIds = (roleIds: number[], allTasks: Task[]): string[] => {
-    return roleIds.map(roleId => {
-        const task = allTasks.find(task => task.supervisorRole.id === roleId);
-        return task ? task.supervisorRole.assignedTasksGroupName : '';
-    }).filter(name => name !== '');
+export const getRolesWhichHaveIncompleteTasksSelected = (
+    visibleTasks: TaskShortInfo[],
+    selectedTaskIds: number[],
+    allTasks: Task[]
+): number[] => {
+    const uniqueRoles = getRolesWhichHaveAllTasksVisible(visibleTasks, allTasks);
+
+    return uniqueRoles.filter(roleId => {
+        const visibleTasksOfRole = visibleTasks.filter(task => {
+            const fullTask = allTasks.find(t => t.id === task.id);
+            return fullTask && fullTask.supervisorRole.id === roleId;
+        });
+
+        const selectedTasksOfRole = visibleTasksOfRole.filter(task =>
+            selectedTaskIds.includes(task.id)
+        );
+
+        return selectedTasksOfRole.length < visibleTasksOfRole.length;
+    });
 };
 
-export const getRoleNamesOfTasksWhichAreAllVisibleInGroup = (visibleTasks: TaskShortInfo[], allTasks: Task[]): string[] => {
-    const roleIds = getRolesWhichHaveAllTasksVisible(visibleTasks, allTasks);
-    return getRoleNamesByRoleIds(roleIds, allTasks);
+export const getIncompleteRoleNames = (
+    visibleTasks: TaskShortInfo[],
+    selectedTaskIds: number[],
+    allTasks: Task[]
+): string[] => {
+    const roleIds = getRolesWhichHaveIncompleteTasksSelected(
+        visibleTasks,
+        selectedTaskIds,
+        allTasks
+    );
+
+    return roleIds
+        .map(roleId => {
+            const task = allTasks.find(task => task.supervisorRole.id === roleId);
+            return task ? task.supervisorRole.assignedTasksGroupName : '';
+        })
+        .filter(name => name !== '');
 };
