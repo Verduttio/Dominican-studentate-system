@@ -70,13 +70,13 @@ public class ObstacleNormalizer {
     }
 
     private Obstacle mapObstacleWithTaskNames(Obstacle obstacle, List<String> taskNames) {
-        Task specialTask = createSpecialTask(String.join(", ", taskNames), "Special Obstacle");
+        Task specialTask = createSpecialTask(String.join(", ", taskNames), "Specjalny zestaw oficjów");
         obstacle.setTasks(Set.of(specialTask));
         return obstacle;
     }
 
     private Obstacle mapObstacleWithAllTasks(Obstacle obstacle) {
-        Task specialTask = createSpecialTask("All Tasks", "All Obstacles");
+        Task specialTask = createSpecialTask("Wszystkie oficja", "Wszystkie oficja");
         obstacle.setTasks(Set.of(specialTask));
         return obstacle;
     }
