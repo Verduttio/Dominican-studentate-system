@@ -1,6 +1,6 @@
 package org.verduttio.dominicanappbackend.dto.user;
 
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Task;
 
 import java.time.LocalDate;
 

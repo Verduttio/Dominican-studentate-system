@@ -3,7 +3,7 @@ package org.verduttio.dominicanappbackend.security;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.User;
 
 public class SecurityUtils {
     public static final String ACCESS_DENIED_MESSAGE = "You are not allowed to make this operation";

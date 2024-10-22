@@ -4,7 +4,7 @@ import be.quodlibet.boxable.BaseTable;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.verduttio.dominicanappbackend.dto.schedule.GroupedTasksByRolesInScheduleInfoForUser;
-import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.domain.Role;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 import org.verduttio.dominicanappbackend.service.pdf.builders.GroupedTasksTableBuilder;
 import org.verduttio.dominicanappbackend.util.DateUtils;

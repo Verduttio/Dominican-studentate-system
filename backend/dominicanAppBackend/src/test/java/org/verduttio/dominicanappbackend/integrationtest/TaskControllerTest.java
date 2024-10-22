@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 

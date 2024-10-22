@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.time.LocalDateTime;

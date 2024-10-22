@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 
 import java.util.List;

@@ -10,8 +10,8 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 

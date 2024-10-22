@@ -11,7 +11,7 @@ import org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserTaskStatisticsDTO;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
-import org.verduttio.dominicanappbackend.entity.Schedule;
+import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;

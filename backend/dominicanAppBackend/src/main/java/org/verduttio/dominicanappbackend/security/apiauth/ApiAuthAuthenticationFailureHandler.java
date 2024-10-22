@@ -9,7 +9,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 
 import java.io.IOException;

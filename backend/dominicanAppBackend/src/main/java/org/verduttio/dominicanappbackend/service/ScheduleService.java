@@ -7,7 +7,7 @@ import org.verduttio.dominicanappbackend.dto.user.*;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleInfo;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
-import org.verduttio.dominicanappbackend.entity.*;
+import org.verduttio.dominicanappbackend.domain.*;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;

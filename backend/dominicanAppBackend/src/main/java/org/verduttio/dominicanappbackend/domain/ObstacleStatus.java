@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.entity;
+package org.verduttio.dominicanappbackend.domain;
 
 public enum ObstacleStatus {
     AWAITING, APPROVED, REJECTED

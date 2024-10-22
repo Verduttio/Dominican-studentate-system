@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.comparator.TaskComparator;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
-import org.verduttio.dominicanappbackend.entity.*;
+import org.verduttio.dominicanappbackend.domain.*;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;

@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.RoleType;
-import org.verduttio.dominicanappbackend.entity.Task;
-import org.verduttio.dominicanappbackend.entity.User;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.RoleType;
+import org.verduttio.dominicanappbackend.domain.Task;
+import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.service.ScheduleService;
 
 import java.util.HashSet;

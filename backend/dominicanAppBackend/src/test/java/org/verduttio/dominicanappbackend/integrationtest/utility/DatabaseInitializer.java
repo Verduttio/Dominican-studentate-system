@@ -2,7 +2,7 @@ package org.verduttio.dominicanappbackend.integrationtest.utility;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.verduttio.dominicanappbackend.entity.*;
+import org.verduttio.dominicanappbackend.domain.*;
 import org.verduttio.dominicanappbackend.repository.*;
 
 import java.time.DayOfWeek;

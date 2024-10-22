@@ -7,7 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.verduttio.dominicanappbackend.entity.Schedule;
+import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 
 import java.time.LocalDate;

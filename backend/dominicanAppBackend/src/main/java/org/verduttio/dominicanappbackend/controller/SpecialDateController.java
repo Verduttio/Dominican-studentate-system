@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.verduttio.dominicanappbackend.entity.SpecialDate;
+import org.verduttio.dominicanappbackend.domain.SpecialDate;
 import org.verduttio.dominicanappbackend.service.SpecialDateService;
 
 import java.time.LocalDate;

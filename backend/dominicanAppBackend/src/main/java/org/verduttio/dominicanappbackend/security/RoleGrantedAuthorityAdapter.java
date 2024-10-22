@@ -1,7 +1,7 @@
 package org.verduttio.dominicanappbackend.security;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.verduttio.dominicanappbackend.entity.Role;
+import org.verduttio.dominicanappbackend.domain.Role;
 
 public class RoleGrantedAuthorityAdapter implements GrantedAuthority {
     private final Role role;

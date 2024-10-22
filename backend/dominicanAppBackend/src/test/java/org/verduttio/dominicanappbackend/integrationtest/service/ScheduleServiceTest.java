@@ -7,10 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.verduttio.dominicanappbackend.entity.Role;
-import org.verduttio.dominicanappbackend.entity.RoleType;
-import org.verduttio.dominicanappbackend.entity.Schedule;
-import org.verduttio.dominicanappbackend.entity.Task;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.RoleType;
+import org.verduttio.dominicanappbackend.domain.Schedule;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
