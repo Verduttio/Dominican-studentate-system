@@ -11,42 +11,62 @@ interface TaskSelectorProps {
     allTasks: Task[];
 }
 
-const TaskSelector: React.FC<TaskSelectorProps> = ({ obstacleData, setObstacleData, visibleTasksList, allTasks }) => {
-    const [tasks, setTasks] = useState<TaskShortInfo[]>([]);
+const TaskSelector: React.FC<TaskSelectorProps> = ({
+                                                       obstacleData,
+                                                       setObstacleData,
+                                                       visibleTasksList,
+                                                       allTasks
+                                                   }) => {
+    const [availableTasks, setAvailableTasks] = useState<TaskShortInfo[]>([]);
     const [selectAllVisibleTasks, setSelectAllVisibleTasks] = useState<boolean>(false);
 
     useEffect(() => {
-        setTasks(visibleTasksList);
+        setAvailableTasks(visibleTasksList);
     }, [visibleTasksList]);
 
     const roleNames = getRoleNamesOfTasksWhichAreAllVisibleInGroup(visibleTasksList, allTasks);
 
     const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value;
+        const selectedValue = e.target.value;
 
-        if (roleNames.includes(value)) {
-            const tasksOfRole = allTasks.filter(task => task.supervisorRole.assignedTasksGroupName === value);
-            const newTaskIds = tasksOfRole.map(task => task.id).filter(id => !obstacleData.tasksIds.includes(id));
-
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: [...prevState.tasksIds, ...newTaskIds]
-            }));
-
-            // Usunięcie dodanych zadań z dostępnych zadań
-            setTasks(prevTasks => prevTasks.filter(task => !newTaskIds.includes(task.id)));
+        if (roleNames.includes(selectedValue)) {
+            addTasksByRole(selectedValue);
         } else {
-            const selectedTaskId = parseInt(value);
-            if (!selectedTaskId || obstacleData.tasksIds.includes(selectedTaskId)) return;
-
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: [...prevState.tasksIds, selectedTaskId]
-            }));
-
-            // Usunięcie dodanego zadania z dostępnych zadań
-            setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTaskId));
+            addSingleTask(parseInt(selectedValue));
         }
+    };
+
+    const addTasksByRole = (roleName: string) => {
+        const tasksOfRole = allTasks.filter(
+            task => task.supervisorRole.assignedTasksGroupName === roleName
+        );
+
+        const newTaskIds = tasksOfRole
+            .map(task => task.id)
+            .filter(id => !obstacleData.tasksIds.includes(id));
+
+        updateObstacleDataWithNewTasks(newTaskIds);
+        removeTasksFromAvailableTasks(newTaskIds);
+    };
+
+    const addSingleTask = (taskId: number) => {
+        if (!taskId || obstacleData.tasksIds.includes(taskId)) return;
+
+        updateObstacleDataWithNewTasks([taskId]);
+        removeTasksFromAvailableTasks([taskId]);
+    };
+
+    const updateObstacleDataWithNewTasks = (newTaskIds: number[]) => {
+        setObstacleData(prevState => ({
+            ...prevState,
+            tasksIds: [...prevState.tasksIds, ...newTaskIds]
+        }));
+    };
+
+    const removeTasksFromAvailableTasks = (taskIdsToRemove: number[]) => {
+        setAvailableTasks(prevTasks =>
+            prevTasks.filter(task => !taskIdsToRemove.includes(task.id))
+        );
     };
 
     const handleRemoveTask = (taskId: number) => {
@@ -55,29 +75,28 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({ obstacleData, setObstacleDa
             tasksIds: prevState.tasksIds.filter(id => id !== taskId)
         }));
 
-        // Dodanie usuniętego zadania z powrotem do dostępnych zadań
         const removedTask = visibleTasksList.find(task => task.id === taskId);
         if (removedTask) {
-            setTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
+            setAvailableTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
         }
     };
 
     const handleSelectAllVisibleTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const checked = e.target.checked;
-        setSelectAllVisibleTasks(checked);
+        const isChecked = e.target.checked;
+        setSelectAllVisibleTasks(isChecked);
 
-        if (checked) {
+        if (isChecked) {
             setObstacleData(prevState => ({
                 ...prevState,
                 tasksIds: visibleTasksList.map(task => task.id)
             }));
-            setTasks([]);
+            setAvailableTasks([]);
         } else {
             setObstacleData(prevState => ({
                 ...prevState,
                 tasksIds: []
             }));
-            setTasks(visibleTasksList);
+            setAvailableTasks(visibleTasksList);
         }
     };
 
@@ -108,7 +127,7 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({ obstacleData, setObstacleDa
                                 {'{Wszystkie oficja} '} {roleName.toUpperCase()}
                             </option>
                         ))}
-                        {tasks.map(task => (
+                        {availableTasks.map(task => (
                             <option key={task.id} value={task.id}>
                                 {task.nameAbbrev}
                             </option>
@@ -117,7 +136,9 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({ obstacleData, setObstacleDa
 
                     <div className="selected-tasks mt-2">
                         {obstacleData.tasksIds.map(taskId => {
-                            const task = visibleTasksList.find(t => t.id === taskId) || allTasks.find(t => t.id === taskId);
+                            const task =
+                                visibleTasksList.find(t => t.id === taskId) ||
+                                allTasks.find(t => t.id === taskId);
                             return (
                                 <div key={taskId} className="pt-2">
                                     <button
