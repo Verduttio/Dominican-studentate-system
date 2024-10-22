@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstaclePatchDTO;
 import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
-import org.verduttio.dominicanappbackend.domain.Obstacle;
+import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.ObstacleService;

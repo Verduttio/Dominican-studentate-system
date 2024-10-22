@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.verduttio.dominicanappbackend.domain.Obstacle;
+import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 

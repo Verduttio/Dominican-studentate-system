@@ -2,7 +2,7 @@ package org.verduttio.dominicanappbackend.dto.obstacle;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.verduttio.dominicanappbackend.domain.Obstacle;
+import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.domain.User;
