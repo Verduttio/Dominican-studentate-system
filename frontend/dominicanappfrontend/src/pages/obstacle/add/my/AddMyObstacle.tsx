@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import useHttp from "../../../services/UseHttp";
-import { ObstacleData } from "../../../models/Interfaces";
-import { backendUrl } from "../../../utils/constants";
-import LoadingSpinner from "../../../components/LoadingScreen";
-import AlertBox from "../../../components/AlertBox";
+import useHttp from "../../../../services/UseHttp";
+import { ObstacleData } from "../../../../models/Interfaces";
+import { backendUrl } from "../../../../utils/constants";
+import LoadingSpinner from "../../../../components/LoadingScreen";
+import AlertBox from "../../../../components/AlertBox";
 import TaskSelector from "./TaskSelector";
-import DatePicker from "./DatePicker";
-import DescriptionInput from "./DescriptionInput";
-import { useFetchTasks, useFetchAllTasks } from "./hooks/taskHooks";
+import DatePicker from "../DatePicker";
+import DescriptionInput from "../DescriptionInput";
+import { useFetchTasks, useFetchAllTasks } from "../hooks/taskHooks";
 
 const initialObstacleState: ObstacleData = {
     userId: 0,

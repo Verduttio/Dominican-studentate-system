@@ -61,3 +61,18 @@ export const getIncompleteRoleNames = (
         })
         .filter(name => name !== '');
 };
+
+export const getIncompleteRoleNamesAdmin = (
+    tasks: Task[],
+    selectedTaskIds: number[]
+): string[] => {
+    const roleNames = Array.from(new Set(tasks.map(task => task.supervisorRole.assignedTasksGroupName)));
+
+    return roleNames.filter(roleName => {
+        const tasksOfRole = tasks.filter(task => task.supervisorRole.assignedTasksGroupName === roleName);
+
+        const selectedTasksOfRole = tasksOfRole.filter(task => selectedTaskIds.includes(task.id));
+
+        return selectedTasksOfRole.length < tasksOfRole.length;
+    });
+};

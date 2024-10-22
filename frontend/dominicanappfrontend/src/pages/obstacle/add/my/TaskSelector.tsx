@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Task, TaskShortInfo, ObstacleData } from "../../../models/Interfaces";
+import { Task, TaskShortInfo, ObstacleData } from "../../../../models/Interfaces";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRectangleXmark } from "@fortawesome/free-solid-svg-icons";
-import { getIncompleteRoleNames } from "./utils/taskUtils";
+import { getIncompleteRoleNames } from "../utils/taskUtils";
 
 interface TaskSelectorProps {
     obstacleData: ObstacleData;
