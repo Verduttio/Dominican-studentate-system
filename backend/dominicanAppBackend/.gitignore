@@ -1,6 +1,7 @@
 HELP.md
 /src/main/resources/application-heroku.properties
 /src/main/resources/db/migration/V2__Insert_init_data.sql
+/src/main/resources/db/migration/V9__Update_data_for_Role.sql
 Dockerfile-heroku
 .env
 .gradle
