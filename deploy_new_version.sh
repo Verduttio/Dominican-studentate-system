@@ -45,7 +45,7 @@ echo "Building all services..."
 docker compose build
 
 echo "Removing dangling images..."
-docker image prune
+docker image prune -f
 
 echo "Starting up all services..."
 docker compose up -d
