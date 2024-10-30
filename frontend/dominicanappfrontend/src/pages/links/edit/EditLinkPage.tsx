@@ -115,12 +115,16 @@ function EditLinkPage() {
                     </div>
                 </form>
             </div>
-            <h4 className="entity-header-dynamic-size mt-4">Podgląd linku</h4>
-            <iframe
-                src={documentLinkData?.url}
-                title={documentLinkData?.title}
-                style={{ width: "100%", height: "600px", border: "none" }}
-            ></iframe>
+            {documentLinkData?.preview &&
+            <>
+                <h4 className="entity-header-dynamic-size mt-4">Podgląd linku</h4>
+                <iframe
+                    src={documentLinkData?.url}
+                    title={documentLinkData?.title}
+                    style={{ width: "100%", height: "600px", border: "none" }}
+                ></iframe>
+            </>
+            }
             {showConfirmDeletionPopup && <ConfirmDeletionPopup onHandle={handleDelete} onClose={() => setShowConfirmDeletionPopup(false)} />}
         </div>
     );

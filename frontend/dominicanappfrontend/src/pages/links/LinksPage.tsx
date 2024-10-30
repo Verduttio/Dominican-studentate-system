@@ -37,15 +37,28 @@ const LinksPage: React.FC = () => {
                 }
             </div>
             {documentLinks.map((doc, index) => (
-                <div key={index} className="mb-5">
-                    <h4 className="entity-header-dynamic-size mt-2">{doc.title}</h4>
-                    <iframe
-                        src={doc.url}
-                        title={doc.title}
-                        style={{ width: '100%', height: '600px', border: 'none' }}
-                    ></iframe>
+                <div key={index} className="my-1">
+                    {doc.preview ? (
+                        <>
+                            <h4 className="entity-header-dynamic-size mt-3">{doc.title}</h4>
+                            <iframe
+                                src={doc.url}
+                                title={doc.title}
+                                style={{width: '100%', height: '600px', border: 'none'}}
+                            ></iframe>
+                        </>
+                    ) : (
+                        <div className="d-flex justify-content-center">
+                            <button className="btn btn-success mt-3">
+                                <h4 className="entity-header-dynamic-size m-0" onClick={() => {
+                                    window.open(doc.url, '_blank');
+                                }}>{doc.title}</h4>
+                            </button>
+                        </div>
+                    )}
                 </div>
-            ))}
+                )
+            )}
         </div>
     );
 };
