@@ -1,4 +1,4 @@
-package org.verduttio.dominicanappbackend.service;
+package org.verduttio.dominicanappbackend.service.schedule;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.service.*;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;

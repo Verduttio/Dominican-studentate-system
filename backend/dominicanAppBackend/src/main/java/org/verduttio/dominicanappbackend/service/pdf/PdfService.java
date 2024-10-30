@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.domain.Role;
 import org.verduttio.dominicanappbackend.service.RoleService;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.pdf.generators.*;
 
 import java.io.IOException;

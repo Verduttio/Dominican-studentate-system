@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

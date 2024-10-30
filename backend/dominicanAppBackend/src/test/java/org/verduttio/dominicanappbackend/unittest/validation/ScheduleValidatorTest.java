@@ -8,7 +8,7 @@ import org.verduttio.dominicanappbackend.domain.Role;
 import org.verduttio.dominicanappbackend.domain.RoleType;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.domain.User;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 
 import java.util.HashSet;
 import java.util.Set;

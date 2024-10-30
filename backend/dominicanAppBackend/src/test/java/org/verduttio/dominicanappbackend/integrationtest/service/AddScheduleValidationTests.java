@@ -16,7 +16,7 @@ import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
 import org.verduttio.dominicanappbackend.service.RoleService;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.exception.RoleNotMeetRequirementsException;

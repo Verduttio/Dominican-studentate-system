@@ -14,7 +14,7 @@ import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
 import java.time.DayOfWeek;

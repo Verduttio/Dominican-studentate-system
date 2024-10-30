@@ -5,7 +5,7 @@ import be.quodlibet.boxable.BaseTable;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForUser;
-import org.verduttio.dominicanappbackend.service.ScheduleService;
+import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.pdf.builders.TableBuilder;
 import org.verduttio.dominicanappbackend.util.DateUtils;
 
