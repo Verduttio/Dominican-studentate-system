@@ -5,7 +5,7 @@ import useHttp from "../../services/UseHttp";
 import {backendUrl} from "../../utils/constants";
 import LoadingSpinner from "../../components/LoadingScreen";
 import AlertBox from "../../components/AlertBox";
-import useIsAdmin, {UNAUTHORIZED_PAGE_TEXT} from "../../services/UseIsAdmin";
+import useIsAdmin from "../../services/UseIsAdmin";
 import useIsFunkcyjny from "../../services/UseIsFunkcyjny";
 
 
@@ -23,17 +23,18 @@ const LinksPage: React.FC = () => {
 
     const navigate = useNavigate();
 
-    if (loadingGetDocumentLinks) return <LoadingSpinner/>;
-    if ((!isAdminLoading && !isFunkcyjnyLoading) && (!isAdmin && !isFunkcyjny)) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
+    if (loadingGetDocumentLinks || isAdminLoading || isFunkcyjnyLoading) return <LoadingSpinner/>;
     if (errorGetDocumentLinks) return <AlertBox text={errorGetDocumentLinks} type={"danger"} width={"500px"}/>;
 
     return (
         <div className="fade-in">
             <h2 className="entity-header-dynamic-size mb-0">Linki</h2>
             <div className="d-flex justify-content-center">
-                <button className="btn btn-secondary mt-2" onClick={() => {navigate("/links/settings")}}>
-                    Ustawienia
-                </button>
+                {(isFunkcyjny || isAdmin) &&
+                    <button className="btn btn-secondary mt-2" onClick={() => {navigate("/links/settings")}}>
+                        Ustawienia
+                    </button>
+                }
             </div>
             {documentLinks.map((doc, index) => (
                 <div key={index} className="mb-5">

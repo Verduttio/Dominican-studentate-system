@@ -14,12 +14,12 @@ const NavigationBar = () => {
     const navigate = useNavigate();
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
-    const { isAdmin, isAdminLoading, isAdminError } = useIsAdmin();
+    const { isAdmin} = useIsAdmin();
     const { isFunkcyjny } = useIsFunkcyjny();
-    const { request: numberOfUnverifiedUsersRequest, error: numberOfUnverifiedUsersError, loading: numberOfUnverifiedUsersLoading } = useHttp(
+    const { request: numberOfUnverifiedUsersRequest} = useHttp(
         `${backendUrl}/api/users/notVerified/count`, 'GET'
     );
-    const { request: numberOfAwaitingObstaclesRequest, error: numberOfAwaitingObstaclesError, loading: numberOfAwaitingObstaclesLoading } = useHttp(
+    const { request: numberOfAwaitingObstaclesRequest} = useHttp(
         `${backendUrl}/api/obstacles/AWAITING/count`, 'GET'
     );
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -108,6 +108,12 @@ const NavigationBar = () => {
                     )}
                 </button>
 
+                <button
+                    onClick={() => navigateTo('/links')}
+                >
+                    Info
+                </button>
+
                 <LogoutButton/>
             </div>
 
@@ -151,6 +157,12 @@ const NavigationBar = () => {
                                 <span className="notification-count">{numberOfAwaitingObstacles}</span>
                             </span>
                     )}
+                </button>
+
+                <button
+                    onClick={() => navigateTo('/links')}
+                >
+                    Info
                 </button>
 
                 <LogoutButton/>

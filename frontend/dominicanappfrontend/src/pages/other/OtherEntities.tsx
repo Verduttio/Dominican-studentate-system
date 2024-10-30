@@ -76,16 +76,6 @@ const OtherEntities = () => {
                 </div>
             </div>
 
-            {(isAdmin || isFunkcyjny) && (
-                <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                    <div className="card-body text-center" onClick={() => {
-                        navigate("/links")
-                    }}>
-                        Info
-                    </div>
-                </div>
-            )}
-
         </div>
     );
 };
