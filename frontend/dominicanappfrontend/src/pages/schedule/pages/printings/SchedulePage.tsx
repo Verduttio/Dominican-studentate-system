@@ -6,19 +6,13 @@ import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 import {
     useGroupedScheduleShortInfo,
-    useScheduleShortInfo,
-    useScheduleShortInfoForTasks,
     useScheduleShortInfoForTasksByRole,
     useSupervisorRoles,
     useRolesVisibleInPrints,
 } from './hooks/useScheduleData';
 
-import useIsFunkcyjny from '../../../../services/UseIsFunkcyjny';
-
 import WeekSelector from '../../../../components/WeekSelector';
-import LoadingSpinner from '../../../../components/LoadingScreen';
 import AlertBox from '../../../../components/AlertBox';
-import PopupDatePicker from '../../../specialDate/PopupDatePicker';
 
 import UsersGroupedTasksScheduleTable from './components/tables/UsersGroupedTasksScheduleTable';
 // Import other table components similarly
@@ -30,7 +24,6 @@ import TasksScheduleTable from "./components/tables/TasksScheduleTable";
 
 function SchedulePage() {
     const navigate = useNavigate();
-    const { isFunkcyjny } = useIsFunkcyjny();
 
     // State variables
     const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -45,7 +38,7 @@ function SchedulePage() {
 
     // Opened state for tables
     const [isGroupedTasksScheduleOpened, setIsGroupedTasksScheduleOpened] = useState(false);
-    const [isTasksScheduleOpened, setIsTasksScheduleOpened] = useState(false);
+    const [isTasksByRoleScheduleOpened, setIsTasksByRoleScheduleOpened] = useState(false);
     // Similar state for other tables
 
     // Date range
@@ -62,21 +55,13 @@ function SchedulePage() {
         error: groupedScheduleError,
         loading: groupedScheduleLoading,
     } = useGroupedScheduleShortInfo(fromDateString, toDateString);
-    const {
-        data: scheduleShortInfo,
-        error: scheduleError,
-        loading: scheduleLoading,
-    } = useScheduleShortInfo(fromDateString, toDateString);
-    const {
-        data: scheduleShortInfoForTasks,
-        error: tasksScheduleError,
-        loading: tasksScheduleLoading,
-    } = useScheduleShortInfoForTasks(fromDateString, toDateString);
+
     const {
         data: supervisorRoles,
         error: supervisorRolesError,
         loading: supervisorRolesLoading,
     } = useSupervisorRoles();
+
     const {
         data: rolesVisibleInPrints,
         error: rolesVisibleInPrintsError,
@@ -93,14 +78,14 @@ function SchedulePage() {
     const [loadingDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers] = useState<boolean>(false);
     const [errorDownloadSchedulePdfForUsers, setErrorDownloadSchedulePdfForUsers] = useState<string | null>(null);
 
-    const [loadingDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks] = useState<boolean>(false);
-    const [errorDownloadSchedulePdfForTasks, setErrorDownloadSchedulePdfForTasks] = useState<string | null>(null);
+    const [loadingDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole] = useState<boolean>(false);
+    const [errorDownloadSchedulePdfForTasksByRole, setErrorDownloadSchedulePdfForTasksByRole] = useState<string | null>(null);
 
     // Similar state variables for other PDFs
 
     // Functions for toggling table visibility
     const toggleGroupedTasksSchedule = () => setIsGroupedTasksScheduleOpened(!isGroupedTasksScheduleOpened);
-    const toggleTasksSchedule = () => setIsTasksScheduleOpened(!isTasksScheduleOpened);
+    const toggleTasksSchedule = () => setIsTasksByRoleScheduleOpened(!isTasksByRoleScheduleOpened);
     // Similar toggle functions for other tables
 
     // Handle role change
@@ -135,10 +120,10 @@ function SchedulePage() {
         await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers);
     };
 
-    const downloadSchedulePdfForTasks = async () => {
-        let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
-        const filename = `Harmonogram_oficja_${fromDateString}-${toDateString}.pdf`;
-        await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasks, setLoadingDownloadSchedulePdfForTasks);
+    const downloadSchedulePdfForTasksByRole = async () => {
+        let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
+        const filename = `Harmonogram_oficja_dla_${selectedSupervisorRoleName}_${fromDateString}-${toDateString}.pdf`;
+        await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole);
     };
 
     // Similar functions for other PDFs
@@ -215,26 +200,41 @@ function SchedulePage() {
             </div>
 
             <div className="d-flex justify-content-center">
-                <h4 className="entity-header-dynamic-size my-2">Harmonogram według oficjów</h4>
+                <h4 className="entity-header-dynamic-size my-2">Harmonogram według roli</h4>
             </div>
-            {errorDownloadSchedulePdfForTasks && (
-                <AlertBox text={errorDownloadSchedulePdfForTasks} type="danger" width="500px"/>
+            <div className="d-flex justify-content-center mb-1">
+                <select
+                    className="form-select"
+                    value={selectedSupervisorRoleName || ''}
+                    style={{maxWidth: '350px'}}
+                    onChange={handleRoleChange}
+                >
+                    <option value="">Wybierz rolę</option>
+                    {supervisorRoles?.map(role => (
+                        <option key={role.id} value={role.name}>
+                            {role.assignedTasksGroupName}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            {errorDownloadSchedulePdfForTasksByRole && (
+                <AlertBox text={errorDownloadSchedulePdfForTasksByRole} type="danger" width="500px"/>
             )}
             <TasksScheduleTable
-                data={scheduleShortInfoForTasks || []}
-                loading={tasksScheduleLoading}
-                error={tasksScheduleError}
-                isOpen={isTasksScheduleOpened}
+                data={scheduleShortInfoForTasksByRoles || []}
+                loading={tasksByRoleLoading}
+                error={tasksByRoleError}
+                isOpen={isTasksByRoleScheduleOpened}
                 toggle={toggleTasksSchedule}
             />
             <div className="text-center">
                 <button
                     className="btn btn-success my-2"
-                    onClick={downloadSchedulePdfForTasks}
-                    disabled={loadingDownloadSchedulePdfForTasks}
+                    onClick={downloadSchedulePdfForTasksByRole}
+                    disabled={loadingDownloadSchedulePdfForTasksByRole}
                 >
-                    <span>Pobierz harmonogram według oficjów </span>
-                    {loadingDownloadSchedulePdfForTasks && <span className="spinner-border spinner-border-sm"></span>}
+                    <span>Pobierz harmonogram według roli </span>
+                    {loadingDownloadSchedulePdfForTasksByRole && <span className="spinner-border spinner-border-sm"></span>}
                 </button>
             </div>
 
