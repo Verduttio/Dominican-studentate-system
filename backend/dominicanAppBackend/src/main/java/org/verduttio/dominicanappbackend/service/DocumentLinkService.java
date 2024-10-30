@@ -44,6 +44,7 @@ public class DocumentLinkService {
         existingDocumentLink.setTitle(documentLink.getTitle());
         existingDocumentLink.setUrl(documentLink.getUrl());
         existingDocumentLink.setSortOrder(documentLink.getSortOrder());
+        existingDocumentLink.setPreview(documentLink.isPreview());
 
         return documentLinkRepository.save(existingDocumentLink);
     }
