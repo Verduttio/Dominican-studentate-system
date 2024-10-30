@@ -21,6 +21,8 @@ public class DocumentLink {
     @NotNull(message="Sort order is mandatory")
     private Long sortOrder;
 
+    private boolean preview;
+
 
     public Long getId() {
         return id;
@@ -57,9 +59,18 @@ public class DocumentLink {
     public DocumentLink() {
     }
 
-    public DocumentLink(String title, String url, Long sortOrder) {
+    public DocumentLink(String title, String url, Long sortOrder, boolean preview) {
         this.title = title;
         this.url = url;
         this.sortOrder = sortOrder;
+        this.preview = preview;
+    }
+
+    public boolean isPreview() {
+        return preview;
+    }
+
+    public void setPreview(boolean preview) {
+        this.preview = preview;
     }
 }
