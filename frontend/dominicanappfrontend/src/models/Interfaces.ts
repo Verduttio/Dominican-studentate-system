@@ -214,6 +214,7 @@ interface DocumentLink {
     title: string;
     url: string;
     sortOrder: number;
+    preview: boolean;
 }
 
 

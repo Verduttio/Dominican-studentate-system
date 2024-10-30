@@ -71,10 +71,10 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
             <div className="mb-3">
                 <label htmlFor="linkUrl" className="form-label">URL:{" "}
                     <span
-                    style={{cursor: "pointer"}}
-                    onClick={handleIconClick}
-                    title="Kliknij po więcej informacji"
-                >
+                        style={{cursor: "pointer"}}
+                        onClick={handleIconClick}
+                        title="Kliknij po więcej informacji"
+                    >
                         <FontAwesomeIcon icon={faCircleInfo}/>
                     </span>
                 </label>
@@ -101,8 +101,26 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
                     {Object.values(documentLinks).map((document) => (
                         <option key={document.id} value={document.sortOrder}>{document.title}</option>
                     ))}
-                    <option key={documentLinks.length+1} value={documentLinks.length+1}>{'{--Wstaw na koniec--}'}</option>
+                    <option key={documentLinks.length + 1}
+                            value={documentLinks.length + 1}>{'{--Wstaw na koniec--}'}</option>
                 </select>
+            </div>
+            <div className="mb-3">
+                <div className="d-flex justify-content-between">
+                    <label className="form-check-label me-2" htmlFor="preview">
+                        <strong>Wyświetlaj podgląd linku</strong>
+                    </label>
+                    <div className="form-check form-switch">
+                        <input
+                            className="form-check-input"
+                            name="preview"
+                            type="checkbox"
+                            id="preview"
+                            checked={documentLink?.preview}
+                            onChange={handleChange}
+                        />
+                    </div>
+                </div>
             </div>
             {showPopup && (
                 <div
@@ -115,7 +133,7 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
                             <p className="card-text">
                                 Upewnij się, że wpisujesz pełny adres URL zaczynający się od{" "}
                                 <code>https://</code>.
-                                <br />Przykład:{" "}
+                                <br/>Przykład:{" "}
                                 <code>https://research.google.com/pubs/archive/44678.pdf</code>
                             </p>
                             <p className="card-text">
@@ -124,12 +142,16 @@ const LinkFormFields: React.FC<LinkFormFieldsProps> = ({ documentLink, setDocume
                                 ma do niego dostęp.<br/>
                                 Link można skopiować bezpośrednio z przeglądarki po otwarciu pliku.
                                 Lub użyć opcji "Udostępnij" i skopiować link z tamtej sekcji.<br/>
-                                W przypadku plików pdf, link powinien kończyć się na <code>.pdf</code> lub <code>.../preview</code>.<br />
+                                W przypadku plików pdf, link powinien kończyć się
+                                na <code>.pdf</code> lub <code>.../preview</code>.<br/>
                                 Ważne jest to szczególnie w przypadku plików pdf z Google Drive,
-                                ponieważ wtedy należy skopiować link i zamienić <code>/edit</code> na <code>/preview</code>.<br/>
-                                Przykład poprawnego formatu linku: <code>https://drive.google.com/file/d/1t5/<b>preview</b></code><br/>
+                                ponieważ wtedy należy skopiować link i
+                                zamienić <code>/edit</code> na <code>/preview</code>.<br/>
+                                Przykład poprawnego formatu
+                                linku: <code>https://drive.google.com/file/d/1t5/<b>preview</b></code><br/>
                                 <br/>
-                                Pozostałe pliki jak word, excel powinny działać normalnie poprzez skopiowanie linku z przeglądarki.
+                                Pozostałe pliki jak word, excel powinny działać normalnie poprzez skopiowanie linku z
+                                przeglądarki.
                             </p>
                             <div className="text-center">
                                 <button

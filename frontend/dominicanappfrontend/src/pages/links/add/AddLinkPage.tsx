@@ -14,7 +14,8 @@ function AddLinkPage() {
         id: 0,
         title: '',
         url: '',
-        sortOrder: 1
+        sortOrder: 1,
+        preview: true,
     }
 
     const [documentLinkData, setDocumentLinkData] = useState<DocumentLink | null>(initialDocumentLinkState);
