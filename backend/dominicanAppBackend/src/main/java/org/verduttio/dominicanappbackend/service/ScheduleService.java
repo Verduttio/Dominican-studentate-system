@@ -35,12 +35,10 @@ public class ScheduleService {
     private final ObstacleService obstacleService;
     private final ConflictService conflictService;
     private final SpecialDateRepository specialDateRepository;
-    private final RoleRepository roleRepository;
     private final TaskRepository taskRepository;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
-                           RoleRepository roleRepository,
                            TaskRepository taskRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
@@ -49,7 +47,6 @@ public class ScheduleService {
         this.obstacleService = obstacleService;
         this.conflictService = conflictService;
         this.specialDateRepository = specialDateRepository;
-        this.roleRepository = roleRepository;
         this.taskRepository = taskRepository;
     }
 
