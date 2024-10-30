@@ -1,5 +1,5 @@
 import React from 'react';
-import {GroupedScheduleShortInfo, Role, ScheduleShortInfoForTask} from '../../../../../../models/Interfaces';
+import {ScheduleShortInfoForTask} from '../../../../../../models/Interfaces';
 import LoadingSpinner from '../../../../../../components/LoadingScreen';
 import AlertBox from '../../../../../../components/AlertBox';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

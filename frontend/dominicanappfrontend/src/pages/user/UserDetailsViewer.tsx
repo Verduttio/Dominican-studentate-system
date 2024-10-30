@@ -46,7 +46,7 @@ function UserDetailsViewer () {
                         </tr>
                         <tr>
                             <th className="table-dark">Role</th>
-                            <td className="max-column-width">{user?.roles.map(role => role.name).join(", ")}</td>
+                            <td className="max-column-width">{user?.roles.filter(role => role.type !== "SYSTEM").map(role => role.name).join(", ")}</td>
                         </tr>
                         </tbody>
                     </table>

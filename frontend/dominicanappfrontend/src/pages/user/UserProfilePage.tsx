@@ -82,9 +82,17 @@ function UserProfilePage () {
                                 <div className="card-top-bar"></div>
                                 <div className="card-body">
                                     <ul>
-                                        {currentUser.roles.map((role, index) => (
-                                            <li key={index}>{role.name}</li>
-                                        ))}
+                                        {currentUser.roles.filter(role => role.type !== "SYSTEM").map((role, index) => {
+                                            if (role.type === "SUPERVISOR") {
+                                                return (
+                                                    <li key={index}><strong>{role.name}</strong></li>
+                                                )
+                                            } else {
+                                                return (
+                                                    <li key={index}>{role.name}</li>
+                                                )
+                                            }
+                                        })}
                                     </ul>
                                 </div>
                             </div>
