@@ -299,6 +299,19 @@ public class ScheduleController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PostMapping("/cleaner/kitchen-style/{roleId}")
+    public ResponseEntity<?> cleanSchedule(@PathVariable Long roleId,
+                                              @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+                                              @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            scheduleService.cleanSchedule(roleId, from, to);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @PostMapping("/forWholePeriod")
     public ResponseEntity<?> createScheduleForWholePeriod(@Valid @RequestBody AddScheduleForWholePeriodTaskDTO addScheduleForWholePeriodTaskDTO,
