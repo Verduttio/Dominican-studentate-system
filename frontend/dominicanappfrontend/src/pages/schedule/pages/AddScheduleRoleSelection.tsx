@@ -17,7 +17,7 @@ function AddScheduleRoleSelection() {
             if(selectedRole.weeklyScheduleCreatorDefault) {
                 navigate(`/add-schedule/weekly?roleName=${roleName}`);
             } else {
-                navigate(`/add-schedule/daily?roleName=${roleName}`);
+                navigate(`/add-schedule/weekly/by-all-days/?roleName=${roleName}`);
             }
         } else {
             console.error("Role not found");
