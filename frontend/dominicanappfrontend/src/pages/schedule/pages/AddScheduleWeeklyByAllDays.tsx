@@ -17,6 +17,7 @@ import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPop
 import WeekSelector from "../../../components/WeekSelector";
 import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
 import "../common/AddScheduleWeeklyByAllDays.css";
+import AlertBoxTimed from "../../../components/AlertBoxTimed";
 
 interface ExpandedSelects {
     [key: string]: boolean;
@@ -27,6 +28,7 @@ function AddScheduleWeeklyByAllDays() {
     const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeeklyByAllDays[]>();
     const location = useLocation();
+    const [locationStateMessage, setLocationStateMessage] = useState(location.state?.message);
     const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const roleName = new URLSearchParams(location.search).get('roleName');
@@ -392,7 +394,15 @@ function AddScheduleWeeklyByAllDays() {
                     Przełącz na kreator dzienny
                 </button>
             </div>
+            <div className="d-flex justify-content-center">
+                <button className="btn btn-success mt-3" onClick={() => {
+                    navigate("/add-schedule/weekly-by-all-days/generator", {state: {roleId: tasks?.at(0)?.supervisorRole.id, roleName: tasks?.at(0)?.supervisorRole.name}});
+                }}>
+                    Generator
+                </button>
+            </div>
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>
+            {locationStateMessage && <AlertBoxTimed text={locationStateMessage} type={'success'} width={'500px'} onClose={() => {setLocationStateMessage(null)}}/>}
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
