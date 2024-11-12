@@ -1,6 +1,8 @@
 package org.verduttio.dominicanappbackend.service.schedule;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.domain.Task;
@@ -17,6 +19,7 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
     private final ScheduleRepository scheduleRepository;
     private final UserService userService;
     private final TaskService taskService;
+    private static final Logger logger = LoggerFactory.getLogger(KitchenStyleScheduleGenerator.class);
 
     public KitchenStyleScheduleGenerator(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService) {
         this.scheduleRepository = scheduleRepository;
@@ -26,7 +29,8 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
 
     @Override
     public void generateSchedule(Long roleId, Long startingFromUserId, LocalDate startDate, LocalDate endDate) {
-        System.out.println("Generating schedule for role: " + roleId + " starting from user: " + startingFromUserId + " from: " + startDate + " to: " + endDate);
+        logger.info("Generating schedule for supervisor role ID: {}, starting from user ID: {}, from: {} to: {}",
+                roleId, startingFromUserId, startDate, endDate);
         List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId);
         List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleId);
 
@@ -38,7 +42,7 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
                 schedule.setDate(taskDate);
                 schedule.setTask(roleTask);
                 schedule.setUser(eligibleUsers.get(userIndex));
-                System.out.println("Generated schedule: " + schedule);
+                logger.debug("Generated schedule: {}", schedule);
                 scheduleRepository.save(schedule);
 
                 taskDate = taskDate.plusDays(1);
