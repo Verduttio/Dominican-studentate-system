@@ -398,7 +398,7 @@ function AddScheduleWeeklyByAllDays() {
                 <button className="btn btn-success mt-3" onClick={() => {
                     navigate("/add-schedule/weekly-by-all-days/generator", {state: {roleId: tasks?.at(0)?.supervisorRole.id, roleName: tasks?.at(0)?.supervisorRole.name}});
                 }}>
-                    Generator
+                    Generator / Czyszczenie
                 </button>
             </div>
             <WeekSelector currentWeek={currentWeek} setCurrentWeek={setCurrentWeek}/>

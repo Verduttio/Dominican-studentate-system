@@ -1,10 +1,11 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {User} from "../../../../models/Interfaces";
-import useHttp from "../../../../services/UseHttp";
-import {backendUrl} from "../../../../utils/constants";
-import AlertBox from "../../../../components/AlertBox";
-import LoadingSpinner from "../../../../components/LoadingScreen";
+import {User} from "../../../models/Interfaces";
+import useHttp from "../../../services/UseHttp";
+import {backendUrl} from "../../../utils/constants";
+import AlertBox from "../../../components/AlertBox";
+import LoadingSpinner from "../../../components/LoadingScreen";
+import AlertBoxTimed from "../../../components/AlertBoxTimed";
 
 function KitchenStyleGenerator() {
     const location = useLocation();
@@ -16,6 +17,7 @@ function KitchenStyleGenerator() {
     const {request: fetchEligibleUsers, error: fetchEligibleUsersError, loading: fetchEligibleUsersLoading} = useHttp(`${backendUrl}/api/users/eligible/${supervisorRoleId}`, "GET");
     const [selectedUserId, setSelectedUserId] = useState<number>(0);
     const {request: postGenerate, error: postGenerateError, loading: postGenerateLoading} = useHttp(`${backendUrl}/api/schedules/generator/kitchen-style/${supervisorRoleId}?startingFromUserId=${selectedUserId}&from=${fromDate}&to=${toDate}`, "POST");
+    const [validationError, setValidationError] = useState<string>("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,8 +34,28 @@ function KitchenStyleGenerator() {
         }
     };
 
+    const validateInput = () => {
+        if (selectedUserId === 0) {
+            setValidationError("Brat musi zostać wybrany")
+            return false;
+        }
+
+        if (fromDate === "" || toDate === "") {
+            setValidationError("Obie daty muszą być uzupełnione")
+            return false;
+        }
+
+        if (fromDate > toDate) {
+            setValidationError("Data końcowa nie może być przed datą początkową")
+            return false;
+        }
+
+        return true;
+    }
+
     const handleGenerate = () => {
         console.log(selectedUserId, fromDate, toDate);
+        if (!validateInput()) return false;
         postGenerate(null, () => {
             console.log("Generated");
             navigate(`/add-schedule/weekly/by-all-days?roleName=${supervisorRoleName}`, {state: {message: "Pomyślnie wygenerowano harmonogram"}})
@@ -49,9 +71,15 @@ function KitchenStyleGenerator() {
 
     return (
         <div className="fade-in">
+            <div className="text-center">
+                <h3 className="entity-header-dynamic-size mb-0">
+                    Generowanie
+                </h3>
+            </div>
             {postGenerateError && <AlertBox text={postGenerateError} type={"danger"} width={"500px"}/>}
-            <div className="edit-entity-container mw-100" style={{width: '400px'}}>
+            <div className="edit-entity-container mw-100 mt-3" style={{width: '400px'}}>
                 <div className="mb-3">
+                    {validationError && <AlertBoxTimed text={validationError} type={"danger"} width={"500px"} onClose={() => {setValidationError("")}}/>}
                     <label htmlFor="userId" className="form-label">
                         Generowanie od:
                     </label>
@@ -79,7 +107,9 @@ function KitchenStyleGenerator() {
                         id="fromDate"
                         name="fromDate"
                         value={fromDate}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleInputChange("fromDate", e.target.value)}}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            handleInputChange("fromDate", e.target.value)
+                        }}
                     />
                 </div>
                 <div className="mb-3">
@@ -90,7 +120,9 @@ function KitchenStyleGenerator() {
                         id="toDate"
                         name="toDate"
                         value={toDate}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleInputChange("toDate", e.target.value)}}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            handleInputChange("toDate", e.target.value)
+                        }}
                     />
                 </div>
                 <div className="d-flex justify-content-center">

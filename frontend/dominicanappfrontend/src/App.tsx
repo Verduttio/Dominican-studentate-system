@@ -46,7 +46,7 @@ import AddLinkPage from "./pages/links/add/AddLinkPage";
 import EditLinkPage from "./pages/links/edit/EditLinkPage";
 import EditRolesOrderPage from "./pages/role/editRoleOrder/EditRolesOrderPage";
 import TasksVisibilitySettingsPage from "./pages/task/TasksVisibilitySettingsPage";
-import KitchenStyleGenerator from "./pages/schedule/pages/generators/KitchenStyleGenerator";
+import KitchenStyleGenerateCleanPage from "./pages/schedule/generators/KitchenStyleGenerateCleanPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -93,7 +93,7 @@ const AppContent = () => {
                     <Route path="/add-schedule/weekly" Component={AddScheduleWeekly}/>
                     <Route path="/add-schedule/daily" Component={AddScheduleDaily}/>
                     <Route path="/add-schedule/weekly/by-all-days" Component={AddScheduleWeeklyByAllDays}/>
-                    <Route path="/add-schedule/weekly-by-all-days/generator" Component={KitchenStyleGenerator}/>
+                    <Route path="/add-schedule/weekly-by-all-days/generator" Component={KitchenStyleGenerateCleanPage}/>
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/links" Component={LinksPage}/>
