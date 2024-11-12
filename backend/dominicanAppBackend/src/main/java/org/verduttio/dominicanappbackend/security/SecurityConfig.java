@@ -79,6 +79,8 @@ public class SecurityConfig {
 //                        .requestMatchers("api/users/{userId}/name_surname").hasRole("ADMIN") || user.id == loggedInUser.id  // done in service
                         .requestMatchers("api/schedules/forWholePeriod").hasRole("FUNKCYJNY")
                         .requestMatchers("api/schedules/forDailyPeriod").hasRole("FUNKCYJNY")
+                                .requestMatchers("api/schedules/generator").hasRole("FUNKCYJNY")
+                                .requestMatchers("api/schedules/cleaner").hasRole("FUNKCYJNY")
                         .requestMatchers(HttpMethod.DELETE, "api/users/{userId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "api/users/{userId}/roles").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/users/{userId}/verification/assignRoles").hasRole("ADMIN")
