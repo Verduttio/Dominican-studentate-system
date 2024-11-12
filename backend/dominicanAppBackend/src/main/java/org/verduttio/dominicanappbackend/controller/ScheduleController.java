@@ -285,6 +285,20 @@ public class ScheduleController {
         }
     }
 
+    @PostMapping("/generator/kitchen-style/{roleId}")
+    public ResponseEntity<?> generateSchedule(@PathVariable Long roleId,
+                                              @RequestParam("startingFromUserId") Long startingFromUserId,
+                                              @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+                                              @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+        try {
+            scheduleService.generateSchedule(roleId, startingFromUserId, from, to);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @PostMapping("/forWholePeriod")
     public ResponseEntity<?> createScheduleForWholePeriod(@Valid @RequestBody AddScheduleForWholePeriodTaskDTO addScheduleForWholePeriodTaskDTO,

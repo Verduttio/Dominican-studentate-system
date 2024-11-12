@@ -127,6 +127,9 @@ public class TaskService {
     public List<Task> findTasksByRoleName(String roleName) {
         return taskRepository.findTaskByRoleName(roleName);
     }
+    public List<Task> findTasksBySupervisorRoleId(Long roleId) {
+        return taskRepository.findTaskBySupervisorRole_Id(roleId);
+    }
 
     public List<TaskShortInfo> getAllTasksShortInfo() {
         return taskRepository.findAllTasksShortInfo();

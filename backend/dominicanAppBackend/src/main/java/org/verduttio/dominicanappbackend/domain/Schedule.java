@@ -65,4 +65,14 @@ public class Schedule {
         this.date = date;
     }
 
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "id=" + id +
+                ", task=" + task.getNameAbbrev() +
+                ", user=" + user.getName() +" "+ user.getSurname() +
+                ", date=" + date +
+                '}';
+    }
+
 }

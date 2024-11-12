@@ -42,4 +42,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Modifying
     @Query("UPDATE Task t SET t.sortOrder = t.sortOrder - 1 WHERE t.sortOrder >= :sortOrder AND t.supervisorRole.id = :id")
     void decrementByRoleSortOrderGreaterThan(Long id, Long sortOrder);
+
+    List<Task> findTaskBySupervisorRole_Id(Long roleId);
 }

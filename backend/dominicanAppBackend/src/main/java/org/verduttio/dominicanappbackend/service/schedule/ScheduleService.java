@@ -2,13 +2,12 @@ package org.verduttio.dominicanappbackend.service.schedule;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.verduttio.dominicanappbackend.domain.*;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.*;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleInfo;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
-import org.verduttio.dominicanappbackend.domain.*;
-import org.verduttio.dominicanappbackend.repository.RoleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
@@ -21,10 +20,10 @@ import org.verduttio.dominicanappbackend.validation.DateValidator;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
-import java.time.temporal.ChronoUnit;
 
 @Service
 public class ScheduleService {
@@ -37,10 +36,12 @@ public class ScheduleService {
     private final ConflictService conflictService;
     private final SpecialDateRepository specialDateRepository;
     private final TaskRepository taskRepository;
+    private final ScheduleGenerator scheduleGenerator;
+    private final ScheduleCleaner scheduleCleaner;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
-                           TaskRepository taskRepository) {
+                           TaskRepository taskRepository, ScheduleGenerator scheduleGenerator, ScheduleCleaner scheduleCleaner) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
@@ -49,6 +50,8 @@ public class ScheduleService {
         this.conflictService = conflictService;
         this.specialDateRepository = specialDateRepository;
         this.taskRepository = taskRepository;
+        this.scheduleGenerator = scheduleGenerator;
+        this.scheduleCleaner = scheduleCleaner;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -57,13 +60,6 @@ public class ScheduleService {
 
     public Optional<Schedule> getScheduleById(Long scheduleId) {
         return scheduleRepository.findById(scheduleId);
-    }
-
-    public void saveSchedule(ScheduleDTO scheduleDTO, boolean ignoreConflicts) {
-        validateSchedule(scheduleDTO, ignoreConflicts);
-
-        Schedule schedule = scheduleDTO.toSchedule();
-        scheduleRepository.save(schedule);
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -1289,5 +1285,13 @@ public class ScheduleService {
             userSchedulesOnDaysDTO.add(userSchedulesOnDays);
         }
         return userSchedulesOnDaysDTO;
+    }
+
+    public void generateSchedule(Long roleId, Long startingFromUserId, LocalDate from, LocalDate to) {
+        scheduleGenerator.generateSchedule(roleId, startingFromUserId, from, to);
+    }
+
+    public void cleanSchedule(Long roleId, LocalDate from, LocalDate to) {
+        scheduleCleaner.cleanSchedule(roleId, from, to);
     }
 }
