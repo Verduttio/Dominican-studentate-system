@@ -96,6 +96,12 @@ public class UserController {
         }
     }
 
+    @GetMapping("/eligible/{supervisorRoleId}")
+    public ResponseEntity<List<User>> getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(@PathVariable Long supervisorRoleId) {
+        List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(supervisorRoleId);
+        return new ResponseEntity<>(eligibleUsers, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();

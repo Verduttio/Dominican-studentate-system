@@ -7,14 +7,11 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.verduttio.dominicanappbackend.domain.*;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
-import org.verduttio.dominicanappbackend.domain.AuthProvider;
-import org.verduttio.dominicanappbackend.domain.Role;
-import org.verduttio.dominicanappbackend.domain.RoleType;
-import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
@@ -30,12 +27,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final TaskService taskService;
     private final UserValidator userValidator;
     private final UserDetailsServiceImpl userDetailsService;
     private final ObstacleRepository obstacleRepository;
@@ -44,10 +43,11 @@ public class UserService {
     private final UserSessionService userSessionService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService,
+    public UserService(UserRepository userRepository, RoleService roleService, TaskService taskService,
                        UserValidator userValidator, UserDetailsServiceImpl userDetailsService, ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository, BCryptPasswordEncoder bCryptPasswordEncoder, SessionRegistry sessionRegistry, UserSessionService userSessionService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.taskService = taskService;
         this.userValidator = userValidator;
         this.userDetailsService = userDetailsService;
         this.obstacleRepository = obstacleRepository;
@@ -70,6 +70,17 @@ public class UserService {
 
     public List<User> getUsersWhichHaveAnyOfRoles(List<String> roleNames) {
         return userRepository.findAllWhichHaveAnyOfRoles(roleNames);
+    }
+
+    public List<User> getUsersWhichHaveAnyOfRolesIds(List<Long> roleIds) {
+        return userRepository.findAllWhichHaveAnyOfRolesIds(roleIds);
+    }
+
+    public List<User> getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(Long supervisorRoleId) {
+        List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(supervisorRoleId);
+        List<Long> eligibleRoles = roleTasks.stream().map(Task::getAllowedRoles).flatMap(Set::stream).collect(Collectors.toSet()).stream().map(Role::getId).collect(Collectors.toList());
+
+        return getUsersWhichHaveAnyOfRolesIds(eligibleRoles);
     }
 
     public void createUser(UserDTO userDTO) {
@@ -103,10 +114,6 @@ public class UserService {
 
     public boolean existsById(Long id) {
         return userRepository.existsById(id);
-    }
-
-    protected boolean existsAnotherUserWithGivenEmail(String newEmail, String currentEmail) {
-        return userRepository.existsByEmail(newEmail) && !newEmail.equals(currentEmail);
     }
 
     public User register(RegisterUserRequest registerUserRequest, AuthProvider authProvider) {
