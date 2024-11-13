@@ -1255,10 +1255,7 @@ public class ScheduleService {
     }
 
     public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTO(LocalDate from, LocalDate to, String taskSupervisorRoleName) {
-        List<User> users = userService.getAllUsers();
-        users = users.stream()
-                .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
-                .toList();
+        List<User> users = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(taskSupervisorRoleName);
 
         List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
 

@@ -83,6 +83,13 @@ public class UserService {
         return getUsersWhichHaveAnyOfRolesIds(eligibleRoles);
     }
 
+    public List<User> getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(String supervisorRoleName) {
+        List<Task> roleTasks = taskService.findTasksBySupervisorRoleName(supervisorRoleName);
+        List<Long> eligibleRoles = roleTasks.stream().map(Task::getAllowedRoles).flatMap(Set::stream).collect(Collectors.toSet()).stream().map(Role::getId).collect(Collectors.toList());
+
+        return getUsersWhichHaveAnyOfRolesIds(eligibleRoles);
+    }
+
     public void createUser(UserDTO userDTO) {
         userValidator.validateEmailWhenRegister(userDTO.getEmail());
         User user = convertUserDTOToUser(userDTO, AuthProvider.LOCAL);
