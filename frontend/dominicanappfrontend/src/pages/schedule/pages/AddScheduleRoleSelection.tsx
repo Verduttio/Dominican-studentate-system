@@ -1,15 +1,25 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../../components/LoadingScreen";
 import AlertBox from "../../../components/AlertBox";
 import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
 import {Role} from "../../../models/Interfaces";
+import useHttp from "../../../services/UseHttp";
+import {backendUrl} from "../../../utils/constants";
 
 function AddScheduleRoleSelection() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
+    const {request: requestGetSupervisorRoles, loading: loadingGetSupervisorRoles} = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const [supervisorRoles, setSupervisorRoles] = useState<Role[]>();
     const navigate = useNavigate();
     const {currentUser} = useGetOrCreateCurrentUser();
+
+    useEffect(() => {
+        requestGetSupervisorRoles(null, (data: Role[]) => {
+            setSupervisorRoles(data);
+        });
+    }, [requestGetSupervisorRoles]);
 
     const navigateToDefaultScheduleCreator = (roleName: string) => {
         const selectedRole: Role | undefined = currentUser?.roles.filter((role) => (role.name === roleName))[0];
@@ -24,7 +34,7 @@ function AddScheduleRoleSelection() {
         }
     }
 
-    if(isFunkcyjnyLoading || isFunkcyjnyInitialized) {
+    if(isFunkcyjnyLoading || isFunkcyjnyInitialized || loadingGetSupervisorRoles) {
         return <LoadingSpinner/>;
     } else if(!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width={'500px'} />;
 
@@ -34,15 +44,30 @@ function AddScheduleRoleSelection() {
 
     return (
         <div className="fade-in d-flex flex-column align-items-center" style={{minHeight: '80vh'}}>
-            {currentUser?.roles.filter((role) => (role.type === "SUPERVISOR")).map((role) => (
-                <div className="card mb-4 mw-100" style={{width: "600px"}} id="button-scale">
-                    <div className="card-body text-center" onClick={() => {
-                        navigateToDefaultScheduleCreator(role.name);
-                    }}>
-                        {role.name}
+            {currentUser?.roles
+                .filter((role) => role.type === "SUPERVISOR")
+                .sort((a, b) => {
+                    const indexA = supervisorRoles?.findIndex(sRole => sRole.name === a.name) ?? -1;
+                    const indexB = supervisorRoles?.findIndex(sRole => sRole.name === b.name) ?? -1;
+                    return indexA - indexB;
+                })
+                .map((role) => (
+                    <div
+                        className="card mb-4 mw-100"
+                        style={{ width: "600px" }}
+                        id="button-scale"
+                        key={role.id}
+                    >
+                        <div
+                            className="card-body text-center"
+                            onClick={() => {
+                                navigateToDefaultScheduleCreator(role.name);
+                            }}
+                        >
+                            {role.name}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
         </div>
     );
 }
