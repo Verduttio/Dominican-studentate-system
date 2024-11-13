@@ -101,7 +101,11 @@ function SchedulePageByDays() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_bracia_wzgledem_dni_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            if (showStandardDateSelector) {
+                link.setAttribute('download', `Harmonogram_bracia_wzgledem_dni_${selectedSupervisorRoleName}_wzgledem_dni_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            } else {
+                link.setAttribute('download', `Harmonogram_bracia_wzledem_dni_${selectedSupervisorRoleName}_wzgledem_dni_${format(nonStandardStartDate, 'dd-MM-yyyy')}-${format(nonStandardEndDate, 'dd-MM-yyyy')}.pdf`);
+            }
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -139,7 +143,12 @@ function SchedulePageByDays() {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Harmonogram_bracia_${selectedSupervisorRoleName}_wzgledem_dni_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            if (showStandardDateSelector) {
+                link.setAttribute('download', `Harmonogram_bracia_${selectedSupervisorRoleName}_wzgledem_dni_${format(startOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}-${format(endOfWeek(currentWeek, { weekStartsOn: 0 }), 'dd-MM-yyyy')}.pdf`);
+            } else {
+                link.setAttribute('download', `Harmonogram_bracia_${selectedSupervisorRoleName}_wzgledem_dni_${format(nonStandardStartDate, 'dd-MM-yyyy')}-${format(nonStandardEndDate, 'dd-MM-yyyy')}.pdf`);
+            }
+
             document.body.appendChild(link);
             link.click();
         } catch (err) {
