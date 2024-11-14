@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Remove 'http://' from the beginning of SERVER_NAME
-SERVER_NAME_CLEAN=$(echo "$SERVER_NAME" | sed 's|^http://||')
+SERVER_NAME_CLEAN=$(echo "$SERVER_NAME" | sed 's|^https\?://||')
 
 # Export variable to `envsubst`
 export SERVER_NAME_CLEAN
