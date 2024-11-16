@@ -16,6 +16,7 @@ trap 'handle_error' ERR
 echo "Giving privileges to run scripts..."
 chmod u+x nginx/start-nginx.sh
 chmod u+x db/postgres_backup.sh
+chmod u+x renew_cert.sh
 
 # Checking if the database volume exists
 if docker volume ls | grep -q "dominican-studentate-system-main_postgres_data"; then
