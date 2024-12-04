@@ -1,5 +1,7 @@
 CREATE SEQUENCE IF NOT EXISTS conflict_id_seq START WITH 1 INCREMENT BY 1;
 
+CREATE SEQUENCE IF NOT EXISTS document_link_id_seq START WITH 1 INCREMENT BY 1;
+
 CREATE SEQUENCE IF NOT EXISTS obstacle_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE SEQUENCE IF NOT EXISTS role_id_seq START WITH 1 INCREMENT BY 1;
@@ -24,6 +26,16 @@ CREATE TABLE conflicts
     task1_id BIGINT,
     task2_id BIGINT,
     CONSTRAINT pk_conflicts PRIMARY KEY (id)
+);
+
+CREATE TABLE document_links
+(
+    id         BIGINT  NOT NULL,
+    title      VARCHAR(255),
+    url        VARCHAR(255),
+    sort_order BIGINT  NOT NULL,
+    preview    BOOLEAN DEFAULT TRUE NOT NULL,
+    CONSTRAINT pk_document_links PRIMARY KEY (id)
 );
 
 CREATE TABLE obstacle_tasks
@@ -52,6 +64,9 @@ CREATE TABLE roles
     name                               VARCHAR(255),
     type                               VARCHAR(255),
     is_weekly_schedule_creator_default BOOLEAN DEFAULT FALSE,
+    assigned_tasks_group_name          VARCHAR(255) DEFAULT '' NOT NULL,
+    are_tasks_visible_in_prints        BOOLEAN DEFAULT FALSE,
+    sort_order                         BIGINT DEFAULT 0 NOT NULL,
     CONSTRAINT pk_roles PRIMARY KEY (id)
 );
 
@@ -87,13 +102,14 @@ CREATE TABLE task_day_of_week
 
 CREATE TABLE tasks
 (
-    id                 BIGINT  NOT NULL,
-    name               VARCHAR(255),
-    name_abbrev        VARCHAR(255),
-    participants_limit INTEGER NOT NULL,
-    archived           BOOLEAN NOT NULL,
-    role_id            BIGINT,
-    sort_order         BIGINT,
+    id                                     BIGINT  NOT NULL,
+    name                                   VARCHAR(255),
+    name_abbrev                            VARCHAR(255),
+    participants_limit                     INTEGER NOT NULL,
+    archived                               BOOLEAN NOT NULL,
+    role_id                                BIGINT,
+    sort_order                             BIGINT,
+    visible_in_obstacle_form_for_user_role BOOLEAN DEFAULT FALSE,
     CONSTRAINT pk_tasks PRIMARY KEY (id)
 );
 

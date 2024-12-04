@@ -5,3 +5,4 @@ SELECT setval('schedule_id_seq', (SELECT MAX(id) FROM schedule));
 SELECT setval('task_id_seq', (SELECT MAX(id) FROM tasks));
 SELECT setval('user_id_seq', (SELECT MAX(id) FROM users));
 SELECT setval('special_date_id_seq', (SELECT MAX(id) FROM special_dates));
+SELECT setval('document_link_id_seq', (SELECT MAX(id) FROM document_links));
