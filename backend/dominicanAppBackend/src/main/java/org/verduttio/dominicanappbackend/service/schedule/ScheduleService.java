@@ -1061,10 +1061,11 @@ public class ScheduleService {
 
         List<Schedule> userSchedulesForWeek = getAllSchedulesByUserIdForSpecifiedWeek(user.getId(), from, to);
         List<String> userAssignedTasksNamesForWeek = createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedulesForWeek, weekWithFeast);
+        List<Schedule> userSchedulesAtDate = userSchedulesForWeek.stream().filter(schedule -> schedule.getDate().isEqual(date)).toList();
         userTasksDependencies.setAssignedTasks(userAssignedTasksNamesForWeek);
         userTasksDependencies.setUserTasksScheduleInfo(
                 tasksByRole.stream()
-                        .map(task -> createUserTaskScheduleInfo(user, task, userSchedulesForWeek, allConflicts, date, from, to, false))
+                        .map(task -> createUserTaskScheduleInfo(user, task, userSchedulesAtDate, allConflicts, date, from, to, false))
                         .collect(Collectors.toList())
         );
 
@@ -1083,8 +1084,9 @@ public class ScheduleService {
 
         for (int i = 0; i < 7; i++) {
             final LocalDate date = from.plusDays(i);
+            List<Schedule> userScheduleAtDate = userSchedulesForWeek.stream().filter(schedule -> schedule.getDate().isEqual(date)).toList();
             List<UserTaskScheduleInfo> userTaskScheduleInfos = tasksByRole.stream()
-                    .map(task -> createUserTaskScheduleInfo(user, task, userSchedulesForWeek, allConflicts, date, from, to, true))
+                    .map(task -> createUserTaskScheduleInfo(user, task, userScheduleAtDate, allConflicts, date, from, to, true))
                     .toList();
             userTasksDependencies.getUserTasksScheduleInfo().put(date.getDayOfWeek(), userTaskScheduleInfos);
         }

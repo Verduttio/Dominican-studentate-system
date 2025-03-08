@@ -51,7 +51,7 @@ public class ScheduleServiceTest {
         scheduleRepository.deleteAllInBatch();
         taskRepository.deleteAllInBatch();
 
-        Role supervisorRole = new Role("SupervisorRoleName", RoleType.SUPERVISOR, false);
+        Role supervisorRole = new Role("SupervisorRoleName", RoleType.SUPERVISOR);
         roleRepository.save(supervisorRole);
 
         Task task1 = new Task("Task 1", "1", 2, true, null, supervisorRole, EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY));
