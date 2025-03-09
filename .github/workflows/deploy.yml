@@ -65,7 +65,7 @@ jobs:
           if [ "$VERSION" -gt 1 ]; then
             PREV_VERSION=$((VERSION - 1))
             echo "Copying certbot folder from version $PREV_VERSION to version $VERSION"
-            ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp -r ~/studentat/deploys/${PREV_VERSION}/Dominican-studentate-system-main/certbot ~/studentat/deploys/${VERSION}/Dominican-studentate-system-main/"
+            ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "sudo cp -r ~/studentat/deploys/${PREV_VERSION}/Dominican-studentate-system-main/certbot ~/studentat/deploys/${VERSION}/Dominican-studentate-system-main/"
           else
             echo "No previous version found, skipping certbot folder copy."
           fi
