@@ -27,7 +27,7 @@ jobs:
       - name: Determine new version number
         id: version
         run: |
-          LAST_VERSION=$(ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "find /studentat/deploys -maxdepth 1 -type d -regextype posix-extended -regex '.*/[0-9]+' | sed 's#.*/##' | sort -n | tail -n1")
+          LAST_VERSION=$(ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "find ~/studentat/deploys -maxdepth 1 -type d -regextype posix-extended -regex '.*/[0-9]+' | sed 's#.*/##' | sort -n | tail -n1")
           if [ -z "$LAST_VERSION" ]; then
             LAST_VERSION=0
           fi
@@ -37,20 +37,20 @@ jobs:
 
       - name: Debug server environment
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "echo 'Current directory:'; pwd; echo 'Listing:'; ls -la; echo 'Listing /studentat:'; ls -la /studentat; echo 'Listing /studentat/deploys:'; ls -la /studentat/deploys"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "echo 'Current directory:'; pwd; echo 'Listing:'; ls -la; echo 'Listing ~/studentat:'; ls -la ~/studentat; echo 'Listing ~/studentat/deploys:'; ls -la ~/studentat/deploys"
 
 
       - name: Create deploy directory on server
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main"
 
       - name: Copy repository to server
         run: |
-          rsync -avz --delete --exclude '.github' ./ ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }}:/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main
+          rsync -avz --delete --exclude '.github' ./ ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }}:~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main
 
       - name: Create .env file from template and inject secrets
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && \
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && \
           cp .env.template .env && \
           sed -i 's|http://localhost|${{ secrets.NGINX_URL }}|g' .env && \
           sed -i 's/your-google-client-id/${{ secrets.GOOGLE_CLIENT_ID }}/g' .env && \
@@ -58,8 +58,8 @@ jobs:
 
       - name: Copy migration file from previous version
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp /studentat/resurces/migrations/V2__Insert_init_data.sql /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp ~/studentat/resurces/migrations/V2__Insert_init_data.sql ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
 
       - name: Run deploy_new_version.sh on server
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
