@@ -35,6 +35,11 @@ jobs:
           echo "New version is: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Debug server environment
+        run: |
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "echo 'Current directory:'; pwd; echo 'Listing:'; ls -la; echo 'Listing /studentat:'; ls -la /studentat; echo 'Listing /studentat/deploys:'; ls -la /studentat/deploys"
+
+
       - name: Create deploy directory on server
         run: |
           ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main"
