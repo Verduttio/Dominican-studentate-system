@@ -60,6 +60,16 @@ jobs:
         run: |
           ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp ~/studentat/resources/migrations/V2__Insert_init_data.sql ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
 
+      - name: Copy certbot folder from previous version
+        run: |
+          if [ "$VERSION" -gt 1 ]; then
+            PREV_VERSION=$((VERSION - 1))
+            echo "Copying certbot folder from version $PREV_VERSION to version $VERSION"
+            ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp -r ~/studentat/deploys/${PREV_VERSION}/Dominican-studentate-system-main/certbot ~/studentat/deploys/${VERSION}/Dominican-studentate-system-main/"
+          else
+            echo "No previous version found, skipping certbot folder copy."
+          fi
+
       - name: Run deploy_new_version.sh on server
         run: |
           ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
