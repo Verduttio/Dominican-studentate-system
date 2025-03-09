@@ -20,7 +20,7 @@ jobs:
       - name: Determine new version number
         id: version
         run: |
-          LAST_VERSION=$(ssh your_username@your.ovh.server 'bash -c "
+          LAST_VERSION=$(ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} 'bash -c "
           if [ -d /studentat/deploys ]; then
               cd /studentat/deploys
               last=\$(ls -d [0-9]* 2>/dev/null | sort -n | tail -n1)
@@ -29,22 +29,21 @@ jobs:
               echo 0
           fi
           "')
-          # Increment
           VERSION=$((LAST_VERSION + 1))
           echo "New version is: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create deploy directory on server
         run: |
-          ssh your_username@your.ovh.server "mkdir -p /studentat/deploys/${VERSION}/Dominican-studentate-system-server"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server"
 
       - name: Copy repository to server
         run: |
-          rsync -avz --delete --exclude '.github' ./ your_username@your.ovh.server:/studentat/deploys/${VERSION}/Dominican-studentate-system-server
+          rsync -avz --delete --exclude '.github' ./ ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }}:/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server
 
       - name: Create .env file from template and inject secrets
         run: |
-          ssh your_username@your.ovh.server "cd /studentat/deploys/${VERSION}/Dominican-studentate-system-server && \
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server && \
           cp .env.template .env && \
           sed -i 's|http://localhost|${{ secrets.NGINX_URL }}|g' .env && \
           sed -i 's/your-google-client-id/${{ secrets.GOOGLE_CLIENT_ID }}/g' .env && \
@@ -52,8 +51,8 @@ jobs:
 
       - name: Copy migration file from previous version
         run: |
-          ssh your_username@your.ovh.server "cp /studentat/resurces/migrations/V2__Insert_init_data.sql /studentat/deploys/${VERSION}/Dominican-studentate-system-server/backend/dominicanAppBackend/src/main/resources/db/migration/"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp /studentat/resurces/migrations/V2__Insert_init_data.sql /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server/backend/dominicanAppBackend/src/main/resources/db/migration/"
 
       - name: Run deploy_new_version.sh on server
         run: |
-          ssh your_username@your.ovh.server "cd /studentat/deploys/${VERSION}/Dominican-studentate-system-server && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
