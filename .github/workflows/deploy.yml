@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -40,15 +42,15 @@ jobs:
 
       - name: Create deploy directory on server
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "mkdir -p /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main"
 
       - name: Copy repository to server
         run: |
-          rsync -avz --delete --exclude '.github' ./ ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }}:/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server
+          rsync -avz --delete --exclude '.github' ./ ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }}:/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main
 
       - name: Create .env file from template and inject secrets
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server && \
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && \
           cp .env.template .env && \
           sed -i 's|http://localhost|${{ secrets.NGINX_URL }}|g' .env && \
           sed -i 's/your-google-client-id/${{ secrets.GOOGLE_CLIENT_ID }}/g' .env && \
@@ -56,8 +58,8 @@ jobs:
 
       - name: Copy migration file from previous version
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp /studentat/resurces/migrations/V2__Insert_init_data.sql /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server/backend/dominicanAppBackend/src/main/resources/db/migration/"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp /studentat/resurces/migrations/V2__Insert_init_data.sql /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
 
       - name: Run deploy_new_version.sh on server
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-server && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cd /studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && chmod +x deploy_new_version.sh && ./deploy_new_version.sh"
