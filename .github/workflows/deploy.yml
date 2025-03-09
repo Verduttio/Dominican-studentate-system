@@ -17,6 +17,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.OVH_IP }} >> ~/.ssh/known_hosts
+
       - name: Determine new version number
         id: version
         run: |
