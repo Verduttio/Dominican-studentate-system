@@ -58,7 +58,7 @@ jobs:
 
       - name: Copy migration file from previous version
         run: |
-          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp ~/studentat/resurces/migrations/V2__Insert_init_data.sql ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
+          ssh ${{ secrets.OVH_USER }}@${{ secrets.OVH_IP }} "cp ~/studentat/resources/migrations/V2__Insert_init_data.sql ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main/backend/dominicanAppBackend/src/main/resources/db/migration/"
 
       - name: Run deploy_new_version.sh on server
         run: |
