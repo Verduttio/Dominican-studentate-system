@@ -20,6 +20,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Grant execution permission for gradlew
+        run: |
+          cd backend/dominicanAppBackend
+          chmod +x gradlew
+
       - name: Build and test with Gradle
         run: |
           cd backend/dominicanAppBackend
