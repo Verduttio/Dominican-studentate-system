@@ -1,4 +1,4 @@
-name: Gradle Build & Test
+name: Gradle Test
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
           cd backend/dominicanAppBackend
           chmod +x gradlew
 
-      - name: Build and test with Gradle
+      - name: Test with Gradle
         run: |
           cd backend/dominicanAppBackend
-          ./gradlew clean test
+          ./gradlew test
