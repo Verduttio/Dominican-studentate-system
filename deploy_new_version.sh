@@ -17,7 +17,7 @@ echo "Giving privileges to run scripts..."
 chmod u+x nginx/start-nginx.sh
 chmod u+x db/postgres_backup.sh
 chmod u+x renew_cert.sh
-chomd u+x branch_name.sh
+chmod u+x branch_name.sh
 
 branch=$(./branch_name.sh)
 echo "Repo based on branch: $branch"
