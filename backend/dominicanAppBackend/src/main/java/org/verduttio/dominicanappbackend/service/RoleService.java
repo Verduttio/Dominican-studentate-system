@@ -55,8 +55,12 @@ public class RoleService {
            throw new EntityAlreadyExistsException("Role with given name already exists");
         }
         Role roleWithHighestSortOrderForSameType = roleRepository.findFirstByTypeOrderBySortOrderDesc(role.getType());
-        role.setSortOrder(roleWithHighestSortOrderForSameType.getSortOrder() + 1);
-        roleRepository.incrementSortOrderGreaterThan(roleWithHighestSortOrderForSameType.getSortOrder());
+        if (roleWithHighestSortOrderForSameType == null) {
+            role.setSortOrder(1L);
+        } else {
+            role.setSortOrder(roleWithHighestSortOrderForSameType.getSortOrder() + 1);
+            roleRepository.incrementSortOrderGreaterThan(roleWithHighestSortOrderForSameType.getSortOrder());
+        }
         roleRepository.save(role);
     }
 

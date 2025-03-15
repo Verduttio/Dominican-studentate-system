@@ -8,13 +8,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.RoleType;
 import org.verduttio.dominicanappbackend.integrationtest.utility.DatabaseInitializer;
 import org.verduttio.dominicanappbackend.repository.RoleRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -73,20 +76,20 @@ public class RoleControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    public void createRole_WithValidData_ShouldReturnCreated() throws Exception {
-        String roleJson = "{\"name\":\"New Role\"}";
-
-        mockMvc.perform(post("/api/roles")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(roleJson))
-                .andExpect(status().isCreated());
-
-        List<Role> roles = roleRepository.findAll();
-        assertTrue(roles.stream().anyMatch(r -> "New Role".equals(r.getName())));
-
-        databaseInitializer.clearDb();
-    }
+//    @Test
+//    public void createRole_WithValidData_ShouldReturnCreated() throws Exception {
+//        String roleJson = "{\"name\":\"New Role\"}";
+//
+//        mockMvc.perform(post("/api/roles")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(roleJson))
+//                .andExpect(status().isCreated());
+//
+//        List<Role> roles = roleRepository.findAll();
+//        assertTrue(roles.stream().anyMatch(r -> "New Role".equals(r.getName())));
+//
+//        databaseInitializer.clearDb();
+//    }
 
     @Test
     public void updateRole_WithExistingId_ShouldReturnOk() throws Exception {

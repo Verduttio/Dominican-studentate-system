@@ -52,6 +52,7 @@ public class AddScheduleValidationTests {
     public void setUp() {
         Role taskExecutorRole = new Role();
         taskExecutorRole.setName("ROLE_TASK_EXECUTOR");
+        taskExecutorRole.setSortOrder(1L);
         roleService.saveRole(taskExecutorRole);
 
 

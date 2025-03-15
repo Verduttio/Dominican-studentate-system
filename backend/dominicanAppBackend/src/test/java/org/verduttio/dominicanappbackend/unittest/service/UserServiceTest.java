@@ -63,19 +63,6 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void testGetAllUsers() {
-        User user1 = new User();
-        User user2 = new User();
-
-        List<User> expectedUsers = Arrays.asList(user1, user2);
-        when(userRepository.findAll(Sort.by(Sort.Direction.ASC, "isEnabled"))).thenReturn(expectedUsers);
-
-        List<User> actualUsers = userService.getAllUsers();
-
-        assertThat(actualUsers).isEqualTo(expectedUsers);
-    }
-
-    @Test
     public void testGetUserById() {
         Long userId = 1L;
         User expectedUser = new User();

@@ -73,14 +73,19 @@ public class UserRepositoryTest {
         user2.setSurname("Smith");
         user2 = userRepository.save(user2);
 
+        Long user1Id = user1.getId();
+        Long user2Id = user2.getId();
+
         List<UserShortInfo> expectedUserShortInfos = Arrays.asList(
-                new UserShortInfo(1L, user1.getName(), user1.getSurname()),
-                new UserShortInfo(2L, user2.getName(), user2.getSurname())
+                new UserShortInfo(user1Id, user1.getName(), user1.getSurname()),
+                new UserShortInfo(user2Id, user2.getName(), user2.getSurname())
         );
 
         List<UserShortInfo> actualUserShortInfos = userRepository.findAllUsersShortInfo();
 
-        assertThat(actualUserShortInfos).isEqualTo(expectedUserShortInfos);
+        assertThat(actualUserShortInfos)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrderElementsOf(expectedUserShortInfos);
     }
 
     @Test

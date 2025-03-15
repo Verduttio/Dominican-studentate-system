@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.RoleType;
 import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
@@ -27,12 +29,14 @@ public class ScheduleServiceTest {
 
     @Test
     void makeUsersTasksInWeekInfoString_mixOfAllAndPartAssignTasks() {
-        Task task1 = new Task("Washing", "Ws",3, true, null, null,
-                Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY));
-        Task task2 = new Task("Cooking", "Co",2, true, null, null,
-                Set.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY));
-        Task task3 = new Task("Drying", "Dr",2, true, null, null,
-                Set.of(DayOfWeek.THURSDAY, DayOfWeek.SATURDAY));
+        Role superVisorRole = new Role("superRole", RoleType.SUPERVISOR, false, "tasks", 1L, true);
+
+        Task task1 = new Task("Washing", "Ws",3, true, null, superVisorRole,
+                Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), 3L, true);
+        Task task2 = new Task("Cooking", "Co",2, true, null, superVisorRole,
+                Set.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), 1L, true);
+        Task task3 = new Task("Drying", "Dr",2, true, null, superVisorRole,
+                Set.of(DayOfWeek.THURSDAY, DayOfWeek.SATURDAY), 2L, true);
 
         Schedule schedule1 = new Schedule();
         schedule1.setTask(task1);

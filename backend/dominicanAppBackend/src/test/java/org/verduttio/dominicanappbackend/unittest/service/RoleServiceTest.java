@@ -30,7 +30,7 @@ class RoleServiceTest {
         Role roleAdmin = new Role("ROLE_ADMIN", RoleType.SYSTEM);
         Role roleUser = new Role("ROLE_USER", RoleType.SYSTEM);
         Role roleGuest = new Role("ROLE_GUEST", RoleType.SYSTEM);
-        when(roleRepository.findAll()).thenReturn(Arrays.asList(roleAdmin, roleUser, roleGuest));
+        when(roleService.getAllRoles()).thenReturn(Arrays.asList(roleAdmin, roleUser, roleGuest));
     }
 
     @Test
