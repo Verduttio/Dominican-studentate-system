@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Get branch name
+branch=$(../branch_name.sh)
+echo "Branch: $branch"
+
 # Get the directory of the current script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -23,7 +27,7 @@ if [[ -z "$LATEST_BACKUP" ]]; then
   exit 1
 fi
 
-docker exec -i dominican-studentate-system-main-db-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};"
-cat ${LATEST_BACKUP} | docker exec -i dominican-studentate-system-main-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+docker exec -i dominican-studentate-system-${branch}-db-1 psql -U ${POSTGRES_USER} -d postgres -c "DROP DATABASE IF EXISTS ${POSTGRES_DB};"
+cat ${LATEST_BACKUP} | docker exec -i dominican-studentate-system-${branch}-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
 echo "Database restored from ${LATEST_BACKUP}"

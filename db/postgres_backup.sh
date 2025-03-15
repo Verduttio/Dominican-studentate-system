@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Get branch name
+branch=$(../branch_name.sh)
+echo "Branch: $branch"
+
 # Get the directory of the current script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -18,7 +22,7 @@ BACKUP_DIR="${SCRIPT_DIR}/backup"
 mkdir -p ${BACKUP_DIR}
 
 # Backup the database
-docker exec -t dominican-studentate-system-main-db-1 pg_dump -c -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-`date +%Y-%m-%d"_"%H_%M_%S`.sql
+docker exec -t dominican-studentate-system-"${branch}"-db-1 pg_dump -c -U ${POSTGRES_USER} ${POSTGRES_DB} > ${BACKUP_DIR}/db-backup-`date +%Y-%m-%d"_"%H_%M_%S`.sql
 
 # Add this to crontab to run the backup automatically
 # crontab -e

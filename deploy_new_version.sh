@@ -17,19 +17,23 @@ echo "Giving privileges to run scripts..."
 chmod u+x nginx/start-nginx.sh
 chmod u+x db/postgres_backup.sh
 chmod u+x renew_cert.sh
+chomd u+x branch_name.sh
+
+branch=$(./branch_name.sh)
+echo "Repo based on branch: $branch"
 
 # Checking if the database volume exists
-if docker volume ls | grep -q "dominican-studentate-system-main_postgres_data"; then
+if docker volume ls | grep -q "dominican-studentate-system-${branch}_postgres_data"; then
     echo "Creating database backup..."
     chmod +x db/postgres_backup.sh
     db/postgres_backup.sh
 else
-    echo "Database volume 'dominican-studentate-system-main_postgres_data' not found. Could not perform backup. Exiting."
+    echo "Database volume 'dominican-studentate-system-${branch}_postgres_data' not found. Could not perform backup. Exiting."
     exit 1
 fi
 
 # Checking if the frontend build volume exists, it has to be stopped before it can be removed
-if docker volume ls | grep -q "dominican-studentate-system-main_frontend-build"; then
+if docker volume ls | grep -q "dominican-studentate-system-${branch}_frontend-build"; then
     echo "Frontend build volume found. Removing after stopping services..."
 else
     echo "Volume not found. Removal is necessary for the build to work. Exiting."
@@ -44,7 +48,7 @@ else
 fi
 
 echo "Removing frontend builder volume..."
-docker volume rm dominican-studentate-system-main_frontend-build
+docker volume rm dominican-studentate-system-"${branch}"_frontend-build
 
 echo "Building all services..."
 docker compose build
