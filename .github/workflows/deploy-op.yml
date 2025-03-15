@@ -77,7 +77,7 @@ jobs:
         run: |
           ssh ${{ secrets.SERVER_OP_USER }}@${{ secrets.SERVER_OP_IP }} "cd ~/studentat/deploys/${{ env.VERSION }}/Dominican-studentate-system-main && \
           cp .env.template .env && \
-          sed -i 's|http://localhost|${{ secrets.NGINX_URL }}|g' .env && \
+          sed -i 's|http://localhost|${{ secrets.NGINX_URL_OP }}|g' .env && \
           sed -i 's/your-google-client-id/${{ secrets.GOOGLE_CLIENT_ID_OP }}/g' .env && \
           sed -i 's/your-google-client-secret/${{ secrets.GOOGLE_CLIENT_SECRET_OP }}/g' .env"
 
