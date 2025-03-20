@@ -54,7 +54,13 @@ public class TaskSchedulePdfGenerator extends AbstractPdfGenerator {
     }
 
     private String getTitle() {
-        String prefix = supervisorRoleName.orElse("Oficja");
+        String prefix;
+        if (roleNames != null && roleNames.size() == 1) {
+            prefix = roleNames.getFirst();
+        } else {
+            prefix = "Oficja";
+        }
+
         return prefix + " od  " +
                 from.format(DateUtils.getPlDateFormatter()) +
                 " do " +
