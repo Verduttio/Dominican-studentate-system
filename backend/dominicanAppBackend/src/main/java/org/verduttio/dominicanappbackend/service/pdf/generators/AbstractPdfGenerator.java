@@ -19,8 +19,8 @@ import java.time.LocalDate;
 
 public abstract class AbstractPdfGenerator implements PdfGenerator {
 
-    public static final float MARGIN = 20;
-    public static final String FONT_PATH = "Capsuula.ttf";
+    public static final float MARGIN = 15;
+    public static final String FONT_PATH = "Baloo-Regular.ttf";
     public static final Color COLOR_LIGHT_GRAY = new Color(217, 217, 217);
     public static final LineStyle BORDER_LINE_STYLE = new LineStyle(Color.BLACK, 0.4f);
 
@@ -51,7 +51,7 @@ public abstract class AbstractPdfGenerator implements PdfGenerator {
 
         try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
             contentStream.beginText();
-            contentStream.setFont(font, 18);
+            contentStream.setFont(font, 16);
             contentStream.newLineAtOffset(startX, startY);
             contentStream.showText(title);
             contentStream.endText();
