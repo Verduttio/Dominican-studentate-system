@@ -68,7 +68,7 @@ public class DayTableBuilder {
 
     private void addDayOfWeekHeaderRow(TableParameters params) {
         Row<PDPage> dayOfWeekRow = table.createRow(params.rowHeight);
-        createHeaderCell(dayOfWeekRow, params.nameCellWidth, params.fontSize, "", Color.GRAY);
+        createHeaderCell(dayOfWeekRow, params.nameCellWidth, params.fontSize, "", Color.LIGHT_GRAY);  // Brighter color
 
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             String dayOfWeek = DateUtils.getDayOfWeekPL(date.getDayOfWeek());
@@ -79,7 +79,7 @@ public class DayTableBuilder {
 
     private void addDateHeaderRow(TableParameters params) {
         Row<PDPage> dateRow = table.createRow(params.rowHeight);
-        createHeaderCell(dateRow, params.nameCellWidth, params.fontSize, "Brat", Color.GRAY);
+        createHeaderCell(dateRow, params.nameCellWidth, params.fontSize, "Brat", Color.LIGHT_GRAY);  // Brighter color
 
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             String dateStr = DateUtils.getDayMonthFormat(date);
