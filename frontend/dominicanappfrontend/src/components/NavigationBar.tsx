@@ -90,7 +90,7 @@ const NavigationBar = () => {
 
                 {isFunkcyjny &&
                     <button
-                        className="bg-primary"
+                        className="bg-dark"
                         onClick={() => navigateTo('/add-schedule/select-role')}
                     >
                         Wyznacz
@@ -140,7 +140,7 @@ const NavigationBar = () => {
 
                 {isFunkcyjny &&
                     <button
-                        className="bg-primary"
+                        className="bg-dark"
                         onClick={() => navigateTo('/add-schedule/select-role')}
                     >
                         Wyznacz

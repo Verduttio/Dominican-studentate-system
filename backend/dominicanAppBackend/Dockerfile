@@ -22,6 +22,7 @@ ARG SPRING_PROFILES_ACTIVE=prod
 
 COPY --from=build /app/build/libs/*SNAPSHOT.jar app.jar
 COPY Capsuula.ttf Capsuula.ttf
+COPY Baloo-Regular.ttf Baloo-Regular.ttf
 
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 

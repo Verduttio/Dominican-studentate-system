@@ -34,7 +34,7 @@ public class TaskTableBuilder {
     }
 
     private void addHeaderRow() {
-        Row<PDPage> headerRow = table.createRow(15f);
+        Row<PDPage> headerRow = table.createRow(10f);  // smaller to fit in one page
         Cell<PDPage> taskCell = headerRow.createCell(50, "Oficjum");
         styleHeaderCell(taskCell);
 
@@ -63,7 +63,7 @@ public class TaskTableBuilder {
     }
 
     private void addRow(String taskName, String userName) {
-        Row<PDPage> row = table.createRow(12f);
+        Row<PDPage> row = table.createRow(8f); // smaller to fit in one page
 
         Cell<PDPage> taskCell = row.createCell(50, taskName);
         styleTaskCell(taskCell, !taskName.isEmpty());
@@ -73,16 +73,16 @@ public class TaskTableBuilder {
     }
 
     private void addSeparatorRow() {
-        Row<PDPage> separatorRow = table.createRow(5f);
+        Row<PDPage> separatorRow = table.createRow(0.5f);
         Cell<PDPage> separatorCell = separatorRow.createCell(100, "");
-        separatorCell.setFillColor(Color.DARK_GRAY);
+        separatorCell.setFillColor(Color.WHITE);
     }
 
     private void styleHeaderCell(Cell<PDPage> cell) {
         cell.setFont(font);
         cell.setFontSize(12);
-        cell.setFillColor(Color.BLACK);
-        cell.setTextColor(Color.WHITE);
+        cell.setFillColor(Color.LIGHT_GRAY);  // brighter mode
+        cell.setTextColor(Color.BLACK);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
 

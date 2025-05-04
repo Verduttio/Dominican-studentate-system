@@ -15,10 +15,10 @@ public class GroupedTasksTableBuilder {
 
     private final BaseTable table;
     private final PDFont font;
-    private final float FONT_SIZE = 8f;
-    private final float NAME_CELL_WIDTH = 18f;
+    private final float FONT_SIZE =9f;
+    private final float NAME_CELL_WIDTH = 20f;
     private final float ROW_HEIGHT = 10f;
-    private final float CELL_PADDING = 1f;
+    private final float CELL_PADDING = 0.5f;
     private final LineStyle BORDER_LINE_STYLE = new LineStyle(Color.BLACK, 0.4f);
 
     public GroupedTasksTableBuilder(BaseTable table, PDFont font) {

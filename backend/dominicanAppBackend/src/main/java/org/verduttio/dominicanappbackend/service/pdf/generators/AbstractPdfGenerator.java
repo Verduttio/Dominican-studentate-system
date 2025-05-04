@@ -19,9 +19,9 @@ import java.time.LocalDate;
 
 public abstract class AbstractPdfGenerator implements PdfGenerator {
 
-    public static final float MARGIN = 20;
-    public static final String FONT_PATH = "Capsuula.ttf";
-    public static final Color COLOR_LIGHT_GRAY = new Color(217, 217, 217);
+    public static final float MARGIN = 15;
+    public static final String FONT_PATH = "Baloo-Regular.ttf";
+    public static final Color COLOR_LIGHT_GRAY = new Color(247, 247, 247);  // brighter mode
     public static final LineStyle BORDER_LINE_STYLE = new LineStyle(Color.BLACK, 0.4f);
 
     protected final ScheduleService scheduleService;
@@ -44,14 +44,14 @@ public abstract class AbstractPdfGenerator implements PdfGenerator {
     }
 
     protected float addTitle(PDPage page, String title) throws IOException {
-        float titleWidth = font.getStringWidth(title) / 1000 * 18; // Font size 18
-        float titleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * 18;
+        float titleWidth = font.getStringWidth(title) / 1000 * 16; // Font size 16
+        float titleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * 16;
         float startX = (page.getMediaBox().getWidth()) / 2 - titleWidth / 2;
         float startY = page.getMediaBox().getHeight() - MARGIN - titleHeight;
 
         try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
             contentStream.beginText();
-            contentStream.setFont(font, 18);
+            contentStream.setFont(font, 16);
             contentStream.newLineAtOffset(startX, startY);
             contentStream.showText(title);
             contentStream.endText();
