@@ -51,16 +51,6 @@ export const useRolesVisibleInPrints = () => {
     return useFetchData<Role[]>(url);
 };
 
-// export const useScheduleShortInfoForTasksByRole = (
-//     roleName: string | null,
-//     fromDateString: string,
-//     toDateString: string
-// ) => {
-//     const url = roleName
-//         ? `${backendUrl}/api/schedules/tasks/byRole/${roleName}/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`
-//         : null;
-//     return useFetchData<ScheduleShortInfoForTask[]>(url);
-// };
 export const useScheduleShortInfoForTasksByRole = (
     roleName: string | null,
     fromDateString: string,
