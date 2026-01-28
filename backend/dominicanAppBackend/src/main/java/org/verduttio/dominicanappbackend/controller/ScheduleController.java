@@ -143,6 +143,17 @@ public class ScheduleController {
         return new ResponseEntity<>(taskSchedulesForSpecifiedWeek, HttpStatus.OK);
     }
 
+    @PostMapping("/tasks/byRoles/week")
+    public ResponseEntity<List<ScheduleShortInfoForTask>> getScheduleForTasksByRoles(
+            @RequestBody List<String> supervisorRoles,
+            @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+
+        return ResponseEntity.ok(
+                scheduleService.getScheduleShortInfoForTaskByRolesForSpecifiedWeek(supervisorRoles, from, to)
+        );
+    }
+
     @GetMapping("/users/days")
     public ResponseEntity<?> getSchedulePdfForUsersByDays(
             @RequestParam("from") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,

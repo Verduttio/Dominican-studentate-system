@@ -5,6 +5,7 @@ import be.quodlibet.boxable.Cell;
 import be.quodlibet.boxable.HorizontalAlignment;
 import be.quodlibet.boxable.Row;
 import be.quodlibet.boxable.line.LineStyle;
+import be.quodlibet.boxable.VerticalAlignment;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.verduttio.dominicanappbackend.dto.schedule.ScheduleShortInfoForTask;
@@ -18,17 +19,21 @@ public class TaskTableBuilder {
 
     private final BaseTable table;
     private final PDFont font;
+    private Color myGray;
+    private float fontSize;
 
     public TaskTableBuilder(BaseTable table, PDFont font) {
         this.table = table;
         this.font = font;
+        this.myGray = new Color(230, 230, 230);
+        this.fontSize = 11;
     }
 
     public void buildTable(List<ScheduleShortInfoForTask> schedules) throws IOException {
         addHeaderRow();
         for (ScheduleShortInfoForTask schedule : schedules) {
+//            addSeparatorRow();
             addTaskRows(schedule);
-            addSeparatorRow();
         }
         table.draw();
     }
@@ -48,57 +53,55 @@ public class TaskTableBuilder {
         String taskName = schedule.taskName();
         List<String> userNames = schedule.usersInfoStrings();
 
-        if (userNames.isEmpty()) {
-            addRow(taskName, "");
-        } else {
-            for (int i = 0; i < userNames.size(); i++) {
-                String userName = userNames.get(i);
-                if (i == 0) {
-                    addRow(taskName, userName);
-                } else {
-                    addRow("", userName);
-                }
-            }
-        }
+        String usersText = userNames.isEmpty() ? "" : String.join("<br>", userNames);
+
+        // Tworzymy TYLKO JEDEN wiersz dla całego zadania
+        addRow(taskName, usersText);
     }
 
-    private void addRow(String taskName, String userName) {
-        Row<PDPage> row = table.createRow(8f); // smaller to fit in one page
+    private void addRow(String taskName, String usersText) { // Zmiana nazwy drugiego parametru dla jasności
+        Row<PDPage> row = table.createRow(5f); // 5f to minimalna wysokość, rozszerzy się automatycznie
 
         Cell<PDPage> taskCell = row.createCell(50, taskName);
-        styleTaskCell(taskCell, !taskName.isEmpty());
+        styleTaskCell(taskCell); // Usunięty drugi parametr
 
-        Cell<PDPage> userCell = row.createCell(50, userName);
+        Cell<PDPage> userCell = row.createCell(50, usersText);
         styleCell(userCell);
+
+        // Opcjonalnie: zwiększ lekko odstępy między imionami w prawej kolumnie
+        userCell.setLineSpacing(1.2f);
     }
 
     private void addSeparatorRow() {
-        Row<PDPage> separatorRow = table.createRow(0.5f);
+        Row<PDPage> separatorRow = table.createRow(2f);
         Cell<PDPage> separatorCell = separatorRow.createCell(100, "");
         separatorCell.setFillColor(Color.WHITE);
+        separatorCell.setRightBorderStyle(null);
+        separatorCell.setLeftBorderStyle(null);
+        separatorCell.setTopPadding(0f);
+        separatorCell.setBottomPadding(0f);
     }
 
     private void styleHeaderCell(Cell<PDPage> cell) {
         cell.setFont(font);
-        cell.setFontSize(12);
+        cell.setFontSize(this.fontSize);
         cell.setFillColor(Color.LIGHT_GRAY);  // brighter mode
         cell.setTextColor(Color.BLACK);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
 
-    private void styleTaskCell(Cell<PDPage> cell, boolean hasTaskName) {
+    private void styleTaskCell(Cell<PDPage> cell) {
         cell.setFont(font);
-        cell.setFontSize(12);
-        cell.setFillColor(Color.LIGHT_GRAY);
+        cell.setFontSize(this.fontSize);
+        cell.setFillColor(this.myGray);
         cell.setAlign(HorizontalAlignment.CENTER);
-        if (!hasTaskName) {
-            cell.setBorderStyle(new LineStyle(Color.LIGHT_GRAY, 0));
-        }
+        cell.setValign(VerticalAlignment.MIDDLE);
     }
 
     private void styleCell(Cell<PDPage> cell) {
         cell.setFont(font);
-        cell.setFontSize(12);
+        cell.setFontSize(this.fontSize);
+        cell.setFillColor(this.myGray);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
 }
