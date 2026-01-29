@@ -12,6 +12,7 @@ import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
 import org.verduttio.dominicanappbackend.dto.user.UserDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
 import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
+import org.verduttio.dominicanappbackend.dto.user.UserUpdateDTO;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
@@ -149,6 +150,8 @@ public class UserService {
 
     private User convertUserDTOToUser(UserDTO userDTO, AuthProvider authProvider) {
         User user = userDTO.basicFieldsToUser();
+        user.setAcademicYear(userDTO.getAcademicYear());
+        user.setNamedayDate(userDTO.getNamedayDate());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(userDTO.getRoleNames());
         user.setRoles(rolesDB);
         user.setProvider(authProvider);
@@ -156,15 +159,17 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(Long userId, UserDTO updatedUserDTO) {
+    public void updateUser(Long userId, UserUpdateDTO updatedUserDTO) {
         Optional<User> user = userRepository.findById(userId);
         User existingUser = userValidator.validateOptionalUserIsNotEmpty(user);
         userValidator.validateEmailWhenUpdate(updatedUserDTO.getEmail(), existingUser.getEmail());
 
         existingUser.setName(updatedUserDTO.getName());
         existingUser.setSurname(updatedUserDTO.getSurname());
-        existingUser.setEmail(updatedUserDTO.getEmail());
-        existingUser.setPassword(updatedUserDTO.getPassword());
+//        existingUser.setEmail(updatedUserDTO.getEmail());
+//        existingUser.setPassword(updatedUserDTO.getPassword());
+        existingUser.setAcademicYear(updatedUserDTO.getAcademicYear());
+        existingUser.setNamedayDate(updatedUserDTO.getNamedayDate());
         Set<Role> rolesDB = roleService.getRolesByRoleNames(updatedUserDTO.getRoleNames());
         existingUser.setRoles(rolesDB);
 

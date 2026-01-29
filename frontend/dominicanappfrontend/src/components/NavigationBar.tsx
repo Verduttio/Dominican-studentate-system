@@ -97,6 +97,16 @@ const NavigationBar = () => {
                     </button>
                 }
 
+
+                {isAdmin &&
+                    <button
+                        className="bg-dark"
+                        onClick={() => navigateTo('/dean')}
+                    >
+                        Dziekan
+                    </button>
+                }
+
                 <button onClick={() => {
                     navigateTo('/other')
                 }}>Inne
@@ -144,6 +154,16 @@ const NavigationBar = () => {
                         onClick={() => navigateTo('/add-schedule/select-role')}
                     >
                         Wyznacz
+                    </button>
+                }
+
+
+                {isAdmin &&
+                    <button
+                        className="bg-dark"
+                        onClick={() => navigateTo('/dean')}
+                    >
+                        Dziekan
                     </button>
                 }
 

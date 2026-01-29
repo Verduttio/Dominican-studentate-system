@@ -30,6 +30,8 @@ interface User {
     roles: Role[];
     provider: string;
     enabled: boolean;
+    academicYear: number; // Znak zapytania, bo może być nullem
+    namedayDate: string;  // Data przychodzi jako string "YYYY-MM-DD"
 }
 
 interface Obstacle {
@@ -222,3 +224,19 @@ export type {Role, Task, User, Obstacle, Conflict, Schedule, SpecialDate, UserTa
 export type {ObstacleData, UserShortInfo, TaskShortInfo, ScheduleShortInfo, ScheduleShortInfoForTask, UserTaskStatistics}
 export type {UserTaskScheduleInfo, UserTasksScheduleInfoWeekly}
 export type {DayOfWeek, DocumentLink, GroupedScheduleShortInfo}
+export interface PocketMoneySummaryDTO {
+    romanYear: string;
+    brotherCount: number;
+    pocketMoneyTotal: number;
+    namedayCount: number;
+    namedayMoneyTotal: number;
+    rowTotal: number;
+}
+
+export interface PocketMoneyResponseDTO {
+    tableRows: PocketMoneySummaryDTO[];
+    namedayBoys: UserShortInfo[]; // To już masz w projekcie
+    totalPocketMoney: number;
+    totalNamedayMoney: number;
+    grandTotal: number;
+}

@@ -13,10 +13,7 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.dto.auth.PasswordUpdateDTO;
 import org.verduttio.dominicanappbackend.dto.auth.RegisterUserRequest;
-import org.verduttio.dominicanappbackend.dto.user.UserDTO;
-import org.verduttio.dominicanappbackend.dto.user.UserEntryDateDTO;
-import org.verduttio.dominicanappbackend.dto.user.UserNameSurnameDTO;
-import org.verduttio.dominicanappbackend.dto.user.UserShortInfo;
+import org.verduttio.dominicanappbackend.dto.user.*;
 import org.verduttio.dominicanappbackend.domain.AuthProvider;
 import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.security.SecurityUtils;
@@ -219,7 +216,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO updatedUserDTO) {
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @Valid @RequestBody UserUpdateDTO updatedUserDTO) {
         try {
             userService.updateUser(userId, updatedUserDTO);
         } catch (EntityNotFoundException e) {
