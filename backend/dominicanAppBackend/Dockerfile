@@ -1,7 +1,5 @@
 # Building .jar file with gradle
-FROM openjdk:21-jdk as build
-
-RUN microdnf install findutils
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
@@ -10,13 +8,12 @@ COPY gradlew .
 COPY gradlew.bat .
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
-
 COPY src src
 
 RUN chmod +x ./gradlew && ./gradlew build -x test
 
 # Running the application
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jre
 
 ARG SPRING_PROFILES_ACTIVE=prod
 
