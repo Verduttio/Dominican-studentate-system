@@ -807,6 +807,15 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
+    public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskByRolesForSpecifiedWeek(List<String> roleNames, LocalDate from, LocalDate to) {
+        List<ScheduleShortInfoForTask> result = new ArrayList<>();
+        // Iterujemy po każdej roli i doklejamy wyniki do jednej listy
+        for (String roleName : roleNames) {
+            result.addAll(getScheduleShortInfoForTaskByRoleForSpecifiedWeek(roleName, from, to));
+        }
+        return result;
+    }
+
     public List<UserTaskStatisticsDTO> getStatisticsForUserTasks(Long userId) {
         // Retrieve user
         User user = userService.getUserById(userId)

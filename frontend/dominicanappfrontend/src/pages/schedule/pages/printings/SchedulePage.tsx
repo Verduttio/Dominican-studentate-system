@@ -21,6 +21,11 @@ import { backendUrl } from '../../../../utils/constants';
 import { downloadPdf } from './utils/downloadPdf';
 import NonStandardDateSelector from "./components/NonStandardDateSelector";
 import TasksScheduleTable from "./components/tables/TasksScheduleTable";
+import axios from "axios";
+
+const LITURGICAL_PLUS_KEY = "LITURGICAL_PLUS";
+// Te wartości pochodzą z Twojego selecta (value="..."):
+const LITURGICAL_GROUP_ROLES = ["Liturgista", "Kantor gregoriański", "Kantor"];
 
 function SchedulePage() {
     const navigate = useNavigate();
@@ -121,9 +126,54 @@ function SchedulePage() {
     };
 
     const downloadSchedulePdfForTasksByRole = async () => {
-        let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
-        const filename = `Harmonogram_oficja_dla_${selectedSupervisorRoleName}_${fromDateString}-${toDateString}.pdf`;
-        await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole);
+        setLoadingDownloadSchedulePdfForTasksByRole(true);
+        setErrorDownloadSchedulePdfForTasksByRole(null);
+
+        try {
+            // --- NOWA LOGIKA DLA LITURGICZNE+ (Z UŻYCIEM AXIOS) ---
+            if (selectedSupervisorRoleName === LITURGICAL_PLUS_KEY) {
+                const targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRoles/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
+
+                // Używamy axios zamiast fetch, żeby przesłać ciasteczka (withCredentials)
+                const response = await axios({
+                    url: targetUrl,
+                    method: 'POST',
+                    data: LITURGICAL_GROUP_ROLES, // axios używa 'data' zamiast 'body'
+                    withCredentials: true,         // KLUCZOWE: wysyła ciasteczko sesyjne
+                    responseType: 'blob'           // KLUCZOWE: oczekujemy pliku binarnego (PDF)
+                });
+
+                // Obsługa pobierania pliku z odpowiedzi axiosa
+                const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `Harmonogram_Liturgiczne_PLUS_${fromDateString}-${toDateString}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            }
+            // --- STARA LOGIKA DLA POJEDYNCZYCH RÓL ---
+            else {
+                let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
+                const filename = `Harmonogram_oficja_dla_${selectedSupervisorRoleName}_${fromDateString}-${toDateString}.pdf`;
+
+                await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole);
+                return;
+            }
+        } catch (err: any) {
+            // Obsługa błędów axiosa
+            if (axios.isAxiosError(err) && err.response) {
+                // Jeśli serwer zwrócił błąd (np. 403, 500)
+                setErrorDownloadSchedulePdfForTasksByRole(`Błąd serwera: ${err.response.status} - ${err.response.data}`);
+            } else {
+                setErrorDownloadSchedulePdfForTasksByRole(err.message || "Wystąpił nieoczekiwany błąd");
+            }
+        } finally {
+            if (selectedSupervisorRoleName === LITURGICAL_PLUS_KEY) {
+                setLoadingDownloadSchedulePdfForTasksByRole(false);
+            }
+        }
     };
 
     // Similar functions for other PDFs
@@ -210,6 +260,9 @@ function SchedulePage() {
                     onChange={handleRoleChange}
                 >
                     <option value="">Wybierz rolę</option>
+
+                    <option value={LITURGICAL_PLUS_KEY}>Liturgiczne+ (Lit + Greg + Kantor)</option>
+
                     {supervisorRoles?.map(role => (
                         <option key={role.id} value={role.name}>
                             {role.assignedTasksGroupName}
