@@ -169,4 +169,12 @@ public class ObstacleService {
     public Long getNumberOfObstaclesByStatus(ObstacleStatus status) {
         return obstacleRepository.countAllByStatus(status);
     }
+
+    public List<Obstacle> getApprovedObstaclesForDateRange(LocalDate from, LocalDate to) {
+
+        List<Obstacle> obstacles = obstacleRepository.findObstaclesByStatusAndDateRange(ObstacleStatus.APPROVED, from, to);
+
+        obstacles.forEach(this::sortTasksInObstacle);
+        return obstacles.stream().map(obstacleNormalizer::normalize).toList();
+    }
 }

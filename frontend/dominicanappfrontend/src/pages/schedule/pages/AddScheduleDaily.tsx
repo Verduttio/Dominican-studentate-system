@@ -19,10 +19,13 @@ import {faArrowsRotate, faCircleXmark, faXmark} from '@fortawesome/free-solid-sv
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
+import ApprovedObstaclesList from "../../../components/ApprovedObstaclesList";
 
 function AddScheduleDaily() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const currentDateRef = useRef(currentDate); // useRef to keep the value of currentDate in the closure of useEffect
+    const from = format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy');
+    const to = format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeekly[]>([]);
     const location = useLocation();
     const roleName = new URLSearchParams(location.search).get('roleName');
@@ -344,6 +347,14 @@ function AddScheduleDaily() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+
+            <div className="container mt-4 mb-5">
+                <ApprovedObstaclesList
+                    fromDateString={from}
+                    toDateString={to}
+                />
+            </div>
+
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
                 onClose={() => {
                     setUserScheduleHistoryPopup(false)

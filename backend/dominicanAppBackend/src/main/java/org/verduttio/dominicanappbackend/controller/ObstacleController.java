@@ -18,6 +18,7 @@ import org.verduttio.dominicanappbackend.security.UserDetailsImpl;
 import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -108,6 +109,15 @@ public class ObstacleController {
     public ResponseEntity<?> getNumberOfObstaclesByStatus(@PathVariable ObstacleStatus status) {
         Long numberOfNotAnsweredObstacles = obstacleService.getNumberOfObstaclesByStatus(status);
         return new ResponseEntity<>(numberOfNotAnsweredObstacles, HttpStatus.OK);
+    }
+
+    @GetMapping("/approved/range")
+    public ResponseEntity<List<Obstacle>> getApprovedObstaclesForRange(
+            @RequestParam("from") @org.springframework.format.annotation.DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+            @RequestParam("to") @org.springframework.format.annotation.DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate to) {
+
+        List<Obstacle> obstacles = obstacleService.getApprovedObstaclesForDateRange(from, to);
+        return new ResponseEntity<>(obstacles, HttpStatus.OK);
     }
 
     @PostMapping("/users/current")

@@ -19,7 +19,7 @@ import {faArrowsRotate} from "@fortawesome/free-solid-svg-icons";
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
 import {countAssignedUsers, isTaskFullyAssigned} from "./ScheduleUtils";
-
+import ApprovedObstaclesList from "../../../components/ApprovedObstaclesList";
 
 function AddScheduleWeekly() {
     const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -310,6 +310,14 @@ function AddScheduleWeekly() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+
+            <div className="container mt-4 mb-5">
+                <ApprovedObstaclesList
+                    fromDateString={from}
+                    toDateString={to}
+                />
+            </div>
+
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
                 onClose={() => {setUserScheduleHistoryPopup(false)}}
                 userId={userIdForScheduleHistoryPopup}

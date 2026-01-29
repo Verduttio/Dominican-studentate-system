@@ -18,6 +18,7 @@ import WeekSelector from "../../../components/WeekSelector";
 import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
 import "../common/AddScheduleWeeklyByAllDays.css";
 import AlertBoxTimed from "../../../components/AlertBoxTimed";
+import ApprovedObstaclesList from "../../../components/ApprovedObstaclesList";
 
 interface ExpandedSelects {
     [key: string]: boolean;
@@ -406,6 +407,14 @@ function AddScheduleWeeklyByAllDays() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+
+            <div className="container mt-4 mb-5">
+                <ApprovedObstaclesList
+                    fromDateString={from}
+                    toDateString={to}
+                />
+            </div>
+
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
                 onClose={() => {
                     setUserScheduleHistoryPopup(false)
