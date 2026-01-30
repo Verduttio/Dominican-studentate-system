@@ -23,7 +23,7 @@ const DeanPage = () => {
         <div className="container mt-4 fade-in">
             <h2 className="text-center mb-4">Panel Dziekana</h2>
             <div className="row justify-content-center">
-                <div className="col-md-4">
+                <div className="col-md-4 mb-4">
                     <Link to="/dean/pocket-money" style={{ textDecoration: 'none' }}>
                         <div className="card text-center p-4 shadow-sm hover-effect" style={{ cursor: 'pointer' }}>
                             <div className="card-body">
@@ -36,7 +36,7 @@ const DeanPage = () => {
                         </div>
                     </Link>
                 </div>
-                <div className="col-md-4 mb-3">
+                <div className="col-md-4 mb-4">
                     <Link to="/obstacles" style={{ textDecoration: 'none' }}>
                         <div className="card text-center p-4 shadow-sm hover-effect h-100" style={{ cursor: 'pointer' }}>
                             <div className="card-body position-relative">
