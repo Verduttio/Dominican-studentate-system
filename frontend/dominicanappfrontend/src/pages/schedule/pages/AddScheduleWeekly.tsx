@@ -93,7 +93,7 @@ function AddScheduleWeekly() {
         const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
 
         if (userTaskDependency?.hasObstacle) {
-            setConfirmAssignmentPopupText("UWAGA: Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?");
+            setConfirmAssignmentPopupText("Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?");
             setUserIdAssignPopupData(userId);
             setTaskIdAssignPopupData(taskId);
             setShowConfirmAssignmentPopup(true);
