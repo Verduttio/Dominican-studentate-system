@@ -255,7 +255,8 @@ public class ScheduleService {
                     // If there is any feast in the week,
                     // then the string should be: task.name (days of week when assign)
                     // even if the task occurs on all days of the week.
-                    if (weekWithFeast) {
+                    if (weekWithFeast && occurrences.size() != task.getDaysOfWeek().size()) {
+
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
@@ -695,7 +696,7 @@ public class ScheduleService {
                     // SUNDAY, MONDAY, ..., SATURDAY order
                     Comparator<DayOfWeek> customOrderComparator = Comparator
                             .comparingInt(day -> (day.getValue() % DayOfWeek.values().length));
-                    if (weekWithFeast) {
+                    if (weekWithFeast && occurrences.size() != 7) {
                         String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                 .map(dayOfWeekAbbreviations::get)
                                 .collect(Collectors.joining(", "));
@@ -770,7 +771,7 @@ public class ScheduleService {
                         // If there is any feast in the week,
                         // then the string should be: task.name (days of week when assign)
                         // even if the task occurs on all days of the week.
-                        if (weekWithFeast) {
+                        if (weekWithFeast && occurrences.size() != task.getDaysOfWeek().size()) {
                             String daysOfWeekString = occurrences.stream().sorted(customOrderComparator)
                                     .map(dayOfWeekAbbreviations::get)
                                     .collect(Collectors.joining(", "));

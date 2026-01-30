@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Set;
@@ -32,6 +33,12 @@ public class User implements Serializable {
     private String surname;
 
     private LocalDateTime entryDate;
+
+    @Column(name = "academic_year")
+    private Integer academicYear;
+
+    @Column(name = "nameday_date")
+    private LocalDate namedayDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -131,6 +138,21 @@ public class User implements Serializable {
         this.entryDate = entryDate;
     }
 
+    public Integer getAcademicYear() {
+        return academicYear;
+    }
+
+    public void setAcademicYear(Integer academicYear) {
+        this.academicYear = academicYear;
+    }
+
+    public LocalDate getNamedayDate() {
+        return namedayDate;
+    }
+
+    public void setNamedayDate(LocalDate namedayDate) {
+        this.namedayDate = namedayDate;
+    }
 
     // Constructors
     public User() {

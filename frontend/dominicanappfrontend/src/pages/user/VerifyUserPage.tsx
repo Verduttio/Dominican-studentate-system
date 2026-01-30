@@ -19,6 +19,9 @@ function VerifyUserPage() {
     const { request: fetchSupervisorRoles, error: errorFetchSupervisorRoles, loading: loadingSupervisorRoles } = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
     const { request: fetchTaskPerformerRoles, error: errorFetchTaskPerformerRoles, loading: loadingTaskPerformerRoles } = useHttp(`${backendUrl}/api/roles/types/TASK_PERFORMER`, 'GET');
     const { request: fetchUser, error: errorFetchUser, loading: loadingUser} = useHttp(`${backendUrl}/api/users/${userId}`, 'GET');
+
+    const { request: fullUpdateUserRequest, error: updateError, loading: updateLoading } = useHttp(`${backendUrl}/api/users/${userId}`, 'PUT');
+
     const { request: deleteUserRequest, error: deleteUserError, loading: deleteUserLoading} = useHttp(`${backendUrl}/api/users/${userId}`, 'DELETE');
     const { request: verifyUserRequest, error: requestError, loading: requestLoading} = useHttp(`${backendUrl}/api/users/${userId}/verification/assignRoles`, 'PUT');
     const { request: updateRolesRequest, error: updateRolesError, loading: updateRolesLoading } = useHttp(`${backendUrl}/api/users/${userId}/roles`, 'PATCH');
@@ -28,6 +31,10 @@ function VerifyUserPage() {
     const [rolesSupervisor, setRolesSupervisor] = useState<Role[]>([]);
     const [rolesTaskPerformer, setRolesTaskPerformer] = useState<Role[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+    const [academicYear, setAcademicYear] = useState<number | undefined>(undefined);
+    const [namedayDate, setNamedayDate] = useState<string>("");
+
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [showChangeNameSurname, setShowChangeNameSurname] = useState(false);
     const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
@@ -38,6 +45,8 @@ function VerifyUserPage() {
         fetchUser(null, (data: User) => {
             setUser(data);
             setSelectedRoles(data.roles.map(role => role.name));
+            setAcademicYear(data.academicYear);
+            setNamedayDate(data.namedayDate ? data.namedayDate : "");
         });
         fetchSupervisorRoles(null, (data: Role[]) => setRolesSupervisor(data));
         fetchTaskPerformerRoles(null, (data: Role[]) => setRolesTaskPerformer(data));
@@ -49,6 +58,25 @@ function VerifyUserPage() {
         } else {
             setSelectedRoles(prev => prev.filter(role => role !== roleName));
         }
+    };
+
+    const handleFullUpdate = () => {
+        if (!user) return;
+
+        // Budujemy obiekt UserDTO
+        const userDto = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            surname: user.surname,
+            roleNames: selectedRoles, // Role z checkboxów
+            academicYear: academicYear, // Nowe pole
+            namedayDate: namedayDate || null // Nowe pole (pusty string zamieniamy na null)
+        };
+
+        fullUpdateUserRequest(userDto, () => {
+            navigate('/users', { state: { message: 'Dane brata zostały zaktualizowane' } });
+        });
     };
 
     const handleSubmit = () => {
@@ -149,6 +177,37 @@ function VerifyUserPage() {
                 </div>
             </div>
             <div className="edit-entity-container mw-100" style={{width: '400px'}}>
+                <div className="mb-3">
+                    <label className="form-label fw-bold">Rok studiów:</label>
+                    <select
+                        className="form-select"
+                        value={academicYear || ''}
+                        onChange={(e) => setAcademicYear(e.target.value ? parseInt(e.target.value) : undefined)}
+                    >
+                        <option value="">-- Brak / Nie dotyczy --</option>
+                        <option value="1">I rok</option>
+                        <option value="2">II rok</option>
+                        <option value="3">III rok</option>
+                        <option value="4">IV rok</option>
+                        <option value="5">V rok</option>
+                        <option value="6">VI rok</option>
+                    </select>
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label fw-bold">Data imienin:</label>
+                    <input
+                        type="date"
+                        className="form-control"
+                        value={namedayDate || ''}
+                        onChange={(e) => setNamedayDate(e.target.value)}
+                    />
+                    <div className="form-text text-muted" style={{fontSize: '0.8rem'}}>
+                        Rok nie ma znaczenia, system bierze pod uwagę tylko dzień i miesiąc.
+                    </div>
+                </div>
+                <hr className="my-3"/>
+
                 {requestError && <AlertBox text={requestError} type="danger" width={'500px'}/>}
                 {deleteUserError && <AlertBox text={deleteUserError} type="danger" width={'500px'}/>}
                 {updateRolesError && <AlertBox text={updateRolesError} type="danger" width={'500px'}/>}
@@ -194,10 +253,10 @@ function VerifyUserPage() {
                 <div className="d-flex justify-content-between">
                     {user?.enabled ?
                         <button className="btn btn-success m-1"
-                                onClick={handleUpdateRoles}
-                                disabled={deleteUserLoading || updateRolesLoading}
+                                onClick={handleFullUpdate}
+                                disabled={deleteUserLoading || updateLoading}
                         >
-                            {updateRolesLoading ? (
+                            {updateLoading ? (
                                 <>
                                     <span>Zapisywanie </span>
                                     <span className="spinner-border spinner-border-sm"></span>

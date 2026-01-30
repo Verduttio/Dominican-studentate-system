@@ -16,6 +16,7 @@ import org.verduttio.dominicanappbackend.domain.AuthProvider;
 import org.verduttio.dominicanappbackend.domain.Role;
 import org.verduttio.dominicanappbackend.domain.RoleType;
 import org.verduttio.dominicanappbackend.domain.User;
+import org.verduttio.dominicanappbackend.dto.user.UserUpdateDTO;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.UserRepository;
@@ -198,7 +199,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser() {
         Long userId = 1L;
-        UserDTO updatedUserDTO = new UserDTO();
+        UserUpdateDTO updatedUserDTO = new UserUpdateDTO();
         updatedUserDTO.setEmail("updated@example.com");
         updatedUserDTO.setName("Updated");
         updatedUserDTO.setSurname("User");

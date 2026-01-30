@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.verduttio.dominicanappbackend.domain.User;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 public class UserDTO {
@@ -23,6 +24,10 @@ public class UserDTO {
     private String surname;
 
     private Set<String> roleNames;
+
+    private Integer academicYear;
+
+    private LocalDate namedayDate;
 
     public String getEmail() {
         return email;
@@ -53,12 +58,14 @@ public class UserDTO {
     }
 
     public UserDTO(String email, String password, Set<String> roleNames,
-                   String name, String surname) {
+                   String name, String surname, Integer academicYear, LocalDate namedayDate) {
         this.email = email;
         this.password = password;
         this.roleNames = roleNames;
         this.name = name;
         this.surname = surname;
+        this.academicYear = academicYear;
+        this.namedayDate = namedayDate;
     }
 
     public User basicFieldsToUser() {
@@ -85,4 +92,9 @@ public class UserDTO {
     public void setSurname(String surname) {
         this.surname = surname;
     }
+
+    public Integer getAcademicYear() { return academicYear; }
+    public void setAcademicYear(Integer academicYear) { this.academicYear = academicYear; }
+    public LocalDate getNamedayDate() { return namedayDate; }
+    public void setNamedayDate(LocalDate namedayDate) { this.namedayDate = namedayDate; }
 }
