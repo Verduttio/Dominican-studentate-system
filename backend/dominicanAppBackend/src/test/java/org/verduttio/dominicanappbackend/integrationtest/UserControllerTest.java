@@ -153,7 +153,6 @@ public class UserControllerTest {
                 + "\"name\":\"John\","
                 + "\"surname\":\"Doe\","
                 + "\"email\":\"john@mail.com\","
-                + "\"password\":\"password2\","
                 + "\"roleNames\":[\"ROLE_ADMIN\"]"
                 + "}";
 
@@ -171,10 +170,35 @@ public class UserControllerTest {
         assertEquals("John", updatedUser.getName());
         assertEquals("Doe", updatedUser.getSurname());
         assertEquals("john@mail.com", updatedUser.getEmail());
-        assertNotNull(updatedUser.getPassword());
-        assertNotEquals("password2", updatedUser.getPassword());
+
         assertEquals(1, updatedUser.getRoles().size());
         assertTrue(updatedUser.getRoles().stream().anyMatch(r -> "ROLE_ADMIN".equals(r.getName())));
+
+        databaseInitializer.clearDb();
+    }
+
+    @Test
+    public void patchUserPassword_ShouldUpdatePassword() throws Exception {
+        Role roleUser = databaseInitializer.addRoleUser();
+        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
+
+        String oldPasswordHash = user.getPassword();
+
+        String passwordUpdateJson = "{"
+                + "\"newPassword\":\"newSuperSecretPassword123\""
+                + "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/" + user.getId() + "/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(passwordUpdateJson))
+                .andExpect(status().isOk());
+
+        User updatedUser = userRepository.findById(user.getId()).orElse(null);
+        assertNotNull(updatedUser);
+
+        assertNotEquals(oldPasswordHash, updatedUser.getPassword());
+
+        assertNotNull(updatedUser.getPassword());
 
         databaseInitializer.clearDb();
     }
