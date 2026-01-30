@@ -1,9 +1,24 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWallet } from '@fortawesome/free-solid-svg-icons'; // Upewnij się, że masz tę ikonę lub wybierz inną
+import {faNoteSticky, faWallet} from '@fortawesome/free-solid-svg-icons';
+import useHttp from "../../services/UseHttp";
+import { backendUrl } from "../../utils/constants";
 
 const DeanPage = () => {
+
+    const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
+
+    const { request: numberOfAwaitingObstaclesRequest } = useHttp(
+        `${backendUrl}/api/obstacles/AWAITING/count`, 'GET'
+    );
+
+    useEffect(() => {
+        numberOfAwaitingObstaclesRequest(null, ((number) => {
+            setNumberOfAwaitingObstacles(number);
+        }))
+    }, [numberOfAwaitingObstaclesRequest]);
+
     return (
         <div className="container mt-4 fade-in">
             <h2 className="text-center mb-4">Panel Dziekana</h2>
@@ -21,7 +36,27 @@ const DeanPage = () => {
                         </div>
                     </Link>
                 </div>
-                {/* Tutaj w przyszłości dodasz kolejne kafelki */}
+                <div className="col-md-4 mb-3">
+                    <Link to="/obstacles" style={{ textDecoration: 'none' }}>
+                        <div className="card text-center p-4 shadow-sm hover-effect h-100" style={{ cursor: 'pointer' }}>
+                            <div className="card-body position-relative">
+                                {/* Powiadomienie (Badge) */}
+                                {numberOfAwaitingObstacles > 0 && (
+                                    <span className="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger mt-3 me-3" style={{ fontSize: '0.9rem' }}>
+                                        {numberOfAwaitingObstacles}
+                                        <span className="visually-hidden">oczekujące</span>
+                                    </span>
+                                )}
+
+                                <FontAwesomeIcon icon={faNoteSticky} size="3x" className="mb-3 text-primary" />
+                                <h4 className="card-title text-dark">Przeszkody</h4>
+                                <p className="card-text text-muted">
+                                    Przeglądaj, zatwierdzaj i zarządzaj zgłoszonymi przeszkodami braci.
+                                </p>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
             </div>
         </div>
     );

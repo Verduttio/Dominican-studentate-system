@@ -104,18 +104,18 @@ const NavigationBar = () => {
                         onClick={() => navigateTo('/dean')}
                     >
                         Dziekan
+                        {numberOfAwaitingObstacles > 0 && (
+                            <span className="notification-icon">
+                                <FontAwesomeIcon icon={faNoteSticky} />
+                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                            </span>
+                        )}
                     </button>
                 }
 
                 <button onClick={() => {
                     navigateTo('/other')
                 }}>Inne
-                    {isAdmin && numberOfAwaitingObstacles > 0 && (
-                        <span className="notification-icon">
-                                <FontAwesomeIcon icon={faNoteSticky}/>
-                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
-                            </span>
-                    )}
                 </button>
 
                 <button
@@ -164,6 +164,12 @@ const NavigationBar = () => {
                         onClick={() => navigateTo('/dean')}
                     >
                         Dziekan
+                        {numberOfAwaitingObstacles > 0 && (
+                            <span className="notification-icon">
+                                <FontAwesomeIcon icon={faNoteSticky} />
+                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
+                            </span>
+                        )}
                     </button>
                 }
 
@@ -171,12 +177,6 @@ const NavigationBar = () => {
                 <button onClick={() => {
                     navigateTo('/other')
                 }}>Inne
-                    {isAdmin && numberOfAwaitingObstacles > 0 && (
-                        <span className="notification-icon">
-                                <FontAwesomeIcon icon={faNoteSticky}/>
-                                <span className="notification-count">{numberOfAwaitingObstacles}</span>
-                            </span>
-                    )}
                 </button>
 
                 <button
