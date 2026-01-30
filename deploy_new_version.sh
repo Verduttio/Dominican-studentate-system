@@ -32,12 +32,15 @@ else
     exit 1
 fi
 
-# Checking if the frontend build volume exists, it has to be stopped before it can be removed
-if docker volume ls | grep -q "dominican-studentate-system-${branch}_frontend-build"; then
-    echo "Frontend build volume found. Removing after stopping services..."
+# Checking if the frontend build volume exists (it may not exist - that's OK)
+FRONTEND_VOL="dominican-studentate-system-${branch}_frontend-build"
+
+if docker volume inspect "${FRONTEND_VOL}" >/dev/null 2>&1; then
+    echo "Frontend build volume '${FRONTEND_VOL}' found. It will be removed before build."
+    FRONTEND_VOL_EXISTS=1
 else
-    echo "Volume not found. Removal is necessary for the build to work. Exiting."
-    exit 1
+    echo "Frontend build volume '${FRONTEND_VOL}' not found. Skipping removal."
+    FRONTEND_VOL_EXISTS=0
 fi
 
 if docker compose ps | grep "Up"; then
@@ -47,8 +50,10 @@ else
     echo "No running services found. Skipping shutdown."
 fi
 
-echo "Removing frontend builder volume..."
-docker volume rm dominican-studentate-system-"${branch}"_frontend-build
+if [ "${FRONTEND_VOL_EXISTS}" -eq 1 ]; then
+    echo "Removing frontend builder volume..."
+    docker volume rm "${FRONTEND_VOL}"
+fi
 
 echo "Building all services..."
 docker compose build
