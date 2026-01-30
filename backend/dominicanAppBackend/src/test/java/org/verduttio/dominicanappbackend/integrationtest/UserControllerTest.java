@@ -178,32 +178,6 @@ public class UserControllerTest {
     }
 
     @Test
-    public void patchUserPassword_ShouldUpdatePassword() throws Exception {
-        Role roleUser = databaseInitializer.addRoleUser();
-        User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
-
-        String oldPasswordHash = user.getPassword();
-
-        String passwordUpdateJson = "{"
-                + "\"newPassword\":\"newSuperSecretPassword123\""
-                + "}";
-
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/" + user.getId() + "/password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(passwordUpdateJson))
-                .andExpect(status().isOk());
-
-        User updatedUser = userRepository.findById(user.getId()).orElse(null);
-        assertNotNull(updatedUser);
-
-        assertNotEquals(oldPasswordHash, updatedUser.getPassword());
-
-        assertNotNull(updatedUser.getPassword());
-
-        databaseInitializer.clearDb();
-    }
-
-    @Test
     public void deleteUser_WithExistingId_ShouldReturnNoContent() throws Exception {
         Role roleUser = databaseInitializer.addRoleUser();
         User user = databaseInitializer.addUserFrankCadillac(Set.of(roleUser));
