@@ -92,7 +92,13 @@ function AddScheduleWeekly() {
         const task = tasks?.find(task => task.id === taskId);
         const participantsLimit = task?.participantsLimit ? task.participantsLimit : 0;
 
-        if (userTaskDependency?.isInConflict && countAssignedUsers(taskId, userDependencies) >= participantsLimit) {
+        if (userTaskDependency?.hasObstacle) {
+            setConfirmAssignmentPopupText("UWAGA: Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?");
+            setUserIdAssignPopupData(userId);
+            setTaskIdAssignPopupData(taskId);
+            setShowConfirmAssignmentPopup(true);
+        }
+        else if (userTaskDependency?.isInConflict && countAssignedUsers(taskId, userDependencies) >= participantsLimit) {
             setConfirmAssignmentPopupText("Brat wykonuje inne oficjum, które jest w konflikcie z wybranym. Ponadto do oficjum jest już przypisana maksymalna liczba braci. Czy na pewno chcesz wyznaczyć do tego zadania wybranego brata?");
             setUserIdAssignPopupData(userId);
             setTaskIdAssignPopupData(taskId);
@@ -202,7 +208,7 @@ function AddScheduleWeekly() {
                             </button>
                         )
                     ) : (udep.assignedToTheTask ? (
-                            <button className='btn btn-info'
+                            <button className='btn btn-danger'
                                     onClick={() => {
                                         unassignTask(dep.userId, udep.taskId)
                                     }} disabled={assignToTaskLoading || unassignTaskLoading}>
@@ -212,8 +218,9 @@ function AddScheduleWeekly() {
                                                             </span>
                             </button>
                         ) : (
-                            <button className='btn btn-info'
-                                    disabled={true}>
+                            <button className='btn btn-danger' // Zmiana na czerwony (ostrzegawczy)
+                                    onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                                    disabled={assignToTaskLoading || unassignTaskLoading}>
                                 {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
                             </button>
                         )

@@ -315,7 +315,7 @@ public class ScheduleService {
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
-        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(from, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(from, user, task) && !ignoreConflicts, new EntityAlreadyExistsException("User has an approved obstacle for this task"));
 
         validate(checkIfTaskIsInTaskList(userWeekAssignedTasks, task), new EntityAlreadyExistsException("User is already assigned to the task"));
 
@@ -350,7 +350,7 @@ public class ScheduleService {
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
-        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task) && !ignoreConflicts, new EntityAlreadyExistsException("User has an approved obstacle for this task"));
 
         validate(checkIfUserIsAlreadyAssignedToDailyTask(task, userWeekSchedules, taskDate), new EntityAlreadyExistsException("User is already assigned to the task on given day"));
 
@@ -491,7 +491,9 @@ public class ScheduleService {
 
         checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
         checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
+        if (!ignoreConflicts) {
+            checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
+        }
         checkScheduleConflict(scheduleDTO, ignoreConflicts);
     }
 
