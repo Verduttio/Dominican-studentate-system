@@ -231,6 +231,7 @@ export interface PocketMoneySummaryDTO {
     namedayCount: number;
     namedayMoneyTotal: number;
     rowTotal: number;
+    brothers: UserShortInfo[];
 }
 
 export interface PocketMoneyResponseDTO {
