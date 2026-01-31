@@ -100,6 +100,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
+                        .requestMatchers("/api/calendar/ics/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement
