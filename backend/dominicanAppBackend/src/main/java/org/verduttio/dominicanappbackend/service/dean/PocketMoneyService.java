@@ -39,6 +39,8 @@ public class PocketMoneyService {
         // 3. Grupuj po roczniku (filtrując tylko tych, co mają ustawiony rocznik)
         Map<Integer, List<User>> usersByYear = allUsers.stream()
                 .filter(u -> u.getAcademicYear() != null)
+                .filter(u -> u.getRoles().stream()
+                        .anyMatch(role -> "Brat".equals(role.getName())))
                 .collect(Collectors.groupingBy(User::getAcademicYear));
 
         List<PocketMoneySummaryDTO> tableRows = new ArrayList<>();
@@ -70,6 +72,10 @@ public class PocketMoneyService {
                     u.getName(), u.getSurname() + " (" + toRoman(finalYear) + ")" // Format: Jan Kowalski (I)
             )));
 
+            List<UserShortInfo> brothersInYear = yearUsers.stream()
+                    .map(u -> new UserShortInfo(u.getId(), u.getName(), u.getSurname()))
+                    .toList();
+
             // Zbuduj wiersz tabeli
             tableRows.add(new PocketMoneySummaryDTO(
                     toRoman(year),
@@ -77,7 +83,8 @@ public class PocketMoneyService {
                     pocketMoneyTotal,
                     namedayCount,
                     namedayMoneyTotal,
-                    rowTotal
+                    rowTotal,
+                    brothersInYear
             ));
 
             totalPocketMoney += pocketMoneyTotal;

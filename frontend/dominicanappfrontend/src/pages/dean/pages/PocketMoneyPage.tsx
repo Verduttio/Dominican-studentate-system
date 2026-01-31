@@ -5,8 +5,8 @@ import axios from 'axios';
 import { backendUrl } from '../../../utils/constants'; // Dopasuj ścieżkę importu!
 import { PocketMoneyResponseDTO } from '../../../models/Interfaces'; // Dopasuj ścieżkę!
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
-import AlertBox from '../../../components/AlertBox'; // Dopasuj ścieżkę!
+import { faChevronLeft, faChevronRight, faSave, faSpinner, faList } from '@fortawesome/free-solid-svg-icons';
+import AlertBox from '../../../components/AlertBox';
 
 const PocketMoneyPage = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -91,15 +91,17 @@ const PocketMoneyPage = () => {
 
             {/* --- SEKCJA WYBORU MIESIĄCA --- */}
             <div className="d-flex justify-content-center align-items-center mb-4">
-                <button className="btn btn-outline-primary" onClick={handlePrevMonth}>
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <h4 className="mx-4 mb-0" style={{ minWidth: '200px', textAlign: 'center' }}>
-                    {format(currentDate, 'LLLL yyyy', { locale: pl }).toUpperCase()}
-                </h4>
-                <button className="btn btn-outline-primary" onClick={handleNextMonth}>
-                    <FontAwesomeIcon icon={faChevronRight} />
-                </button>
+                <div className="d-flex align-items-center bg-white shadow-sm rounded p-2 px-3">
+                    <button className="btn btn-outline-primary" onClick={handlePrevMonth}>
+                        <FontAwesomeIcon icon={faChevronLeft} />
+                    </button>
+                    <h4 className="mx-4 mb-0" style={{ minWidth: '200px', textAlign: 'center' }}>
+                        {format(currentDate, 'LLLL yyyy', { locale: pl }).toUpperCase()}
+                    </h4>
+                    <button className="btn btn-outline-primary" onClick={handleNextMonth}>
+                        <FontAwesomeIcon icon={faChevronRight} />
+                    </button>
+                </div>
             </div>
 
             {error && <AlertBox text={error} type="danger" width="100%"/>}
@@ -213,6 +215,46 @@ const PocketMoneyPage = () => {
                             </div>
                         </div>
                     </div>
+                    {data && (
+                        <div className="mt-5">
+                            <h4 className="text-center mb-3">
+                                <FontAwesomeIcon icon={faList} className="me-2"/>
+                                Skład roczników
+                            </h4>
+                            <div className="table-responsive shadow-sm bg-white rounded">
+                                <table className="table table-bordered mb-0 align-middle">
+                                    <thead className="table-light text-center">
+                                    <tr>
+                                        <th style={{ width: '100px' }}>Rocznik</th>
+                                        <th>Bracia</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {data.tableRows.map((row) => (
+                                        <tr key={row.romanYear}>
+                                            <td className="text-center fw-bold bg-light">
+                                                {row.romanYear}
+                                            </td>
+                                            <td>
+                                                <div className="d-flex flex-wrap gap-2">
+                                                    {(row as any).brothers && (row as any).brothers.length > 0 ? (
+                                                        (row as any).brothers.map((brother: any) => (
+                                                            <span key={brother.id} className="badge bg-light text-dark border p-2 fw-normal" style={{fontSize: '0.9rem'}}>
+                                                                {brother.name} {brother.surname}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-muted small fst-italic ps-2">Brak braci</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
         </div>

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState, Dispatch, SetStateAction} from 'react';
 import {addDays, endOfWeek, format, startOfWeek} from "date-fns";
 import useHttp from "../../services/UseHttp";
 import {Schedule} from "../../models/Interfaces";
@@ -10,10 +10,12 @@ import AlertBox from "../../components/AlertBox";
 
 interface UserWeekScheduleProps {
     userId: number;
+    currentWeek: Date;
+    setCurrentWeek: Dispatch<SetStateAction<Date>>;
 }
 
-const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId}) => {
-    const [currentWeek, setCurrentWeek] = useState(new Date());
+const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek, setCurrentWeek}) => {
+    // const [currentWeek, setCurrentWeek] = useState(new Date());
     const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
     const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
