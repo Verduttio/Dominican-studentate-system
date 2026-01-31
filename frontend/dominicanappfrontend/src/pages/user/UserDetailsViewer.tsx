@@ -11,6 +11,7 @@ import {formatEntryDate} from "../../utils/LocalDateTimeFormatter";
 
 function UserDetailsViewer () {
     const [user, setUser] = useState<User | null>(null);
+    const [currentWeek, setCurrentWeek] = useState(new Date());
     const { userId } = useParams();
     const { error, loading, request } = useHttp(`${backendUrl}/api/users/${userId}`, 'GET');
 
@@ -55,7 +56,11 @@ function UserDetailsViewer () {
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size my-0">Harmonogram brata</h4>
             </div>
-            <UserWeekSchedule userId={user ? user.id : 0}/>
+            <UserWeekSchedule
+                userId={user ? user.id : 0}
+                currentWeek={currentWeek}
+                setCurrentWeek={setCurrentWeek}
+            />
             <div className="d-flex justify-content-center">
                 <h4 className="entity-header-dynamic-size">Statystyki</h4>
             </div>
