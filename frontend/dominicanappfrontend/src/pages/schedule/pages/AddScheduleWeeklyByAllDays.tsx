@@ -18,6 +18,7 @@ import WeekSelector from "../../../components/WeekSelector";
 import {daysOfWeekAbbreviation, daysOrder} from "../../../models/DayOfWeek";
 import "../common/AddScheduleWeeklyByAllDays.css";
 import AlertBoxTimed from "../../../components/AlertBoxTimed";
+import ApprovedObstaclesList from "../../../components/ApprovedObstaclesList";
 
 interface ExpandedSelects {
     [key: string]: boolean;
@@ -144,8 +145,11 @@ function AddScheduleWeeklyByAllDays() {
             setInfoOnlyAssignPopupData(false);
             setShowConfirmAssignmentPopup(true);
         } else if (userTaskDependency?.hasObstacle) {
-            setConfirmAssignmentPopupText("Brat posiada przeszkodę na to oficjum w wybranym dniu. Nie możesz go wyznaczyć.");
-            setInfoOnlyAssignPopupData(true);
+            setConfirmAssignmentPopupText("Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?");
+            setUserIdAssignPopupData(userId);
+            setTaskIdAssignPopupData(taskId);
+            setDayAssignPopupData(day);
+            setInfoOnlyAssignPopupData(false); // <--- Zmiana na false (pozwala kliknąć "Tak")
             setShowConfirmAssignmentPopup(true);
         } else {
             assignToTask(userId, taskId, day);
@@ -228,6 +232,9 @@ function AddScheduleWeeklyByAllDays() {
                 </td>
             )
         } else {
+            const availableOptions = dep.userTasksScheduleInfo.get(day)?.filter(task => !task.assignedToTheTask && task.visible) || [];
+            const allOptionsBlocked = availableOptions.length > 0 && availableOptions.every(task => task.hasObstacle);
+
             return (
                 <td key={index}>
                     {dep.userTasksScheduleInfo.get(day)?.every(task => !task.visible) ? (
@@ -238,7 +245,7 @@ function AddScheduleWeeklyByAllDays() {
                         <>
                             <div className="d-flex justify-content-center">
                                 <select
-                                    className={`form-control p-0 ${expandedSelects[`${indexRow}-${day}`] ? 'select-expanded' : 'select-collapsed'}`}
+                                    className={`form-control p-0 ${expandedSelects[`${indexRow}-${day}`] ? 'select-expanded' : 'select-collapsed'} ${allOptionsBlocked ? 'bg-danger text-white' : ''}`}
                                     onFocus={() => handleSelectFocus(indexRow, day, true)}
                                     onBlur={() => handleSelectFocus(indexRow, day, false)}
                                     onChange={(e) => {
@@ -246,13 +253,16 @@ function AddScheduleWeeklyByAllDays() {
                                     }}
                                     disabled={assignToTaskLoading || unassignTaskLoading}
                                 >
-                                    <option className="text-center">+</option>
+                                    <option className={`text-center ${allOptionsBlocked ? 'bg-danger text-white' : ''}`}>
+                                        +
+                                    </option>
+
                                     {dep.userTasksScheduleInfo.get(day)?.filter(task => !task.assignedToTheTask && task.visible).map((task, index) => {
                                         let optionClassName;
                                         if (task.isInConflict) {
                                             optionClassName = "bg-warning";
                                         } else if (task.hasObstacle) {
-                                            optionClassName = "bg-links";
+                                            optionClassName = "bg-danger";
                                         } else {
                                             optionClassName = "";
                                         }
@@ -406,6 +416,14 @@ function AddScheduleWeeklyByAllDays() {
             {assignToTaskError && <AlertBox text={assignToTaskError} type={'danger'} width={'500px'}/>}
             {unassignTaskError && <AlertBox text={unassignTaskError} type={'danger'} width={'500px'}/>}
             {renderTable()}
+
+            <div className="container mt-4 mb-5">
+                <ApprovedObstaclesList
+                    fromDateString={from}
+                    toDateString={to}
+                />
+            </div>
+
             {userScheduleHistoryPopup && <UserShortScheduleHistoryPopup
                 onClose={() => {
                     setUserScheduleHistoryPopup(false)

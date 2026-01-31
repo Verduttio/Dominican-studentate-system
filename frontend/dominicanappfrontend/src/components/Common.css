@@ -57,7 +57,7 @@
     display: block;
     width: fit-content;
     overflow-x: auto;
-    height: 100vh;
+    /*height: 100vh;*/
     padding-inline: 10px;
 }
 

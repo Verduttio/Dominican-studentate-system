@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -32,6 +33,13 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
 
     @Query("SELECT o FROM Obstacle o JOIN o.tasks t WHERE t.id = :taskId")
     List<Obstacle> findAllByTaskId(Long taskId);
+
+    @Query("SELECT o FROM Obstacle o WHERE o.status = :status AND o.fromDate <= :endDate AND o.toDate >= :startDate ORDER BY o.fromDate ASC")
+    List<Obstacle> findObstaclesByStatusAndDateRange(
+            @Param("status") ObstacleStatus status,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 
     @Transactional
     @Modifying
