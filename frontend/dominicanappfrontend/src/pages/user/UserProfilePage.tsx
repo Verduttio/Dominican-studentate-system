@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import LoadingSpinner from "../../components/LoadingScreen";
 import {Provider} from "../../models/Interfaces";
 import ChangePasswordPopup from "./ChangePasswordPopup";
@@ -9,6 +9,10 @@ import useGetOrCreateCurrentUser from "../../services/UseGetOrCreateCurrentUser"
 import ChangeNameSurnamePopup from "./ChangeNameSurnamePopup";
 import ChangeEntryDatePopup from "./ChangeEntryDatePopup";
 import {formatEntryDate} from "../../utils/LocalDateTimeFormatter";
+import axios from "axios";
+import {backendUrl} from "../../utils/constants";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCalendarAlt, faCheck, faCopy} from "@fortawesome/free-solid-svg-icons";
 
 function UserProfilePage () {
     const [showChangePassword, setShowChangePassword] = useState(false);
@@ -18,6 +22,28 @@ function UserProfilePage () {
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
+
+    const [calendarLink, setCalendarLink] = useState("");
+    const [copied, setCopied] = useState(false);
+
+    // Pobierz token przy załadowaniu komponentu
+    useEffect(() => {
+        if (currentUser) {
+            axios.get(`${backendUrl}/api/calendar/my-link`, { withCredentials: true })
+                .then(res => {
+                    const token = res.data.token;
+                    setCalendarLink(`${backendUrl}/api/calendar/ics/${token}`);
+                })
+                .catch(err => console.error("Nie udało się pobrać linku do kalendarza"));
+        }
+    }, [currentUser]);
+
+    const handleCopy = () => {
+        if (!calendarLink) return;
+        navigator.clipboard.writeText(calendarLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (!currentUser && !errorCurrent) return <LoadingSpinner />;
     if (errorCurrent) return (
@@ -42,6 +68,7 @@ function UserProfilePage () {
                                     <div><strong>Data pierwszych ślubów:</strong> {currentUser.entryDate ? formatEntryDate(currentUser.entryDate) : "BRAK DANYCH"}</div>
                                     <div><strong>Id:</strong> {currentUser.id}</div>
                                     <div><strong>Zarejestrowany przez:</strong> {currentUser.provider}</div>
+
                                     <div className={"d-flex justify-content-between mt-1"}>
                                         <button
                                             className="btn btn-info m-1"
@@ -65,6 +92,29 @@ function UserProfilePage () {
                                                 </button>
                                             </div>
                                         }
+                                    </div>
+                                    <div className="mt-2">
+                                        <strong>Subskrybcja kalendarza:</strong>
+                                        <div className="input-group mb-2 mt-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={calendarLink}
+                                                readOnly
+                                                style={{ backgroundColor: '#f8f9fa', fontSize: '0.9rem' }}
+                                            />
+                                            <button
+                                                className={`btn ${copied ? 'btn-success' : 'btn-outline-primary'}`}
+                                                type="button"
+                                                onClick={handleCopy}
+                                            >
+                                                <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
+                                                {copied ? " Skopiowano" : " Kopiuj"}
+                                            </button>
+                                        </div>
+                                        <p className="card-text text-muted small">
+                                            Skopiuj link i dodaj go w Google Calendar / Outlook jako <em>"Subskrypcja z adresu URL"</em>.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -98,6 +148,19 @@ function UserProfilePage () {
                             </div>
                         </div>
                     </div>
+
+                    {/*<div className="d-flex justify-content-center mt-4">*/}
+                    {/*    <div className="card shadow-sm m-1" style={{ maxWidth: '820px', width: '100%' }}>*/}
+                    {/*        <div className="card-header bg-secondary text-white fw-bold">*/}
+                    {/*            <FontAwesomeIcon icon={faCalendarAlt} className="me-2" />*/}
+                    {/*            Synchronizacja z kalendarzem*/}
+                    {/*        </div>*/}
+                    {/*        <div className="card-body">*/}
+                    {/*            */}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+
                     <div className="d-flex justify-content-center">
                         <h1 className="entity-header">Moje przeszkody</h1>
                     </div>

@@ -27,6 +27,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("SELECT s FROM Schedule s WHERE s.date >= :targetDate")
     List<Schedule> findSchedulesLaterOrInDay(@Param("targetDate") LocalDate targetDate);
 
+    List<Schedule> findAllByUserId(Long userId);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM Schedule s WHERE s.task.id = :taskId")
