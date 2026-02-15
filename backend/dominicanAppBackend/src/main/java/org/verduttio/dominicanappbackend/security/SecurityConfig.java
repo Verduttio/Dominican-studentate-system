@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/external/**").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/current/check").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
