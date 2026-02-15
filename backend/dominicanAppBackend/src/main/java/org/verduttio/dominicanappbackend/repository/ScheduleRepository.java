@@ -45,6 +45,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
                                                                       @Param("taskId") Long taskId,
                                                                       @Param("upToDate") LocalDate upToDate);
 
+    List<Schedule> findAllByDateAndTaskId(LocalDate date, Long taskId);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM Schedule s WHERE s.user.id = :userId")
