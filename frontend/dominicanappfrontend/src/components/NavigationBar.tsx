@@ -70,6 +70,8 @@ const NavigationBar = () => {
             <div className={`mobile-menu ${isMenuOpen ? 'active' : 'hidden'}`}>
                 <button onClick={() => navigateTo('/home')}>Home</button>
 
+
+                {isAdmin &&
                 <button
                     onClick={() => navigateTo('/users')}
                 >
@@ -81,6 +83,7 @@ const NavigationBar = () => {
                     </span>
                     )}
                 </button>
+                }
 
                 <button
                     onClick={() => navigateTo('/schedule')}
@@ -90,7 +93,6 @@ const NavigationBar = () => {
 
                 {isFunkcyjny &&
                     <button
-                        className="bg-dark"
                         onClick={() => navigateTo('/add-schedule/select-role')}
                     >
                         Wyznacz
@@ -100,7 +102,6 @@ const NavigationBar = () => {
 
                 {isAdmin &&
                     <button
-                        className="bg-dark"
                         onClick={() => navigateTo('/dean')}
                     >
                         Dziekan
@@ -130,6 +131,8 @@ const NavigationBar = () => {
             <div className="navbar-buttons-pc">
                 <button onClick={() => navigateTo('/home')}>Home</button>
 
+
+                {isAdmin &&
                 <button
                     onClick={() => navigateTo('/users')}
                 >
@@ -141,6 +144,7 @@ const NavigationBar = () => {
                         </span>
                     )}
                 </button>
+                }
 
                 <button
                     onClick={() => navigateTo('/schedule')}
@@ -150,7 +154,6 @@ const NavigationBar = () => {
 
                 {isFunkcyjny &&
                     <button
-                        className="bg-dark"
                         onClick={() => navigateTo('/add-schedule/select-role')}
                     >
                         Wyznacz
@@ -160,7 +163,6 @@ const NavigationBar = () => {
 
                 {isAdmin &&
                     <button
-                        className="bg-dark"
                         onClick={() => navigateTo('/dean')}
                     >
                         Dziekan
