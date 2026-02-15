@@ -109,7 +109,7 @@ public class SecurityConfig {
                 .securityContext((securityContext) -> securityContext
                         .securityContextRepository(securityContextRepository())
                 )
-                .anonymous(AbstractHttpConfigurer::disable)
+//                .anonymous(AbstractHttpConfigurer::disable)
                 .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
                 .logout((logout) -> logout
                         .logoutUrl("/api/users/logout")
