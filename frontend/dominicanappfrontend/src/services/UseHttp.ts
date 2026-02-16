@@ -3,6 +3,8 @@ import axios, {AxiosError} from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {removeCurrentUser} from "./CurrentUserCookieService";
 
+let isRedirecting = false;
+
 function useHttp<T = any>(url : string = "", method : string = 'GET') {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -15,6 +17,11 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
             url = newUrl;
             // eslint-disable-next-line react-hooks/exhaustive-deps
             method = newMethod;
+        }
+
+        if(isRedirecting && method === "GET")
+        {
+            return;
         }
 
         setLoading(true);
@@ -32,11 +39,14 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
                     if (status === 403) {
                         setError("Nie posiadasz praw dostępu do tych danych");
                     } else if (status === 401 && !skipRedirect) {
-                        setError("Sesja wygasła lub użytkownik nie jest zalogowany. Proszę się zalogować. Nastąpi przekierowanie.");
                         removeCurrentUser();
-                        setTimeout(() => {
+                        if(!isRedirecting)
+                        {
+                            isRedirecting = true;
+                            setTimeout(() => { isRedirecting = false; }, 1000);
                             navigate('/loginForm');
-                        }, 3000);
+                        }
+                        return;
                     } else if (status === 404) {
                         setError("Nie znaleziono zasobu");
                     } else {
