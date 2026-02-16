@@ -222,6 +222,16 @@ function VerifyUserPage() {
                             />
                             ROLE_ADMIN
                         </label>
+
+                        <label className="form-check custom-checkbox">
+                            <input
+                                className={"form-check-input"}
+                                type="checkbox"
+                                checked={selectedRoles.includes("ROLE_FUNKCYJNY")}
+                                onChange={(e) => handleRoleChange("ROLE_FUNKCYJNY", e.target.checked)}
+                            />
+                            ROLE_FUNKCYJNY
+                        </label>
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Role funkcyjne:</label>
