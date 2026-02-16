@@ -19,7 +19,7 @@ function useHttp<T = any>(url : string = "", method : string = 'GET') {
             method = newMethod;
         }
 
-        if(isRedirecting && method === "GET")
+        if(isRedirecting && method.toUpperCase() === "GET")
         {
             return;
         }
