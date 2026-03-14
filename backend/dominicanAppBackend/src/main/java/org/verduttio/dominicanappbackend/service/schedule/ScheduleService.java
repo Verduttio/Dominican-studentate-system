@@ -3,14 +3,17 @@ package org.verduttio.dominicanappbackend.service.schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.domain.*;
+import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.dto.schedule.*;
 import org.verduttio.dominicanappbackend.dto.user.*;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTaskScheduleInfo;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeekly;
 import org.verduttio.dominicanappbackend.dto.user.scheduleInfo.UserTasksScheduleInfoWeeklyByAllDays;
+import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialDateRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.repository.SpecialEventRepository;
 import org.verduttio.dominicanappbackend.service.*;
 import org.verduttio.dominicanappbackend.service.exception.EntityAlreadyExistsException;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
@@ -38,10 +41,12 @@ public class ScheduleService {
     private final TaskRepository taskRepository;
     private final ScheduleGenerator scheduleGenerator;
     private final ScheduleCleaner scheduleCleaner;
+    private final ObstacleRepository obstacleRepository;
+    private final SpecialEventRepository specialEventRepository;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
-                           TaskRepository taskRepository, ScheduleGenerator scheduleGenerator, ScheduleCleaner scheduleCleaner) {
+                           TaskRepository taskRepository, ScheduleGenerator scheduleGenerator, ScheduleCleaner scheduleCleaner, ObstacleRepository obstacleRepository, SpecialEventRepository specialEventRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
@@ -52,6 +57,8 @@ public class ScheduleService {
         this.taskRepository = taskRepository;
         this.scheduleGenerator = scheduleGenerator;
         this.scheduleCleaner = scheduleCleaner;
+        this.obstacleRepository = obstacleRepository;
+        this.specialEventRepository = specialEventRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -135,6 +142,14 @@ public class ScheduleService {
         return scheduleRepository.existsById(scheduleId);
     }
 
+    private boolean isFeastOrSpecialEventDay(LocalDate date) {
+        if (specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date)) {
+            return true;
+        }
+        // Jeśli lista eventów w tym dniu nie jest pusta, traktuj jako święto
+        return !specialEventRepository.findEventsActiveOnDate(date).isEmpty();
+    }
+
     public List<Schedule> getAllSchedulesByUserId(Long userId) {
         if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with given id does not exist");
@@ -206,7 +221,9 @@ public class ScheduleService {
     }
 
     public List<String> createInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
-        schedules = schedules.stream().filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints()).toList();
+        schedules = schedules.stream()
+                .filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints())
+                .toList();
 
         // If task appears in the list n times, where n is the task occurrence in the week,
         // then it will be converted to "task.name" only string.
@@ -340,9 +357,10 @@ public class ScheduleService {
 
         List<Schedule> userWeekSchedules = getSchedulesByUserIdAndDateBetween(addScheduleDTO.getUserId(), dateStartWeek, dateEndWeek);
 
-        if(specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, taskDate)) {
+//        if(specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, taskDate)) {
+        if(isFeastOrSpecialEventDay(taskDate)) {
             if (!(task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) || task.getDaysOfWeek().contains(taskDate.getDayOfWeek()))) {
-                throw new IllegalArgumentException("Task does not occur on given day of week or it does not occur on feast day");
+                throw new IllegalArgumentException("Task does not occur on given day of week or it does not occur on feast/special event day");
             }
         } else {
             validate(!task.getDaysOfWeek().contains(taskDate.getDayOfWeek()), new IllegalArgumentException("Task does not occur on given day of week"));
@@ -364,7 +382,8 @@ public class ScheduleService {
     }
 
     private boolean checkIfTaskIsInConflictWithOtherTasksFromScheduleOnGivenDay(Task task, List<Schedule> schedules, LocalDate date) {
-        boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
+//        boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date);
+        boolean isFeastDate = isFeastOrSpecialEventDay(date);
         return schedules.stream().anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), date.getDayOfWeek(), isFeastDate) && s.getDate().equals(date));
     }
 
@@ -549,7 +568,9 @@ public class ScheduleService {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
-        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to);
+        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to).stream()
+                .filter(s -> s.getTask().getSpecialEvent() == null)
+                .toList();
 
         Map<String, List<String>> groupedTasksInfoStrings = createGroupedTasksInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, weekWithFeast);
 
@@ -560,7 +581,9 @@ public class ScheduleService {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
 
-        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to);
+        List<Schedule> schedules = getAllSchedulesByUserIdForSpecifiedWeek(userId, from, to).stream()
+                .filter(s -> s.getTask().getSpecialEvent() == null)
+                .toList();
 
         List<String> tasksInfoStrings = createInfoStringsOfTasksOccurrenceFromGivenSchedule(schedules, weekWithFeast);
 
@@ -638,7 +661,9 @@ public class ScheduleService {
             throw new IllegalArgumentException(DateValidator.isStartDateMax6daysBeforeEndDateError);
         }
 
-        List<Task> tasks = taskService.getAllTasks();
+        List<Task> tasks = taskService.getAllTasks().stream()
+                .filter(task -> task.getSpecialEvent() == null) // DODANE FILTROWANIE
+                .toList();
         boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
         return tasks.stream()
                 .map(task -> createScheduleShortInfoForTask(task.getId(), from, to, weekWithFeast))
@@ -717,7 +742,9 @@ public class ScheduleService {
     }
 
     public Map<String, List<String>> createGroupedTasksInfoStringsOfTasksOccurrenceFromGivenSchedule(List<Schedule> schedules, boolean weekWithFeast) {
-        schedules = schedules.stream().filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints()).toList();
+        schedules = schedules.stream()
+                .filter(s -> s.getTask().getSupervisorRole().isAreTasksVisibleInPrints())
+                .toList();
         List<Role> roles = schedules.stream().map(Schedule::getTask).map(Task::getSupervisorRole).distinct().toList();
 
         Map<String, List<String>> groupedTasksInfoStrings = new HashMap<>();
@@ -801,7 +828,9 @@ public class ScheduleService {
         Role role = roleService.findByNameAndType(supervisorRole, RoleType.SUPERVISOR)
                 .orElseThrow(() -> new EntityNotFoundException("Supervisor role not found or not a supervisor"));
 
-        List<Task> tasks = taskService.findTasksBySupervisorRoleName(role.getName());
+        List<Task> tasks = taskService.findTasksBySupervisorRoleName(role.getName()).stream()
+                .filter(task -> task.getSpecialEvent() == null) // DODANE FILTROWANIE
+                .toList();
         boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
         return tasks.stream()
                 .map(task -> createScheduleShortInfoForTask(task.getId(), from, to, weekWithFeast))
@@ -1253,6 +1282,7 @@ public class ScheduleService {
             while (!date.isAfter(to)) {
                 List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(user.getId(), date);
                 List<String> assignedTasksNamesAbbrevs = schedules.stream()
+                        .filter(schedule -> schedule.getTask().getSpecialEvent() == null) // DODANE FILTROWANIE
                         .map(schedule -> schedule.getTask().getNameAbbrev())
                         .toList();
                 userSchedules.put(date, assignedTasksNamesAbbrevs);
@@ -1284,6 +1314,7 @@ public class ScheduleService {
                         .filter(schedule -> schedule.getTask().getSupervisorRole().getName().equals(taskSupervisorRoleName))
                         .toList();
                 List<String> assignedTasksNamesAbbrevs = schedules.stream()
+                        .filter(schedule -> schedule.getTask().getSpecialEvent() == null)
                         .map(schedule -> schedule.getTask().getNameAbbrev())
                         .toList();
                 userSchedules.put(date, assignedTasksNamesAbbrevs);
@@ -1302,5 +1333,241 @@ public class ScheduleService {
 
     public void cleanSchedule(Long roleId, LocalDate from, LocalDate to) {
         scheduleCleaner.cleanSchedule(roleId, from, to);
+    }
+
+    // --- SPECIAL EVENTS SUPPORT START ---
+
+    /**
+     * Zwraca macierz przypisań na konkretny dzień (Daily Matrix)
+     * ale ograniczoną do zadań z konkretnego Special Eventu i konkretnej Roli (+ standardowe).
+     */
+    public List<UserTasksScheduleInfoWeekly> getScheduleInfoForSpecialEventDaily(Long eventId, String roleName, LocalDate date) {
+        // 1. Walidacja i pobranie danych podstawowych
+        validateRoleExistence(roleName);
+        List<Task> standardTasks = taskService.findTasksBySupervisorRoleName(roleName);
+        List<Task> specialTasks = taskRepository.findAllBySpecialEventIdAndSupervisorRoleName(eventId, roleName);
+
+        List<Task> allTasks = new ArrayList<>(standardTasks);
+        allTasks.addAll(specialTasks);
+
+        if (allTasks.isEmpty()) return new ArrayList<>();
+
+        List<User> users = getUsersEligibleForTasks(allTasks);
+        if (users.isEmpty()) return new ArrayList<>();
+
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+
+        // 2. Obliczanie zakresu tygodnia
+        // Używamy zmiennych pomocniczych (temp), aby finalne zmienne były 'effectively final' dla lambdy
+        LocalDate weekStartTemp = date.with(DayOfWeek.SUNDAY);
+        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) weekStartTemp = weekStartTemp.minusWeeks(1);
+
+        final LocalDate weekStart = weekStartTemp; // FINAL dla lambdy
+        final LocalDate weekEnd = weekStart.plusDays(6);
+
+//        final boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, weekStart, weekEnd); // FINAL
+//        final boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date); // FINAL
+
+        // Sprawdzamy, czy w danym tygodniu wypada jakieś Święto LUB Wydarzenie Specjalne
+        boolean tempWeekWithFeast = false;
+        for (LocalDate d = weekStart; !d.isAfter(weekEnd); d = d.plusDays(1)) {
+            if (isFeastOrSpecialEventDay(d)) {
+                tempWeekWithFeast = true;
+                break;
+            }
+        }
+        final boolean weekWithFeast = tempWeekWithFeast;
+        final boolean isFeastDate = isFeastOrSpecialEventDay(date); // Używamy naszej nowej logiki!
+
+        // 3. --- BATCH FETCHING (Pobieranie hurtowe) ---
+
+        // A. Grafiki na ten tydzień dla wszystkich userów
+        List<Schedule> allSchedulesThisWeek = scheduleRepository.findByUserIdInAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userIds, weekStart, weekEnd);
+
+        // B. Przeszkody na dzisiaj
+        List<Obstacle> allObstaclesToday = obstacleRepository.findActiveObstaclesForUsersOnDate(userIds, date);
+
+        // C. Statystyki
+        LocalDate statsStartDate = specialDateRepository.findByType(SpecialDateType.STATS).get(0).getDate();
+        List<Object[]> rawStats = scheduleRepository.findStatsForUsersSinceDate(userIds, statsStartDate);
+
+        // 4. --- PRZETWARZANIE DANYCH W PAMIĘCI ---
+
+        final Map<Long, List<Schedule>> userWeekSchedulesMap = allSchedulesThisWeek.stream()
+                .collect(Collectors.groupingBy(s -> s.getUser().getId()));
+
+        final Map<Long, Set<Long>> userObstacleTaskIdsMap = new HashMap<>();
+        for (Obstacle o : allObstaclesToday) {
+            Set<Long> taskIds = o.getTasks().stream().map(Task::getId).collect(Collectors.toSet());
+            userObstacleTaskIdsMap.computeIfAbsent(o.getUser().getId(), k -> new HashSet<>()).addAll(taskIds);
+        }
+
+        final Map<Long, Map<Long, Pair<Long, LocalDate>>> statsMap = new HashMap<>();
+        for (Object[] row : rawStats) {
+            Long uId = (Long) row[0];
+            Long tId = (Long) row[1];
+            Long count = (Long) row[2];
+            LocalDate maxDate = (LocalDate) row[3];
+
+            statsMap.computeIfAbsent(uId, k -> new HashMap<>()).put(tId, new Pair<>(count, maxDate));
+        }
+
+        final List<Conflict> allConflicts = conflictService.getAllConflicts(); // FINAL
+
+        // 5. --- GENEROWANIE WYNIKU ---
+
+        return users.stream().map(user -> {
+            UserTasksScheduleInfoWeekly dto = new UserTasksScheduleInfoWeekly();
+            dto.setUserId(user.getId());
+            dto.setUserName(user.getName() + " " + user.getSurname());
+
+            // a) Lista przypisanych zadań w tym tygodniu
+            List<Schedule> userSchedules = userWeekSchedulesMap.getOrDefault(user.getId(), Collections.emptyList());
+            dto.setAssignedTasks(createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedules, weekWithFeast));
+
+            // b) Macierz komórek
+            List<UserTaskScheduleInfo> cellInfos = allTasks.stream().map(task -> {
+                UserTaskScheduleInfo cell = new UserTaskScheduleInfo();
+
+                // Widoczność
+                boolean taskOccursToday = isFeastDate
+                        ? (task.getDaysOfWeek().contains(DayOfWeek.SUNDAY) || task.getDaysOfWeek().contains(date.getDayOfWeek()))
+                        : task.getDaysOfWeek().contains(date.getDayOfWeek());
+
+                cell.setVisible(taskOccursToday);
+                if (!taskOccursToday) return cell;
+
+                cell.setTaskId(task.getId());
+                cell.setTaskName(task.getNameAbbrev());
+                cell.setHasRoleForTheTask(userHasAllowedRoleForTask(user, task));
+
+                // Statystyki z mapy
+                Pair<Long, LocalDate> stat = statsMap.getOrDefault(user.getId(), Collections.emptyMap()).get(task.getId());
+                long count = stat != null ? stat.getFirst() : 0;
+                LocalDate lastDate = stat != null ? stat.getSecond() : null;
+
+                if (task.getSupervisorRole().isWeeklyScheduleCreatorDefault()) {
+                    cell.setNumberOfWeeklyAssignsFromStatsDate((int) count / task.getDaysOfWeek().size());
+                } else {
+                    cell.setNumberOfWeeklyAssignsFromStatsDate((int) count);
+                }
+                cell.setLastAssignedWeeksAgo(getWeeksAgo(lastDate, weekStart));
+
+                // Przypisanie i Konflikty
+                List<Schedule> todaySchedules = userSchedules.stream()
+                        .filter(s -> s.getDate().equals(date))
+                        .collect(Collectors.toList());
+
+                cell.setAssignedToTheTask(todaySchedules.stream().anyMatch(s -> s.getTask().getId().equals(task.getId())));
+
+                List<Conflict> relevantConflicts = allConflicts.stream()
+                        .filter(c -> c.getTask1().getId().equals(task.getId()) || c.getTask2().getId().equals(task.getId()))
+                        .collect(Collectors.toList());
+
+                boolean isConflict = todaySchedules.stream()
+                        .anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), relevantConflicts, date.getDayOfWeek(), isFeastDate));
+                cell.setIsInConflict(isConflict);
+
+                // Przeszkody
+                Set<Long> userObstacles = userObstacleTaskIdsMap.getOrDefault(user.getId(), Collections.emptySet());
+                cell.setHasObstacle(userObstacles.contains(task.getId()));
+
+                return cell;
+            }).collect(Collectors.toList());
+
+            dto.setUserTasksScheduleInfo(cellInfos);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // --- SPECIAL EVENTS PDF SUPPORT START ---
+
+    // 1. Generowanie danych do macierzy (tabela: bracia w wierszach, dni w kolumnach)
+    // Używane w "dean/special-events" (całość) oraz w wyznaczaniu (tylko dla konkretnej roli)
+    public List<UserSchedulesOnDaysDTO> getListOfUserSchedulesByDaysDTOForSpecialEvent(Long eventId, String roleName) {
+        SpecialEvent event = specialEventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
+
+        LocalDate from = event.getStartDate(); // Upewnij się, że getStartDate() zwraca LocalDate (ewentualnie parsuj jeśli to String)
+        LocalDate to = event.getEndDate();
+
+        List<User> users;
+        if (roleName != null) {
+            users = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleName);
+        } else {
+            users = userService.getAllUsers().stream()
+                    .filter(user -> userService.checkIfUserHasAnyTaskPerformerRole(user.getId()))
+                    .toList();
+        }
+
+        List<UserSchedulesOnDaysDTO> userSchedulesOnDaysDTO = new ArrayList<>();
+
+        for(User user : users) {
+            UserSchedulesOnDaysDTO userSchedulesOnDays = new UserSchedulesOnDaysDTO();
+            userSchedulesOnDays.setUserShortInfo(new UserShortInfo(user.getId(), user.getName(), user.getSurname()));
+
+            Map<LocalDate, List<String>> userSchedules = new HashMap<>();
+            LocalDate date = from;
+            while (!date.isAfter(to)) {
+                List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(user.getId(), date);
+
+                // Zostawiamy zadania, które:
+                // a) Pasują do roli (jeśli rola jest podana)
+                // b) Są to normalne zadania LUB zadania specjalne należące do tego konkretnego eventu
+                schedules = schedules.stream()
+                        .filter(schedule -> roleName == null || schedule.getTask().getSupervisorRole().getName().equals(roleName))
+                        .filter(schedule -> schedule.getTask().getSpecialEvent() == null || schedule.getTask().getSpecialEvent().getId().equals(eventId))
+                        .toList();
+
+                List<String> assignedTasksNamesAbbrevs = schedules.stream()
+                        .map(schedule -> schedule.getTask().getNameAbbrev())
+                        .toList();
+
+                userSchedules.put(date, assignedTasksNamesAbbrevs);
+                date = date.plusDays(1);
+            }
+            userSchedulesOnDays.setSchedules(userSchedules);
+            userSchedulesOnDaysDTO.add(userSchedulesOnDays);
+        }
+        return userSchedulesOnDaysDTO;
+    }
+
+    // 2. Generowanie danych dla jednego dnia (2 kolumny: Zadanie | Bracia)
+    // Używane w wyznaczaniu dla przycisku "Oficja na dany dzień"
+    public List<ScheduleShortInfoForTask> getScheduleShortInfoForTaskForSpecialEventDay(Long eventId, String roleName, LocalDate date) {
+        // Pobieramy standardowe zadania (odrzucając obce eventy) oraz zadania z naszego eventu
+        List<Task> standardTasks = taskService.findTasksBySupervisorRoleName(roleName).stream()
+                .filter(t -> t.getSpecialEvent() == null).toList();
+        List<Task> specialTasks = taskRepository.findAllBySpecialEventIdAndSupervisorRoleName(eventId, roleName);
+
+        List<Task> allTasks = new ArrayList<>(standardTasks);
+        allTasks.addAll(specialTasks);
+
+        return allTasks.stream()
+                .map(task -> {
+                    // Pobieramy przypisania tylko na ten jeden konkretny dzień
+                    List<Schedule> schedules = scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(task.getId(), date, date);
+
+                    // Skoro to wydruk na jeden dzień, nie potrzebujemy dopisków "Pn, Wt", samo imię i nazwisko wystarczy
+                    List<String> assignedUsers = schedules.stream()
+                            .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
+                            .toList();
+
+                    return new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                })
+                // Opcjonalnie: ukryj zadania, do których nikt nie jest przypisany, żeby nie marnować papieru
+                // .filter(info -> !info.getAssignedUsers().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    // --- SPECIAL EVENTS PDF SUPPORT END ---
+
+    // Pomocnicza klasa wewnętrzna (lub użyj mapy/tablicy jeśli nie chcesz tworzyć klasy)
+    private static class Pair<K, V> {
+        private final K first;
+        private final V second;
+        public Pair(K first, V second) { this.first = first; this.second = second; }
+        public K getFirst() { return first; }
+        public V getSecond() { return second; }
     }
 }

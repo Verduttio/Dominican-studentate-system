@@ -24,6 +24,8 @@ public class TaskDTO {
     @NotEmpty(message="Days of week are mandatory")
     private Set<DayOfWeek> daysOfWeek;
 
+    private String description;
+
     // Getters
     public String getName() {
         return name;
@@ -53,12 +55,17 @@ public class TaskDTO {
         return daysOfWeek;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     // Constructors
     public TaskDTO() {
     }
 
     public TaskDTO(String name, String nameAbbrev, int participantsLimit, boolean archived,
-                   Set<String> allowedRoleNames, String supervisorRoleName ,Set<DayOfWeek> daysOfWeek) {
+                   Set<String> allowedRoleNames, String supervisorRoleName ,Set<DayOfWeek> daysOfWeek,
+                   String description) {
         this.name = name;
         this.nameAbbrev = nameAbbrev;
         this.participantsLimit = participantsLimit;
@@ -66,6 +73,7 @@ public class TaskDTO {
         this.allowedRoleNames = allowedRoleNames;
         this.supervisorRoleName = supervisorRoleName;
         this.daysOfWeek = daysOfWeek;
+        this.description = description;
     }
 
 
@@ -76,6 +84,7 @@ public class TaskDTO {
         task.setParticipantsLimit(this.participantsLimit);
         task.setArchived(this.archived);
         task.setDaysOfWeek(this.daysOfWeek);
+        task.setDescription(this.description);
         return task;
     }
 

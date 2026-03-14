@@ -19,6 +19,11 @@ interface Task {
     daysOfWeek: string[];
     sortOrder: number;
     visibleInObstacleFormForUserRole: boolean;
+    specialEvent?: SpecialEvent;
+    description?: string;
+    specialEventId?: number;
+    specialEventName?: string;
+    isSpecial?: boolean;
 }
 
 interface User {
@@ -240,4 +245,17 @@ export interface PocketMoneyResponseDTO {
     totalPocketMoney: number;
     totalNamedayMoney: number;
     grandTotal: number;
+}
+
+export interface SpecialEvent {
+    id: number;
+    name: string;
+    startDate: string;
+    endDate: string;
+}
+
+export interface CloneEventRequest {
+    newName: string;
+    newStartDate: string;
+    newEndDate: string;
 }

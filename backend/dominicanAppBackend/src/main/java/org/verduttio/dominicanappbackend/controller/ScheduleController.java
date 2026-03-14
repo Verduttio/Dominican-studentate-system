@@ -286,6 +286,16 @@ public class ScheduleController {
         }
     }
 
+    @GetMapping("/special-event/{eventId}/{roleName}/schedule-info/daily")
+    public List<UserTasksScheduleInfoWeekly> getScheduleInfoForSpecialEventDaily(
+            @PathVariable Long eventId,
+            @PathVariable String roleName,
+            @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
+
+        // Delegujemy do serwisu (musimy dodać tę metodę)
+        return scheduleService.getScheduleInfoForSpecialEventDaily(eventId, roleName, date);
+    }
+
     @GetMapping("/users/{userId}/statistics/tasks")
     public ResponseEntity<?> getStatisticsForUserTasks(@PathVariable Long userId) {
         try {

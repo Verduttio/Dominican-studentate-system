@@ -85,7 +85,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "api/users/{userId}/roles").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/users/{userId}/verification/assignRoles").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/obstacles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "api/obstacles").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "api/obstacles").hasAnyRole("ADMIN", "FUNKCYJNY")
 //                        .requestMatchers(HttpMethod.GET, "api/obstacles/{obstacleId}").hasRole("ADMIN")   || obstacle.user.id == loggedInUser.id --> check in service
 //                        .requestMatchers(HttpMethod.DELETE, "api/obstacles/{obstacleId}").hasRole("ADMIN") || obstacle.user.id == loggedInUser.id --> check in service
                         .requestMatchers(HttpMethod.PATCH, "api/obstacles/{obstacleId}").hasRole("ADMIN")

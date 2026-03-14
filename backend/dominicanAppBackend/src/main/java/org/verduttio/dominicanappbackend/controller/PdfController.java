@@ -181,4 +181,72 @@ public class PdfController {
         }
     }
 
+    // --- SPECIAL EVENTS PDF ENDPOINTS ---
+
+    // a) Wydruk całościowej tabeli z dniami dla eventu (z opcjonalnym ograniczeniem do roli)
+    @GetMapping("/schedules/special-event/{eventId}/matrix")
+    public ResponseEntity<?> generateSchedulePdfForSpecialEventMatrix(
+            @PathVariable Long eventId,
+            @RequestParam(required = false) String roleName) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForSpecialEventMatrix(eventId, roleName);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Special_Event_" + eventId + "_matrix.pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // b) Wydruk 2-kolumnowy (Zadanie | Brat) na konkretny dzień eventu i roli
+    @GetMapping("/schedules/special-event/{eventId}/daily")
+    public ResponseEntity<?> generateSchedulePdfForSpecialEventDaily(
+            @PathVariable Long eventId,
+            @RequestParam("roleName") String roleName,
+            @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForSpecialEventDaily(eventId, roleName, date);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Special_Event_" + eventId + "_" + roleName + "_" + date.toString() + ".pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/schedules/special-event/{eventId}/tasks-description")
+    public ResponseEntity<?> generateSchedulePdfForSpecialEventTaskDescriptions(@PathVariable Long eventId) {
+        try {
+            byte[] pdfContent = pdfService.generateSchedulePdfForSpecialEventTaskDescriptions(eventId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=Opisy_oficjow_specjalnych_" + eventId + ".pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfContent);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

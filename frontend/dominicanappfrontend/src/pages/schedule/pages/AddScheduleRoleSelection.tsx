@@ -4,7 +4,7 @@ import LoadingSpinner from "../../../components/LoadingScreen";
 import AlertBox from "../../../components/AlertBox";
 import useIsFunkcyjny, {UNAUTHORIZED_PAGE_TEXT} from "../../../services/UseIsFunkcyjny";
 import useGetOrCreateCurrentUser from "../../../services/UseGetOrCreateCurrentUser";
-import {Role} from "../../../models/Interfaces";
+import {Role, SpecialEvent} from "../../../models/Interfaces";
 import useHttp from "../../../services/UseHttp";
 import {backendUrl} from "../../../utils/constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,15 +16,21 @@ import {
     faTshirt,
     faHandHoldingDollar,
     faWineGlass,
-    faScroll
+    faScroll,
+    faCalendarPlus
 } from "@fortawesome/free-solid-svg-icons";
 
 function AddScheduleRoleSelection() {
     const { isFunkcyjny, isFunkcyjnyLoading, isFunkcyjnyInitialized } = useIsFunkcyjny();
-    const {request: requestGetSupervisorRoles, loading: loadingGetSupervisorRoles} = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
-    const [supervisorRoles, setSupervisorRoles] = useState<Role[]>();
     const navigate = useNavigate();
     const {currentUser} = useGetOrCreateCurrentUser();
+
+    const {request: requestGetSupervisorRoles, loading: loadingGetSupervisorRoles} = useHttp(`${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
+    const {request: requestGetEvents, loading: loadingGetEvents} = useHttp(`${backendUrl}/api/special-events`, 'GET');
+
+    const [supervisorRoles, setSupervisorRoles] = useState<Role[]>();
+    const [activeEvents, setActiveEvents] = useState<SpecialEvent[]>([]);
+
     const roleDefinitions: Record<string, { icon: any, description: string, customName?: string }> = {
         "Liturgista": {
             icon: faBookBible,
@@ -70,11 +76,24 @@ function AddScheduleRoleSelection() {
         "text-secondary"  // Szary
     ];
 
+    // Pobieranie ról
     useEffect(() => {
         requestGetSupervisorRoles(null, (data: Role[]) => {
             setSupervisorRoles(data);
         });
     }, [requestGetSupervisorRoles]);
+
+    // Pobieranie Eventów
+    useEffect(() => {
+        requestGetEvents(null, (data: SpecialEvent[]) => {
+            const today = new Date().toISOString().slice(0, 10);
+            // Filtrujemy eventy, które się jeszcze nie skończyły
+            const upcoming = data.filter(e => e.endDate >= today);
+            // Sortujemy chronologicznie
+            upcoming.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+            setActiveEvents(upcoming);
+        });
+    }, [requestGetEvents]);
 
     const navigateToDefaultScheduleCreator = (roleName: string) => {
         const selectedRole: Role | undefined = currentUser?.roles.filter((role) => (role.name === roleName))[0];
@@ -100,6 +119,7 @@ function AddScheduleRoleSelection() {
     return (
         <div className="container mt-4 fade-in">
             <h2 className="text-center mb-5">Wybierz sekcję do wyznaczania</h2>
+
             <div className="row justify-content-center">
             {currentUser?.roles
                 .filter((role) => role.type === "SUPERVISOR")
@@ -131,6 +151,50 @@ function AddScheduleRoleSelection() {
                     </div>
                     );
                 })}
+                {activeEvents.length > 0 && activeEvents.map(event => (
+                    // Dla każdego eventu iterujemy po rolach użytkownika
+                    currentUser?.roles
+                        .filter((role) => role.type === "SUPERVISOR")
+                        .sort((a, b) => {
+                            const indexA = supervisorRoles?.findIndex(sRole => sRole.name === a.name) ?? -1;
+                            const indexB = supervisorRoles?.findIndex(sRole => sRole.name === b.name) ?? -1;
+                            return indexA - indexB;
+                        })
+                        .map(role => {
+                        const config = roleDefinitions[role.name] || defaultConfig;
+
+                        return (
+                            <div className="col-md-6 col-lg-4 mb-4" key={`event-${event.id}-role-${role.id}`}>
+                                <div
+                                    className="card text-center p-4 shadow-sm hover-effect h-100 border-warning position-relative"
+                                    style={{ cursor: 'pointer', backgroundColor: '#fffbf0' }}
+                                    onClick={() => navigate(`/schedule/special-event/${event.id}?roleName=${role.name}`)}
+                                >
+                                    <div className="card-body">
+                                        {/* Ikonka roli w kolorze złotym + mała gwiazdka */}
+                                        <div className="mb-3 position-relative d-inline-block">
+                                            <FontAwesomeIcon icon={faCalendarPlus} size="3x" className="text-warning" />
+                                            <FontAwesomeIcon
+                                                icon={config.icon}
+                                                className="text-dark position-absolute top-0 start-100 translate-middle"
+                                                style={{fontSize: '1.5rem'}}
+                                            />
+                                        </div>
+
+                                        <h4 className="card-title text-dark">
+                                            {event.name}
+                                            <br/>
+                                            <small className="text-muted fs-6">({config.customName || role.name})</small>
+                                        </h4>
+                                        <p className="card-text text-muted small mt-2">
+                                            {event.startDate} — {event.endDate}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
+                ))}
             </div>
         </div>
     );
