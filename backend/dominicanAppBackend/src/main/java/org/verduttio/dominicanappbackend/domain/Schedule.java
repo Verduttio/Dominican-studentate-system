@@ -20,6 +20,10 @@ public class Schedule {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "task_section_id")
+    private TaskSection taskSection; // Może być null dla wyznaczeń zwykłych
+
     private LocalDate date;
 
     // Getters and setters
@@ -53,6 +57,14 @@ public class Schedule {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public TaskSection getTaskSection() {
+        return taskSection;
+    }
+
+    public void setTaskSection(TaskSection taskSection) {
+        this.taskSection = taskSection;
     }
 
     // Constructors

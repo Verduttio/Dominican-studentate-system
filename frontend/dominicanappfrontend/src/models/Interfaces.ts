@@ -19,6 +19,12 @@ interface Task {
     daysOfWeek: string[];
     sortOrder: number;
     visibleInObstacleFormForUserRole: boolean;
+    specialEvent?: SpecialEvent;
+    description?: string;
+    specialEventId?: number;
+    specialEventName?: string;
+    isSpecial?: boolean;
+    taskSections?: TaskSection[];
 }
 
 interface User {
@@ -44,6 +50,7 @@ interface Obstacle {
     status: string;
     recipientAnswer: string;
     recipientUser: User;
+    taskSections?: TaskSection[];
 }
 
 interface Conflict {
@@ -240,4 +247,23 @@ export interface PocketMoneyResponseDTO {
     totalPocketMoney: number;
     totalNamedayMoney: number;
     grandTotal: number;
+}
+
+export interface SpecialEvent {
+    id: number;
+    name: string;
+    startDate: string;
+    endDate: string;
+    collectionDates?: string[];
+}
+
+export interface CloneEventRequest {
+    newName: string;
+    newStartDate: string;
+    newEndDate: string;
+}
+
+export interface TaskSection {
+    id: number;
+    name: string;
 }

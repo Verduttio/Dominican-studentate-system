@@ -3,6 +3,7 @@ package org.verduttio.dominicanappbackend.dto.schedule;
 import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.domain.Task;
+import org.verduttio.dominicanappbackend.domain.TaskSection;
 import org.verduttio.dominicanappbackend.domain.User;
 
 import java.time.LocalDate;
@@ -14,6 +15,8 @@ public class ScheduleDTO {
     private Long userId;
     @NotNull(message="Date is mandatory")
     private LocalDate date;
+
+    private Long taskSectionId;
 
     // Getters and setters
     public Long getTaskId() {
@@ -40,6 +43,9 @@ public class ScheduleDTO {
         this.date = date;
     }
 
+    public Long getTaskSectionId() { return taskSectionId; }
+    public void setTaskSectionId(Long taskSectionId) { this.taskSectionId = taskSectionId; }
+
     // Constructors
     public ScheduleDTO() {
     }
@@ -62,6 +68,12 @@ public class ScheduleDTO {
         schedule.setUser(user);
 
         schedule.setDate(this.date);
+
+        if (this.taskSectionId != null) {
+            TaskSection section = new TaskSection();
+            section.setId(this.taskSectionId);
+            schedule.setTaskSection(section);
+        }
 
         return schedule;
     }

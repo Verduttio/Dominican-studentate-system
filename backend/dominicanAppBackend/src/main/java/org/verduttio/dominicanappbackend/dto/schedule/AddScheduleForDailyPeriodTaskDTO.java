@@ -16,6 +16,8 @@ public class AddScheduleForDailyPeriodTaskDTO {
     @NotNull(message="Task date is mandatory")
     private LocalDate taskDate;
 
+    private Long taskSectionId;
+
     // Getters and setters
     public Long getTaskId() {
         return taskId;
@@ -55,6 +57,14 @@ public class AddScheduleForDailyPeriodTaskDTO {
 
     public void setTaskDate(LocalDate taskDate) {
         this.taskDate = taskDate;
+    }
+
+    public Long getTaskSectionId() {
+        return taskSectionId;
+    }
+
+    public void setTaskSectionId(Long taskSectionId) {
+        this.taskSectionId = taskSectionId;
     }
 
     // Constructors

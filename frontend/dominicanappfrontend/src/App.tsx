@@ -49,6 +49,10 @@ import TasksVisibilitySettingsPage from "./pages/task/TasksVisibilitySettingsPag
 import KitchenStyleGenerateCleanPage from "./pages/schedule/generators/KitchenStyleGenerateCleanPage";
 import DeanPage from "./pages/dean/DeanPage";
 import PocketMoneyPage from "./pages/dean/pages/PocketMoneyPage";
+import SpecialEventsPage from "./pages/specialEvent/SpecialEventsPage";
+import AddEditSpecialEvent from "./pages/specialEvent/AddEditSpecialEvent";
+import AddScheduleSpecialEvent from './pages/schedule/pages/AddScheduleSpecialEvent';
+import SpecialEventObstacleForm from './pages/specialEvent/SpecialEventObstacleForm';
 
 const AppContent = () => {
     const location = useLocation();
@@ -96,6 +100,7 @@ const AppContent = () => {
                     <Route path="/add-schedule/daily" Component={AddScheduleDaily}/>
                     <Route path="/add-schedule/weekly/by-all-days" Component={AddScheduleWeeklyByAllDays}/>
                     <Route path="/add-schedule/weekly-by-all-days/generator" Component={KitchenStyleGenerateCleanPage}/>
+                    <Route path="/schedule/special-event/:eventId" element={<AddScheduleSpecialEvent />} />
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
                     <Route path="/dean" Component={DeanPage}/>
@@ -106,6 +111,10 @@ const AppContent = () => {
                     <Route path="/links/settings/add" Component={AddLinkPage}/>
                     <Route path="/add-obstacle/myself" Component={AddMyObstacle}/>
                     <Route path="/users/:userId/viewer/details" Component={UserDetailsViewer}/>
+                    <Route path="/dean/special-events" element={<SpecialEventsPage />} />
+                    <Route path="/dean/special-events/add" element={<AddEditSpecialEvent />} />
+                    <Route path="/dean/special-events/edit/:id" element={<AddEditSpecialEvent />} />
+                    <Route path="/special-events/:eventId/obstacles" element={<SpecialEventObstacleForm />} />
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
                 </Routes>
             </div>

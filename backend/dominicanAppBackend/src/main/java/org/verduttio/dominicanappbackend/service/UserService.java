@@ -282,4 +282,59 @@ public class UserService {
         userRepository.save(user);
         userSessionService.expireUserSessions(user.getEmail());
     }
+
+    // --- OBSŁUGA GOŚCI (SPECIAL USERS) ---
+
+    @Transactional
+    public void createGuestUser(org.verduttio.dominicanappbackend.dto.user.GuestUserDTO guestUserDTO) {
+        User guest = new User();
+        guest.setName(guestUserDTO.getName());
+        guest.setSurname(guestUserDTO.getSurname());
+
+        // Generujemy losowego, bezpiecznego maila (UUID) i losowe hasło
+        String randomStr = java.util.UUID.randomUUID().toString();
+        guest.setEmail("guest_" + randomStr.substring(0, 8) + "@dominicanapp.local");
+        guest.setPassword(bCryptPasswordEncoder.encode(randomStr));
+
+        guest.setProvider(AuthProvider.LOCAL);
+        guest.setEnabled(true); // Musi być "true", żeby był widoczny w wyznaczaniu
+        guest.setFailedLoginAttempts(0);
+        guest.setAcademicYear(0); // Neutralna wartość
+
+        Set<Role> roles = new HashSet<>();
+        if (guestUserDTO.getRoleNames() != null) {
+            roles = roleService.getRolesByRoleNames(guestUserDTO.getRoleNames());
+        }
+
+        // Twardo doklejamy rolę identyfikacyjną
+        Role guestRole = roleService.getRoleByName("ROLE_GUEST");
+        if (guestRole != null) {
+            roles.add(guestRole);
+        }
+        guest.setRoles(roles);
+
+        userRepository.save(guest);
+    }
+
+    @Transactional
+    public void updateGuestUser(Long userId, org.verduttio.dominicanappbackend.dto.user.GuestUserDTO guestUserDTO) {
+        User guest = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        guest.setName(guestUserDTO.getName());
+        guest.setSurname(guestUserDTO.getSurname());
+
+        Set<Role> roles = new HashSet<>();
+        if (guestUserDTO.getRoleNames() != null) {
+            roles = roleService.getRolesByRoleNames(guestUserDTO.getRoleNames());
+        }
+
+        Role guestRole = roleService.getRoleByName("ROLE_GUEST");
+        if (guestRole != null) {
+            roles.add(guestRole);
+        }
+        guest.setRoles(roles);
+
+        userRepository.save(guest);
+    }
 }

@@ -1,5 +1,7 @@
 package org.verduttio.dominicanappbackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.util.Comparator;
@@ -35,6 +37,14 @@ public class Task {
     @JoinColumn(name = "role_id")
     private Role supervisorRole;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "task_task_sections",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_section_id")
+    )
+    private java.util.Set<TaskSection> taskSections = new java.util.HashSet<>();
+
     @ElementCollection(targetClass = DayOfWeek.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
@@ -48,6 +58,13 @@ public class Task {
     @Column(name = "visible_in_obstacle_form_for_user_role", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean visibleInObstacleFormForUserRole = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "special_event_id")
+    @JsonIgnore
+    private SpecialEvent specialEvent;
+
+    @Column(length = 2048)
+    private String description;
 
     // Getters and setters
     public Long getId() {
@@ -132,6 +149,20 @@ public class Task {
         this.visibleInObstacleFormForUserRole = visibleInObstacleFormForUserRole;
     }
 
+    public SpecialEvent getSpecialEvent() { return specialEvent; }
+    public void setSpecialEvent(SpecialEvent specialEvent) { this.specialEvent = specialEvent; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public java.util.Set<TaskSection> getTaskSections() {
+        return taskSections;
+    }
+
+    public void setTaskSections(java.util.Set<TaskSection> taskSections) {
+        this.taskSections = taskSections;
+    }
+
     // Constructors
     public Task() {
     }
@@ -163,4 +194,18 @@ public class Task {
         this.visibleInObstacleFormForUserRole = visibleInObstacleFormForUserRole;
     }
 
+    @JsonProperty("isSpecial")
+    public boolean isSpecial() {
+        return specialEvent != null;
+    }
+
+    @Transient
+    public Long getSpecialEventId() {
+        return specialEvent != null ? specialEvent.getId() : null;
+    }
+
+    @Transient
+    public String getSpecialEventName() {
+        return specialEvent != null ? specialEvent.getName() : null;
+    }
 }
