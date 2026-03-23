@@ -37,7 +37,7 @@ const SpecialEventTaskModal: React.FC<Props> = ({ eventId, supervisorRole, taskT
     const [nameAbbrev, setNameAbbrev] = useState('');
     const [description, setDescription] = useState('');
     const [participantsLimit, setParticipantsLimit] = useState(1);
-    const [selectedPerformerRoles, setSelectedPerformerRoles] = useState<string[]>([]);
+    const [selectedPerformerRoles, setSelectedPerformerRoles] = useState<string[]>(taskToEdit ? [] : ['Brat']);
     const [daysOfWeek, setDaysOfWeek] = useState<string[]>(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']);
     const [selectedSectionIds, setSelectedSectionIds] = useState<number[]>([]);
 
@@ -66,8 +66,31 @@ const SpecialEventTaskModal: React.FC<Props> = ({ eventId, supervisorRole, taskT
         }
     }, [taskToEdit]);
 
+    const handleDelete = () => {
+        if (!taskToEdit) return;
+
+        // Dodajemy potwierdzenie, żeby uniknąć przypadkowych kliknięć
+        if (window.confirm(`Czy na pewno chcesz usunąć zadanie "${taskToEdit.name}"?`)) {
+            request(
+                null,
+                () => {
+                    onSave(); // Odśwież listę w widoku głównym
+                    onClose(); // Zamknij modal
+                },
+                false,
+                `${backendUrl}/api/tasks/${taskToEdit.id}`,
+                'DELETE'
+            );
+        }
+    };
+
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (selectedPerformerRoles.length === 0) {
+            alert("Musisz wybrać co najmniej jedną rolę (np. Brat), aby zapisać zadanie!");
+            return; // Przerywa funkcję, request nie zostanie wysłany
+        }
 
         const taskDto = {
             name,
@@ -194,11 +217,15 @@ const SpecialEventTaskModal: React.FC<Props> = ({ eventId, supervisorRole, taskT
                                         checked={selectedPerformerRoles.includes(role.name)}
                                         onChange={() => toggleRole(role.name)}
                                         disabled={isNormalTask}
+                                        id={`role-${role.id}`}
                                     />
                                     <label className="form-check-label">{role.name}</label>
                                 </div>
                             ))}
                         </div>
+                        {selectedPerformerRoles.length === 0 && (
+                            <small className="text-danger fw-bold">Wymagana co najmniej jedna rola!</small>
+                        )}
                     </div>
 
                     <div className="mb-3">
@@ -222,9 +249,25 @@ const SpecialEventTaskModal: React.FC<Props> = ({ eventId, supervisorRole, taskT
                         </div>
                     </div>
 
-                    <div className="d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>Anuluj</button>
-                        <button type="submit" className="btn btn-primary">Zapisz</button>
+                    <div className="d-flex justify-content-between mt-4">
+                        {/* Przycisk usuwania po lewej stronie (tylko przy edycji zadań specjalnych) */}
+                        <div>
+                            {taskToEdit && !isNormalTask && (
+                                <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={handleDelete}
+                                >
+                                    Usuń zadanie
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Przyciski nawigacyjne po prawej stronie */}
+                        <div className="d-flex gap-2">
+                            <button type="button" className="btn btn-secondary" onClick={onClose}>Anuluj</button>
+                            <button type="submit" className="btn btn-primary">Zapisz</button>
+                        </div>
                     </div>
                 </form>
             </div>
