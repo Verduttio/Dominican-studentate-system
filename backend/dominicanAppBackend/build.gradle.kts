@@ -28,6 +28,7 @@ dependencies {
     }
     implementation("org.postgresql:postgresql")
     implementation("com.github.dhorions:boxable:1.7.0")
+    implementation("net.sf.biweekly:biweekly:0.6.8")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("com.h2database:h2")
 }

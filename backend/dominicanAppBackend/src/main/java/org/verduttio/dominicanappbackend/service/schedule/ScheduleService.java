@@ -347,7 +347,7 @@ public class ScheduleService {
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
-        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(from, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(from, user, task) && !ignoreConflicts, new EntityAlreadyExistsException("User has an approved obstacle for this task"));
 
         boolean isAssignedToSameSection = userWeekSchedules.stream().anyMatch(s -> {
             boolean sameTask = s.getTask().getId().equals(task.getId());
@@ -388,7 +388,7 @@ public class ScheduleService {
 
         validate(!userHasAllowedRoleForTask(user, task), new RoleNotMeetRequirementsException("User does not have allowed role for task"));
 
-        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task), new EntityAlreadyExistsException("User has an approved obstacle for this task"));
+        validate(checkIfUserHasValidApprovedObstacleForTaskAtDate(taskDate, user, task) && !ignoreConflicts, new EntityAlreadyExistsException("User has an approved obstacle for this task"));
 
         validate(checkIfUserIsAlreadyAssignedToDailyTask(task, addScheduleDTO.getTaskSectionId(), userWeekSchedules, taskDate), new EntityAlreadyExistsException("User is already assigned to the task in this section on given day"));
 
@@ -541,7 +541,9 @@ public class ScheduleService {
 
         checkIfTaskOccursOnGivenDayOfWeek(scheduleDTO, task);
         checkIfUserHasAllowedRoleForTask(user, task);
-        checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
+        if (!ignoreConflicts) {
+            checkIfUserHasValidApprovedObstacleForTask(scheduleDTO.getDate(), user, task);
+        }
         checkScheduleConflict(scheduleDTO, ignoreConflicts);
     }
 

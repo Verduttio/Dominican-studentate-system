@@ -85,7 +85,7 @@ public class TaskTableBuilder {
     private void styleHeaderCell(Cell<PDPage> cell) {
         cell.setFont(font);
         cell.setFontSize(this.fontSize);
-        cell.setFillColor(Color.LIGHT_GRAY);  // brighter mode
+        cell.setFillColor(this.myGray);  // brighter mode
         cell.setTextColor(Color.BLACK);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
@@ -93,7 +93,6 @@ public class TaskTableBuilder {
     private void styleTaskCell(Cell<PDPage> cell) {
         cell.setFont(font);
         cell.setFontSize(this.fontSize);
-        cell.setFillColor(this.myGray);
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setValign(VerticalAlignment.MIDDLE);
     }
@@ -101,7 +100,6 @@ public class TaskTableBuilder {
     private void styleCell(Cell<PDPage> cell) {
         cell.setFont(font);
         cell.setFontSize(this.fontSize);
-        cell.setFillColor(this.myGray);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
 

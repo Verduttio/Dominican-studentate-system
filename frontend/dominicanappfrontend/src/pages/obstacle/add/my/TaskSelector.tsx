@@ -17,61 +17,110 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({
                                                        visibleTasksList,
                                                        allTasks
                                                    }) => {
-    const [availableTasks, setAvailableTasks] = useState<TaskShortInfo[]>([]);
-    const [selectAllVisibleTasks, setSelectAllVisibleTasks] = useState<boolean>(false);
+    // const [availableTasks, setAvailableTasks] = useState<TaskShortInfo[]>([]);
+    // const [selectAllVisibleTasks, setSelectAllVisibleTasks] = useState<boolean>(false);
 
-    useEffect(() => {
-        setAvailableTasks(visibleTasksList.filter(task => !obstacleData.tasksIds.includes(task.id)));
-    }, [visibleTasksList, obstacleData.tasksIds]);
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-    const incompleteRoleNames = getIncompleteRoleNames(
-        visibleTasksList,
-        obstacleData.tasksIds,
-        allTasks
-    );
+    const categories = Array.from(new Set(allTasks.map(t => t.supervisorRole.name))).sort();
 
-    const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedValue = e.target.value;
+    const availableTasksInCategory = allTasks.filter(task =>
+        task.supervisorRole.name === selectedCategory &&
+        !obstacleData.tasksIds.includes(task.id)
+    ).sort((a, b) => a.id - b.id);
 
-        if (incompleteRoleNames.includes(selectedValue)) {
-            addTasksByRole(selectedValue);
+    // --- HANDLER DLA KATEGORII (DROPDOWN 1) ---
+    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const category = e.target.value;
+
+        if (category === "ALL_DAY") {
+            // Logika "Wszystkie oficja danego dnia" - dodajemy wszystko co jest w allTasks
+            const allIds = allTasks.map(t => t.id);
+            // Dodajemy tylko te, których jeszcze nie ma
+            const uniqueIds = Array.from(new Set([...obstacleData.tasksIds, ...allIds]));
+
+            setObstacleData(prev => ({ ...prev, tasksIds: uniqueIds }));
+            setSelectedCategory(""); // Reset
         } else {
-            addSingleTask(parseInt(selectedValue));
+            setSelectedCategory(category);
         }
     };
 
-    const addTasksByRole = (roleName: string) => {
-        const tasksOfRole = allTasks.filter(
-            task => task.supervisorRole.assignedTasksGroupName === roleName
-        );
+    const handleTaskAdd = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        if (!value) return;
 
-        const newTaskIds = tasksOfRole
-            .map(task => task.id)
-            .filter(id => !obstacleData.tasksIds.includes(id));
+        if (value === "ALL_IN_CATEGORY") {
+            // Dodaj wszystkie z aktualnie wybranej kategorii
+            const idsToAdd = availableTasksInCategory.map(t => t.id);
+            setObstacleData(prev => ({
+                ...prev,
+                tasksIds: [...prev.tasksIds, ...idsToAdd]
+            }));
+        } else {
+            // Dodaj pojedyncze zadanie (np. T13)
+            const taskId = parseInt(value);
+            setObstacleData(prev => ({
+                ...prev,
+                tasksIds: [...prev.tasksIds, taskId]
+            }));
+        }
 
-        updateObstacleDataWithNewTasks(newTaskIds);
-        removeTasksFromAvailableTasks(newTaskIds);
+        e.target.value = "";
     };
 
-    const addSingleTask = (taskId: number) => {
-        if (!taskId || obstacleData.tasksIds.includes(taskId)) return;
+    // useEffect(() => {
+    //     setAvailableTasks(visibleTasksList.filter(task => !obstacleData.tasksIds.includes(task.id)));
+    // }, [visibleTasksList, obstacleData.tasksIds]);
 
-        updateObstacleDataWithNewTasks([taskId]);
-        removeTasksFromAvailableTasks([taskId]);
-    };
-
-    const updateObstacleDataWithNewTasks = (newTaskIds: number[]) => {
-        setObstacleData(prevState => ({
-            ...prevState,
-            tasksIds: [...prevState.tasksIds, ...newTaskIds]
-        }));
-    };
-
-    const removeTasksFromAvailableTasks = (taskIdsToRemove: number[]) => {
-        setAvailableTasks(prevTasks =>
-            prevTasks.filter(task => !taskIdsToRemove.includes(task.id))
-        );
-    };
+    // const incompleteRoleNames = getIncompleteRoleNames(
+    //     visibleTasksList,
+    //     obstacleData.tasksIds,
+    //     allTasks
+    // );
+    //
+    // const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    //     const selectedValue = e.target.value;
+    //
+    //     if (incompleteRoleNames.includes(selectedValue)) {
+    //         addTasksByRole(selectedValue);
+    //     } else {
+    //         addSingleTask(parseInt(selectedValue));
+    //     }
+    // };
+    //
+    // const addTasksByRole = (roleName: string) => {
+    //     const tasksOfRole = allTasks.filter(
+    //         task => task.supervisorRole.assignedTasksGroupName === roleName
+    //     );
+    //
+    //     const newTaskIds = tasksOfRole
+    //         .map(task => task.id)
+    //         .filter(id => !obstacleData.tasksIds.includes(id));
+    //
+    //     updateObstacleDataWithNewTasks(newTaskIds);
+    //     removeTasksFromAvailableTasks(newTaskIds);
+    // };
+    //
+    // const addSingleTask = (taskId: number) => {
+    //     if (!taskId || obstacleData.tasksIds.includes(taskId)) return;
+    //
+    //     updateObstacleDataWithNewTasks([taskId]);
+    //     removeTasksFromAvailableTasks([taskId]);
+    // };
+    //
+    // const updateObstacleDataWithNewTasks = (newTaskIds: number[]) => {
+    //     setObstacleData(prevState => ({
+    //         ...prevState,
+    //         tasksIds: [...prevState.tasksIds, ...newTaskIds]
+    //     }));
+    // };
+    //
+    // const removeTasksFromAvailableTasks = (taskIdsToRemove: number[]) => {
+    //     setAvailableTasks(prevTasks =>
+    //         prevTasks.filter(task => !taskIdsToRemove.includes(task.id))
+    //     );
+    // };
 
     const handleRemoveTask = (taskId: number) => {
         setObstacleData(prevState => ({
@@ -79,72 +128,87 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({
             tasksIds: prevState.tasksIds.filter(id => id !== taskId)
         }));
 
-        const removedTask = visibleTasksList.find(task => task.id === taskId);
-        if (removedTask) {
-            setAvailableTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
-        }
+        // const removedTask = visibleTasksList.find(task => task.id === taskId);
+        // if (removedTask) {
+        //     setAvailableTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
+        // }
     };
 
-    const handleSelectAllVisibleTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isChecked = e.target.checked;
-        setSelectAllVisibleTasks(isChecked);
-
-        if (isChecked) {
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: visibleTasksList.map(task => task.id)
-            }));
-            setAvailableTasks([]);
-        } else {
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: []
-            }));
-            setAvailableTasks(visibleTasksList);
-        }
-    };
+    // const handleSelectAllVisibleTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const isChecked = e.target.checked;
+    //     setSelectAllVisibleTasks(isChecked);
+    //
+    //     if (isChecked) {
+    //         setObstacleData(prevState => ({
+    //             ...prevState,
+    //             tasksIds: visibleTasksList.map(task => task.id)
+    //         }));
+    //         setAvailableTasks([]);
+    //     } else {
+    //         setObstacleData(prevState => ({
+    //             ...prevState,
+    //             tasksIds: []
+    //         }));
+    //         setAvailableTasks(visibleTasksList);
+    //     }
+    // };
 
     return (
         <div className="mb-3">
-            <label className="form-label">Oficja:</label>
-            <div className="d-flex justify-content-between">
-                <label className="form-check-label me-2" htmlFor="selectAllVisibleTasks">
-                    Wybierz wszystkie dostępne oficja
-                </label>
-                <div className="form-check form-switch">
-                    <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="selectAllVisibleTasks"
-                        checked={selectAllVisibleTasks}
-                        onChange={handleSelectAllVisibleTasks}
-                    />
-                </div>
-            </div>
+            <label className="form-label fw-bold">Wybór oficjów:</label>
 
-            {!selectAllVisibleTasks && (
-                <div className="mt-2">
-                    <select className="form-select" value="" onChange={handleTaskChange}>
-                        <option value="">Wybierz oficjum</option>
-                        {incompleteRoleNames.map(roleName => (
-                            <option key={roleName} value={roleName}>
-                                {'{Wszystkie oficja} '} {roleName.toUpperCase()}
-                            </option>
-                        ))}
-                        {availableTasks.map(task => (
-                            <option key={task.id} value={task.id}>
-                                {task.nameAbbrev}
-                            </option>
+                {/* DROPDOWN 1: KATEGORIA */}
+                <div className="mb-2">
+                    <select
+                        className="form-select"
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                    >
+                        <option value="">-- 1. Wybierz kategorię --</option>
+                        <option value="ALL_DAY" className="fw-bold">🌍 Wszystkie oficja danego dnia (dodaj wszystkie)</option>
+                        <option disabled>----------------</option>
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
                         ))}
                     </select>
+                </div>
 
-                    <div className="selected-tasks mt-2">
+                {/* DROPDOWN 2: KONKRETNE ZADANIA (Pokaż tylko gdy wybrano kategorię) */}
+                {selectedCategory && (
+                    <div className="mb-2 fade-in">
+                        <select
+                            className="form-select"
+                            onChange={handleTaskAdd}
+                            value="" // Zawsze resetujemy do wartości domyślnej po wyborze
+                            disabled={availableTasksInCategory.length === 0}
+                        >
+                            <option value="">-- 2. Wybierz i dodaj oficjum --</option>
+                            {availableTasksInCategory.length > 0 && (
+                                <>
+                                    <option value="ALL_IN_CATEGORY" className="fw-bold">
+                                        📚 Dodaj wszystkie z: {selectedCategory}
+                                    </option>
+                                    <option disabled>----------------</option>
+                                </>
+                            )}
+                            {availableTasksInCategory.map(task => (
+                                <option key={task.id} value={task.id}>
+                                    {task.nameAbbrev}
+                                </option>
+                            ))}
+                            {availableTasksInCategory.length === 0 && (
+                                <option disabled>Wszystkie oficja z tej kategorii są już dodane</option>
+                            )}
+                        </select>
+                    </div>
+                )}
+
+                    <div className="selected-tasks mt-2 d-flex flex-wrap gap-2">
                         {obstacleData.tasksIds.map(taskId => {
                             const task =
                                 visibleTasksList.find(t => t.id === taskId) ||
                                 allTasks.find(t => t.id === taskId);
                             return (
-                                <div key={taskId} className="pt-2">
                                     <button
                                         className="btn btn-secondary p-1"
                                         type="button"
@@ -153,12 +217,9 @@ const TaskSelector: React.FC<TaskSelectorProps> = ({
                                         {task ? task.nameAbbrev : 'Nieznane oficjum'}{' '}
                                         <FontAwesomeIcon icon={faRectangleXmark} />
                                     </button>
-                                </div>
                             );
                         })}
                     </div>
-                </div>
-            )}
         </div>
     );
 };

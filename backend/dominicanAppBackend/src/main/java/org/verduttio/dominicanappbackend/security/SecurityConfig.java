@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/external/**").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/current/check").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
@@ -100,6 +101,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/api/document-links/**").hasAnyRole("FUNKCYJNY", "ADMIN")
+                        .requestMatchers("/api/calendar/ics/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sessionManagement) -> sessionManagement

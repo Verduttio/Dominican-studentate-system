@@ -15,52 +15,48 @@ const TaskSelectorAdmin: React.FC<TaskSelectorAdminProps> = ({
                                                                  setObstacleData,
                                                                  tasks
                                                              }) => {
-    const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
-    const [selectAllTasks, setSelectAllTasks] = useState<boolean>(false);
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-    useEffect(() => {
-        setAvailableTasks(tasks.filter(task => !obstacleData.tasksIds.includes(task.id)));
-    }, [tasks, obstacleData.tasksIds]);
+        const categories = Array.from(new Set(tasks.map(t => t.supervisorRole.name))).sort();
 
-    const incompleteRoleNames = getIncompleteRoleNamesAdmin(tasks, obstacleData.tasksIds);
+    const availableTasksInCategory = tasks.filter(task =>
+        task.supervisorRole.name === selectedCategory &&
+        !obstacleData.tasksIds.includes(task.id)
+    ).sort((a, b) => a.id - b.id);
 
-    const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedValue = e.target.value;
+    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const category = e.target.value;
 
-        if (incompleteRoleNames.includes(selectedValue)) {
-            addTasksByRole(selectedValue);
+        if (category === "ALL_DAY") {
+            const allIds = tasks.map(t => t.id);
+            const uniqueIds = Array.from(new Set([...obstacleData.tasksIds, ...allIds]));
+
+            setObstacleData(prev => ({ ...prev, tasksIds: uniqueIds }));
+            setSelectedCategory(""); // Reset wyboru
         } else {
-            addSingleTask(parseInt(selectedValue));
+            setSelectedCategory(category);
         }
     };
 
-    const addTasksByRole = (roleName: string) => {
-        const tasksOfRole = tasks.filter(task => task.supervisorRole.assignedTasksGroupName === roleName);
+    const handleTaskAdd = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        if (!value) return;
 
-        const newTaskIds = tasksOfRole
-            .map(task => task.id)
-            .filter(id => !obstacleData.tasksIds.includes(id));
-
-        updateObstacleDataWithNewTasks(newTaskIds);
-        removeTasksFromAvailableTasks(newTaskIds);
-    };
-
-    const addSingleTask = (taskId: number) => {
-        if (!taskId || obstacleData.tasksIds.includes(taskId)) return;
-
-        updateObstacleDataWithNewTasks([taskId]);
-        removeTasksFromAvailableTasks([taskId]);
-    };
-
-    const updateObstacleDataWithNewTasks = (newTaskIds: number[]) => {
-        setObstacleData(prevState => ({
-            ...prevState,
-            tasksIds: [...prevState.tasksIds, ...newTaskIds]
-        }));
-    };
-
-    const removeTasksFromAvailableTasks = (taskIdsToRemove: number[]) => {
-        setAvailableTasks(prevTasks => prevTasks.filter(task => !taskIdsToRemove.includes(task.id)));
+        if (value === "ALL_IN_CATEGORY") {
+            const idsToAdd = availableTasksInCategory.map(t => t.id);
+            setObstacleData(prev => ({
+                ...prev,
+                tasksIds: [...prev.tasksIds, ...idsToAdd]
+            }));
+        } else {
+            // Dodaj pojedyncze zadanie
+            const taskId = parseInt(value);
+            setObstacleData(prev => ({
+                ...prev,
+                tasksIds: [...prev.tasksIds, taskId]
+            }));
+        }
+        e.target.value = "";
     };
 
     const handleRemoveTask = (taskId: number) => {
@@ -68,85 +64,77 @@ const TaskSelectorAdmin: React.FC<TaskSelectorAdminProps> = ({
             ...prevState,
             tasksIds: prevState.tasksIds.filter(id => id !== taskId)
         }));
-
-        const removedTask = tasks.find(task => task.id === taskId);
-        if (removedTask) {
-            setAvailableTasks(prevTasks => [...prevTasks, removedTask].sort((a, b) => a.id - b.id));
-        }
-    };
-
-    const handleSelectAllTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isChecked = e.target.checked;
-        setSelectAllTasks(isChecked);
-
-        if (isChecked) {
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: tasks.map(task => task.id)
-            }));
-            setAvailableTasks([]);
-        } else {
-            setObstacleData(prevState => ({
-                ...prevState,
-                tasksIds: []
-            }));
-            setAvailableTasks(tasks);
-        }
     };
 
     return (
         <div className="mb-3">
-            <label className="form-label">Oficja:</label>
-            <div className="d-flex justify-content-between">
-                <label className="form-check-label me-2" htmlFor="selectAllTasksSwitch">
-                    Wybierz wszystkie oficja
-                </label>
-                <div className="form-check form-switch">
-                    <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="selectAllTasksSwitch"
-                        checked={selectAllTasks}
-                        onChange={handleSelectAllTasks}
-                    />
-                </div>
+            <label className="form-label fw-bold">Oficja:</label>
+
+            {/* DROPDOWN 1: KATEGORIA */}
+            <div className="mb-2">
+                <select
+                    className="form-select"
+                    value={selectedCategory}
+                    onChange={handleCategoryChange}
+                >
+                    <option value="">-- 1. Wybierz kategorię --</option>
+                    <option value="ALL_DAY" className="fw-bold">🌍 Wszystkie oficja (dodaj całą listę)</option>
+                    <option disabled>----------------</option>
+                    {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                </select>
             </div>
 
-            {!selectAllTasks && (
-                <div className="mt-2">
-                    <select className="form-select" value="" onChange={handleTaskChange}>
-                        <option value="">Wybierz oficjum</option>
-                        {incompleteRoleNames.map(roleName => (
-                            <option key={roleName} value={roleName}>
-                                {'{Wszystkie oficja} '} {roleName.toUpperCase()}
-                            </option>
-                        ))}
-                        {availableTasks.map(task => (
+            {/* DROPDOWN 2: KONKRETNE ZADANIA (Pokaż tylko gdy wybrano kategorię) */}
+            {selectedCategory && (
+                <div className="mb-2 fade-in">
+                    <select
+                        className="form-select"
+                        onChange={handleTaskAdd}
+                        defaultValue=""
+                        disabled={availableTasksInCategory.length === 0}
+                    >
+                        <option value="">-- 2. Wybierz i dodaj oficjum --</option>
+                        {availableTasksInCategory.length > 0 && (
+                            <>
+                                <option value="ALL_IN_CATEGORY" className="fw-bold">
+                                    📚 Dodaj wszystkie z: {selectedCategory}
+                                </option>
+                                <option disabled>----------------</option>
+                            </>
+                        )}
+                        {availableTasksInCategory.map(task => (
                             <option key={task.id} value={task.id}>
                                 {task.nameAbbrev}
                             </option>
                         ))}
+                        {availableTasksInCategory.length === 0 && (
+                            <option disabled>Wszystkie z tej kategorii dodane</option>
+                        )}
                     </select>
-
-                    <div className="selected-tasks mt-2">
-                        {obstacleData.tasksIds.map(taskId => {
-                            const task = tasks.find(t => t.id === taskId);
-                            return (
-                                <div key={taskId} className="pt-2">
-                                    <button
-                                        className="btn btn-secondary p-1"
-                                        type="button"
-                                        onClick={() => handleRemoveTask(taskId)}
-                                    >
-                                        {task ? task.nameAbbrev : 'Nieznane oficjum'}{' '}
-                                        <FontAwesomeIcon icon={faRectangleXmark} />
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
                 </div>
             )}
+
+            {/* LISTA WYBRANYCH ZADAŃ (FLEXBOX) */}
+            <div className="selected-tasks mt-2 d-flex flex-wrap gap-2 border-top pt-2">
+                {obstacleData.tasksIds.length === 0 && <small className="text-muted">Brak wybranych oficjów</small>}
+
+                {obstacleData.tasksIds.map(taskId => {
+                    const task = tasks.find(t => t.id === taskId);
+                    return (
+                        <button
+                            key={taskId}
+                            className="btn btn-secondary p-1"
+                            type="button"
+                            onClick={() => handleRemoveTask(taskId)}
+                        >
+                            {task ? task.nameAbbrev : 'Nieznane'}{' '}
+                            <FontAwesomeIcon icon={faRectangleXmark} />
+                        </button>
+                    );
+                })}
+            </div>
         </div>
     );
 };

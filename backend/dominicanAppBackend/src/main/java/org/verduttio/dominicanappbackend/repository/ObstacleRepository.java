@@ -36,6 +36,12 @@ public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
 
     @Query("SELECT o FROM Obstacle o WHERE o.user.id IN :userIds AND :date BETWEEN o.fromDate AND o.toDate AND o.status = 'APPROVED'")
     List<Obstacle> findActiveObstaclesForUsersOnDate(@Param("userIds") List<Long> userIds, @Param("date") LocalDate date);
+    @Query("SELECT o FROM Obstacle o WHERE o.status = :status AND o.fromDate <= :endDate AND o.toDate >= :startDate ORDER BY o.fromDate ASC")
+    List<Obstacle> findObstaclesByStatusAndDateRange(
+            @Param("status") ObstacleStatus status,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 
     @Transactional
     @Modifying
