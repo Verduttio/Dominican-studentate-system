@@ -723,16 +723,18 @@ function AddScheduleSpecialEvent() {
             )}
 
             {/* --- Dodaj gościa --- */}
-            <button
-                className="btn btn-info btn-sm shadow-sm"
-                onClick={() => {
-                    setGuestToEdit(null); // Reset przed dodaniem nowego
-                    setShowGuestModal(true);
-                }}
-            >
-                <FontAwesomeIcon icon={faUserPlus} className="me-2" />
-                Dodaj gościa
-            </button>
+            <div className="d-flex justify-content-center gap-2 mb-3">
+                <button
+                    className="btn btn-info btn-sm shadow-sm"
+                    onClick={() => {
+                        setGuestToEdit(null); // Reset przed dodaniem nowego
+                        setShowGuestModal(true);
+                    }}
+                >
+                    <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                    Dodaj gościa
+                </button>
+            </div>
 
             {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
             <div className="d-flex flex-column align-items-center mb-5 mt-5">
