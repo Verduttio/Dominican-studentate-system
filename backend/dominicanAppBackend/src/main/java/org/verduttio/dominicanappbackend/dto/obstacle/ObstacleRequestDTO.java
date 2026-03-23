@@ -2,6 +2,7 @@ package org.verduttio.dominicanappbackend.dto.obstacle;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.verduttio.dominicanappbackend.domain.TaskSection;
 import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import org.verduttio.dominicanappbackend.domain.Task;
@@ -9,6 +10,7 @@ import org.verduttio.dominicanappbackend.domain.User;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ObstacleRequestDTO {
@@ -21,6 +23,8 @@ public class ObstacleRequestDTO {
     @NotNull(message="To date is mandatory")
     private LocalDate toDate;
     private String applicantDescription;
+
+    private List<Long> taskSectionIds;
 
     // Getters and setters
     public Long getUserId() {
@@ -59,6 +63,14 @@ public class ObstacleRequestDTO {
         return applicantDescription;
     }
 
+    public List<Long> getTaskSectionIds() {
+        return taskSectionIds;
+    }
+
+    public void setTaskSectionIds(List<Long> taskSectionIds) {
+        this.taskSectionIds = taskSectionIds;
+    }
+
     public void setApplicantDescription(String applicantDescription) {
         this.applicantDescription = applicantDescription;
     }
@@ -68,12 +80,13 @@ public class ObstacleRequestDTO {
     }
 
     public ObstacleRequestDTO(Long userId, Set<Long> tasksIds, LocalDate fromDate, LocalDate toDate,
-                       String applicantDescription) {
+                              String applicantDescription, List<Long> taskSectionIds) {
         this.userId = userId;
         this.tasksIds = tasksIds;
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.applicantDescription = applicantDescription;
+        this.taskSectionIds = taskSectionIds;
     }
 
     public Obstacle toObstacle() {
@@ -88,6 +101,16 @@ public class ObstacleRequestDTO {
             Task task = new Task();
             task.setId(taskId);
             obstacle.getTasks().add(task);
+        }
+
+        // --- MAPOWANIE SEKCJI ---
+        obstacle.setTaskSections(new HashSet<>());
+        if (this.taskSectionIds != null) {
+            for (Long sectionId : this.taskSectionIds) {
+                TaskSection section = new TaskSection();
+                section.setId(sectionId);
+                obstacle.getTaskSections().add(section);
+            }
         }
 
         obstacle.setFromDate(this.fromDate);

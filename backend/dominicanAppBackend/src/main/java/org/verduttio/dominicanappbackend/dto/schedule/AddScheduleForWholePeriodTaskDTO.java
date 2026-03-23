@@ -15,6 +15,8 @@ public class AddScheduleForWholePeriodTaskDTO {
     @NotNull(message="To date is mandatory")
     private LocalDate toDate;
 
+    private Long taskSectionId;
+
     // Getters and setters
     public Long getTaskId() {
         return taskId;
@@ -48,6 +50,10 @@ public class AddScheduleForWholePeriodTaskDTO {
         this.toDate = toDate;
     }
 
+    public Long getTaskSectionId() { return taskSectionId; }
+
+    public void setTaskSectionId(Long taskSectionId) { this.taskSectionId = taskSectionId; }
+
     // Constructors
     public AddScheduleForWholePeriodTaskDTO() {
     }
@@ -66,6 +72,7 @@ public class AddScheduleForWholePeriodTaskDTO {
                 ", userId=" + userId +
                 ", fromDate=" + fromDate +
                 ", toDate=" + toDate +
+                ", taskSectionId=" + taskSectionId +
                 '}';
     }
 }

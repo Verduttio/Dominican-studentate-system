@@ -37,6 +37,14 @@ public class Task {
     @JoinColumn(name = "role_id")
     private Role supervisorRole;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "task_task_sections",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_section_id")
+    )
+    private java.util.Set<TaskSection> taskSections = new java.util.HashSet<>();
+
     @ElementCollection(targetClass = DayOfWeek.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
@@ -146,6 +154,14 @@ public class Task {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public java.util.Set<TaskSection> getTaskSections() {
+        return taskSections;
+    }
+
+    public void setTaskSections(java.util.Set<TaskSection> taskSections) {
+        this.taskSections = taskSections;
+    }
 
     // Constructors
     public Task() {

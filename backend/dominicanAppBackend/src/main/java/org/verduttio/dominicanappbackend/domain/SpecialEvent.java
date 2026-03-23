@@ -26,6 +26,11 @@ public class SpecialEvent {
     @OneToMany(mappedBy = "specialEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "special_event_collection_dates", joinColumns = @JoinColumn(name = "special_event_id"))
+    @Column(name = "collection_date")
+    private java.util.Set<LocalDate> collectionDates = new java.util.HashSet<>();
+
     public SpecialEvent() {}
 
     // Getters and Setters
@@ -39,4 +44,6 @@ public class SpecialEvent {
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
     public List<Task> getTasks() { return tasks; }
     public void setTasks(List<Task> tasks) { this.tasks = tasks; }
+    public java.util.Set<LocalDate> getCollectionDates() { return collectionDates; }
+    public void setCollectionDates(java.util.Set<LocalDate> collectionDates) { this.collectionDates = collectionDates; }
 }

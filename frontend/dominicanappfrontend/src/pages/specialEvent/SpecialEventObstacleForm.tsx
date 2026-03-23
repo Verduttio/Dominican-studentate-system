@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { backendUrl } from "../../utils/constants";
 import useHttp from "../../services/UseHttp";
 import LoadingSpinner from "../../components/LoadingScreen";
@@ -7,233 +7,185 @@ import AlertBox from "../../components/AlertBox";
 import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { pl } from "date-fns/locale";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faCheckCircle, faCalendarDay, faBriefcase, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Task, SpecialEvent, User, Obstacle, ObstacleStatus, obstacleStatusTranslation } from "../../models/Interfaces";
+import { faXmark, faCheckCircle, faCalendarDay, faBriefcase, faTrash, faHandPointer, faChurch, faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import { Task, SpecialEvent, User, Obstacle, ObstacleStatus, obstacleStatusTranslation, TaskSection } from "../../models/Interfaces";
 
 function SpecialEventObstacleForm() {
     const { eventId } = useParams<{ eventId: string }>();
+    const navigate = useNavigate();
 
-    // --- STANY ---
+    // --- STANY BAZOWE ---
     const [event, setEvent] = useState<SpecialEvent | null>(null);
     const [allTasks, setAllTasks] = useState<Task[]>([]);
+    const [sections, setSections] = useState<TaskSection[]>([]);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [myObstacles, setMyObstacles] = useState<Obstacle[]>([]);
 
-    // Formularz
-    const [selectedDates, setSelectedDates] = useState<string[]>([]);
+    // --- SEKCJA 1: PORY DNIA I OFICJA OGÓLNE ---
+    const [selectedMatrix, setSelectedMatrix] = useState<Record<string, number[]>>({}); // data -> ID sekcji
+    const [isSpecificTask, setIsSpecificTask] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [selectedTasks, setSelectedTasks] = useState<Task[]>([]);
-    const [isAllDay, setIsAllDay] = useState<boolean>(false);
-    const [description, setDescription] = useState<string>("");
 
+    // --- SEKCJA 2: TACE I KOMUNIE ---
+    const [selectedCollectionMatrix, setSelectedCollectionMatrix] = useState<Record<string, number[]>>({}); // data -> ID taska
+
+    // --- SEKCJA 3: OPIS ---
+    const [description, setDescription] = useState<string>("");
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
     // --- HOOKI HTTP ---
     const { request: requestEvent, loading: loadingEvent, error: errorEvent } = useHttp();
-    const { request: requestTasks, loading: loadingTasks, error: errorTasks} = useHttp();
-    const { request: submitRequest, loading: submitLoading, error: submitError } = useHttp();
+    const { request: requestTasks, loading: loadingTasks } = useHttp();
+    const { request: requestSections, loading: loadingSections } = useHttp();
     const { request: requestCurrentUser, loading: loadingUser } = useHttp();
     const { request: requestMyObstacles, loading: loadingMyObstacles } = useHttp();
+    const { request: submitRequest, loading: submitLoading, error: submitError } = useHttp();
     const { request: deleteObstacleRequest } = useHttp();
 
-
-    // 0. Pobierz aktualnie zalogowanego użytkownika
+    // 0. Inicjalizacja danych bazowych
     useEffect(() => {
-        requestCurrentUser(null, (data: User) => {
-            setCurrentUser(data);
-        }, false, `${backendUrl}/api/users/current`, 'GET');
-    }, [requestCurrentUser]);
+        requestCurrentUser(null, (data: User) => setCurrentUser(data), false, `${backendUrl}/api/users/current`, 'GET');
+        requestEvent(null, (data: SpecialEvent) => setEvent(data), false, `${backendUrl}/api/special-events/${eventId}`, 'GET');
+        requestSections(null, (data: TaskSection[]) => setSections(data), false, `${backendUrl}/api/task-sections`, 'GET');
+    }, [eventId, requestCurrentUser, requestEvent, requestSections]);
 
-    // 1. Pobierz dane wydarzenia
-    useEffect(() => {
-        requestEvent(null, (data: SpecialEvent) => {
-            setEvent(data);
-        }, false, `${backendUrl}/api/special-events/${eventId}`, 'GET');
-    }, [eventId, requestEvent]);
-
-    // 2. Pobierz zadania (Zwykłe + Specjalne)
+    // 1. Pobierz zadania
     useEffect(() => {
         if (!eventId) return;
-
         const fetchTasks = async () => {
             let stdTasks: Task[] = [];
             let spcTasks: Task[] = [];
-
-            // Zwykłe zadania (zakładam, że masz taki endpoint)
             await new Promise<void>(resolve => {
                 requestTasks(null, (data: Task[]) => { stdTasks = data; resolve(); }, false, `${backendUrl}/api/tasks`, 'GET');
             });
-
-            // Zadania specjalne dla tego eventu
             await new Promise<void>(resolve => {
                 requestTasks(null, (data: Task[]) => { spcTasks = data; resolve(); }, false, `${backendUrl}/api/special-events/${eventId}/tasks`, 'GET');
             });
-
-            // Łączymy i sortujemy alfabetycznie
             const combined = [...stdTasks, ...spcTasks].sort((a, b) => a.name.localeCompare(b.name));
             setAllTasks(combined);
         };
-
         fetchTasks();
     }, [eventId, requestTasks]);
 
-    // Funkcja pobierająca przeszkody usera
+    // 2. Pobieranie własnych przeszkód
     const fetchMyObstacles = () => {
         if (!event) return;
-        // Zakładam, że masz endpoint GET /api/obstacles/users/current.
-        // Jeśli nie, dodaj go w backendzie analogicznie do POST!
         requestMyObstacles(null, (data: Obstacle[]) => {
             const eventStart = new Date(event.startDate);
             const eventEnd = new Date(event.endDate);
-
-            // Filtrujemy tylko te przeszkody, które zahaczają o czas trwania wydarzenia
             const filteredObstacles = data.filter(obs => {
                 const obsStart = new Date(obs.fromDate);
                 const obsEnd = new Date(obs.toDate);
                 return obsStart <= eventEnd && obsEnd >= eventStart;
             });
-
-            // Sortujemy od najnowszych
             filteredObstacles.sort((a, b) => b.id - a.id);
             setMyObstacles(filteredObstacles);
-
         }, false, `${backendUrl}/api/obstacles/users/current`, 'GET');
     };
 
-    // Pobierz przeszkody po załadowaniu wydarzenia
     useEffect(() => {
-        if (event) {
-            fetchMyObstacles();
-        }
+        if (event) fetchMyObstacles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [event]);
 
-    // --- LOGIKA FORMULARZA ---
 
-    // Kategorie (unikalne nazwy ról wyciągnięte z pobranych zadań)
-    const categories = Array.from(new Set(allTasks.map(t => t.supervisorRole.name))).sort();
+    // --- FILTRACJA ZADAŃ (OGÓLNE vs TACE/KOMUNIE) ---
 
-    // Zadania dostępne w wybranej kategorii
-    const tasksInCategory = allTasks.filter(t => t.supervisorRole.name === selectedCategory);
+    // 1. Zadania ogólne (bez Tac i Komunii)
+    const generalTasks = allTasks.filter(t => {
+        const cat = t.supervisorRole.name.toUpperCase();
+        return !cat.includes("TAC") && !cat.includes("KOMUN");
+    });
+    const generalCategories = Array.from(new Set(generalTasks.map(t => t.supervisorRole.name))).sort();
+    const tasksInGeneralCategory = generalTasks.filter(t => t.supervisorRole.name === selectedCategory);
 
-    const toggleDate = (dateStr: string) => {
-        setSelectedDates(prev =>
-            prev.includes(dateStr) ? prev.filter(d => d !== dateStr) : [...prev, dateStr]
-        );
+    // 2. Tace i Komunie (odporne na przedrostki typu "Dziekan" i wielkość liter)
+    const collectionTasks = allTasks.filter(t => {
+        if (!currentUser) return false;
+
+        const userRoleNames = currentUser.roles?.map(r => r.name.toUpperCase()) || [];
+        const category = t.supervisorRole.name.toUpperCase();
+
+        const isTaceTask = category.includes("TAC");
+        const isKomunieTask = category.includes("KOMUN");
+
+        const userHasTaceRole = userRoleNames.some(role => role.includes("TAC"));
+        const userHasKomunieRole = userRoleNames.some(role => role.includes("KOMUN"));
+
+        if (isTaceTask && userHasTaceRole) return true;
+        if (isKomunieTask && userHasKomunieRole) return true;
+
+        return false;
+    });
+
+
+    // --- LOGIKA MACIERZY OGÓLNEJ (SEKCJA 1) ---
+    const toggleCell = (dateStr: string, sectionId: number) => {
+        setSelectedMatrix(prev => {
+            const newMatrix = { ...prev };
+            const currentDaySections = newMatrix[dateStr] || [];
+            if (currentDaySections.includes(sectionId)) {
+                newMatrix[dateStr] = currentDaySections.filter(id => id !== sectionId);
+                if (newMatrix[dateStr].length === 0) delete newMatrix[dateStr];
+            } else {
+                newMatrix[dateStr] = [...currentDaySections, sectionId];
+            }
+            return newMatrix;
+        });
     };
 
-    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        if (val === "ALL_DAY") {
-            setIsAllDay(true);
-            setSelectedTasks([]);
-            setSelectedCategory("");
-        } else {
-            setIsAllDay(false);
-            setSelectedCategory(val);
-        }
+    const toggleWholeDay = (dateStr: string) => {
+        setSelectedMatrix(prev => {
+            const newMatrix = { ...prev };
+            const allSectionIds = sections.map(s => s.id);
+            const currentDaySections = newMatrix[dateStr] || [];
+            if (currentDaySections.length === allSectionIds.length) {
+                delete newMatrix[dateStr];
+            } else {
+                newMatrix[dateStr] = allSectionIds;
+            }
+            return newMatrix;
+        });
     };
 
+    // --- LOGIKA FORMULARZA KONKRETNEGO OFICJUM (SEKCJA 1a) ---
     const handleTaskSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const val = e.target.value;
         if (!val) return;
 
         if (val === "ALL_IN_CATEGORY") {
-            // Dodajemy wszystkie zadania z tej kategorii, których jeszcze nie ma na liście
-            const newTasks = tasksInCategory.filter(t => !selectedTasks.find(st => st.id === t.id));
+            const newTasks = tasksInGeneralCategory.filter(t => !selectedTasks.find(st => st.id === t.id));
             setSelectedTasks(prev => [...prev, ...newTasks]);
         } else {
             const taskId = Number(val);
-            const taskObj = allTasks.find(t => t.id === taskId);
+            const taskObj = generalTasks.find(t => t.id === taskId);
             if (taskObj && !selectedTasks.find(t => t.id === taskId)) {
                 setSelectedTasks(prev => [...prev, taskObj]);
             }
         }
-        // Resetujemy dropdown po wybraniu
         e.target.value = "";
     };
 
-    const removeTask = (taskId: number) => {
-        setSelectedTasks(prev => prev.filter(t => t.id !== taskId));
-    };
+    const removeTask = (taskId: number) => setSelectedTasks(prev => prev.filter(t => t.id !== taskId));
 
-    // --- WYSYŁANIE ---
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
 
-        if (selectedDates.length === 0) {
-            alert("Wybierz co najmniej jeden dzień!");
-            return;
-        }
-        if (!isAllDay && selectedTasks.length === 0) {
-            alert("Wybierz oficja lub opcję 'Cały dzień'!");
-            return;
-        }
-        if (!description.trim()) {
-            alert("Podaj powód / godziny nieobecności!");
-            return;
-        }
-
-        if (!currentUser) {
-            alert("Błąd autoryzacji: Trwa ładowanie danych użytkownika lub sesja wygasła.");
-            return;
-        }
-        const currentUserId = currentUser.id;
-
-        // Backend wymaga listy ID zadań (NotEmpty)
-        let idsToSend: number[] = [];
-        if (isAllDay) {
-            // Dla "Całego dnia" wysyłamy ID absolutnie wszystkich wczytanych zadań
-            idsToSend = allTasks.map(t => t.id);
-        } else {
-            // Dla konkretnych oficjów wysyłamy tylko ich ID
-            idsToSend = selectedTasks.map(t => t.id);
-        }
-
-        if (idsToSend.length === 0) {
-            alert("Nie znaleziono żadnych oficjów do zablokowania.");
-            return;
-        }
-
-        try {
-            // Backend pozwala nam za jednym zamachem zablokować wiele zadań (tasksIds),
-            // więc wysyłamy tylko JEDEN request na każdy wybrany dzień (zamiast jednego na każde zadanie)
-            for (const dateStr of selectedDates) {
-                const payload = {
-                    userId: currentUserId,
-                    tasksIds: idsToSend,          // Zmieniono z taskId na tasksIds
-                    fromDate: dateStr,            // Zmieniono z date na fromDate
-                    toDate: dateStr,              // Zmieniono z date na toDate
-                    applicantDescription: description
-                };
-
-                await sendSingleObstacle(payload);
+    // --- LOGIKA MACIERZY TAC/KOMUNII (SEKCJA 2) ---
+    const toggleCollectionCell = (dateStr: string, taskId: number) => {
+        setSelectedCollectionMatrix(prev => {
+            const newMatrix = { ...prev };
+            const currentDayTasks = newMatrix[dateStr] || [];
+            if (currentDayTasks.includes(taskId)) {
+                newMatrix[dateStr] = currentDayTasks.filter(id => id !== taskId);
+                if (newMatrix[dateStr].length === 0) delete newMatrix[dateStr];
+            } else {
+                newMatrix[dateStr] = [...currentDayTasks, taskId];
             }
-
-            setSubmitSuccess(true);
-
-            fetchMyObstacles();
-
-            // Reset formularza
-            setSelectedDates([]);
-            setSelectedTasks([]);
-            setIsAllDay(false);
-            setDescription("");
-
-        } catch (error) {
-            console.error("Błąd podczas wysyłania", error);
-            alert("Wystąpił błąd podczas komunikacji z serwerem. Sprawdź konsolę.");
-        }
+            return newMatrix;
+        });
     };
 
-    const handleDeleteObstacle = (obstacleId: number) => {
-        if (window.confirm("Czy na pewno chcesz usunąć tę przeszkodę? Jeśli chcesz ją zedytować, po usunięciu zgłoś ją ponownie z poprawnymi danymi.")) {
-            deleteObstacleRequest(null, () => {
-                fetchMyObstacles(); // Odśwież po usunięciu
-            }, false, `${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
-        }
-    };
-
+    // Funkcja pomocnicza do wysyłania pojedynczego żądania przeszkody
     const sendSingleObstacle = (payload: any) => {
         return new Promise<void>((resolve, reject) => {
             submitRequest(payload, () => resolve(), false, `${backendUrl}/api/obstacles/users/current`, 'POST')
@@ -241,17 +193,109 @@ function SpecialEventObstacleForm() {
         });
     };
 
+    // --- WYSYŁANIE ---
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const activeGeneralDates = Object.keys(selectedMatrix);
+        const activeCollectionDates = Object.keys(selectedCollectionMatrix);
+
+        if (activeGeneralDates.length === 0 && activeCollectionDates.length === 0) {
+            alert("Nie zaznaczono żadnych przeszkód. Zaznacz coś w tabeli!");
+            return;
+        }
+
+        if (activeGeneralDates.length > 0 && isSpecificTask && selectedTasks.length === 0) {
+            alert("Zaznaczyłeś, że przeszkoda dotyczy konkretnego oficjum, ale go nie wybrałeś!");
+            return;
+        }
+
+        if (!description.trim()) {
+            alert("Podaj opis wniosku!");
+            return;
+        }
+
+        if (!currentUser) {
+            alert("Błąd autoryzacji: Brak danych użytkownika.");
+            return;
+        }
+
+        try {
+            // 1. WYSYŁANIE PRZESZKÓD OGÓLNYCH (Sekcja 1)
+            for (const dateStr of activeGeneralDates) {
+                const sectionIds = selectedMatrix[dateStr];
+
+                // Wysłanie tylko ZADAŃ OGÓLNYCH (generalTasks) bez tac i komunii!
+                const idsToSend = isSpecificTask
+                    ? selectedTasks.map(t => t.id)
+                    : generalTasks.map(t => t.id);
+
+                const payload = {
+                    userId: currentUser.id,
+                    tasksIds: idsToSend,
+                    fromDate: dateStr,
+                    toDate: dateStr,
+                    applicantDescription: description,
+                    taskSectionIds: sectionIds // Nowe pole obsługiwane przez zaktualizowane DTO
+                };
+
+                await sendSingleObstacle(payload);
+            }
+
+            // 2. WYSYŁANIE PRZESZKÓD DLA TAC I KOMUNII (Sekcja 2)
+            for (const dateStr of activeCollectionDates) {
+                const taskIds = selectedCollectionMatrix[dateStr];
+
+                const payload = {
+                    userId: currentUser.id,
+                    tasksIds: taskIds,
+                    fromDate: dateStr,
+                    toDate: dateStr,
+                    applicantDescription: `${description}`,
+                    // Dla Tac i Komunii blokujemy wszystkie pory dnia w danym dniu
+                    taskSectionIds: sections.map(s => s.id)
+                };
+
+                await sendSingleObstacle(payload);
+            }
+
+            setSubmitSuccess(true);
+            fetchMyObstacles();
+
+            // Reset formularza
+            setSelectedMatrix({});
+            setSelectedCollectionMatrix({});
+            setSelectedTasks([]);
+            setIsSpecificTask(false);
+            setDescription("");
+
+            // Przewiń do góry, by brat widział sukces
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch (error) {
+            console.error("Błąd podczas wysyłania przeszkód", error);
+            alert("Wystąpił błąd podczas zapisywania. Spróbuj ponownie później.");
+        }
+    };
+
+    const handleDeleteObstacle = (obstacleId: number) => {
+        if (window.confirm("Czy na pewno chcesz usunąć tę przeszkodę?")) {
+            deleteObstacleRequest(null, () => fetchMyObstacles(), false, `${backendUrl}/api/obstacles/${obstacleId}`, 'DELETE');
+        }
+    };
+
     // --- RENDEROWANIE ---
-    if (loadingEvent || loadingTasks || loadingUser) return <LoadingSpinner />;
-    if (errorEvent || errorTasks) {
-        return <AlertBox type="danger" width="100%" text={errorEvent || errorTasks || "Brak dostępu do danych."} />;
-    }
-    if (!event) return null;
+    if (loadingEvent || loadingTasks || loadingUser || loadingSections) return <LoadingSpinner />;
+    if (errorEvent) return <AlertBox type="danger" width="100%" text={errorEvent} />;
+    if (!event || !currentUser) return <LoadingSpinner />;
 
     const eventDays = eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) });
 
+    const collectionDatesStrings = event.collectionDates || [];
+    const collectionDays = collectionDatesStrings.map(d => parseISO(d));
+
     return (
-        <div className="container mt-4 mb-5 fade-in" style={{ maxWidth: '800px' }}>
+        <div className="container mt-4 mb-5 fade-in" style={{ maxWidth: '900px' }}>
             <div className="card shadow border-0 rounded-3">
                 <div className="card-header bg-dark text-white text-center py-3">
                     <h4 className="mb-0 fw-bold">Zgłoś przeszkodę</h4>
@@ -262,143 +306,236 @@ function SpecialEventObstacleForm() {
                     {submitSuccess && (
                         <div className="alert alert-success d-flex align-items-center mb-4">
                             <FontAwesomeIcon icon={faCheckCircle} className="me-2 fs-4" />
-                            <div>Przeszkody zostały pomyślnie zgłoszone! Możesz dodać kolejne lub opuścić tę stronę.</div>
+                            <div>Przeszkody zostały pomyślnie zgłoszone!</div>
                         </div>
                     )}
-
                     {submitError && <AlertBox type="danger" width="100%" text={submitError} />}
 
                     <form onSubmit={handleSubmit}>
-                        {/* KROK 1: DATY */}
+
+                        {/* ========================================================= */}
+                        {/* SEKCJA 1: PORY DNIA (MACIERZ OGÓLNA)                      */}
+                        {/* ========================================================= */}
                         <div className="mb-4">
-                            <label className="form-label fw-bold">
+                            <label className="form-label fw-bold fs-5">
                                 <FontAwesomeIcon icon={faCalendarDay} className="me-2 text-primary" />
-                                1. Wybierz dni nieobecności:
+                                1. Dostępność ogólna
                             </label>
-                            <div className="d-flex flex-wrap gap-2">
-                                {eventDays.map(day => {
-                                    const dateStr = format(day, 'yyyy-MM-dd');
-                                    const isSelected = selectedDates.includes(dateStr);
-                                    return (
-                                        <button
-                                            type="button"
-                                            key={dateStr}
-                                            className={`btn ${isSelected ? 'btn-primary shadow-sm' : 'btn-outline-secondary'}`}
-                                            onClick={() => toggleDate(dateStr)}
-                                            style={{ minWidth: '85px' }}
-                                        >
-                                            <span className="fw-bold">{format(day, 'dd.MM')}</span><br/>
-                                            <small>{format(day, 'EEEE', { locale: pl })}</small>
-                                        </button>
-                                    );
-                                })}
+                            <p className="text-muted small mb-3">Kliknij w pory dnia, w których nie będziesz mógł pełnić oficjów.</p>
+
+                            <div className="table-responsive mb-3">
+                                <table className="table table-bordered text-center align-middle" style={{ userSelect: 'none' }}>
+                                    <thead className="table-light">
+                                        <tr>
+                                            {/* Usunięta pierwsza kolumna z nagłówkami wierszy */}
+                                            {eventDays.map(day => {
+                                                const dateStr = format(day, 'yyyy-MM-dd');
+                                                const isAllSelected = (selectedMatrix[dateStr]?.length === sections.length) && sections.length > 0;
+                                                return (
+                                                    <th
+                                                        key={dateStr}
+                                                        onClick={() => toggleWholeDay(dateStr)}
+                                                        style={{ cursor: 'pointer', transition: '0.2s', backgroundColor: isAllSelected ? '#ffc107' : '' }}
+                                                        title="Kliknij, aby zaznaczyć/odznaczyć cały dzień"
+                                                        className="hover-shadow"
+                                                    >
+                                                        <div className="fw-bold">{format(day, 'dd.MM')}</div>
+                                                        <small className="fw-normal">{format(day, 'EEEE', { locale: pl })}</small>
+                                                        <div className="mt-1 text-muted" style={{ fontSize: '0.65rem' }}>
+                                                            <FontAwesomeIcon icon={faHandPointer} /> Cały dzień
+                                                        </div>
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sections.map(sec => (
+                                            <tr key={sec.id}>
+                                                {eventDays.map(day => {
+                                                    const dateStr = format(day, 'yyyy-MM-dd');
+                                                    const isSelected = selectedMatrix[dateStr]?.includes(sec.id);
+                                                    return (
+                                                        <td
+                                                            key={`${dateStr}-${sec.id}`}
+                                                            onClick={() => toggleCell(dateStr, sec.id)}
+                                                            className={isSelected ? 'bg-danger text-white border-danger fw-bold' : 'bg-white text-dark'}
+                                                            style={{ cursor: 'pointer', transition: '0.15s', fontSize: '0.9rem' }}
+                                                        >
+                                                            {sec.name} {/* Wyświetlenie samej nazwy pory dnia w komórce */}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
+
+                            {/* CHECKBOX DO ROZWIJANIA KONKRETNYCH ZADAŃ */}
+                            <div className="form-check bg-light p-3 rounded border">
+                                <input
+                                    className="form-check-input ms-1"
+                                    type="checkbox"
+                                    id="specificTaskCheck"
+                                    checked={isSpecificTask}
+                                    onChange={(e) => setIsSpecificTask(e.target.checked)}
+                                />
+                                <label className="form-check-label ms-2 fw-bold" htmlFor="specificTaskCheck">
+                                    Powyższe przeszkody dotyczą <span className="text-danger text-decoration-underline">tylko określonego oficjum</span>
+                                </label>
+                                <div className="text-muted small ms-2 mt-1">
+                                    Domyślnie zaznaczenie w tabeli oznacza brak dyspozycyjności na <strong>wszystkie</strong> oficja (z wyjątkiem tac i komunii).
+                                </div>
+                            </div>
+
+                            {/* WIDOK KONKRETNYCH ZADAŃ (WYŚWIETLANY JEŚLI CHECKBOX JEST ZAZNACZONY) */}
+                            {isSpecificTask && (
+                                <div className="mt-3 p-3 border rounded border-primary bg-white fade-in">
+                                    <label className="form-label fw-bold text-primary">
+                                        <FontAwesomeIcon icon={faBriefcase} className="me-2" />
+                                        Wybierz oficja, których dotyczy ta przeszkoda:
+                                    </label>
+                                    <div className="row g-2 mb-3">
+                                        <div className="col-md-6">
+                                            <select className="form-select shadow-sm" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                                                <option value="">-- 1. Wybierz kategorię --</option>
+                                                {generalCategories.map(cat => (
+                                                    <option key={cat} value={cat}>{cat}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <select
+                                                className="form-select shadow-sm"
+                                                onChange={handleTaskSelect}
+                                                disabled={!selectedCategory}
+                                                value=""
+                                            >
+                                                <option value="">-- 2. Wybierz i dodaj oficjum --</option>
+                                                {selectedCategory && (
+                                                    <>
+                                                        <option value="ALL_IN_CATEGORY" className="fw-bold text-success">
+                                                            📚 Dodaj wszystkie z: {selectedCategory}
+                                                        </option>
+                                                        <option disabled>----------------</option>
+                                                        {tasksInGeneralCategory.map(t => (
+                                                            <option key={t.id} value={t.id}>{t.name} ({t.nameAbbrev})</option>
+                                                        ))}
+                                                    </>
+                                                )}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="selected-tasks d-flex flex-wrap gap-2 p-2 rounded" style={{ minHeight: '50px', backgroundColor: '#f8f9fa', border: '1px dashed #ced4da' }}>
+                                        {selectedTasks.length === 0 ? (
+                                            <span className="text-muted align-self-center">Puste. Dodaj oficja z listy powyżej...</span>
+                                        ) : (
+                                            selectedTasks.map(task => (
+                                                <span key={task.id} className="badge bg-primary p-2 fs-6 shadow-sm d-flex align-items-center">
+                                                    {task.name}
+                                                    <FontAwesomeIcon icon={faXmark} className="ms-2" style={{cursor: 'pointer'}} onClick={() => removeTask(task.id)} />
+                                                </span>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        <hr className="text-muted" />
+                        <hr className="text-muted my-4" />
 
-                        {/* KROK 2: ZADANIA */}
-                        <div className="mb-4">
-                            <label className="form-label fw-bold">
-                                <FontAwesomeIcon icon={faBriefcase} className="me-2 text-primary" />
-                                2. Wybierz oficja (lub zaznacz cały dzień):
-                            </label>
+                        {/* ========================================================= */}
+                        {/* SEKCJA 2: TACE I KOMUNIE                                  */}
+                        {/* ========================================================= */}
+                        {collectionTasks.length > 0 && (
+                            <div className="mb-4">
+                                <label className="form-label fw-bold fs-5">
+                                    <FontAwesomeIcon icon={faChurch} className="me-2 text-primary" />
+                                    2. Tace i Komunie (Dni specjalne)
+                                </label>
+                                <p className="text-muted small mb-3">Zaznacz oficja z którymi masz kolizję we wskazanych niżej dniach świątecznych.</p>
 
-                            <div className="row g-2 mb-3">
-                                <div className="col-md-6">
-                                    <select className="form-select border-primary shadow-sm" value={isAllDay ? "ALL_DAY" : selectedCategory} onChange={handleCategoryChange}>
-                                        <option value="">-- 1. Wybierz kategorię --</option>
-                                        <option value="ALL_DAY" className="fw-bold text-danger">🌍 Wszystkie oficja (CAŁY DZIEŃ)</option>
-                                        <option disabled>----------------</option>
-                                        {categories.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div className="col-md-6">
-                                    <select
-                                        className="form-select shadow-sm"
-                                        onChange={handleTaskSelect}
-                                        disabled={isAllDay || !selectedCategory}
-                                        defaultValue=""
-                                    >
-                                        <option value="">-- 2. Wybierz i dodaj oficjum --</option>
-                                        {selectedCategory && (
-                                            <>
-                                                <option value="ALL_IN_CATEGORY" className="fw-bold text-success">
-                                                    📚 Dodaj wszystkie z: {selectedCategory}
-                                                </option>
-                                                <option disabled>----------------</option>
-                                                {tasksInCategory.map(t => (
-                                                    <option key={t.id} value={t.id}>
-                                                        {t.name} ({t.nameAbbrev}) {t.specialEventId ? '⭐' : ''}
-                                                    </option>
-                                                ))}
-                                            </>
-                                        )}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Wybrane "chipy" */}
-                            <div className="selected-tasks mt-3 d-flex flex-wrap gap-2 p-2 rounded" style={{ minHeight: '50px', backgroundColor: '#f8f9fa', border: '1px dashed #ced4da' }}>
-                                {isAllDay ? (
-                                    <span className="badge bg-danger p-2 fs-6 shadow-sm">
-                                        Cały wybrany dzień (Wszystkie oficja)
-                                        <FontAwesomeIcon icon={faXmark} className="ms-2" style={{cursor: 'pointer'}} onClick={() => setIsAllDay(false)} />
-                                    </span>
-                                ) : selectedTasks.length === 0 ? (
-                                    <span className="text-muted align-self-center">Puste. Dodaj oficja z listy powyżej...</span>
+                                {collectionDays.length === 0 ? (
+                                    <div className="alert alert-secondary small">
+                                        W tym wydarzeniu nie zdefiniowano jeszcze dni tacowych/komunijnych.
+                                    </div>
                                 ) : (
-                                    selectedTasks.map(task => (
-                                        <span key={task.id} className={`badge ${task.specialEventId ? 'bg-warning text-dark' : 'bg-primary'} p-2 fs-6 shadow-sm d-flex align-items-center`}>
-                                            {task.name}
-                                            <FontAwesomeIcon
-                                                icon={faXmark}
-                                                className="ms-2"
-                                                style={{cursor: 'pointer'}}
-                                                onClick={() => removeTask(task.id)}
-                                            />
-                                        </span>
-                                    ))
+                                    <div className="table-responsive">
+                                        <table className="table table-bordered text-center align-middle" style={{ userSelect: 'none', tableLayout: 'fixed' }}>
+                                            <thead className="table-light">
+                                                <tr>
+                                                    {collectionDays.map(day => {
+                                                        const dateStr = format(day, 'yyyy-MM-dd');
+                                                        return (
+                                                            <th key={dateStr} className="bg-light">
+                                                                <div className="fw-bold">{format(day, 'dd.MM')}</div>
+                                                                <small className="fw-normal">{format(day, 'EEEE', { locale: pl })}</small>
+                                                            </th>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {collectionTasks.map(task => (
+                                                    <tr key={task.id}>
+                                                        {collectionDays.map(day => {
+                                                            const dateStr = format(day, 'yyyy-MM-dd');
+                                                            const isSelected = selectedCollectionMatrix[dateStr]?.includes(task.id);
+                                                            return (
+                                                                <td
+                                                                    key={`${dateStr}-${task.id}`}
+                                                                    onClick={() => toggleCollectionCell(dateStr, task.id)}
+                                                                    className={isSelected ? 'bg-danger text-white border-danger fw-bold' : 'bg-white text-dark'}
+                                                                    style={{ cursor: 'pointer', transition: '0.15s', fontSize: '0.9rem' }}
+                                                                >
+                                                                    {task.nameAbbrev} {/* Skrócona nazwa oficjum */}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 )}
                             </div>
-                        </div>
+                        )}
 
-                        <hr className="text-muted" />
+                        {collectionTasks.length > 0 && <hr className="text-muted my-4" />}
 
-                        {/* KROK 3: OPIS */}
+                        {/* ========================================================= */}
+                        {/* SEKCJA 3: OPIS                                            */}
+                        {/* ========================================================= */}
                         <div className="mb-4">
-                            <label htmlFor="applicantDescription" className="form-label fw-bold">
-                                3. Opis wniosku (Powód nieobecności + ew. godziny):
+                            <label htmlFor="applicantDescription" className="form-label fw-bold fs-5">
+                                <FontAwesomeIcon icon={faCommentDots} className="me-2 text-primary" />
+                                {collectionTasks.length > 0 ? "3." : "2."} Opis wniosku
                             </label>
                             <textarea
-                                className="form-control shadow-sm"
+                                className="form-control shadow-sm border-primary"
                                 id="applicantDescription"
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Np. Wyjazd do domu od 14:00."
                             ></textarea>
+                            <div className="form-text mt-2">Pamiętaj, by uargumentować nieobecność (wniosek trafi do zatwierdzenia przez Dziekana).</div>
                         </div>
 
                         {/* SUBMIT */}
-                        <div className="d-flex justify-content-center">
-                            <button
-                                type="submit"
-                                className="btn btn-success btn-lg px-5 shadow fw-bold text-uppercase"
-                                disabled={submitLoading}
-                            >
+                        <div className="d-flex justify-content-center mt-5">
+                            <button type="submit" className="btn btn-success btn-lg px-5 shadow fw-bold text-uppercase" disabled={submitLoading}>
                                 {submitLoading ? <LoadingSpinner /> : "Zgłoś przeszkodę"}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+
             {/* --- SEKCJA MOICH PRZESZKÓD --- */}
             <div className="card shadow border-0 rounded-3 mt-4">
-                <div className="card-header bg-secondary text-white py-3">
+                <div className="card-header bg-dark text-white py-3">
                     <h5 className="mb-0 fw-bold">Twoje przeszkody w tym wydarzeniu</h5>
                 </div>
                 <div className="card-body p-0">
@@ -428,7 +565,13 @@ function SpecialEventObstacleForm() {
                                             <td style={{ maxWidth: '200px' }}>
                                                 <div className="d-flex flex-wrap justify-content-center gap-1">
                                                     {obs.tasks.map(t => (
-                                                        <span key={t.id} className="badge bg-primary">{t.nameAbbrev}</span>
+                                                        <span
+                                                            key={t.id}
+                                                            className="badge bg-primary text-wrap text-break"
+                                                            style={{ lineHeight: '1.4' }}
+                                                        >
+                                                            {t.nameAbbrev}
+                                                        </span>
                                                     ))}
                                                 </div>
                                             </td>

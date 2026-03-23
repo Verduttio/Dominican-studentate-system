@@ -3,6 +3,7 @@ package org.verduttio.dominicanappbackend.domain.obstacle;
 import jakarta.persistence.*;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import org.verduttio.dominicanappbackend.domain.Task;
+import org.verduttio.dominicanappbackend.domain.TaskSection;
 import org.verduttio.dominicanappbackend.domain.User;
 
 import java.time.LocalDate;
@@ -43,6 +44,14 @@ public class Obstacle {
     @ManyToOne
     @JoinColumn(name = "recipient_user_id")
     private User recipientUser;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "obstacle_task_sections",
+            joinColumns = @JoinColumn(name = "obstacle_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_section_id")
+    )
+    private java.util.Set<TaskSection> taskSections = new java.util.HashSet<>();
 
     // Getters and setters
     public Long getId() {
@@ -116,6 +125,9 @@ public class Obstacle {
     public void setRecipientUser(User recipientUser) {
         this.recipientUser = recipientUser;
     }
+
+    public java.util.Set<TaskSection> getTaskSections() { return taskSections; }
+    public void setTaskSections(java.util.Set<TaskSection> taskSections) { this.taskSections = taskSections; }
 
     // Constructors
     public Obstacle() {

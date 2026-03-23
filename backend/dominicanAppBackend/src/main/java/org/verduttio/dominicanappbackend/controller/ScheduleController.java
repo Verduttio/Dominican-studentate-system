@@ -290,10 +290,11 @@ public class ScheduleController {
     public List<UserTasksScheduleInfoWeekly> getScheduleInfoForSpecialEventDaily(
             @PathVariable Long eventId,
             @PathVariable String roleName,
-            @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
+            @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date,
+            @RequestParam(value = "sectionId", required = false) Long sectionId) {
 
-        // Delegujemy do serwisu (musimy dodać tę metodę)
-        return scheduleService.getScheduleInfoForSpecialEventDaily(eventId, roleName, date);
+        // Delegujemy do serwisu (przekazując nową zmienną sectionId)
+        return scheduleService.getScheduleInfoForSpecialEventDaily(eventId, roleName, date, sectionId);
     }
 
     @GetMapping("/users/{userId}/statistics/tasks")

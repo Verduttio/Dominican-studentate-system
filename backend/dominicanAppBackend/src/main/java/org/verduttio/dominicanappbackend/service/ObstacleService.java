@@ -17,6 +17,7 @@ import org.verduttio.dominicanappbackend.dto.obstacle.ObstacleRequestDTO;
 import org.verduttio.dominicanappbackend.repository.ObstacleRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.repository.TaskSectionRepository;
 import org.verduttio.dominicanappbackend.security.SecurityUtils;
 import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.validation.ObstacleValidator;
@@ -35,14 +36,16 @@ public class ObstacleService {
     private final ScheduleRepository scheduleRepository;
     private final TaskComparator taskComparator = new TaskComparator();
     private final ObstacleNormalizer obstacleNormalizer;
+    private final TaskSectionRepository taskSectionRepository;
 
     @Autowired
     public ObstacleService(ObstacleRepository obstacleRepository,
-                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, ObstacleNormalizer obstacleNormalizer) {
+                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, ObstacleNormalizer obstacleNormalizer, TaskSectionRepository taskSectionRepository) {
         this.obstacleRepository = obstacleRepository;
         this.obstacleValidator = obstacleValidator;
         this.scheduleRepository = scheduleRepository;
         this.obstacleNormalizer = obstacleNormalizer;
+        this.taskSectionRepository = taskSectionRepository;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -74,6 +77,13 @@ public class ObstacleService {
         obstacleValidator.ensureFromDateNotAfterToDate(obstacleRequestDTO.getFromDate(), obstacleRequestDTO.getToDate());
 
         Obstacle obstacle = obstacleRequestDTO.toObstacle();
+        // --- OBSŁUGA SEKCJI (Pór Dnia) ---
+        obstacle.getTaskSections().clear(); // Czyścimy sztuczne obiekty z DTO
+        if (obstacleRequestDTO.getTaskSectionIds() != null && !obstacleRequestDTO.getTaskSectionIds().isEmpty()) {
+            List<org.verduttio.dominicanappbackend.domain.TaskSection> realSections =
+                    taskSectionRepository.findAllById(obstacleRequestDTO.getTaskSectionIds());
+            obstacle.getTaskSections().addAll(realSections);
+        }
         obstacleRepository.save(obstacle);
     }
 

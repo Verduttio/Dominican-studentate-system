@@ -104,5 +104,39 @@ public class TaskTableBuilder {
         cell.setFillColor(this.myGray);
         cell.setAlign(HorizontalAlignment.CENTER);
     }
+
+    // --- NOWE METODY DLA WYDARZEŃ SPECJALNYCH Z SEKCJAMI ---
+
+    public void buildTableWithSections(java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules) throws IOException {
+        addHeaderRow();
+        for (java.util.Map.Entry<String, List<ScheduleShortInfoForTask>> entry : sectionedSchedules.entrySet()) {
+            String sectionName = entry.getKey();
+            List<ScheduleShortInfoForTask> tasks = entry.getValue();
+
+            // Rysuj nagłówek sekcji tylko jeśli to nie jest pusta nazwa i ma jakieś zadania
+            if (sectionName != null && !sectionName.isEmpty() && !tasks.isEmpty()) {
+                addSectionHeaderRow(sectionName);
+            }
+
+            for (ScheduleShortInfoForTask schedule : tasks) {
+                addTaskRows(schedule);
+            }
+        }
+        table.draw();
+    }
+
+    private void addSectionHeaderRow(String sectionName) {
+        Row<PDPage> row = table.createRow(10f); // Minimalna wysokość, rozciągnie się
+        Cell<PDPage> cell = row.createCell(100, sectionName.toUpperCase());
+        cell.setFont(font);
+        cell.setFontSize(this.fontSize + 1); // Lekko większa czcionka dla nagłówka
+        // Jasnoniebieski kolor by wyróżnić sekcję i oddzielić od szarych oficjów
+        cell.setFillColor(new Color(210, 230, 245));
+        cell.setTextColor(Color.BLACK);
+        cell.setAlign(HorizontalAlignment.CENTER);
+        cell.setValign(VerticalAlignment.MIDDLE);
+        cell.setTopPadding(3f);
+        cell.setBottomPadding(3f);
+    }
 }
 

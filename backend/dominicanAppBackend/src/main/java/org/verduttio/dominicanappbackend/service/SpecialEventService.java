@@ -83,11 +83,12 @@ public class SpecialEventService {
     public SpecialEvent cloneEvent(Long sourceId, String newName, LocalDate newStart, LocalDate newEnd) {
         SpecialEvent sourceEvent = getEvent(sourceId);
 
-        // 1. Stwórz nowy Event
+        // 1. Stwórz nowy Event (dni tacowe celowo zostawiamy puste, bo to święta ruchome)
         SpecialEvent newEvent = new SpecialEvent();
         newEvent.setName(newName);
         newEvent.setStartDate(newStart);
         newEvent.setEndDate(newEnd);
+
         newEvent = specialEventRepository.save(newEvent);
 
         // Mapa: ID Starego Zadania -> Nowa Encja Zadania
@@ -112,6 +113,11 @@ public class SpecialEventService {
             // Kolekcje (Tworzymy nowe sety, żeby nie współdzielić referencji do kolekcji Hibernate)
             newTask.setAllowedRoles(new HashSet<>(sourceTask.getAllowedRoles()));
             newTask.setDaysOfWeek(new HashSet<>(sourceTask.getDaysOfWeek()));
+
+            // --- Klonowanie przypisanych sekcji (pór dnia) do zadania ---
+            if (sourceTask.getTaskSections() != null) {
+                newTask.setTaskSections(new HashSet<>(sourceTask.getTaskSections()));
+            }
 
             // Przypisanie do nowego eventu
             newTask.setSpecialEvent(newEvent);

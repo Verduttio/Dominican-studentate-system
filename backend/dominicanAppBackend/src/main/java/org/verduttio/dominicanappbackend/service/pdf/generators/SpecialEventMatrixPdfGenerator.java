@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.service.pdf.builders.DayTableBuilder;
 import org.verduttio.dominicanappbackend.util.DateUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,21 +27,65 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
 
     @Override
     public byte[] generatePdf() throws IOException {
-        // Zamiast standardowych metod, używamy naszej nowej, stworzonej dla Special Events
-        List<UserSchedulesOnDaysDTO> userSchedules = scheduleService.getListOfUserSchedulesByDaysDTOForSpecialEvent(
-                event.getId(),
-                supervisorRoleName.orElse(null)
-        );
+        // Używamy nowej metody z serwisu (zwraca DTO z podziałem na sekcje)
+        List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> userSchedules =
+                scheduleService.getMatrixSchedulesWithSections(event.getId(), supervisorRoleName.orElse(null));
+
+        // Skanujemy dane, aby wiedzieć ile kolumn narysować w każdym dniu
+        java.util.Map<LocalDate, List<String>> activeSectionsMap = extractActiveSections(userSchedules, event.getStartDate(), event.getEndDate());
 
         initializeDocument();
-        // Generujemy stronę poziomą (A4 Landscape)
         PDPage page = addNewPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
         float startY = addTitle(page, getTitle());
         BaseTable table = initializeTable(page, startY);
 
-        populateTable(table, userSchedules);
+        populateTable(table, userSchedules, activeSectionsMap);
 
         return finalizeDocument();
+    }
+
+    private void populateTable(BaseTable table,
+                               List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> userSchedules,
+                               java.util.Map<LocalDate, List<String>> activeSectionsMap) throws IOException {
+        DayTableBuilder tableBuilder = new DayTableBuilder(table, font, event.getStartDate(), event.getEndDate());
+        // Wywołujemy naszą NOWĄ metodę z Builder'a!
+        tableBuilder.buildTableWithSections(userSchedules, activeSectionsMap);
+    }
+
+    // --- METODA POMOCNICZA ---
+    private java.util.Map<LocalDate, List<String>> extractActiveSections(
+            List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> dtos,
+            LocalDate from, LocalDate to) {
+
+        java.util.Map<LocalDate, java.util.Set<String>> active = new java.util.HashMap<>();
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            active.put(date, new java.util.HashSet<>());
+        }
+
+        // Zbieramy unikalne sekcje dla każdego dnia
+        for (org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO dto : dtos) {
+            for (java.util.Map.Entry<LocalDate, java.util.Map<String, List<String>>> entry : dto.getSchedules().entrySet()) {
+                if (active.containsKey(entry.getKey())) {
+                    active.get(entry.getKey()).addAll(entry.getValue().keySet());
+                }
+            }
+        }
+
+        // Konwertujemy sety na posortowane listy
+        java.util.Map<LocalDate, List<String>> result = new java.util.HashMap<>();
+        for (java.util.Map.Entry<LocalDate, java.util.Set<String>> entry : active.entrySet()) {
+            List<String> list = new java.util.ArrayList<>(entry.getValue());
+            // Sortujemy tak, by puste (czyli oficja bez sekcji) były na początku
+            list.sort((a, b) -> {
+                if(a.isEmpty()) return -1;
+                if(b.isEmpty()) return 1;
+                return a.compareTo(b); // Sortowanie alfabetyczne (Rano, Przedpołudnie itd.)
+            });
+            // Jeśli dzień jest w ogóle pusty, dodajemy jedną pustą kolumnę by macierz się nie złamała
+            if (list.isEmpty()) list.add("");
+            result.put(entry.getKey(), list);
+        }
+        return result;
     }
 
     private String getTitle() {
@@ -49,11 +94,5 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
                 event.getStartDate().format(DateUtils.getPlDateFormatter()) +
                 " - " +
                 event.getEndDate().format(DateUtils.getPlDateFormatter()) + ")";
-    }
-
-    private void populateTable(BaseTable table, List<UserSchedulesOnDaysDTO> userSchedules) throws IOException {
-        // Używamy Twojego istniejącego DayTableBuilder - wygląd tabeli będzie identyczny!
-        DayTableBuilder tableBuilder = new DayTableBuilder(table, font, event.getStartDate(), event.getEndDate());
-        tableBuilder.buildTable(userSchedules);
     }
 }

@@ -51,6 +51,11 @@ public class SpecialEventController {
         event.setStartDate(dto.startDate());
         event.setEndDate(dto.endDate());
 
+        // --- NOWE: Zapisywanie dni tacowych ---
+        if (dto.collectionDates() != null) {
+            event.setCollectionDates(new java.util.HashSet<>(dto.collectionDates()));
+        }
+
         SpecialEvent saved = specialEventService.createEvent(event);
         return convertToDTO(saved);
     }
@@ -64,6 +69,15 @@ public class SpecialEventController {
         event.setName(dto.name());
         event.setStartDate(dto.startDate());
         event.setEndDate(dto.endDate());
+
+        // --- NOWE: Aktualizacja dni tacowych ---
+        if (event.getCollectionDates() == null) {
+            event.setCollectionDates(new java.util.HashSet<>());
+        }
+        event.getCollectionDates().clear();
+        if (dto.collectionDates() != null) {
+            event.getCollectionDates().addAll(dto.collectionDates());
+        }
 
         SpecialEvent saved = specialEventService.createEvent(event); // save działa jak update
         return convertToDTO(saved);
@@ -106,7 +120,9 @@ public class SpecialEventController {
                 event.getId(),
                 event.getName(),
                 event.getStartDate(),
-                event.getEndDate()
+                event.getEndDate(),
+                // Zabezpieczenie przed nullPointerException
+                event.getCollectionDates() != null ? event.getCollectionDates().stream().toList() : new java.util.ArrayList<>()
         );
     }
 

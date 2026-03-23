@@ -136,6 +136,23 @@ public class UserController {
         }
     }
 
+    // --- ENDPOINTY DLA GOŚCI (SPECIAL USERS) ---
+
+    @PostMapping("/guests")
+    public ResponseEntity<?> createGuestUser(@Valid @RequestBody GuestUserDTO guestUserDTO) {
+        userService.createGuestUser(guestUserDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/guests/{userId}")
+    public ResponseEntity<?> updateGuestUser(@PathVariable Long userId, @Valid @RequestBody GuestUserDTO guestUserDTO) {
+        try {
+            userService.updateGuestUser(userId, guestUserDTO);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {

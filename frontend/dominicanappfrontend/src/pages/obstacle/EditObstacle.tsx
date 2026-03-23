@@ -75,6 +75,22 @@ function EditObstacle() {
                             <th className="table-dark">Oficja</th>
                             <td>{obstacle?.tasks.map(task => task.nameAbbrev).join(", ")}</td>
                         </tr>
+                        {/* NOWY WIERSZ: PORY DNIA */}
+                        <tr>
+                            <th className="table-dark text-nowrap">Pory dnia</th>
+                            <td>
+                                {obstacle?.taskSections && obstacle.taskSections.length > 0 ? (
+                                    <div className="d-flex flex-wrap gap-1">
+                                        {obstacle.taskSections.map(sec => (
+                                            <span key={sec.id} className="badge bg-primary">{sec.name}</span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span className="badge bg-secondary">Cały dzień / Wszystkie pory</span>
+                                )}
+                            </td>
+                        </tr>
+                        {/* KONIEC NOWEGO WIERSZA */}
                         <tr>
                             <th className="table-dark">Od</th>
                             <td>{format(obstacle ? obstacle.fromDate : "1.1.1970", 'dd.MM.yyyy')}</td>

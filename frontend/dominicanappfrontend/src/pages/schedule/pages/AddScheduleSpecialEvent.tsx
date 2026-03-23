@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    Task, UserTasksScheduleInfoWeekly, SpecialEvent, UserTaskScheduleInfo, Role, Conflict
+    Task, UserTasksScheduleInfoWeekly, SpecialEvent, UserTaskScheduleInfo, Role, Conflict, TaskSection, User, Obstacle
 } from "../../../models/Interfaces";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {backendUrl} from "../../../utils/constants";
@@ -13,10 +13,11 @@ import {format, parseISO, eachDayOfInterval, startOfWeek, endOfWeek} from "date-
 import { pl } from 'date-fns/locale';
 import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash, faUserPlus} from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
 import SpecialEventTaskModal from '../../specialEvent/SpecialEventTaskModal';
+import GuestUserModal from '../../specialEvent/GuestUserModal';
 
 function AddScheduleSpecialEvent() {
     const { eventId } = useParams<{ eventId: string }>();
@@ -27,10 +28,14 @@ function AddScheduleSpecialEvent() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const currentDateRef = useRef(currentDate);
 
-    const [showStandardTasks, setShowStandardTasks] = useState(false);
+    const [showStandardTasks, setShowStandardTasks] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [currentRoleObj, setCurrentRoleObj] = useState<Role | null>(null);
+
+    const [showGuestModal, setShowGuestModal] = useState(false);
+    const [guestToEdit, setGuestToEdit] = useState<User | null>(null);
+    const { request: fetchUserRequest } = useHttp();
 
     const [allRoles, setAllRoles] = useState<Role[]>([]);
     const [allConflicts, setAllConflicts] = useState<Conflict[]>([]);
@@ -39,6 +44,13 @@ function AddScheduleSpecialEvent() {
     const [selectedConflictRole, setSelectedConflictRole] = useState<string>('');
     const [conflictTasks2, setConflictTasks2] = useState<Task[]>([]);
     const [selectedTask2Ids, setSelectedTask2Ids] = useState<number[]>([]);
+
+    const [taskSections, setTaskSections] = useState<TaskSection[]>([]);
+    const [currentSectionId, setCurrentSectionId] = useState<number | null>(null);
+    const { request: requestTaskSections } = useHttp();
+
+    const [eventObstacles, setEventObstacles] = useState<Obstacle[]>([]);
+    const { request: requestObstacles, loading: loadingObstacles } = useHttp();
 
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
@@ -67,6 +79,23 @@ function AddScheduleSpecialEvent() {
     const [historyPopup, setHistoryPopup] = useState({ show: false, userId: 0 });
 
     const specialTasks = tasks?.filter(t => t.specialEventId !== null && t.specialEventId !== undefined) || [];
+
+    const visibleTasks = React.useMemo(() => {
+            if (!tasks) return [];
+            // Jeśli wybrana jest zakładka "Wszystkie", pokaż wszystko
+            if (currentSectionId === null) return tasks;
+
+            // Zostaw tylko te zadania, które w swojej tablicy taskSections mają wybraną sekcję
+            return tasks.filter(task => {
+                // Zakładamy, że zwykłe oficja (bez specialEventId) pokazujemy zawsze,
+                // ale jeśli chcesz, by też podlegały sekcjom, zdejmij poniższy warunek
+                const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+
+                // Jeśli to zadanie specjalne, sprawdź jego sekcje
+                if (!task.taskSections || task.taskSections.length === 0) return false;
+                return task.taskSections.some(sec => sec.id === currentSectionId);
+            });
+        }, [tasks, currentSectionId]);
 
     // 1. Pobierz Event i ustaw datę początkową (Tylko raz przy starcie)
     useEffect(() => {
@@ -137,7 +166,11 @@ function AddScheduleSpecialEvent() {
     const fetchSchedule = () => {
         if (!event) return;
         const dateStr = format(currentDate, 'dd-MM-yyyy');
-        const url = `${backendUrl}/api/schedules/special-event/${eventId}/${roleName}/schedule-info/daily?date=${dateStr}`;
+        let url = `${backendUrl}/api/schedules/special-event/${eventId}/${roleName}/schedule-info/daily?date=${dateStr}`;
+
+        if (currentSectionId !== null) {
+            url += `&sectionId=${currentSectionId}`;
+        }
 
         requestSchedule(null, (data) => {
             if (currentDateRef.current === currentDate) {
@@ -150,7 +183,7 @@ function AddScheduleSpecialEvent() {
         currentDateRef.current = currentDate;
         fetchSchedule();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentDate, event]);
+    }, [currentDate, event, currentSectionId]);
 
     // Pobieranie wszystkich ról i konfliktów (raz przy starcie)
     useEffect(() => {
@@ -162,6 +195,29 @@ function AddScheduleSpecialEvent() {
     const fetchConflicts = () => {
         requestAllConflicts(null, (data: Conflict[]) => setAllConflicts(data), false, `${backendUrl}/api/conflicts`, 'GET');
     };
+
+
+    // Pobieranie wszystkich zatwierdzonych przeszkód dla tego wydarzenia
+    useEffect(() => {
+        if (!event) return;
+        requestObstacles(null, (data: Obstacle[]) => {
+            const eventStart = new Date(event.startDate);
+            const eventEnd = new Date(event.endDate);
+
+            const approvedForEvent = data.filter(obs => {
+                if (obs.status !== 'APPROVED') return false;
+                const obsStart = new Date(obs.fromDate);
+                const obsEnd = new Date(obs.toDate);
+                // Sprawdzamy czy przeszkoda zahacza o ramy czasowe eventu
+                return obsStart <= eventEnd && obsEnd >= eventStart;
+            });
+
+            // Sortujemy chronologicznie
+            approvedForEvent.sort((a, b) => new Date(a.fromDate).getTime() - new Date(b.fromDate).getTime());
+
+            setEventObstacles(approvedForEvent);
+        }, false, `${backendUrl}/api/obstacles`, 'GET');
+    }, [event, requestObstacles]);
 
     // Pobieranie zadań do drugiego dropdowna (Zwykłe + Specjalne z tego eventu) po wybraniu kategorii
     useEffect(() => {
@@ -192,6 +248,14 @@ function AddScheduleSpecialEvent() {
 
         fetchTasksForConflict();
     }, [selectedConflictRole, event, eventId, requestConflictTasks]);
+
+    // Pobieranie dostępnych pór dnia (sekcji)
+    useEffect(() => {
+        requestTaskSections(null, (data: TaskSection[]) => {
+            setTaskSections(data);
+        }, false, `${backendUrl}/api/task-sections`, 'GET');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // --- FUNKCJE OBSŁUGI KOLIZJI ---
 
@@ -317,7 +381,7 @@ function AddScheduleSpecialEvent() {
     function handleSubmit(userId: number, taskId: number) {
         const dep = userDependencies.find(d => d.userId === userId);
         const udep = dep?.userTasksScheduleInfo?.find(ud => ud.taskId === taskId);
-        const task = tasks?.find(t => t.id === taskId);
+        const task = visibleTasks.find(t => t.id === taskId);
         const limit = task?.participantsLimit || 0;
         const assignedCount = countAssignedUsers(taskId, userDependencies);
 
@@ -346,7 +410,8 @@ function AddScheduleSpecialEvent() {
             taskId: taskId,
             taskDate: taskDateStr,
             weekStartDate: weekStartStr,
-            weekEndDate: weekEndStr
+            weekEndDate: weekEndStr,
+            taskSectionId: currentSectionId
         };
 
         assignRequest(reqData, () => {
@@ -360,7 +425,7 @@ function AddScheduleSpecialEvent() {
         const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
         const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
 
-        const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr };
+        const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
 
         unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
     }
@@ -399,7 +464,7 @@ function AddScheduleSpecialEvent() {
         }
 
         // Tło komórki jeśli task pełny
-        const cellClass = isTaskFullyAssigned(udep.taskId, tasks, userDependencies) ? "bg-secondary" : "";
+        const cellClass = isTaskFullyAssigned(udep.taskId, visibleTasks, userDependencies) ? "bg-secondary" : "";
 
         // Łączymy klasę tła z klasą ukrywania
         const finalClass = `${cellClass} ${hiddenClass}`;
@@ -490,10 +555,54 @@ function AddScheduleSpecialEvent() {
         );
     };
 
+    // --- PASEK SEKCJI (PÓR DNIA) ---
+    const renderSectionTabs = () => {
+        return (
+            <div className="d-flex justify-content-center flex-wrap gap-2 mb-4">
+                <button
+                    className={`btn ${currentSectionId === null ? 'btn-warning fw-bold text-dark' : 'btn-dark text-white'}`}
+                    onClick={() => setCurrentSectionId(null)}
+                    style={{minWidth: '100px'}}
+                >
+                    Wszystkie
+                </button>
+                {taskSections.map(sec => {
+                    const isSelected = currentSectionId === sec.id;
+                    return (
+                        <button
+                            key={sec.id}
+                            className={`btn ${isSelected ? 'btn-warning fw-bold text-dark' : 'btn-dark text-white'}`}
+                            onClick={() => setCurrentSectionId(sec.id)}
+                            style={{minWidth: '100px'}}
+                        >
+                            {sec.name}
+                        </button>
+                    );
+                })}
+            </div>
+        );
+    };
+
     function getUserName(userId: number) {
         let user = userDependencies.find(dep => dep.userId === userId);
         return user ? user.userName : "unknown";
     }
+
+    // Funkcja wywoływana po kliknięciu w imię z lewej strony macierzy
+    const handleNameClick = (userId: number) => {
+        // Pobieramy pełne dane użytkownika, żeby sprawdzić jego role
+        fetchUserRequest(null, (user: User) => {
+            const isGuest = user.roles.some(r => r.name === 'ROLE_GUEST');
+            if (isGuest) {
+                // Jeśli to gość, otwieramy modal do edycji
+                setGuestToEdit(user);
+                setShowGuestModal(true);
+            } else {
+                // Jeśli to brat, standardowo otwieramy jego historię
+                setHistoryPopup({ show: true, userId: userId });
+            }
+        }, false, `${backendUrl}/api/users/${userId}`, 'GET');
+    };
 
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
     if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width="500px" />;
@@ -509,6 +618,8 @@ function AddScheduleSpecialEvent() {
             <div className="mt-3">
                 {renderDaySelector()}
             </div>
+
+            {renderSectionTabs()}
 
             {(errorSchedule || assignError || unassignError) && (
                 <AlertBox text={errorSchedule || assignError || unassignError} type="danger" width="500px"/>
@@ -562,7 +673,7 @@ function AddScheduleSpecialEvent() {
                             <tr>
                                 <th>Brat</th>
                                 <th>Oficja</th>
-                                {tasks?.map(task => {
+                                {visibleTasks?.map(task => {
                                     const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
                                     const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
 
@@ -570,12 +681,10 @@ function AddScheduleSpecialEvent() {
                                         <th
                                             key={task.id}
                                             className={`${(isSpecial) ? "bg-warning text-dark" : ""} ${hiddenClass}`}
-                                            style={{cursor: `${(isSpecial) ? "pointer" : ""}`}}
+                                            style={{cursor: "pointer"}}
                                             onClick={() => {
-                                                if (isSpecial) {
-                                                    setTaskToEdit(task);
-                                                    setShowAddModal(true);
-                                                }
+                                                setTaskToEdit(task);
+                                                setShowAddModal(true);
                                             }}
                                         >
                                             {task.nameAbbrev}
@@ -588,7 +697,7 @@ function AddScheduleSpecialEvent() {
                             {userDependencies.map((dep, idx) => (
                                 <tr key={idx}>
                                     <td>
-                                        <button className="btn btn-info p-1" onClick={() => setHistoryPopup({show:true, userId: dep.userId})}>
+                                        <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
                                             {dep.userName}
                                         </button>
                                     </td>
@@ -602,7 +711,7 @@ function AddScheduleSpecialEvent() {
                                     </td>
 
                                     {dep.userTasksScheduleInfo?.map((udep, cellIndex) => {
-                                        const correspondingTask = tasks ? tasks[cellIndex] : undefined;
+                                        const correspondingTask = visibleTasks[cellIndex];
                                         return renderUserTaskScheduleInfo(dep, udep, correspondingTask);
                                     })}
                                 </tr>
@@ -612,9 +721,98 @@ function AddScheduleSpecialEvent() {
                     </div>
                 </div>
             )}
+
+            {/* --- Dodaj gościa --- */}
+            <button
+                className="btn btn-info btn-sm shadow-sm"
+                onClick={() => {
+                    setGuestToEdit(null); // Reset przed dodaniem nowego
+                    setShowGuestModal(true);
+                }}
+            >
+                <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                Dodaj gościa
+            </button>
+
+            {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
+            <div className="d-flex flex-column align-items-center mb-5 mt-5">
+                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                    Zatwierdzone Przeszkody
+                </h3>
+                <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
+                    <div className="card-body p-0">
+                        {loadingObstacles ? (
+                             <div className="text-center p-4"><LoadingSpinner /></div>
+                        ) : eventObstacles.length === 0 ? (
+                            <div className="text-center text-muted p-4">
+                                Brak zatwierdzonych przeszkód w terminie tego wydarzenia.
+                            </div>
+                        ) : (
+                            <div className="table-responsive">
+                                <table className="table table-hover table-striped mb-0 text-center align-middle">
+                                    <thead className="table-dark">
+                                        <tr>
+                                            <th>Kto</th>
+                                            <th>Kiedy (Dzień + Pory)</th>
+                                            <th>Oficja</th>
+                                            <th>Opis wniosku</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {eventObstacles.map(obs => (
+                                            <tr key={obs.id}>
+                                                <td className="fw-bold text-nowrap">
+                                                    {obs.user.name} {obs.user.surname}
+                                                </td>
+                                                <td className="text-nowrap">
+                                                    <div className="fw-bold text-danger">
+                                                        {format(parseISO(obs.fromDate), 'dd.MM')}
+                                                        {obs.fromDate !== obs.toDate && ` - ${format(parseISO(obs.toDate), 'dd.MM')}`}
+                                                    </div>
+                                                    <div className="small text-muted fw-bold">
+                                                        {obs.taskSections && obs.taskSections.length > 0
+                                                            ? obs.taskSections.map(s => s.name).join(', ')
+                                                            : "Cały dzień"}
+                                                    </div>
+                                                </td>
+                                                <td style={{ maxWidth: '200px' }}>
+                                                    <div className="d-flex flex-wrap justify-content-center gap-1">
+                                                        {obs.tasks && obs.tasks.length > 0 ? (
+                                                            obs.tasks.map(t => (
+                                                                <span
+                                                                    key={t.id}
+                                                                    className="badge bg-primary shadow-sm text-wrap text-break"
+                                                                    style={{ lineHeight: '1.4' }}
+                                                                >
+                                                                    {t.nameAbbrev}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span
+                                                                className="badge bg-secondary shadow-sm text-wrap text-break"
+                                                                style={{ lineHeight: '1.4' }}
+                                                            >
+                                                                Wszystkie
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="text-start small" style={{ maxWidth: '300px' }}>
+                                                    {obs.applicantDescription || <span className="text-muted fst-italic">Brak opisu</span>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* --- SEKCJA KOLIZJI (POD MACIERZĄ) --- */}
             <div className="d-flex flex-column align-items-center mb-5">
-                <h3 className="fw-bold entity-header-dynamic-size mb-0 mx-4">
+                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
                     Kolizje
                 </h3>
 
@@ -816,6 +1014,18 @@ function AddScheduleSpecialEvent() {
                     onSave={handleTaskAdded}
                     // ZMIANA: Przekazujemy stan zamiast null
                     taskToEdit={taskToEdit}
+                />
+            )}
+
+            {/* Modal dodawania/edycji Gościa */}
+            {showGuestModal && (
+                <GuestUserModal
+                    guestToEdit={guestToEdit}
+                    onClose={() => setShowGuestModal(false)}
+                    onSave={() => {
+                        setShowGuestModal(false);
+                        fetchSchedule();
+                    }}
                 />
             )}
         </div>

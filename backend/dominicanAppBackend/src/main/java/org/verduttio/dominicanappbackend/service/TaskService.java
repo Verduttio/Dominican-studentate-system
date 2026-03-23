@@ -24,16 +24,18 @@ public class TaskService {
     private final ObstacleRepository obstacleRepository;
     private final ScheduleRepository scheduleRepository;
     private final SpecialEventRepository specialEventRepository;
+    private final TaskSectionRepository taskSectionRepository;
 
     @Autowired
     public TaskService(TaskRepository taskRepository, RoleService roleService, ConflictRepository conflictRepository,
-                       ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository, SpecialEventRepository specialEventRepository) {
+                       ObstacleRepository obstacleRepository, ScheduleRepository scheduleRepository, SpecialEventRepository specialEventRepository, TaskSectionRepository taskSectionRepository) {
         this.taskRepository = taskRepository;
         this.roleService = roleService;
         this.conflictRepository = conflictRepository;
         this.obstacleRepository = obstacleRepository;
         this.scheduleRepository = scheduleRepository;
         this.specialEventRepository = specialEventRepository;
+        this.taskSectionRepository = taskSectionRepository;
     }
 
     public List<Task> getAllTasks() {
@@ -119,6 +121,12 @@ public class TaskService {
         task.setAllowedRoles(rolesDB);
         task.setSupervisorRole(supervisorRoleDB);
 
+        // --- OBSŁUGA SEKCJI (Pór Dnia) ---
+        if (taskDTO.getTaskSectionIds() != null && !taskDTO.getTaskSectionIds().isEmpty()) {
+            List<org.verduttio.dominicanappbackend.domain.TaskSection> sections = taskSectionRepository.findAllById(taskDTO.getTaskSectionIds());
+            task.setTaskSections(new HashSet<>(sections));
+        }
+
         return task;
     }
 
@@ -156,6 +164,15 @@ public class TaskService {
         task.setSupervisorRole(getValidatedSupervisorRole(updatedTaskDTO.getSupervisorRoleName()));
         task.setDaysOfWeek(updatedTaskDTO.getDaysOfWeek());
         task.setDescription(updatedTaskDTO.getDescription());
+
+        // --- AKTUALIZACJA SEKCJI (Pór Dnia) ---
+        if (updatedTaskDTO.getTaskSectionIds() != null && !updatedTaskDTO.getTaskSectionIds().isEmpty()) {
+            List<org.verduttio.dominicanappbackend.domain.TaskSection> sections = taskSectionRepository.findAllById(updatedTaskDTO.getTaskSectionIds());
+            task.setTaskSections(new HashSet<>(sections));
+        } else {
+            // Jeśli frontend przesłał pustą listę, to znaczy, że Dziekan odznaczył wszystkie checkboxy
+            task.getTaskSections().clear();
+        }
 
         taskRepository.save(task);
     }

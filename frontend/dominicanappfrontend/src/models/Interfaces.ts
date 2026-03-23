@@ -24,6 +24,7 @@ interface Task {
     specialEventId?: number;
     specialEventName?: string;
     isSpecial?: boolean;
+    taskSections?: TaskSection[];
 }
 
 interface User {
@@ -49,6 +50,7 @@ interface Obstacle {
     status: string;
     recipientAnswer: string;
     recipientUser: User;
+    taskSections?: TaskSection[];
 }
 
 interface Conflict {
@@ -252,10 +254,16 @@ export interface SpecialEvent {
     name: string;
     startDate: string;
     endDate: string;
+    collectionDates?: string[];
 }
 
 export interface CloneEventRequest {
     newName: string;
     newStartDate: string;
     newEndDate: string;
+}
+
+export interface TaskSection {
+    id: number;
+    name: string;
 }

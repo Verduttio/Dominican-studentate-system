@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import org.verduttio.dominicanappbackend.domain.Task;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class TaskDTO {
@@ -59,6 +61,8 @@ public class TaskDTO {
         return description;
     }
 
+    private List<Long> taskSectionIds = new ArrayList<>();
+
     // Constructors
     public TaskDTO() {
     }
@@ -88,4 +92,11 @@ public class TaskDTO {
         return task;
     }
 
+    public List<Long> getTaskSectionIds() {
+        return taskSectionIds;
+    }
+
+    public void setTaskSectionIds(List<Long> taskSectionIds) {
+        this.taskSectionIds = taskSectionIds;
+    }
 }

@@ -31,6 +31,11 @@ public class ObstacleController {
         this.obstacleService = obstacleService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<Obstacle>> getAllObstacles() {
+        return new ResponseEntity<>(obstacleService.getAllObstacles(), HttpStatus.OK);
+    }
+
     @GetMapping("/pageable")
     public ResponseEntity<Page<Obstacle>> getAllObstacles(Pageable pageable) {
         Page<Obstacle> obstacles = obstacleService.getAllObstacles(pageable);
