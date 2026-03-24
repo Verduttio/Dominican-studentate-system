@@ -6,7 +6,8 @@ import {
     faCalendarDays,
     faListCheck,
     faBolt,
-    faUserTag
+    faUserTag,
+    faClock
 } from "@fortawesome/free-solid-svg-icons";
 
 const OtherEntities = () => {
@@ -74,6 +75,21 @@ const OtherEntities = () => {
                                 <h4 className="card-title text-dark">Role</h4>
                                 <p className="card-text text-muted">
                                     Zarządzanie rolami i uprawnieniami użytkowników oraz grupami zadań.
+                                </p>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* 5. SEKCJE ZADAŃ (Pory Dnia) */}
+                <div className="col-md-6 mb-4">
+                    <Link to="/task-sections" style={{ textDecoration: 'none' }}>
+                        <div className="card text-center p-4 shadow-sm hover-effect h-100" style={{ cursor: 'pointer' }}>
+                            <div className="card-body">
+                                <FontAwesomeIcon icon={faClock} size="3x" className="mb-3 text-info" />
+                                <h4 className="card-title text-dark">Pory dnia (Sekcje)</h4>
+                                <p className="card-text text-muted">
+                                    Zarządzanie porami dnia wykorzystywanymi do podziału grafiku (np. Rano, Wieczór).
                                 </p>
                             </div>
                         </div>

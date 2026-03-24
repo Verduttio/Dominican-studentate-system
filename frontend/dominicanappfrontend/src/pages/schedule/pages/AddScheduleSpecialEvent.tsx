@@ -13,7 +13,7 @@ import {format, parseISO, eachDayOfInterval, startOfWeek, endOfWeek} from "date-
 import { pl } from 'date-fns/locale';
 import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash, faUserPlus} from '@fortawesome/free-solid-svg-icons';
+import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash, faUserPlus, faCheck} from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
 import SpecialEventTaskModal from '../../specialEvent/SpecialEventTaskModal';
@@ -385,7 +385,10 @@ function AddScheduleSpecialEvent() {
         const limit = task?.participantsLimit || 0;
         const assignedCount = countAssignedUsers(taskId, userDependencies);
 
-        if (udep?.isInConflict && assignedCount >= limit) {
+        if (udep?.hasObstacle) {
+            setPopupData({ userId, taskId, text: "Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?" });
+            setShowConfirmPopup(true);
+        } else if (udep?.isInConflict && assignedCount >= limit) {
             setPopupData({ userId, taskId, text: "Brat wykonuje inne oficjum (konflikt) ORAZ limit miejsc wyczerpany. Przypisać?" });
             setShowConfirmPopup(true);
         } else if (udep?.isInConflict) {
@@ -428,10 +431,6 @@ function AddScheduleSpecialEvent() {
         const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
 
         unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
-    }
-
-    const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
-        return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
     }
 
     // --- RENDEROWANIE KOMÓRKI (ZMODYFIKOWANE) ---
@@ -481,7 +480,7 @@ function AddScheduleSpecialEvent() {
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
@@ -495,7 +494,7 @@ function AddScheduleSpecialEvent() {
                             onClick={() => handleSubmit(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
@@ -507,22 +506,26 @@ function AddScheduleSpecialEvent() {
                 return (
                     <td key={udep.taskId} className={finalClass}>
                         <button
-                            className='btn btn-info'
+                            className='btn btn-danger'
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className='highlighted-text-conflict'>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
                 );
             } else {
-                // Przeszkoda, nie przypisany (zablokowany)
+                // Przeszkoda, nie przypisany (odblokowany, z ostrzeżeniem)
                 return (
                     <td key={udep.taskId} className={finalClass}>
-                        <button className='btn btn-info' disabled={true}>
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                        <button
+                            className='btn btn-danger'
+                            onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                            disabled={assignLoading || unassignLoading}
+                        >
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
