@@ -129,6 +129,7 @@ interface UserTaskScheduleInfo {
     isInConflict: boolean;
     hasObstacle: boolean;
     assignedToTheTask: boolean;
+    partiallyAssigned?: boolean;
     visible: boolean;
 }
 

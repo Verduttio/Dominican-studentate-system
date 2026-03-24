@@ -1521,13 +1521,42 @@ public class ScheduleService {
                 }
                 cell.setLastAssignedWeeksAgo(getWeeksAgo(lastDate, weekStart));
 
-                // Przypisanie i Konflikty
+                // 1. Wyciągamy przypisania z danego dnia (i ewentualnie z wybranej zakładki/sekcji)
                 List<Schedule> todaySchedules = userSchedules.stream()
                         .filter(s -> s.getDate().equals(date))
                         .filter(s -> sectionId == null || (s.getTaskSection() != null && s.getTaskSection().getId().equals(sectionId)))
                         .collect(Collectors.toList());
 
-                cell.setAssignedToTheTask(todaySchedules.stream().anyMatch(s -> s.getTask().getId().equals(task.getId())));
+                // 2. --- LOGIKA PRZYPISANIA I CZĘŚCIOWEGO PRZYPISANIA DLA TEGO KONKRETNEGO ZADANIA ---
+                List<Schedule> todaySchedulesForTask = todaySchedules.stream()
+                        .filter(s -> s.getTask().getId().equals(task.getId()))
+                        .collect(Collectors.toList());
+
+                if (sectionId != null) {
+                    // Jesteśmy w konkretnej zakładce (np. Rano) - tu nie ma połowiczności, jest przypisany albo nie
+                    cell.setAssignedToTheTask(!todaySchedulesForTask.isEmpty());
+                    cell.setPartiallyAssigned(false);
+                } else {
+                    // Jesteśmy w zakładce "Wszystkie"
+                    if (task.getTaskSections() == null || task.getTaskSections().isEmpty()) {
+                        // Zadanie bez sekcji (globalne)
+                        cell.setAssignedToTheTask(!todaySchedulesForTask.isEmpty());
+                        cell.setPartiallyAssigned(false);
+                    } else {
+                        // Zadanie z sekcjami - sprawdzamy ile sekcji jest obsadzonych
+                        long assignedSectionsCount = todaySchedulesForTask.stream()
+                                .map(s -> s.getTaskSection() != null ? s.getTaskSection().getId() : null)
+                                .filter(java.util.Objects::nonNull)
+                                .distinct()
+                                .count();
+
+                        boolean fullyAssigned = assignedSectionsCount == task.getTaskSections().size();
+                        boolean partiallyAssigned = assignedSectionsCount > 0 && assignedSectionsCount < task.getTaskSections().size();
+
+                        cell.setAssignedToTheTask(fullyAssigned);
+                        cell.setPartiallyAssigned(partiallyAssigned);
+                    }
+                }
 
                 List<Conflict> relevantConflicts = allConflicts.stream()
                         .filter(c -> c.getTask1().getId().equals(task.getId()) || c.getTask2().getId().equals(task.getId()))
