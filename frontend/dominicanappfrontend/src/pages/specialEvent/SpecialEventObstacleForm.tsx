@@ -372,6 +372,16 @@ function SpecialEventObstacleForm() {
                                 </table>
                             </div>
 
+                            <div className="alert alert-secondary border-0 shadow-sm p-3 mb-4" style={{ fontSize: '0.9rem' }}>
+                                <h6 className="fw-bold mb-2"><i className="bi bi-info-circle me-2"></i>Legenda pór dnia:</h6>
+                                <ul className="list-unstyled mb-0">
+                                    <li><strong>🌅 Rano:</strong> czas do śniadania włącznie.</li>
+                                    <li><strong>☀️ Przedpołudnie:</strong> między śniadaniem a horką.</li>
+                                    <li><strong>⛪ Popołudnie:</strong> od horki włącznie.</li>
+                                    <li><strong>🌙 Wieczór:</strong> od nieszporów włącznie</li>
+                                </ul>
+                            </div>
+
                             {/* CHECKBOX DO ROZWIJANIA KONKRETNYCH ZADAŃ */}
                             <div className="form-check bg-light p-3 rounded border">
                                 <input
@@ -382,10 +392,10 @@ function SpecialEventObstacleForm() {
                                     onChange={(e) => setIsSpecificTask(e.target.checked)}
                                 />
                                 <label className="form-check-label ms-2 fw-bold" htmlFor="specificTaskCheck">
-                                    Powyższe przeszkody dotyczą <span className="text-danger text-decoration-underline">tylko określonego oficjum</span>
+                                    Chcę, aby powyższe przeszkody dotyczyły <span className="text-decoration-underline">tylko określonego oficjum</span>
                                 </label>
                                 <div className="text-muted small ms-2 mt-1">
-                                    Domyślnie zaznaczenie w tabeli oznacza brak dyspozycyjności na <strong>wszystkie</strong> oficja (z wyjątkiem tac i komunii).
+                                    Domyślnie zaznaczenie w tabeli oznacza brak dyspozycyjności na <strong className="text-danger">wszystkie</strong> oficja (z wyjątkiem tac i komunii).
                                 </div>
                             </div>
 

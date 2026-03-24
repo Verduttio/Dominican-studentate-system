@@ -10,6 +10,7 @@ public class UserTaskScheduleInfo {
     private boolean hasObstacle;
     private boolean assignedToTheTask;
     private boolean isVisible; // This is used to identify whether task appears on a given day or not
+    private boolean isPartiallyAssigned;
 
     // Getters i Setters
     public int getLastAssignedWeeksAgo() {
@@ -60,7 +61,7 @@ public class UserTaskScheduleInfo {
         this.assignedToTheTask = assignedToTheTask;
     }
 
-    public UserTaskScheduleInfo(String taskName, Long taskId, int lastAssignedWeeksAgo, int numberOfWeeklyAssignsFromStatsDate, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask, boolean isVisible) {
+    public UserTaskScheduleInfo(String taskName, Long taskId, int lastAssignedWeeksAgo, int numberOfWeeklyAssignsFromStatsDate, boolean hasRoleForTheTask, boolean isInConflict, boolean hasObstacle, boolean assignedToTheTask, boolean isVisible, boolean isPartiallyAssigned) {
         this.taskName = taskName;
         this.taskId = taskId;
         this.lastAssignedWeeksAgo = lastAssignedWeeksAgo;
@@ -70,6 +71,7 @@ public class UserTaskScheduleInfo {
         this.hasObstacle = hasObstacle;
         this.assignedToTheTask = assignedToTheTask;
         this.isVisible = isVisible;
+        this.isPartiallyAssigned = isPartiallyAssigned;
     }
 
     public UserTaskScheduleInfo() {
@@ -97,5 +99,13 @@ public class UserTaskScheduleInfo {
 
     public void setVisible(boolean visible) {
         isVisible = visible;
+    }
+
+    public boolean isPartiallyAssigned() {
+        return isPartiallyAssigned;
+    }
+
+    public void setPartiallyAssigned(boolean partiallyAssigned) {
+        isPartiallyAssigned = partiallyAssigned;
     }
 }

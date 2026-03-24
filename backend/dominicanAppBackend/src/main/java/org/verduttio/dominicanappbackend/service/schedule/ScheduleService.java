@@ -1432,9 +1432,6 @@ public class ScheduleService {
         final LocalDate weekStart = weekStartTemp; // FINAL dla lambdy
         final LocalDate weekEnd = weekStart.plusDays(6);
 
-//        final boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, weekStart, weekEnd); // FINAL
-//        final boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, date); // FINAL
-
         // Sprawdzamy, czy w danym tygodniu wypada jakieś Święto LUB Wydarzenie Specjalne
         boolean tempWeekWithFeast = false;
         for (LocalDate d = weekStart; !d.isAfter(weekEnd); d = d.plusDays(1)) {
@@ -1463,11 +1460,6 @@ public class ScheduleService {
         final Map<Long, List<Schedule>> userWeekSchedulesMap = allSchedulesThisWeek.stream()
                 .collect(Collectors.groupingBy(s -> s.getUser().getId()));
 
-//        final Map<Long, Set<Long>> userObstacleTaskIdsMap = new HashMap<>();
-//        for (Obstacle o : allObstaclesToday) {
-//            Set<Long> taskIds = o.getTasks().stream().map(Task::getId).collect(Collectors.toSet());
-//            userObstacleTaskIdsMap.computeIfAbsent(o.getUser().getId(), k -> new HashSet<>()).addAll(taskIds);
-//        }
         final Map<Long, List<Obstacle>> userObstaclesMap = allObstaclesToday.stream()
                 .collect(Collectors.groupingBy(o -> o.getUser().getId()));
 
@@ -1490,9 +1482,16 @@ public class ScheduleService {
             dto.setUserId(user.getId());
             dto.setUserName(user.getName() + " " + user.getSurname());
 
-            // a) Lista przypisanych zadań w tym tygodniu
+            // a) Lista przypisanych zadań W TYM SAMYM DNIU (wraz z porą dnia)
             List<Schedule> userSchedules = userWeekSchedulesMap.getOrDefault(user.getId(), Collections.emptyList());
-            dto.setAssignedTasks(createInfoStringsOfTasksOccurrenceFromGivenSchedule(userSchedules, weekWithFeast));
+            List<String> todayTasks = userSchedules.stream()
+                    .filter(s -> s.getDate().equals(date))
+                    .map(s -> {
+                        String sectionName = s.getTaskSection() != null ? s.getTaskSection().getName() : "Cały dzień";
+                        return s.getTask().getNameAbbrev() + " (" + sectionName + ")";
+                    })
+                    .collect(Collectors.toList());
+            dto.setAssignedTasks(todayTasks);
 
             // b) Macierz komórek
             List<UserTaskScheduleInfo> cellInfos = allTasks.stream().map(task -> {
@@ -1522,13 +1521,42 @@ public class ScheduleService {
                 }
                 cell.setLastAssignedWeeksAgo(getWeeksAgo(lastDate, weekStart));
 
-                // Przypisanie i Konflikty
+                // 1. Wyciągamy przypisania z danego dnia (i ewentualnie z wybranej zakładki/sekcji)
                 List<Schedule> todaySchedules = userSchedules.stream()
                         .filter(s -> s.getDate().equals(date))
                         .filter(s -> sectionId == null || (s.getTaskSection() != null && s.getTaskSection().getId().equals(sectionId)))
                         .collect(Collectors.toList());
 
-                cell.setAssignedToTheTask(todaySchedules.stream().anyMatch(s -> s.getTask().getId().equals(task.getId())));
+                // 2. --- LOGIKA PRZYPISANIA I CZĘŚCIOWEGO PRZYPISANIA DLA TEGO KONKRETNEGO ZADANIA ---
+                List<Schedule> todaySchedulesForTask = todaySchedules.stream()
+                        .filter(s -> s.getTask().getId().equals(task.getId()))
+                        .collect(Collectors.toList());
+
+                if (sectionId != null) {
+                    // Jesteśmy w konkretnej zakładce (np. Rano) - tu nie ma połowiczności, jest przypisany albo nie
+                    cell.setAssignedToTheTask(!todaySchedulesForTask.isEmpty());
+                    cell.setPartiallyAssigned(false);
+                } else {
+                    // Jesteśmy w zakładce "Wszystkie"
+                    if (task.getTaskSections() == null || task.getTaskSections().isEmpty()) {
+                        // Zadanie bez sekcji (globalne)
+                        cell.setAssignedToTheTask(!todaySchedulesForTask.isEmpty());
+                        cell.setPartiallyAssigned(false);
+                    } else {
+                        // Zadanie z sekcjami - sprawdzamy ile sekcji jest obsadzonych
+                        long assignedSectionsCount = todaySchedulesForTask.stream()
+                                .map(s -> s.getTaskSection() != null ? s.getTaskSection().getId() : null)
+                                .filter(java.util.Objects::nonNull)
+                                .distinct()
+                                .count();
+
+                        boolean fullyAssigned = assignedSectionsCount == task.getTaskSections().size();
+                        boolean partiallyAssigned = assignedSectionsCount > 0 && assignedSectionsCount < task.getTaskSections().size();
+
+                        cell.setAssignedToTheTask(fullyAssigned);
+                        cell.setPartiallyAssigned(partiallyAssigned);
+                    }
+                }
 
                 List<Conflict> relevantConflicts = allConflicts.stream()
                         .filter(c -> c.getTask1().getId().equals(task.getId()) || c.getTask2().getId().equals(task.getId()))
@@ -1661,7 +1689,8 @@ public class ScheduleService {
         allTasks.addAll(specialTasks);
 
         // Pobieramy wszystkie sekcje z bazy, by zachować ich naturalną kolejność (ID: 1-Rano, 2-Przedpołudnie itd.)
-        List<org.verduttio.dominicanappbackend.domain.TaskSection> allSections = taskSectionRepository.findAll();
+        // Używamy naszej nowej metody z wymuszonym sortowaniem po ID!
+        List<org.verduttio.dominicanappbackend.domain.TaskSection> allSections = getAllTaskSections();
         java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> result = new java.util.LinkedHashMap<>();
 
         // Najpierw zadania bez sekcji (klucz "")
@@ -1736,6 +1765,11 @@ public class ScheduleService {
             resultList.add(dto);
         }
         return resultList;
+    }
+
+    public List<org.verduttio.dominicanappbackend.domain.TaskSection> getAllTaskSections() {
+        // Wymuszamy sortowanie po ID rosnąco, żeby baza nie układała nam tego po swojemu (np. alfabetycznie)
+        return taskSectionRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id"));
     }
 
     // Pomocnicza klasa wewnętrzna (lub użyj mapy/tablicy jeśli nie chcesz tworzyć klasy)

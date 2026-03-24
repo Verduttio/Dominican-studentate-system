@@ -57,6 +57,11 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
             List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> dtos,
             LocalDate from, LocalDate to) {
 
+        // 1. Pobieramy posortowaną listę pór dnia prosto z bazy (przez ScheduleService)
+        List<String> orderedSectionNames = scheduleService.getAllTaskSections().stream()
+                .map(org.verduttio.dominicanappbackend.domain.TaskSection::getName)
+                .toList();
+
         java.util.Map<LocalDate, java.util.Set<String>> active = new java.util.HashMap<>();
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             active.put(date, new java.util.HashSet<>());
@@ -75,12 +80,22 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
         java.util.Map<LocalDate, List<String>> result = new java.util.HashMap<>();
         for (java.util.Map.Entry<LocalDate, java.util.Set<String>> entry : active.entrySet()) {
             List<String> list = new java.util.ArrayList<>(entry.getValue());
-            // Sortujemy tak, by puste (czyli oficja bez sekcji) były na początku
+
+            // Sortujemy używając indeksów z bazy danych!
             list.sort((a, b) -> {
                 if(a.isEmpty()) return -1;
                 if(b.isEmpty()) return 1;
-                return a.compareTo(b); // Sortowanie alfabetyczne (Rano, Przedpołudnie itd.)
+
+                int indexA = orderedSectionNames.indexOf(a);
+                int indexB = orderedSectionNames.indexOf(b);
+
+                // Zabezpieczenie: jeśli czegoś cudem nie ma na liście, wrzucamy to na sam koniec
+                if (indexA == -1) indexA = 999;
+                if (indexB == -1) indexB = 999;
+
+                return Integer.compare(indexA, indexB);
             });
+
             // Jeśli dzień jest w ogóle pusty, dodajemy jedną pustą kolumnę by macierz się nie złamała
             if (list.isEmpty()) list.add("");
             result.put(entry.getKey(), list);

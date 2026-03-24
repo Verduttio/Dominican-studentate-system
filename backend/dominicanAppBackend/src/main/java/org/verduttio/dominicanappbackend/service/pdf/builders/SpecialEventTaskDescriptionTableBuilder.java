@@ -68,7 +68,7 @@ public class SpecialEventTaskDescriptionTableBuilder {
                 nameCell.setValign(VerticalAlignment.MIDDLE);
 
                 String description = (task.getDescription() != null && !task.getDescription().trim().isEmpty())
-                        ? task.getDescription()
+                        ? task.getDescription().replaceAll("\r?\n", "<br>")
                         : "Brak opisu.";
                 Cell<PDPage> descCell = taskRow.createCell(80f, description);
                 descCell.setFont(font);

@@ -1,6 +1,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    Task, UserTasksScheduleInfoWeekly, SpecialEvent, UserTaskScheduleInfo, Role, Conflict, TaskSection, User, Obstacle
+    Task,
+    UserTasksScheduleInfoWeekly,
+    SpecialEvent,
+    UserTaskScheduleInfo,
+    Role,
+    Conflict,
+    TaskSection,
+    User,
+    Obstacle
 } from "../../../models/Interfaces";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {backendUrl} from "../../../utils/constants";
@@ -13,7 +21,18 @@ import {format, parseISO, eachDayOfInterval, startOfWeek, endOfWeek} from "date-
 import { pl } from 'date-fns/locale';
 import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash, faUserPlus} from '@fortawesome/free-solid-svg-icons';
+import {
+    faCircleXmark,
+    faXmark,
+    faEye,
+    faEyeSlash,
+    faPlus,
+    faFilePdf,
+    faTrash,
+    faUserPlus,
+    faCheck,
+    faAdjust
+    } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
 import SpecialEventTaskModal from '../../specialEvent/SpecialEventTaskModal';
@@ -385,7 +404,10 @@ function AddScheduleSpecialEvent() {
         const limit = task?.participantsLimit || 0;
         const assignedCount = countAssignedUsers(taskId, userDependencies);
 
-        if (udep?.isInConflict && assignedCount >= limit) {
+        if (udep?.hasObstacle) {
+            setPopupData({ userId, taskId, text: "Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?" });
+            setShowConfirmPopup(true);
+        } else if (udep?.isInConflict && assignedCount >= limit) {
             setPopupData({ userId, taskId, text: "Brat wykonuje inne oficjum (konflikt) ORAZ limit miejsc wyczerpany. Przypisać?" });
             setShowConfirmPopup(true);
         } else if (udep?.isInConflict) {
@@ -399,56 +421,106 @@ function AddScheduleSpecialEvent() {
         }
     }
 
-    function assignToTask(userId: number, taskId: number) {
-        const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
-        // Backend wymaga pełnego tygodnia do walidacji
-        const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-        const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-
-        const reqData = {
-            userId: userId,
-            taskId: taskId,
-            taskDate: taskDateStr,
-            weekStartDate: weekStartStr,
-            weekEndDate: weekEndStr,
-            taskSectionId: currentSectionId
-        };
-
-        assignRequest(reqData, () => {
-            fetchSchedule();
-        }, false, `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST')
-            .then(() => setShowConfirmPopup(false));
-    }
-
-    function unassignTask(userId: number, taskId: number) {
+    async function assignToTask(userId: number, taskId: number) {
         const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
         const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
         const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
 
-        const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
+        const task = visibleTasks.find(t => t.id === taskId);
 
-        unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
+        // Pobieramy pory bezpośrednio z zadania
+        const specificSections = task?.taskSections || [];
+
+        // Jeśli zadanie MA zdefiniowane pory, iterujemy po nich (niezależnie czy to oficjum zwykłe, czy specjalne)
+        if (specificSections.length > 0) {
+            try {
+                const promises = specificSections.map(sec => {
+                    // Jeśli jesteśmy w konkretnej zakładce (np. "Rano"), ignorujemy resztę
+                    if (currentSectionId !== null && currentSectionId !== sec.id) return Promise.resolve(null);
+
+                    const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: sec.id };
+                    return fetch(`${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(reqData)
+                    });
+                });
+
+                await Promise.all(promises);
+                fetchSchedule();
+                setShowConfirmPopup(false);
+            } catch (err) {
+                console.error("Błąd podczas przypisywania do wielu sekcji", err);
+            }
+        } else {
+            // Zadanie BEZ zdefiniowanych pór ("Cały dzień")
+            const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
+            assignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST')
+                .then(() => setShowConfirmPopup(false));
+        }
     }
 
-    const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
-        return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
+    async function unassignTask(userId: number, taskId: number) {
+        const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+        const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
+
+        const task = visibleTasks.find(t => t.id === taskId);
+        const specificSections = task?.taskSections || [];
+
+        // Jeśli zadanie MA zdefiniowane pory, czyścimy wszystkie możliwe warianty dla tego dnia
+        if (specificSections.length > 0) {
+            try {
+                const promises = specificSections.map(sec => {
+                    const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: sec.id };
+                    return fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(reqData)
+                    });
+                });
+
+                // Zawsze dobijamy wpis z nullem ("Cały dzień"), żeby wyczyścić śmieci i zablokowane stany z przeszłości
+                const reqDataNull = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: null };
+                promises.push(fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(reqDataNull)
+                }));
+
+                await Promise.all(promises);
+                fetchSchedule();
+            } catch (err) {
+                console.error("Błąd podczas usuwania z wielu sekcji", err);
+            }
+        } else {
+            // Zadanie BEZ zdefiniowanych pór ("Cały dzień")
+            const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
+            unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
+        }
     }
 
     // --- RENDEROWANIE KOMÓRKI (ZMODYFIKOWANE) ---
     const renderUserTaskScheduleInfo = (dep: UserTasksScheduleInfoWeekly, udep: UserTaskScheduleInfo, task: Task | undefined) => {
-        // 1. Logika ukrywania
-        // Sprawdzamy czy task jest specjalny (ma ID eventu)
         const isSpecial = task?.specialEventId !== null && task?.specialEventId !== undefined;
-        // Jeśli NIE jest specjalny i NIE mamy pokazywać standardowych -> ukryj
-        const isHidden = !isSpecial && !showStandardTasks;
-        const hiddenClass = isHidden ? "d-none" : "";
+        const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
 
         if (!udep.visible) {
             return (
                 <td key={udep.taskId} className={hiddenClass}>
-                    <button className="btn btn-secondary" disabled>
-                        <FontAwesomeIcon icon={faCircleXmark}/>
-                    </button>
+                    <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faCircleXmark}/></button>
                 </td>
             );
         }
@@ -456,23 +528,21 @@ function AddScheduleSpecialEvent() {
         if (!udep.hasRoleForTheTask) {
             return (
                 <td key={udep.taskId} className={hiddenClass}>
-                    <button className="btn btn-secondary" disabled>
-                        <FontAwesomeIcon icon={faXmark}/>
-                    </button>
+                    <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faXmark}/></button>
                 </td>
             );
         }
 
-        // Tło komórki jeśli task pełny
         const cellClass = isTaskFullyAssigned(udep.taskId, visibleTasks, userDependencies) ? "bg-secondary" : "";
-
-        // Łączymy klasę tła z klasą ukrywania
         const finalClass = `${cellClass} ${hiddenClass}`;
 
-        // Logika przycisków
+        // Odczytujemy pole, z którego Jackson uciął "is"
+        const isPartiallyAssigned = !!udep.partiallyAssigned;
+
+        // --- LOGIKA PRZYCISKÓW ---
         if (!udep.hasObstacle) {
             if (udep.assignedToTheTask) {
-                // PRZYPISANY
+                // W PEŁNI PRZYPISANY
                 return (
                     <td key={udep.taskId} className={finalClass}>
                         <button
@@ -481,13 +551,27 @@ function AddScheduleSpecialEvent() {
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
                 );
-            } else {
-                // NIEPRZYPISANY (Można przypisać)
+            } else if (isPartiallyAssigned) {
+                    // CZĘŚCIOWO PRZYPISANY
+                    return (
+                        <td key={udep.taskId} className={finalClass}>
+                            <button
+                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
+                                onClick={() => unassignTask(dep.userId, udep.taskId)}
+                                disabled={assignLoading || unassignLoading}
+                                title="Częściowo wyznaczony. Kliknij, aby dodać na pozostałe pory."
+                            >
+                                <FontAwesomeIcon icon={faAdjust} />
+                            </button>
+                        </td>
+                    );
+                } else {
+                // NIEPRZYPISANY
                 return (
                     <td key={udep.taskId} className={finalClass}>
                         <button
@@ -495,7 +579,7 @@ function AddScheduleSpecialEvent() {
                             onClick={() => handleSubmit(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
@@ -503,26 +587,43 @@ function AddScheduleSpecialEvent() {
         } else {
             // MA PRZESZKODĘ
             if (udep.assignedToTheTask) {
-                // Przypisany mimo przeszkody
                 return (
                     <td key={udep.taskId} className={finalClass}>
                         <button
-                            className='btn btn-info'
+                            className='btn btn-danger'
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className='highlighted-text-conflict'>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
                 );
-            } else {
-                // Przeszkoda, nie przypisany (zablokowany)
+            } else if (isPartiallyAssigned) {
+                // CZĘŚCIOWO PRZYPISANY Z PRZESZKODĄ - ZMIANA Z handleSubmit NA unassignTask
                 return (
                     <td key={udep.taskId} className={finalClass}>
-                        <button className='btn btn-info' disabled={true}>
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                        <button
+                            className='btn btn-danger'
+                            onClick={() => unassignTask(dep.userId, udep.taskId)}
+                            disabled={assignLoading || unassignLoading}
+                            title="Częściowo wyznaczony mimo przeszkody. Kliknij, aby usunąć wszystkie pory."
+                        >
+                            <FontAwesomeIcon icon={faAdjust} />
+                        </button>
+                    </td>
+                );
+            } else {
+                return (
+                    <td key={udep.taskId} className={finalClass}>
+                        <button
+                            className='btn btn-danger'
+                            onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                            disabled={assignLoading || unassignLoading}
+                            title="Przeszkoda!"
+                        >
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
@@ -723,16 +824,18 @@ function AddScheduleSpecialEvent() {
             )}
 
             {/* --- Dodaj gościa --- */}
-            <button
-                className="btn btn-info btn-sm shadow-sm"
-                onClick={() => {
-                    setGuestToEdit(null); // Reset przed dodaniem nowego
-                    setShowGuestModal(true);
-                }}
-            >
-                <FontAwesomeIcon icon={faUserPlus} className="me-2" />
-                Dodaj gościa
-            </button>
+            <div className="d-flex justify-content-center gap-2 mb-3">
+                <button
+                    className="btn btn-info btn-sm shadow-sm"
+                    onClick={() => {
+                        setGuestToEdit(null); // Reset przed dodaniem nowego
+                        setShowGuestModal(true);
+                    }}
+                >
+                    <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                    Dodaj gościa
+                </button>
+            </div>
 
             {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
             <div className="d-flex flex-column align-items-center mb-5 mt-5">
