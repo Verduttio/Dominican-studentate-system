@@ -292,7 +292,9 @@ function SpecialEventObstacleForm() {
     const eventDays = eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) });
 
     const collectionDatesStrings = event.collectionDates || [];
-    const collectionDays = collectionDatesStrings.map(d => parseISO(d));
+        const collectionDays = collectionDatesStrings
+            .map(d => parseISO(d))
+            .sort((a, b) => a.getTime() - b.getTime());
 
     return (
         <div className="container mt-4 mb-5 fade-in" style={{ maxWidth: '900px' }}>
