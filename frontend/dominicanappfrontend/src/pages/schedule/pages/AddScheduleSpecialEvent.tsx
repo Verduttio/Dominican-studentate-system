@@ -31,7 +31,11 @@ import {
     faTrash,
     faUserPlus,
     faCheck,
-    faAdjust
+    faAdjust,
+    faExpand,
+    faCompress,
+    faTable,
+    faFileLines
     } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
@@ -72,6 +76,9 @@ function AddScheduleSpecialEvent() {
     const { request: requestObstacles, loading: loadingObstacles } = useHttp();
 
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [copyLoading, setCopyLoading] = useState(false);
+
+    const [isFullWidth, setIsFullWidth] = useState(false);
 
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
@@ -333,6 +340,46 @@ function AddScheduleSpecialEvent() {
         }
     };
 
+    // --- LOGIKA KOPIOWANIA CAŁEGO DNIA (PRZEZ BACKEND) ---
+    const handleCopyDay = async (targetDate: Date) => {
+        if (!window.confirm(`Czy na pewno chcesz skopiować widoczne przypisania z ${format(currentDate, 'dd.MM')} na dzień ${format(targetDate, 'dd.MM')}?`)) return;
+
+        setCopyLoading(true);
+        const sourceDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const targetDateStr = dateFormatter.formatDate(format(targetDate, 'dd-MM-yyyy'));
+
+        // Budujemy URL - przekazujemy obecną datę jako źródło, wybraną jako cel i ewentualnie zakładkę
+        let url = `${backendUrl}/api/schedules/special-event/${eventId}/copy-day?sourceDate=${sourceDateStr}&targetDate=${targetDateStr}&roleName=${roleName}`;
+
+        // Jeśli jesteśmy w konkretnej porze dnia, przekazujemy jej ID
+        if (currentSectionId !== null) {
+            url += `&sectionId=${currentSectionId}`;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error("Błąd z serwera podczas kopiowania");
+
+            // Jeśli skopiowaliśmy na dzień, który akurat mamy wyświetlony, odświeżamy tabelę
+            // Ale i tak warto zawsze odświeżyć cache lub zrobić prefetch
+            fetchSchedule();
+            alert("Kopiowanie zakończone sukcesem!");
+
+        } catch (error) {
+            console.error("Błąd podczas kopiowania dnia", error);
+            alert("Wystąpił problem podczas kopiowania.");
+        } finally {
+            setCopyLoading(false);
+        }
+    };
+
     const handleSelectAllTasks2 = () => {
         if (!conflictTask1Id) {
             alert("Najpierw wybierz oficjum w kroku 1!");
@@ -396,6 +443,21 @@ function AddScheduleSpecialEvent() {
     const handlePrintMatrix = () => {
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/matrix?roleName=${roleName}`;
         downloadPdf(url, `Tabela_${roleName}.pdf`);
+    };
+
+    const handlePrintAllMatrix = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/matrix`;
+        downloadPdf(url, `Caly_Harmonogram_${event?.name || 'Event'}.pdf`);
+    };
+
+    const handlePrintAllDescriptions = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description`;
+        downloadPdf(url, `Opisy_Wszystkich_Oficjow_${event?.name || 'Event'}.pdf`);
+    };
+
+    const handlePrintRoleDescriptions = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description?roleName=${roleName}`;
+        downloadPdf(url, `Opisy_Oficjow_${roleName}_${event?.name || 'Event'}.pdf`);
     };
 
     // --- LOGIKA PRZYPISYWANIA ---
@@ -709,11 +771,11 @@ function AddScheduleSpecialEvent() {
     };
 
     // --- STYLE DLA ZAMROŻONYCH KOLUMN ---
-    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '130px' };
-    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 50, backgroundColor: '#212529', minWidth: '200px', borderRight: '4px solid #495057' };
+    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '140px', width: '140px', maxWidth: '140px' };
+    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 50, backgroundColor: '#212529', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #495057' };
 
-    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '130px' };
-    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 10, backgroundColor: '#fff', minWidth: '200px', borderRight: '4px solid #dee2e6' };
+    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '140px', width: '140px', maxWidth: '140px' };
+    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 10, backgroundColor: '#fff', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #dee2e6' };
 
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
     if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width="500px" />;
@@ -737,20 +799,58 @@ function AddScheduleSpecialEvent() {
             )}
 
 
-            {/* --- NOWE PRZYCISKI PDF --- */}
-            <div className="d-flex justify-content-center gap-2 mb-3">
-                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintDaily}>
-                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
-                    Wydruk na dany dzień
-                </button>
+            {/* --- ZAAWANSOWANE PRZYCISKI PDF --- */}
+            <div className="card shadow-sm mb-4 mx-auto" style={{ maxWidth: '900px' }}>
+                <div className="card-body p-3">
+                    <div className="row text-center">
+                        {/* WYDRUKI LOKALNE (DLA DANEJ KATEGORII) */}
+                        <div className="col-md-6 border-end">
+                            <h6 className="fw-bold text-muted mb-3">Wydruki dla: {roleName}</h6>
+                            <div className="d-flex flex-wrap justify-content-center gap-2">
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintDaily}>
+                                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
+                                    Ten dzień
+                                </button>
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintMatrix}>
+                                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
+                                    Wszystkie dni
+                                </button>
+                                <button className="btn btn-dark btn-sm shadow-sm" onClick={handlePrintRoleDescriptions}>
+                                    <FontAwesomeIcon icon={faFileLines} className="me-2"/>
+                                    Opisy oficjów
+                                </button>
+                            </div>
+                        </div>
 
-                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintMatrix}>
-                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
-                    Wydruk całej tabeli ({roleName})
-                </button>
+                        {/* WYDRUKI GLOBALNE (WSZYSTKIE KATEGORIE) */}
+                        <div className="col-md-6">
+                            <h6 className="fw-bold text-muted mb-3">Wydruki dla całego wydarzenia</h6>
+                            <div className="d-flex flex-wrap justify-content-center gap-2">
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintAllMatrix}>
+                                    <FontAwesomeIcon icon={faTable} className="me-2"/>
+                                    Tabela zbiorcza
+                                </button>
+                                <button className="btn btn-dark btn-sm shadow-sm" onClick={handlePrintAllDescriptions}>
+                                    <FontAwesomeIcon icon={faFileLines} className="me-2"/>
+                                    Wszystkie opisy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             {/* PRZYCISKI STERUJĄCE */}
             <div className="d-flex justify-content-center gap-2 mb-3">
+                {/* Nowy przycisk: Rozszerz/Zwiń widok */}
+                <button
+                    className="btn btn-primary btn-sm shadow-sm"
+                    onClick={() => setIsFullWidth(!isFullWidth)}
+                >
+                    <FontAwesomeIcon icon={isFullWidth ? faCompress : faExpand} className="me-2"/>
+                    {isFullWidth ? "Zwiń widok macierzy" : "Pełna szerokość macierzy"}
+                </button>
+
                 {/* Przycisk 1: Pokaż/Ukryj */}
                 <button
                     className="btn btn-dark btn-sm shadow-sm"
@@ -776,11 +876,14 @@ function AddScheduleSpecialEvent() {
             </div>
 
             {/* Macierz */}
-            {loadingSchedule ? <LoadingSpinner/> : (
-                <div className="d-flex-no-media-resize justify-content-center">
-                    <div className="table-responsive">
-                        <table className="table table-hover table-striped table-rounded table-shadow text-center w-auto mx-auto">
-                            <thead className="table-dark sticky-top">
+        {loadingSchedule ? <LoadingSpinner/> : (
+            <div
+                style={isFullWidth ? { width: '100vw', marginLeft: 'calc(50% - 50vw)' } : {}}
+                className={isFullWidth ? "px-4 pb-3" : "d-flex justify-content-center w-100"}
+            >
+                <div className="table-responsive">
+                    <table className={`table table-hover table-striped table-rounded table-shadow text-center ${isFullWidth ? 'w-100' : 'w-auto mx-auto'}`}>
+                        <thead className="table-dark sticky-top">
                             <tr>
                                 <th style={stickyHeader1Style}>Brat</th>
                                 <th style={stickyHeader2Style}>Oficja</th>
@@ -834,7 +937,7 @@ function AddScheduleSpecialEvent() {
             )}
 
             {/* --- Dodaj gościa --- */}
-            <div className="d-flex justify-content-center gap-2 mb-3">
+            <div className="d-flex justify-content-center gap-2 mt-5 mb-3">
                 <button
                     className="btn btn-info btn-sm shadow-sm"
                     onClick={() => {
@@ -846,6 +949,33 @@ function AddScheduleSpecialEvent() {
                     Dodaj gościa
                 </button>
             </div>
+
+            {/* --- KOPIOWANIE DNIA --- */}
+            {event && (
+                <div className="d-flex flex-column align-items-center mb-3">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                        Skopiuj dzisiejsze oficja na:
+                    </h3>
+                    <div className="d-flex justify-content-center flex-wrap gap-2">
+                        {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
+                            const isCurrent = format(day, 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd');
+                            return (
+                                <button
+                                    key={day.toString()}
+                                    className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-warning fw-bold text-dark'} shadow-sm`}
+                                    disabled={isCurrent || copyLoading}
+                                    onClick={() => handleCopyDay(day)}
+                                    style={{ minWidth: '80px' }}
+                                >
+                                    {format(day, 'dd.MM')} <br/>
+                                    <small className={isCurrent ? 'fw-normal' : 'fw-bold'}>{format(day, 'EEE', { locale: pl })}</small>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa kopiowanie oficjów, to może potrwać kilka sekund... <LoadingSpinner/></div>}
+                </div>
+            )}
 
             {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
             <div className="d-flex flex-column align-items-center mb-5 mt-5">

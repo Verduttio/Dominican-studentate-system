@@ -1,5 +1,6 @@
 package org.verduttio.dominicanappbackend.service.schedule;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.domain.*;
@@ -1770,6 +1771,49 @@ public class ScheduleService {
     public List<org.verduttio.dominicanappbackend.domain.TaskSection> getAllTaskSections() {
         // Wymuszamy sortowanie po ID rosnąco, żeby baza nie układała nam tego po swojemu (np. alfabetycznie)
         return taskSectionRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id"));
+    }
+
+    @Transactional
+    public void copySpecialEventDaySchedules(LocalDate sourceDate, LocalDate targetDate, String roleName, Long sectionId) {
+        // 1. Używamy wbudowanej metody do pobrania grafików z danego dnia (od sourceDate do sourceDate)
+        List<Schedule> sourceSchedules = getAllSchedulesByFromAndToDates(sourceDate, sourceDate).stream()
+                .filter(s -> s.getTask() != null && s.getTask().getSupervisorRole() != null)
+                .filter(s -> s.getTask().getSupervisorRole().getName().equals(roleName))
+                .toList();
+
+        // 2. Pobieramy grafiki z docelowego dnia, żeby unikać tworzenia duplikatów
+        List<Schedule> targetSchedules = getAllSchedulesByFromAndToDates(targetDate, targetDate);
+
+        for (Schedule src : sourceSchedules) {
+            Long srcSectionId = src.getTaskSection() != null ? src.getTaskSection().getId() : null;
+
+            // 3. Jeśli kopiujemy tylko konkretną zakładkę (np. "Rano"), ignorujemy wpisy z innych pór
+            if (sectionId != null && !sectionId.equals(srcSectionId)) {
+                continue;
+            }
+
+            // 4. Sprawdzamy, czy brat nie jest już przypadkiem wyznaczony na to samo oficjum o tej samej porze w dniu docelowym
+            boolean alreadyExists = targetSchedules.stream().anyMatch(t ->
+                    t.getUser().getId().equals(src.getUser().getId()) &&
+                            t.getTask().getId().equals(src.getTask().getId()) &&
+                            (t.getTaskSection() == null ? srcSectionId == null : t.getTaskSection().getId().equals(srcSectionId))
+            );
+
+            // 5. Kopiowanie 1:1 (klonowanie encji)
+            if (!alreadyExists) {
+                Schedule newSchedule = new Schedule();
+                newSchedule.setUser(src.getUser());
+                newSchedule.setTask(src.getTask());
+
+                // Poprawiona nazwa settera na setDate
+                newSchedule.setDate(targetDate);
+                newSchedule.setTaskSection(src.getTaskSection());
+
+                // (Usunięto setWeekStartDate i setWeekEndDate, ponieważ encja Schedule tego nie przechowuje)
+
+                scheduleRepository.save(newSchedule);
+            }
+        }
     }
 
     // Pomocnicza klasa wewnętrzna (lub użyj mapy/tablicy jeśli nie chcesz tworzyć klasy)
