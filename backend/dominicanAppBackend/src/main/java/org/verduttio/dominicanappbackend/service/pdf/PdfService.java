@@ -101,12 +101,20 @@ public class PdfService {
         return generator.generatePdf();
     }
 
-    public byte[] generateSchedulePdfForSpecialEventTaskDescriptions(Long eventId) throws IOException {
+    public byte[] generateSchedulePdfForSpecialEventTaskDescriptions(Long eventId, String roleName) throws IOException {
         SpecialEvent event = specialEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
 
         // Pobieramy WSZYSTKIE zadania i filtrujemy tylko te z naszego Special Eventu
         List<Task> specialTasks = taskRepository.findAllBySpecialEventId(eventId);
+
+        // Jeśli roleName zostało przekazane w URL, filtrujemy listę
+        if (roleName != null && !roleName.trim().isEmpty()) {
+            specialTasks = specialTasks.stream()
+                    .filter(task -> task.getSupervisorRole() != null &&
+                            task.getSupervisorRole().getName().equals(roleName))
+                    .toList();
+        }
 
         PdfGenerator generator = new SpecialEventTaskDescriptionPdfGenerator(scheduleService, event, specialTasks);
         return generator.generatePdf();

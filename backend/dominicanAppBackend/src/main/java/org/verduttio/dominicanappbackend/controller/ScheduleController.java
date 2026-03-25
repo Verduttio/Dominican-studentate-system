@@ -392,4 +392,16 @@ public class ScheduleController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/special-event/{eventId}/copy-day")
+    public ResponseEntity<Void> copyDaySchedules(
+            @PathVariable Long eventId,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate sourceDate,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate targetDate,
+            @RequestParam String roleName,
+            @RequestParam(required = false) Long sectionId) { // Opcjonalny parametr pory dnia
+
+        scheduleService.copySpecialEventDaySchedules(sourceDate, targetDate, roleName, sectionId);
+        return ResponseEntity.ok().build();
+    }
 }
