@@ -31,7 +31,9 @@ import {
     faTrash,
     faUserPlus,
     faCheck,
-    faAdjust
+    faAdjust,
+    faExpand,
+    faCompress
     } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
@@ -72,6 +74,8 @@ function AddScheduleSpecialEvent() {
     const { request: requestObstacles, loading: loadingObstacles } = useHttp();
 
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const [isFullWidth, setIsFullWidth] = useState(false);
 
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
@@ -709,11 +713,11 @@ function AddScheduleSpecialEvent() {
     };
 
     // --- STYLE DLA ZAMROŻONYCH KOLUMN ---
-    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '130px' };
-    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 50, backgroundColor: '#212529', minWidth: '200px', borderRight: '4px solid #495057' };
+    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '140px', width: '140px', maxWidth: '140px' };
+    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 50, backgroundColor: '#212529', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #495057' };
 
-    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '130px' };
-    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 10, backgroundColor: '#fff', minWidth: '200px', borderRight: '4px solid #dee2e6' };
+    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '140px', width: '140px', maxWidth: '140px' };
+    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 10, backgroundColor: '#fff', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #dee2e6' };
 
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
     if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width="500px" />;
@@ -751,6 +755,15 @@ function AddScheduleSpecialEvent() {
             </div>
             {/* PRZYCISKI STERUJĄCE */}
             <div className="d-flex justify-content-center gap-2 mb-3">
+                {/* Nowy przycisk: Rozszerz/Zwiń widok */}
+                <button
+                    className="btn btn-primary btn-sm shadow-sm"
+                    onClick={() => setIsFullWidth(!isFullWidth)}
+                >
+                    <FontAwesomeIcon icon={isFullWidth ? faCompress : faExpand} className="me-2"/>
+                    {isFullWidth ? "Zwiń widok macierzy" : "Pełna szerokość macierzy"}
+                </button>
+
                 {/* Przycisk 1: Pokaż/Ukryj */}
                 <button
                     className="btn btn-dark btn-sm shadow-sm"
@@ -776,11 +789,14 @@ function AddScheduleSpecialEvent() {
             </div>
 
             {/* Macierz */}
-            {loadingSchedule ? <LoadingSpinner/> : (
-                <div className="d-flex-no-media-resize justify-content-center">
-                    <div className="table-responsive">
-                        <table className="table table-hover table-striped table-rounded table-shadow text-center w-auto mx-auto">
-                            <thead className="table-dark sticky-top">
+        {loadingSchedule ? <LoadingSpinner/> : (
+            <div
+                style={isFullWidth ? { width: '100vw', marginLeft: 'calc(50% - 50vw)' } : {}}
+                className={isFullWidth ? "px-4 pb-3" : "d-flex justify-content-center w-100"}
+            >
+                <div className="table-responsive">
+                    <table className={`table table-hover table-striped table-rounded table-shadow text-center ${isFullWidth ? 'w-100' : 'w-auto mx-auto'}`}>
+                        <thead className="table-dark sticky-top">
                             <tr>
                                 <th style={stickyHeader1Style}>Brat</th>
                                 <th style={stickyHeader2Style}>Oficja</th>
