@@ -71,6 +71,8 @@ function AddScheduleSpecialEvent() {
     const [eventObstacles, setEventObstacles] = useState<Obstacle[]>([]);
     const { request: requestObstacles, loading: loadingObstacles } = useHttp();
 
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeekly[]>([]);
@@ -162,7 +164,7 @@ function AddScheduleSpecialEvent() {
         };
 
         fetchAllTasks();
-    }, [event, roleName, eventId, requestTasks]);
+    }, [event, roleName, eventId, requestTasks, refreshTrigger]);
 
     useEffect(() => {
         if (roleName) {
@@ -178,7 +180,8 @@ function AddScheduleSpecialEvent() {
 
     const handleTaskAdded = () => {
         setShowAddModal(false);
-        window.location.reload(); // Najszybsza metoda, żeby odświeżyć kolumny i tabelę
+        setRefreshTrigger(prev => prev + 1); // Wymusza pobranie nowych kolumn
+        fetchSchedule(); // Odświeża przypisania w komórkach
     };
 
     // 3. Pobierz Schedule Info (Macierz) - Przy każdej zmianie daty
@@ -705,6 +708,13 @@ function AddScheduleSpecialEvent() {
         }, false, `${backendUrl}/api/users/${userId}`, 'GET');
     };
 
+    // --- STYLE DLA ZAMROŻONYCH KOLUMN ---
+    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '130px' };
+    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 50, backgroundColor: '#212529', minWidth: '200px', borderRight: '4px solid #495057' };
+
+    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '130px' };
+    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '130px', zIndex: 10, backgroundColor: '#fff', minWidth: '200px', borderRight: '4px solid #dee2e6' };
+
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
     if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width="500px" />;
 
@@ -772,8 +782,8 @@ function AddScheduleSpecialEvent() {
                         <table className="table table-hover table-striped table-rounded table-shadow text-center w-auto mx-auto">
                             <thead className="table-dark sticky-top">
                             <tr>
-                                <th>Brat</th>
-                                <th>Oficja</th>
+                                <th style={stickyHeader1Style}>Brat</th>
+                                <th style={stickyHeader2Style}>Oficja</th>
                                 {visibleTasks?.map(task => {
                                     const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
                                     const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
@@ -797,12 +807,12 @@ function AddScheduleSpecialEvent() {
                             <tbody>
                             {userDependencies.map((dep, idx) => (
                                 <tr key={idx}>
-                                    <td>
+                                    <td style={stickyCell1Style}>
                                         <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
                                             {dep.userName}
                                         </button>
                                     </td>
-                                    <td className='max-column-width-200'>
+                                    <td className='max-column-width-200' style={stickyCell2Style}>
                                         {dep.assignedTasks.map((task, index) => (
                                             <React.Fragment key={index}>
                                                 {index !== 0 && ', '}
