@@ -3,10 +3,14 @@ package org.verduttio.dominicanappbackend.service.pdf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.domain.Role;
+import org.verduttio.dominicanappbackend.domain.SpecialEvent;
+import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.SpecialEventRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
+import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.service.RoleService;
 import org.verduttio.dominicanappbackend.service.TaskService;
+import org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException;
 import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.pdf.generators.*;
 
@@ -24,14 +28,16 @@ public class PdfService {
     private final SpecialEventRepository specialEventRepository;
     private final TaskService taskService;
     private final TaskRepository taskRepository;
+    private final ObstacleService obstacleService;
 
     @Autowired
-    public PdfService(ScheduleService scheduleService, RoleService roleService, SpecialEventRepository specialEventRepository, TaskService taskService, TaskRepository taskRepository) {
+    public PdfService(ScheduleService scheduleService, RoleService roleService, SpecialEventRepository specialEventRepository, TaskService taskService, TaskRepository taskRepository, ObstacleService obstacleService) {
         this.scheduleService = scheduleService;
         this.roleService = roleService;
         this.specialEventRepository = specialEventRepository;
         this.taskService = taskService;
         this.taskRepository = taskRepository;
+        this.obstacleService = obstacleService;
     }
 
     public byte[] generateSchedulePdfForUsers(LocalDate from, LocalDate to) throws IOException {
@@ -75,11 +81,17 @@ public class PdfService {
     // --- SPECIAL EVENTS PDF METHODS ---
 
     public byte[] generateSchedulePdfForSpecialEventMatrix(Long eventId, String roleName) throws IOException {
-        org.verduttio.dominicanappbackend.domain.SpecialEvent event = specialEventRepository.findById(eventId)
-                .orElseThrow(() -> new org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException("Special Event not found"));
+        SpecialEvent event = specialEventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
 
-        // Zrobimy nowy generator: SpecialEventMatrixPdfGenerator, który pod spodem zadziała jak DaySchedulePdfGenerator
-        PdfGenerator generator = new SpecialEventMatrixPdfGenerator(scheduleService, event, roleName);
+        // 1. Pobieramy listę ZATWIERDZONYCH przeszkód dla dat trwania tego wydarzenia
+        // Zwróć uwagę na import z domeny obstacle, jeśli IDE o niego poprosi!
+        List<org.verduttio.dominicanappbackend.domain.obstacle.Obstacle> eventObstacles =
+                obstacleService.getApprovedObstaclesForDateRange(event.getStartDate(), event.getEndDate());
+
+        // 2. Tworzymy nasz nowy generator, przekazując mu na końcu pobraną listę przeszkód
+        PdfGenerator generator = new SpecialEventMatrixPdfGenerator(scheduleService, event, roleName, eventObstacles);
+
         return generator.generatePdf();
     }
 
@@ -90,11 +102,11 @@ public class PdfService {
     }
 
     public byte[] generateSchedulePdfForSpecialEventTaskDescriptions(Long eventId) throws IOException {
-        org.verduttio.dominicanappbackend.domain.SpecialEvent event = specialEventRepository.findById(eventId)
-                .orElseThrow(() -> new org.verduttio.dominicanappbackend.service.exception.EntityNotFoundException("Special Event not found"));
+        SpecialEvent event = specialEventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
 
         // Pobieramy WSZYSTKIE zadania i filtrujemy tylko te z naszego Special Eventu
-        List<org.verduttio.dominicanappbackend.domain.Task> specialTasks = taskRepository.findAllBySpecialEventId(eventId);
+        List<Task> specialTasks = taskRepository.findAllBySpecialEventId(eventId);
 
         PdfGenerator generator = new SpecialEventTaskDescriptionPdfGenerator(scheduleService, event, specialTasks);
         return generator.generatePdf();

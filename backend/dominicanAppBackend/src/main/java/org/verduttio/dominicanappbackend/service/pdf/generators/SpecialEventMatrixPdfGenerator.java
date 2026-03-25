@@ -4,6 +4,8 @@ import be.quodlibet.boxable.BaseTable;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.verduttio.dominicanappbackend.domain.SpecialEvent;
+import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
+import org.verduttio.dominicanappbackend.service.ObstacleService;
 import org.verduttio.dominicanappbackend.service.schedule.ScheduleService;
 import org.verduttio.dominicanappbackend.service.pdf.builders.DayTableBuilder;
 import org.verduttio.dominicanappbackend.util.DateUtils;
@@ -17,12 +19,18 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
 
     private final SpecialEvent event;
     private final Optional<String> supervisorRoleName;
-    private static final int DAYS_PER_PAGE = 3; // Maksymalna liczba dni na jednej stronie
+    private final List<Obstacle> eventObstacles;
+    private static final int DAYS_PER_PAGE = 3;
 
-    public SpecialEventMatrixPdfGenerator(ScheduleService scheduleService, SpecialEvent event, String supervisorRoleName) {
+    public SpecialEventMatrixPdfGenerator(
+            ScheduleService scheduleService,
+            SpecialEvent event,
+            String supervisorRoleName,
+            List<Obstacle> eventObstacles) {
         super(scheduleService);
         this.event = event;
         this.supervisorRoleName = Optional.ofNullable(supervisorRoleName);
+        this.eventObstacles = eventObstacles != null ? eventObstacles : java.util.Collections.emptyList();
     }
 
     @Override
@@ -37,26 +45,19 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
         LocalDate currentStart = event.getStartDate();
         LocalDate eventEnd = event.getEndDate();
 
-        // Paginacja: dopóki start paczki nie przekroczy końca eventu
         while (!currentStart.isAfter(eventEnd)) {
-            // Wyznaczamy koniec bieżącej paczki (maksymalnie DAYS_PER_PAGE - 1 dni do przodu)
             LocalDate currentEnd = currentStart.plusDays(DAYS_PER_PAGE - 1);
             if (currentEnd.isAfter(eventEnd)) {
                 currentEnd = eventEnd;
             }
 
-            // Tworzymy nową stronę w orientacji poziomej
             PDPage page = addNewPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
-
-            // Tytuł dla konkretnej strony (pokazuje daty dla tego konkretnego arkusza)
             float startY = addTitle(page, getPageTitle(currentStart, currentEnd));
-
             BaseTable table = initializeTable(page, startY);
 
-            // Przekazujemy do tabeli tylko wycinek czasu z bieżącej paczki
+            // Wywołujemy populateTable, przekazując listę przeszkód, którą mamy w pamięci klasy
             populateTable(table, userSchedules, activeSectionsMap, currentStart, currentEnd);
 
-            // Przesuwamy wskaźnik na kolejną paczkę
             currentStart = currentStart.plusDays(DAYS_PER_PAGE);
         }
 
@@ -68,9 +69,9 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
                                java.util.Map<LocalDate, List<String>> activeSectionsMap,
                                LocalDate chunkStart,
                                LocalDate chunkEnd) throws IOException {
-        // Builder dostaje teraz tylko konkretne daty od-do dla danej paczki
         DayTableBuilder tableBuilder = new DayTableBuilder(table, font, chunkStart, chunkEnd);
-        tableBuilder.buildTableWithSections(userSchedules, activeSectionsMap);
+        // Przekazujemy naszą listę eventObstacles do buildera!
+        tableBuilder.buildTableWithSections(userSchedules, activeSectionsMap, this.eventObstacles);
     }
 
     // --- METODA POMOCNICZA ---
