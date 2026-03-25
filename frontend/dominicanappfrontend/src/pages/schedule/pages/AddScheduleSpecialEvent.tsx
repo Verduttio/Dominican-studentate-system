@@ -581,10 +581,16 @@ function AddScheduleSpecialEvent() {
     const renderUserTaskScheduleInfo = (dep: UserTasksScheduleInfoWeekly, udep: UserTaskScheduleInfo, task: Task | undefined) => {
         const isSpecial = task?.specialEventId !== null && task?.specialEventId !== undefined;
         const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
+        const cellStyle: React.CSSProperties = {
+                width: "80px",
+                minWidth: "80px",
+                maxWidth: "80px",
+                verticalAlign: "middle"
+            };
 
         if (!udep.visible) {
             return (
-                <td key={udep.taskId} className={hiddenClass}>
+                <td key={udep.taskId} className={hiddenClass} style={cellStyle}>
                     <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faCircleXmark}/></button>
                 </td>
             );
@@ -592,7 +598,7 @@ function AddScheduleSpecialEvent() {
 
         if (!udep.hasRoleForTheTask) {
             return (
-                <td key={udep.taskId} className={hiddenClass}>
+                <td key={udep.taskId} className={hiddenClass} style={cellStyle}>
                     <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faXmark}/></button>
                 </td>
             );
@@ -609,7 +615,7 @@ function AddScheduleSpecialEvent() {
             if (udep.assignedToTheTask) {
                 // W PEŁNI PRZYPISANY
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
@@ -624,7 +630,7 @@ function AddScheduleSpecialEvent() {
             } else if (isPartiallyAssigned) {
                     // CZĘŚCIOWO PRZYPISANY
                     return (
-                        <td key={udep.taskId} className={finalClass}>
+                        <td key={udep.taskId} className={finalClass} style={cellStyle}>
                             <button
                                 className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
                                 onClick={() => unassignTask(dep.userId, udep.taskId)}
@@ -638,7 +644,7 @@ function AddScheduleSpecialEvent() {
                 } else {
                 // NIEPRZYPISANY
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
                             onClick={() => handleSubmit(dep.userId, udep.taskId)}
@@ -653,7 +659,7 @@ function AddScheduleSpecialEvent() {
             // MA PRZESZKODĘ
             if (udep.assignedToTheTask) {
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className='btn btn-danger'
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
@@ -668,7 +674,7 @@ function AddScheduleSpecialEvent() {
             } else if (isPartiallyAssigned) {
                 // CZĘŚCIOWO PRZYPISANY Z PRZESZKODĄ - ZMIANA Z handleSubmit NA unassignTask
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className='btn btn-danger'
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
@@ -681,7 +687,7 @@ function AddScheduleSpecialEvent() {
                 );
             } else {
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className='btn btn-danger'
                             onClick={() => handleSubmit(dep.userId, udep.taskId)}
@@ -771,11 +777,27 @@ function AddScheduleSpecialEvent() {
     };
 
     // --- STYLE DLA ZAMROŻONYCH KOLUMN ---
-    const stickyHeader1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529', minWidth: '140px', width: '140px', maxWidth: '140px' };
-    const stickyHeader2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 50, backgroundColor: '#212529', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #495057' };
+    const stickyHeader1Style: React.CSSProperties = {
+        position: 'sticky', left: 0, zIndex: 50, backgroundColor: '#212529',
+        minWidth: '140px', width: '140px', maxWidth: '140px',
+        verticalAlign: 'middle' // <-- Wymuszone wyśrodkowanie w pionie
+    };
+    const stickyHeader2Style: React.CSSProperties = {
+        position: 'sticky', left: '140px', zIndex: 50, backgroundColor: '#212529',
+        minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #495057',
+        verticalAlign: 'middle' // <-- Wymuszone wyśrodkowanie w pionie
+    };
 
-    const stickyCell1Style: React.CSSProperties = { position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff', minWidth: '140px', width: '140px', maxWidth: '140px' };
-    const stickyCell2Style: React.CSSProperties = { position: 'sticky', left: '140px', zIndex: 10, backgroundColor: '#fff', minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #dee2e6' };
+    const stickyCell1Style: React.CSSProperties = {
+        position: 'sticky', left: 0, zIndex: 10, backgroundColor: '#fff',
+        minWidth: '140px', width: '140px', maxWidth: '140px',
+        verticalAlign: 'middle' // <-- Wyśrodkowanie dla wierszy z danymi
+    };
+    const stickyCell2Style: React.CSSProperties = {
+        position: 'sticky', left: '140px', zIndex: 10, backgroundColor: '#fff',
+        minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #dee2e6',
+        verticalAlign: 'middle' // <-- Wyśrodkowanie dla wierszy z danymi
+    };
 
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
     if (!isFunkcyjny) return <AlertBox text={UNAUTHORIZED_PAGE_TEXT} type="danger" width="500px" />;
@@ -876,403 +898,413 @@ function AddScheduleSpecialEvent() {
             </div>
 
             {/* Macierz */}
-        {loadingSchedule ? <LoadingSpinner/> : (
-            <div
-                style={isFullWidth ? { width: '100vw', marginLeft: 'calc(50% - 50vw)' } : {}}
-                className={isFullWidth ? "px-4 pb-3" : "d-flex justify-content-center w-100"}
-            >
-                <div className="table-responsive">
-                    <table className={`table table-hover table-striped table-rounded table-shadow text-center ${isFullWidth ? 'w-100' : 'w-auto mx-auto'}`}>
-                        <thead className="table-dark sticky-top">
-                            <tr>
-                                <th style={stickyHeader1Style}>Brat</th>
-                                <th style={stickyHeader2Style}>Oficja</th>
-                                {visibleTasks?.map(task => {
-                                    const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
-                                    const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
-
-                                    return (
-                                        <th
-                                            key={task.id}
-                                            className={`${(isSpecial) ? "bg-warning text-dark" : ""} ${hiddenClass}`}
-                                            style={{cursor: "pointer"}}
-                                            onClick={() => {
-                                                setTaskToEdit(task);
-                                                setShowAddModal(true);
-                                            }}
-                                        >
-                                            {task.nameAbbrev}
-                                        </th>
-                                    );
-                                })}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {userDependencies.map((dep, idx) => (
-                                <tr key={idx}>
-                                    <td style={stickyCell1Style}>
-                                        <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
-                                            {dep.userName}
-                                        </button>
-                                    </td>
-                                    <td className='max-column-width-200' style={stickyCell2Style}>
-                                        {dep.assignedTasks.map((task, index) => (
-                                            <React.Fragment key={index}>
-                                                {index !== 0 && ', '}
-                                                <strong>{task}</strong>
-                                            </React.Fragment>
-                                        ))}
-                                    </td>
-
-                                    {dep.userTasksScheduleInfo?.map((udep, cellIndex) => {
-                                        const correspondingTask = visibleTasks[cellIndex];
-                                        return renderUserTaskScheduleInfo(dep, udep, correspondingTask);
-                                    })}
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {/* --- Dodaj gościa --- */}
-            <div className="d-flex justify-content-center gap-2 mt-5 mb-3">
-                <button
-                    className="btn btn-info btn-sm shadow-sm"
-                    onClick={() => {
-                        setGuestToEdit(null); // Reset przed dodaniem nowego
-                        setShowGuestModal(true);
-                    }}
+            {loadingSchedule ? <LoadingSpinner/> : (
+                <div
+                    style={isFullWidth ? { width: '100vw', marginLeft: 'calc(50% - 50vw)' } : {}}
+                    className={isFullWidth ? "px-4 pb-3" : "d-flex justify-content-center w-100"}
                 >
-                    <FontAwesomeIcon icon={faUserPlus} className="me-2" />
-                    Dodaj gościa
-                </button>
-            </div>
-
-            {/* --- KOPIOWANIE DNIA --- */}
-            {event && (
-                <div className="d-flex flex-column align-items-center mb-3">
-                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                        Skopiuj dzisiejsze oficja na:
-                    </h3>
-                    <div className="d-flex justify-content-center flex-wrap gap-2">
-                        {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
-                            const isCurrent = format(day, 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd');
-                            return (
-                                <button
-                                    key={day.toString()}
-                                    className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-warning fw-bold text-dark'} shadow-sm`}
-                                    disabled={isCurrent || copyLoading}
-                                    onClick={() => handleCopyDay(day)}
-                                    style={{ minWidth: '80px' }}
-                                >
-                                    {format(day, 'dd.MM')} <br/>
-                                    <small className={isCurrent ? 'fw-normal' : 'fw-bold'}>{format(day, 'EEE', { locale: pl })}</small>
-                                </button>
-                            );
-                        })}
-                    </div>
-                    {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa kopiowanie oficjów, to może potrwać kilka sekund... <LoadingSpinner/></div>}
-                </div>
-            )}
-
-            {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
-            <div className="d-flex flex-column align-items-center mb-5 mt-5">
-                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                    Zatwierdzone Przeszkody
-                </h3>
-                <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
-                    <div className="card-body p-0">
-                        {loadingObstacles ? (
-                             <div className="text-center p-4"><LoadingSpinner /></div>
-                        ) : eventObstacles.length === 0 ? (
-                            <div className="text-center text-muted p-4">
-                                Brak zatwierdzonych przeszkód w terminie tego wydarzenia.
-                            </div>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table table-hover table-striped mb-0 text-center align-middle">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>Kto</th>
-                                            <th>Kiedy (Dzień + Pory)</th>
-                                            <th>Oficja</th>
-                                            <th>Opis wniosku</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {eventObstacles.map(obs => (
-                                            <tr key={obs.id}>
-                                                <td className="fw-bold text-nowrap">
-                                                    {obs.user.name} {obs.user.surname}
-                                                </td>
-                                                <td className="text-nowrap">
-                                                    <div className="fw-bold text-danger">
-                                                        {format(parseISO(obs.fromDate), 'dd.MM')}
-                                                        {obs.fromDate !== obs.toDate && ` - ${format(parseISO(obs.toDate), 'dd.MM')}`}
-                                                    </div>
-                                                    <div className="small text-muted fw-bold">
-                                                        {obs.taskSections && obs.taskSections.length > 0
-                                                            ? obs.taskSections.map(s => s.name).join(', ')
-                                                            : "Cały dzień"}
-                                                    </div>
-                                                </td>
-                                                <td style={{ maxWidth: '200px' }}>
-                                                    <div className="d-flex flex-wrap justify-content-center gap-1">
-                                                        {obs.tasks && obs.tasks.length > 0 ? (
-                                                            obs.tasks.map(t => (
-                                                                <span
-                                                                    key={t.id}
-                                                                    className="badge bg-primary shadow-sm text-wrap text-break"
-                                                                    style={{ lineHeight: '1.4' }}
-                                                                >
-                                                                    {t.nameAbbrev}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span
-                                                                className="badge bg-secondary shadow-sm text-wrap text-break"
-                                                                style={{ lineHeight: '1.4' }}
-                                                            >
-                                                                Wszystkie
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="text-start small" style={{ maxWidth: '300px' }}>
-                                                    {obs.applicantDescription || <span className="text-muted fst-italic">Brak opisu</span>}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* --- SEKCJA KOLIZJI (POD MACIERZĄ) --- */}
-            <div className="d-flex flex-column align-items-center mb-5">
-                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                    Kolizje
-                </h3>
-
-                {/* FORMULARZ DODAWANIA KOLIZJI */}
-                <div className="card shadow-sm mb-5" style={{ minWidth: '400px', maxWidth: '100%' }}>
-                    <div className="card-header bg-dark text-white">
-                        <h6 className="mb-0">Dodaj nową kolizję</h6>
-                    </div>
-                    <div className="card-body">
-                        {/* Krok 1: Oficjum 1 */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">1. Wybierz oficjum specjalne (Baza)</label>
-                            <select
-                                className="form-select"
-                                value={conflictTask1Id}
-                                onChange={(e) => setConflictTask1Id(Number(e.target.value) || '')}
-                            >
-                                <option value="">-- Wybierz oficjum --</option>
-                                {specialTasks.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name} ({t.nameAbbrev})</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Krok 2: Kategoria dla Oficjum 2 */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">2. Kategoria drugiego oficjum</label>
-                            <select
-                                className="form-select"
-                                value={selectedConflictRole}
-                                onChange={(e) => setSelectedConflictRole(e.target.value)}
-                            >
-                                <option value="">-- Wybierz kategorię --</option>
-                                {allRoles.map(r => (
-                                    <option key={r.id} value={r.name}>{r.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Krok 3: Wybór konkretnych zadań (Checkbox list) */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">3. Wybierz oficjum(a) kolidujące</label>
-                            <div className="border rounded p-2" style={{maxHeight: '200px', overflowY: 'auto', backgroundColor: '#f8f9fa'}}>
-                                {!conflictTask1Id ? (
-                                    <span className="text-muted small">Wybierz oficjum z punktu 1...</span>
-                                ) : selectedConflictRole === '' ? (
-                                    <span className="text-muted small">Wybierz kategorię z punktu 2...</span>
-                                ) : conflictTasks2.length === 0 ? (
-                                    <span className="text-muted small">Brak oficjów w tej kategorii.</span>
-                                ) : (
-                                    <>
-                                        {(() => {
-                                            const availableTasks = conflictTasks2.filter(t => !isConflictExisting(t.id));
-                                            const allAvailableSelected = availableTasks.length > 0 && availableTasks.every(t => selectedTask2Ids.includes(t.id));
-
-                                            return (
-                                                <>
-                                                    {/* OPCJA ZAZNACZ WSZYSTKO */}
-                                                    <div className="form-check border-bottom pb-2 mb-2">
-                                                        <input
-                                                            className="form-check-input"
-                                                            type="checkbox"
-                                                            id="selectAllTasks2"
-                                                            checked={allAvailableSelected}
-                                                            onChange={handleSelectAllTasks2}
-                                                            disabled={availableTasks.length === 0}
-                                                        />
-                                                        <label className="form-check-label fw-bold small text-primary" htmlFor="selectAllTasks2" style={{cursor: availableTasks.length > 0 ? 'pointer' : 'not-allowed'}}>
-                                                            {availableTasks.length === 0 ? "Wszystkie możliwe kolizje już istnieją" : "Zaznacz wszystkie poniższe"}
-                                                        </label>
-                                                    </div>
-
-                                                    {/* LISTA ZADAŃ */}
-                                                    {conflictTasks2.map(t => {
-                                                        const alreadyExists = isConflictExisting(t.id);
-                                                        return (
-                                                            <div className="form-check" key={t.id}>
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    id={`ctask-${t.id}`}
-                                                                    // Jeśli istnieje, traktujemy jako checked wizualnie, ale go blokujemy
-                                                                    checked={selectedTask2Ids.includes(t.id) || alreadyExists}
-                                                                    disabled={alreadyExists}
-                                                                    onChange={() => toggleTask2Selection(t.id)}
-                                                                />
-                                                                <label
-                                                                    className={`form-check-label small ${alreadyExists ? 'text-muted' : ''}`}
-                                                                    htmlFor={`ctask-${t.id}`}
-                                                                    style={{cursor: alreadyExists ? 'not-allowed' : 'pointer'}}
-                                                                >
-                                                                    {t.name}
-                                                                    {t.specialEventId && <span className="badge bg-warning text-dark ms-1">Specjalne</span>}
-                                                                    {alreadyExists && <span className="badge bg-secondary ms-1">Już dodano</span>}
-                                                                </label>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </>
-                                            );
-                                        })()}
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="d-flex justify-content-end mt-4">
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleAddConflict}
-                                disabled={!conflictTask1Id || selectedTask2Ids.length === 0 || addConflictLoading}
-                            >
-                                {addConflictLoading ? <LoadingSpinner /> : <><FontAwesomeIcon icon={faPlus} className="me-2"/> Utwórz kolizje</>}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* TABELA AKTYWNYCH KOLIZJI */}
-                <div className="card shadow-sm w-auto" style={{ minWidth: '600px', maxWidth: '100%' }}>
-                    <div className="card-body p-0">
-                        <div className="table-responsive">
-                            <table className="table table-hover table-striped mb-0 text-center align-middle">
-                                <thead className="table-dark">
-                                    <tr>
-                                        <th style={{ width: '30%' }}>Oficjum Specjalne</th>
-                                        <th style={{ width: '70%' }}>Koliduje z...</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {specialTasks.length === 0 && (
-                                        <tr><td colSpan={2} className="text-muted p-4">Brak oficjów specjalnych w tej kategorii.</td></tr>
-                                    )}
-                                    {specialTasks.map(spcTask => {
-                                        const relatedConflicts = allConflicts.filter(c => c.task1.id === spcTask.id || c.task2.id === spcTask.id);
-
-                                        if (relatedConflicts.length === 0) return null;
+                    <div className="table-responsive">
+                        <table className={`table table-hover table-striped table-rounded table-shadow mb-0 text-center ${isFullWidth ? 'w-100' : 'w-auto mx-auto'}`}>
+                            <thead className="table-dark sticky-top">
+                                <tr>
+                                    <th style={stickyHeader1Style}>Brat</th>
+                                    <th style={stickyHeader2Style}>Oficja</th>
+                                    {visibleTasks?.map(task => {
+                                        const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+                                        const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
 
                                         return (
-                                            <tr key={spcTask.id}>
-                                                <td className="fw-bold border-end">{spcTask.name}</td>
-                                                <td className="text-start p-3">
-                                                    <div className="d-flex flex-wrap gap-2">
-                                                        {relatedConflicts.map(c => {
-                                                            const otherTask = c.task1.id === spcTask.id ? c.task2 : c.task1;
-                                                            return (
-                                                                <span key={c.id} className="badge bg-danger d-flex align-items-center gap-2 p-2 shadow-sm">
-                                                                    {otherTask.name}
-                                                                    <FontAwesomeIcon
-                                                                        icon={faTrash}
-                                                                        style={{cursor: 'pointer', fontSize: '0.9em', opacity: 0.8}}
-                                                                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                                                                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
-                                                                        onClick={() => handleDeleteConflict(c.id)}
-                                                                        title="Usuń tę kolizję"
-                                                                    />
-                                                                </span>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <th
+                                                key={task.id}
+                                                className={`${(isSpecial) ? "bg-warning text-dark" : ""} ${hiddenClass}`}
+                                                style={{
+                                                    cursor: "pointer",
+                                                    width: "80px",          // Sztywna szerokość
+                                                    minWidth: "80px",
+                                                    maxWidth: "80px",
+                                                    wordWrap: "break-word", // Zmusza długie słowa do łamania się
+                                                    whiteSpace: "normal",   // Pozwala na text-wrapping
+                                                    verticalAlign: "middle" // Centruje zawartość w pionie
+                                                }}
+                                                onClick={() => {
+                                                    setTaskToEdit(task);
+                                                    setShowAddModal(true);
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.85rem', lineHeight: '1.2' }}>
+                                                    {task.nameAbbrev}
+                                                </div>
+                                            </th>
                                         );
                                     })}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {userDependencies.map((dep, idx) => (
+                                    <tr key={idx}>
+                                        <td style={stickyCell1Style}>
+                                            <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
+                                                {dep.userName}
+                                            </button>
+                                        </td>
+                                        <td className='max-column-width-200' style={stickyCell2Style}>
+                                            {dep.assignedTasks.map((task, index) => (
+                                                <React.Fragment key={index}>
+                                                    {index !== 0 && ', '}
+                                                    <strong>{task}</strong>
+                                                </React.Fragment>
+                                            ))}
+                                        </td>
+
+                                        {dep.userTasksScheduleInfo?.map((udep, cellIndex) => {
+                                            const correspondingTask = visibleTasks[cellIndex];
+                                            return renderUserTaskScheduleInfo(dep, udep, correspondingTask);
+                                        })}
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                )}
+
+                {/* --- Dodaj gościa --- */}
+                <div className="d-flex justify-content-center gap-2 mt-5 mb-3">
+                    <button
+                        className="btn btn-info btn-sm shadow-sm"
+                        onClick={() => {
+                            setGuestToEdit(null); // Reset przed dodaniem nowego
+                            setShowGuestModal(true);
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                        Dodaj gościa
+                    </button>
                 </div>
+
+                {/* --- KOPIOWANIE DNIA --- */}
+                {event && (
+                    <div className="d-flex flex-column align-items-center mb-3">
+                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                            Skopiuj dzisiejsze oficja na:
+                        </h3>
+                        <div className="d-flex justify-content-center flex-wrap gap-2">
+                            {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
+                                const isCurrent = format(day, 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd');
+                                return (
+                                    <button
+                                        key={day.toString()}
+                                        className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-warning fw-bold text-dark'} shadow-sm`}
+                                        disabled={isCurrent || copyLoading}
+                                        onClick={() => handleCopyDay(day)}
+                                        style={{ minWidth: '80px' }}
+                                    >
+                                        {format(day, 'dd.MM')} <br/>
+                                        <small className={isCurrent ? 'fw-normal' : 'fw-bold'}>{format(day, 'EEE', { locale: pl })}</small>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa kopiowanie oficjów, to może potrwać kilka sekund... <LoadingSpinner/></div>}
+                    </div>
+                )}
+
+                {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
+                <div className="d-flex flex-column align-items-center mb-5 mt-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                        Zatwierdzone Przeszkody
+                    </h3>
+                    <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
+                        <div className="card-body p-0">
+                            {loadingObstacles ? (
+                                 <div className="text-center p-4"><LoadingSpinner /></div>
+                            ) : eventObstacles.length === 0 ? (
+                                <div className="text-center text-muted p-4">
+                                    Brak zatwierdzonych przeszkód w terminie tego wydarzenia.
+                                </div>
+                            ) : (
+                                <div className="table-responsive">
+                                    <table className="table table-hover table-striped mb-0 text-center align-middle">
+                                        <thead className="table-dark">
+                                            <tr>
+                                                <th>Kto</th>
+                                                <th>Kiedy (Dzień + Pory)</th>
+                                                <th>Oficja</th>
+                                                <th>Opis wniosku</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eventObstacles.map(obs => (
+                                                <tr key={obs.id}>
+                                                    <td className="fw-bold text-nowrap">
+                                                        {obs.user.name} {obs.user.surname}
+                                                    </td>
+                                                    <td className="text-nowrap">
+                                                        <div className="fw-bold text-danger">
+                                                            {format(parseISO(obs.fromDate), 'dd.MM')}
+                                                            {obs.fromDate !== obs.toDate && ` - ${format(parseISO(obs.toDate), 'dd.MM')}`}
+                                                        </div>
+                                                        <div className="small text-muted fw-bold">
+                                                            {obs.taskSections && obs.taskSections.length > 0
+                                                                ? obs.taskSections.map(s => s.name).join(', ')
+                                                                : "Cały dzień"}
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ maxWidth: '200px' }}>
+                                                        <div className="d-flex flex-wrap justify-content-center gap-1">
+                                                            {obs.tasks && obs.tasks.length > 0 ? (
+                                                                obs.tasks.map(t => (
+                                                                    <span
+                                                                        key={t.id}
+                                                                        className="badge bg-primary shadow-sm text-wrap text-break"
+                                                                        style={{ lineHeight: '1.4' }}
+                                                                    >
+                                                                        {t.nameAbbrev}
+                                                                    </span>
+                                                                ))
+                                                            ) : (
+                                                                <span
+                                                                    className="badge bg-secondary shadow-sm text-wrap text-break"
+                                                                    style={{ lineHeight: '1.4' }}
+                                                                >
+                                                                    Wszystkie
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-start small" style={{ maxWidth: '300px' }}>
+                                                        {obs.applicantDescription || <span className="text-muted fst-italic">Brak opisu</span>}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* --- SEKCJA KOLIZJI (POD MACIERZĄ) --- */}
+                <div className="d-flex flex-column align-items-center mb-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                        Kolizje
+                    </h3>
+
+                    {/* FORMULARZ DODAWANIA KOLIZJI */}
+                    <div className="card shadow-sm mb-5" style={{ minWidth: '400px', maxWidth: '100%' }}>
+                        <div className="card-header bg-dark text-white">
+                            <h6 className="mb-0">Dodaj nową kolizję</h6>
+                        </div>
+                        <div className="card-body">
+                            {/* Krok 1: Oficjum 1 */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">1. Wybierz oficjum specjalne (Baza)</label>
+                                <select
+                                    className="form-select"
+                                    value={conflictTask1Id}
+                                    onChange={(e) => setConflictTask1Id(Number(e.target.value) || '')}
+                                >
+                                    <option value="">-- Wybierz oficjum --</option>
+                                    {specialTasks.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} ({t.nameAbbrev})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Krok 2: Kategoria dla Oficjum 2 */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">2. Kategoria drugiego oficjum</label>
+                                <select
+                                    className="form-select"
+                                    value={selectedConflictRole}
+                                    onChange={(e) => setSelectedConflictRole(e.target.value)}
+                                >
+                                    <option value="">-- Wybierz kategorię --</option>
+                                    {allRoles.map(r => (
+                                        <option key={r.id} value={r.name}>{r.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Krok 3: Wybór konkretnych zadań (Checkbox list) */}
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">3. Wybierz oficjum(a) kolidujące</label>
+                                <div className="border rounded p-2" style={{maxHeight: '200px', overflowY: 'auto', backgroundColor: '#f8f9fa'}}>
+                                    {!conflictTask1Id ? (
+                                        <span className="text-muted small">Wybierz oficjum z punktu 1...</span>
+                                    ) : selectedConflictRole === '' ? (
+                                        <span className="text-muted small">Wybierz kategorię z punktu 2...</span>
+                                    ) : conflictTasks2.length === 0 ? (
+                                        <span className="text-muted small">Brak oficjów w tej kategorii.</span>
+                                    ) : (
+                                        <>
+                                            {(() => {
+                                                const availableTasks = conflictTasks2.filter(t => !isConflictExisting(t.id));
+                                                const allAvailableSelected = availableTasks.length > 0 && availableTasks.every(t => selectedTask2Ids.includes(t.id));
+
+                                                return (
+                                                    <>
+                                                        {/* OPCJA ZAZNACZ WSZYSTKO */}
+                                                        <div className="form-check border-bottom pb-2 mb-2">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id="selectAllTasks2"
+                                                                checked={allAvailableSelected}
+                                                                onChange={handleSelectAllTasks2}
+                                                                disabled={availableTasks.length === 0}
+                                                            />
+                                                            <label className="form-check-label fw-bold small text-primary" htmlFor="selectAllTasks2" style={{cursor: availableTasks.length > 0 ? 'pointer' : 'not-allowed'}}>
+                                                                {availableTasks.length === 0 ? "Wszystkie możliwe kolizje już istnieją" : "Zaznacz wszystkie poniższe"}
+                                                            </label>
+                                                        </div>
+
+                                                        {/* LISTA ZADAŃ */}
+                                                        {conflictTasks2.map(t => {
+                                                            const alreadyExists = isConflictExisting(t.id);
+                                                            return (
+                                                                <div className="form-check" key={t.id}>
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="checkbox"
+                                                                        id={`ctask-${t.id}`}
+                                                                        // Jeśli istnieje, traktujemy jako checked wizualnie, ale go blokujemy
+                                                                        checked={selectedTask2Ids.includes(t.id) || alreadyExists}
+                                                                        disabled={alreadyExists}
+                                                                        onChange={() => toggleTask2Selection(t.id)}
+                                                                    />
+                                                                    <label
+                                                                        className={`form-check-label small ${alreadyExists ? 'text-muted' : ''}`}
+                                                                        htmlFor={`ctask-${t.id}`}
+                                                                        style={{cursor: alreadyExists ? 'not-allowed' : 'pointer'}}
+                                                                    >
+                                                                        {t.name}
+                                                                        {t.specialEventId && <span className="badge bg-warning text-dark ms-1">Specjalne</span>}
+                                                                        {alreadyExists && <span className="badge bg-secondary ms-1">Już dodano</span>}
+                                                                    </label>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </>
+                                                );
+                                            })()}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="d-flex justify-content-end mt-4">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleAddConflict}
+                                    disabled={!conflictTask1Id || selectedTask2Ids.length === 0 || addConflictLoading}
+                                >
+                                    {addConflictLoading ? <LoadingSpinner /> : <><FontAwesomeIcon icon={faPlus} className="me-2"/> Utwórz kolizje</>}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TABELA AKTYWNYCH KOLIZJI */}
+                    <div className="card shadow-sm w-auto" style={{ minWidth: '600px', maxWidth: '100%' }}>
+                        <div className="card-body p-0">
+                            <div className="table-responsive">
+                                <table className="table table-hover table-striped mb-0 text-center align-middle">
+                                    <thead className="table-dark">
+                                        <tr>
+                                            <th style={{ width: '30%' }}>Oficjum Specjalne</th>
+                                            <th style={{ width: '70%' }}>Koliduje z...</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {specialTasks.length === 0 && (
+                                            <tr><td colSpan={2} className="text-muted p-4">Brak oficjów specjalnych w tej kategorii.</td></tr>
+                                        )}
+                                        {specialTasks.map(spcTask => {
+                                            const relatedConflicts = allConflicts.filter(c => c.task1.id === spcTask.id || c.task2.id === spcTask.id);
+
+                                            if (relatedConflicts.length === 0) return null;
+
+                                            return (
+                                                <tr key={spcTask.id}>
+                                                    <td className="fw-bold border-end">{spcTask.name}</td>
+                                                    <td className="text-start p-3">
+                                                        <div className="d-flex flex-wrap gap-2">
+                                                            {relatedConflicts.map(c => {
+                                                                const otherTask = c.task1.id === spcTask.id ? c.task2 : c.task1;
+                                                                return (
+                                                                    <span key={c.id} className="badge bg-danger d-flex align-items-center gap-2 p-2 shadow-sm">
+                                                                        {otherTask.name}
+                                                                        <FontAwesomeIcon
+                                                                            icon={faTrash}
+                                                                            style={{cursor: 'pointer', fontSize: '0.9em', opacity: 0.8}}
+                                                                            onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                                                            onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                                                                            onClick={() => handleDeleteConflict(c.id)}
+                                                                            title="Usuń tę kolizję"
+                                                                        />
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {showConfirmPopup &&
+                    <ConfirmAssignmentPopup
+                        text={popupData.text}
+                        onHandle={() => assignToTask(popupData.userId, popupData.taskId)}
+                        onClose={() => setShowConfirmPopup(false)}
+                    />
+                }
+
+                {historyPopup.show &&
+                    <UserShortScheduleHistoryPopup
+                    onClose={() => setHistoryPopup({show:false, userId: 0})}
+                    userId={historyPopup.userId}
+                    userName={getUserName(historyPopup.userId)}
+                    date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
+                    weeks={5}
+                    />
+                }
+
+                {/* Modal dodawania/edycji nowego taska */}
+                {showAddModal && event && currentRoleObj && (
+                    <SpecialEventTaskModal
+                        eventId={event.id}
+                        supervisorRole={currentRoleObj}
+                        onClose={() => {
+                            setShowAddModal(false);
+                            setTaskToEdit(null); // Czyszczenie przy zamykaniu
+                        }}
+                        onSave={handleTaskAdded}
+                        // ZMIANA: Przekazujemy stan zamiast null
+                        taskToEdit={taskToEdit}
+                    />
+                )}
+
+                {/* Modal dodawania/edycji Gościa */}
+                {showGuestModal && (
+                    <GuestUserModal
+                        guestToEdit={guestToEdit}
+                        onClose={() => setShowGuestModal(false)}
+                        onSave={() => {
+                            setShowGuestModal(false);
+                            fetchSchedule();
+                        }}
+                    />
+                )}
             </div>
-
-            {showConfirmPopup &&
-                <ConfirmAssignmentPopup
-                    text={popupData.text}
-                    onHandle={() => assignToTask(popupData.userId, popupData.taskId)}
-                    onClose={() => setShowConfirmPopup(false)}
-                />
-            }
-
-            {historyPopup.show &&
-                <UserShortScheduleHistoryPopup
-                onClose={() => setHistoryPopup({show:false, userId: 0})}
-                userId={historyPopup.userId}
-                userName={getUserName(historyPopup.userId)}
-                date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
-                weeks={5}
-                />
-            }
-
-            {/* Modal dodawania/edycji nowego taska */}
-            {showAddModal && event && currentRoleObj && (
-                <SpecialEventTaskModal
-                    eventId={event.id}
-                    supervisorRole={currentRoleObj}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        setTaskToEdit(null); // Czyszczenie przy zamykaniu
-                    }}
-                    onSave={handleTaskAdded}
-                    // ZMIANA: Przekazujemy stan zamiast null
-                    taskToEdit={taskToEdit}
-                />
-            )}
-
-            {/* Modal dodawania/edycji Gościa */}
-            {showGuestModal && (
-                <GuestUserModal
-                    guestToEdit={guestToEdit}
-                    onClose={() => setShowGuestModal(false)}
-                    onSave={() => {
-                        setShowGuestModal(false);
-                        fetchSchedule();
-                    }}
-                />
-            )}
-        </div>
-    );
+        );
 }
 
 export default AddScheduleSpecialEvent;
