@@ -1691,12 +1691,12 @@ public class ScheduleService {
 
         // Pobieramy wszystkie sekcje z bazy, by zachować ich naturalną kolejność (ID: 1-Rano, 2-Przedpołudnie itd.)
         // Używamy naszej nowej metody z wymuszonym sortowaniem po ID!
-        List<org.verduttio.dominicanappbackend.domain.TaskSection> allSections = getAllTaskSections();
+        List<TaskSection> allSections = getAllTaskSections();
         java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> result = new java.util.LinkedHashMap<>();
 
         // Najpierw zadania bez sekcji (klucz "")
         result.put("", new ArrayList<>());
-        for (org.verduttio.dominicanappbackend.domain.TaskSection sec : allSections) {
+        for (TaskSection sec : allSections) {
             result.put(sec.getName(), new ArrayList<>());
         }
 
@@ -1711,7 +1711,7 @@ public class ScheduleService {
             if (task.getTaskSections() == null || task.getTaskSections().isEmpty()) {
                 result.get("").add(info);
             } else {
-                for (org.verduttio.dominicanappbackend.domain.TaskSection sec : task.getTaskSections()) {
+                for (TaskSection sec : task.getTaskSections()) {
                     result.get(sec.getName()).add(info);
                 }
             }
@@ -1722,7 +1722,7 @@ public class ScheduleService {
         return result;
     }
 
-    public List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> getMatrixSchedulesWithSections(Long eventId, String roleName) {
+    public List<UserSchedulesOnDaysWithSectionsDTO> getMatrixSchedulesWithSections(Long eventId, String roleName) {
         SpecialEvent event = specialEventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
 
@@ -1738,10 +1738,10 @@ public class ScheduleService {
                     .toList();
         }
 
-        List<org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO> resultList = new ArrayList<>();
+        List<UserSchedulesOnDaysWithSectionsDTO> resultList = new ArrayList<>();
 
         for(User user : users) {
-            org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO dto = new org.verduttio.dominicanappbackend.dto.user.UserSchedulesOnDaysWithSectionsDTO();
+            UserSchedulesOnDaysWithSectionsDTO dto = new UserSchedulesOnDaysWithSectionsDTO();
             dto.setUserShortInfo(new UserShortInfo(user.getId(), user.getName(), user.getSurname()));
 
             Map<LocalDate, Map<String, List<String>>> schedulesMap = new HashMap<>();
@@ -1757,6 +1757,11 @@ public class ScheduleService {
                 Map<String, List<String>> sectionsMap = new HashMap<>();
                 for (Schedule s : schedules) {
                     // Jeśli przypisanie ma sekcję to bierzemy jej nazwę, w przeciwnym razie pusty string
+
+                    if (s.getTaskSection() == null) {
+                        continue;
+                    }
+
                     String secName = (s.getTaskSection() != null) ? s.getTaskSection().getName() : "";
                     sectionsMap.computeIfAbsent(secName, k -> new ArrayList<>()).add(s.getTask().getNameAbbrev());
                 }
@@ -1768,7 +1773,7 @@ public class ScheduleService {
         return resultList;
     }
 
-    public List<org.verduttio.dominicanappbackend.domain.TaskSection> getAllTaskSections() {
+    public List<TaskSection> getAllTaskSections() {
         // Wymuszamy sortowanie po ID rosnąco, żeby baza nie układała nam tego po swojemu (np. alfabetycznie)
         return taskSectionRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id"));
     }

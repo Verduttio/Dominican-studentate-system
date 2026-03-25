@@ -222,7 +222,7 @@ public class DayTableBuilder {
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             List<String> sections = activeSectionsPerDay.getOrDefault(date, Collections.singletonList(""));
             for (String section : sections) {
-                createHeaderCell(row, singleColumnWidth, params.fontSize, section.isEmpty() ? "-" : section, new Color(230, 240, 255));
+                createHeaderCell(row, singleColumnWidth, params.fontSize, section.isEmpty() ? " " : section, new Color(230, 240, 255));
             }
         }
         table.addHeaderRow(row);
