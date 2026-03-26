@@ -1806,7 +1806,7 @@ public class ScheduleService {
 
     @Transactional
     public void copySpecialEventDaySchedules(LocalDate sourceDate, LocalDate targetDate, String roleName, Long sectionId) {
-        // 1. Używamy wbudowanej metody do pobrania grafików z danego dnia (od sourceDate do sourceDate)
+        // 1. Używamy wbudowanej metody do pobrania grafików z danego dnia
         List<Schedule> sourceSchedules = getAllSchedulesByFromAndToDates(sourceDate, sourceDate).stream()
                 .filter(s -> s.getTask() != null && s.getTask().getSupervisorRole() != null)
                 .filter(s -> s.getTask().getSupervisorRole().getName().equals(roleName))
@@ -1814,6 +1814,9 @@ public class ScheduleService {
 
         // 2. Pobieramy grafiki z docelowego dnia, żeby unikać tworzenia duplikatów
         List<Schedule> targetSchedules = getAllSchedulesByFromAndToDates(targetDate, targetDate);
+
+        // Pobieramy dzień tygodnia dla daty docelowej (np. TUESDAY)
+        java.time.DayOfWeek targetDayOfWeek = targetDate.getDayOfWeek();
 
         for (Schedule src : sourceSchedules) {
             Long srcSectionId = src.getTaskSection() != null ? src.getTaskSection().getId() : null;
@@ -1823,24 +1826,31 @@ public class ScheduleService {
                 continue;
             }
 
-            // 4. Sprawdzamy, czy brat nie jest już przypadkiem wyznaczony na to samo oficjum o tej samej porze w dniu docelowym
+            // --- NOWOŚĆ: BRAMKARZ DNI TYGODNIA ---
+            // Sprawdzamy, czy zadanie ma w swojej kolekcji dzień tygodnia pasujący do targetDate
+            boolean isDayAllowed = src.getTask().getDaysOfWeek().stream()
+                    .anyMatch(day -> day.name().equalsIgnoreCase(targetDayOfWeek.name()));
+
+            if (!isDayAllowed) {
+                // Jeśli np. oficjum jest tylko na czwartki, a kopiujemy na wtorek - omijamy je!
+                continue;
+            }
+            // -------------------------------------
+
+            // 4. Sprawdzamy, czy brat nie jest już przypadkiem wyznaczony na to samo oficjum
             boolean alreadyExists = targetSchedules.stream().anyMatch(t ->
                     t.getUser().getId().equals(src.getUser().getId()) &&
                             t.getTask().getId().equals(src.getTask().getId()) &&
                             (t.getTaskSection() == null ? srcSectionId == null : t.getTaskSection().getId().equals(srcSectionId))
             );
 
-            // 5. Kopiowanie 1:1 (klonowanie encji)
+            // 5. Kopiowanie 1:1
             if (!alreadyExists) {
                 Schedule newSchedule = new Schedule();
                 newSchedule.setUser(src.getUser());
                 newSchedule.setTask(src.getTask());
-
-                // Poprawiona nazwa settera na setDate
                 newSchedule.setDate(targetDate);
                 newSchedule.setTaskSection(src.getTaskSection());
-
-                // (Usunięto setWeekStartDate i setWeekEndDate, ponieważ encja Schedule tego nie przechowuje)
 
                 scheduleRepository.save(newSchedule);
             }
