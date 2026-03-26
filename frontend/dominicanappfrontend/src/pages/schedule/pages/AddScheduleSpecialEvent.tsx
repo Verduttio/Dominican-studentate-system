@@ -110,21 +110,42 @@ function AddScheduleSpecialEvent() {
     const specialTasks = tasks?.filter(t => t.specialEventId !== null && t.specialEventId !== undefined) || [];
 
     const visibleTasks = React.useMemo(() => {
-            if (!tasks) return [];
-            // Jeśli wybrana jest zakładka "Wszystkie", pokaż wszystko
-            if (currentSectionId === null) return tasks;
+        if (!tasks) return [];
+        // Jeśli wybrana jest zakładka "Wszystkie", pokaż wszystko
+        if (currentSectionId === null) return tasks;
 
-            // Zostaw tylko te zadania, które w swojej tablicy taskSections mają wybraną sekcję
-            return tasks.filter(task => {
-                // Zakładamy, że zwykłe oficja (bez specialEventId) pokazujemy zawsze,
-                // ale jeśli chcesz, by też podlegały sekcjom, zdejmij poniższy warunek
-                const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+        // Zostaw tylko te zadania, które w swojej tablicy taskSections mają wybraną sekcję
+        return tasks.filter(task => {
+            // Zakładamy, że zwykłe oficja (bez specialEventId) pokazujemy zawsze,
+            // ale jeśli chcesz, by też podlegały sekcjom, zdejmij poniższy warunek
+            const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
 
-                // Jeśli to zadanie specjalne, sprawdź jego sekcje
-                if (!task.taskSections || task.taskSections.length === 0) return false;
-                return task.taskSections.some(sec => sec.id === currentSectionId);
-            });
-        }, [tasks, currentSectionId]);
+            // Jeśli to zadanie specjalne, sprawdź jego sekcje
+            if (!task.taskSections || task.taskSections.length === 0) return false;
+            return task.taskSections.some(sec => sec.id === currentSectionId);
+        });
+    }, [tasks, currentSectionId]);
+
+    // --- NOWOŚĆ: Filtrowanie przeszkód do wybranego dnia i sortowanie po osobach ---
+    const visibleObstacles = React.useMemo(() => {
+        const currentDateStr = format(currentDate, 'yyyy-MM-dd');
+
+        // 1. Wyłapujemy tylko te, które obejmują wybrany dzień
+        const filtered = eventObstacles.filter(obs => {
+            const from = format(parseISO(obs.fromDate), 'yyyy-MM-dd');
+            const to = format(parseISO(obs.toDate), 'yyyy-MM-dd');
+            return currentDateStr >= from && currentDateStr <= to;
+        });
+
+        // 2. Sortujemy alfabetycznie po nazwisku, a potem po imieniu
+        filtered.sort((a, b) => {
+            const surnameCmp = a.user.surname.localeCompare(b.user.surname);
+            if (surnameCmp !== 0) return surnameCmp;
+            return a.user.name.localeCompare(b.user.name);
+        });
+
+        return filtered;
+    }, [eventObstacles, currentDate]);
 
     // 1. Pobierz Event i ustaw datę początkową (Tylko raz przy starcie)
     useEffect(() => {
@@ -1066,16 +1087,17 @@ function AddScheduleSpecialEvent() {
 
                 {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
                 <div className="d-flex flex-column align-items-center mb-5 mt-5">
-                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                        Zatwierdzone Przeszkody
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
+                        Zatwierdzone Przeszkody <br/>
+                        <span className="text-warning fs-5">{format(currentDate, 'dd.MM.yyyy')}</span>
                     </h3>
                     <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
                         <div className="card-body p-0">
                             {loadingObstacles ? (
                                  <div className="text-center p-4"><LoadingSpinner /></div>
-                            ) : eventObstacles.length === 0 ? (
+                            ) : visibleObstacles.length === 0 ? (
                                 <div className="text-center text-muted p-4">
-                                    Brak zatwierdzonych przeszkód w terminie tego wydarzenia.
+                                    Brak zatwierdzonych przeszkód w tym dniu.
                                 </div>
                             ) : (
                                 <div className="table-responsive">
@@ -1089,10 +1111,10 @@ function AddScheduleSpecialEvent() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {eventObstacles.map(obs => (
+                                            {visibleObstacles.map(obs => (
                                                 <tr key={obs.id}>
                                                     <td className="fw-bold text-nowrap">
-                                                        {obs.user.name} {obs.user.surname}
+                                                        {obs.user.surname} {obs.user.name}
                                                     </td>
                                                     <td className="text-nowrap">
                                                         <div className="fw-bold text-danger">
