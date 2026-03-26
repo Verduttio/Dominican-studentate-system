@@ -65,6 +65,7 @@ interface Schedule {
     task: Task;
     user: User;
     date: string;
+    taskSection?: TaskSection | null;
 }
 
 interface SpecialDate {

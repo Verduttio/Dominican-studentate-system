@@ -15,30 +15,40 @@ interface UserWeekScheduleProps {
 }
 
 const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek, setCurrentWeek}) => {
-    // const [currentWeek, setCurrentWeek] = useState(new Date());
-    const currentWeekRef = useRef(currentWeek); // useRef to keep the value of currentWeek in the closure of useEffect
+    const currentWeekRef = useRef(currentWeek);
     const from = format(startOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
     const to = format(endOfWeek(currentWeek, {weekStartsOn: 0}), 'dd-MM-yyyy');
+
     const [userSchedules, setUserSchedules] = useState<Schedule[]>([]);
+    const [specialEvents, setSpecialEvents] = useState<any[]>([]); // Zapisujemy listę wydarzeń z bazy
+
+    // Hook dla grafików
     const {
         request: fetchSchedule,
         error,
         loading
     } = useHttp(`${backendUrl}/api/schedules/users/${userId}/week?from=${from}&to=${to}`, 'GET');
+
+    // Hook dla wydarzeń specjalnych
+    const { request: fetchEvents } = useHttp(`${backendUrl}/api/special-events`, 'GET');
+
     const todayDate = new Date();
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
     useEffect(() => {
         const handleResize = () => setScreenWidth(window.innerWidth);
         window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+    // Pobieramy wydarzenia na samym początku
+    useEffect(() => {
+        fetchEvents(null, (data) => setSpecialEvents(data || []));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        currentWeekRef.current = currentWeek; // keep the value of currentWeek up to date
+        currentWeekRef.current = currentWeek;
 
         fetchSchedule(null, (data) => {
             if (format(startOfWeek(currentWeekRef.current, {weekStartsOn: 0}), 'dd-MM-yyyy') === from &&
@@ -53,14 +63,54 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
         return Array.from({length: 7}).map((_, i) => addDays(weekStart, i));
     }, [currentWeek]);
 
+    // Funkcja sprawdzająca czy dzień fizycznie zawiera się w jakimkolwiek Wydarzeniu
+    const isDayInSpecialEvent = (day: Date) => {
+        const formatted = format(day, 'yyyy-MM-dd');
+        return specialEvents.some(event => formatted >= event.startDate && formatted <= event.endDate);
+    };
+
     const tasksForDay = (day: Date) => {
         const formattedDay = format(day, 'yyyy-MM-dd');
-        const dailyTasks = userSchedules.filter(schedule => schedule.date === formattedDay);
-        const dailyTaskNamesAbbrevs = dailyTasks.map(schedule => schedule.task.nameAbbrev);
+        let dailyTasks = userSchedules.filter(schedule => schedule.date === formattedDay);
+
+        if (isDayInSpecialEvent(day)) {
+            // Jeśli to czas SE - bierzemy TYLKO taski specjalne i CAŁKOWICIE ignorujemy normalne
+            const specialTasks = dailyTasks.filter(schedule =>
+                schedule.taskSection != null ||
+                schedule.task.specialEvent != null ||
+                schedule.task.specialEventId != null
+            );
+
+            specialTasks.sort((a, b) => {
+                const idA = a.taskSection?.id || 0;
+                const idB = b.taskSection?.id || 0;
+                return idA - idB;
+            });
+
+            return (
+                <div key={formattedDay} className="d-flex flex-column gap-2">
+                    {specialTasks.map((schedule, index) => (
+                        <div key={index} className="lh-sm">
+                            <span className="fw-bold">{schedule.task.nameAbbrev}</span>{' '}
+                            {schedule.taskSection && (
+                                <small>({schedule.taskSection.name})</small>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Jeśli to ZWYKŁY dzień (poza SE) - bierzemy TYLKO normalne wpisy
+        const normalTasks = dailyTasks.filter(schedule =>
+             schedule.taskSection == null && schedule.task.specialEvent == null && schedule.task.specialEventId == null
+        );
+
+        const normalTasksAbbrevs = normalTasks.map(schedule => schedule.task.nameAbbrev);
 
         return (
             <div key={formattedDay}>
-                {dailyTaskNamesAbbrevs.map((taskNameAbbrev, index) => (
+                {normalTasksAbbrevs.map((taskNameAbbrev, index) => (
                     <div key={index}>{taskNameAbbrev}</div>
                 ))}
             </div>
@@ -76,7 +126,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
         return (
             <div className="d-flex-no-media-resize justify-content-center">
                 <div className="table-responsive-fit-content">
-                    <table className="table table-hover table-striped table-rounded table-shadow table-bordered text-cente mb-0">
+                    <table className="table table-hover table-striped table-rounded table-shadow table-bordered text-center mb-0">
                         <thead className="table-dark">
                         <tr>
                             {weekDays.map((day, index) => {
@@ -97,7 +147,7 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
                         <tbody>
                         <tr>
                             {weekDays.map((day, index) => (
-                                <td className="column-width-150" key={index}>{tasksForDay(day)}</td>
+                                <td className="column-width-150 align-middle" key={index}>{tasksForDay(day)}</td>
                             ))}
                         </tr>
                         </tbody>
@@ -118,10 +168,10 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
                             const polishAbbreviation = daysOfWeekAbbreviation[englishDayOfWeek];
                             return (
                                 <tr key={index}>
-                                    <th className={format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'table-success' : 'table-dark'}>
+                                    <th className={format(day, 'dd.MM.yyyy') === format(todayDate, 'dd.MM.yyyy') ? 'table-success align-middle text-center' : 'table-dark align-middle text-center'} style={{width: '30%'}}>
                                         {polishAbbreviation} <br/> {format(day, 'dd.MM.yyyy')}
                                     </th>
-                                    <td>{tasksForDay(day)}</td>
+                                    <td className="align-middle">{tasksForDay(day)}</td>
                                 </tr>
                             );
                         })}
@@ -132,7 +182,6 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
 
         )
     }
-
 
     const renderContent = () => {
         if (loading) return <LoadingSpinner/>;
@@ -150,6 +199,5 @@ const UserWeekSchedule: React.FC<UserWeekScheduleProps> = ({userId, currentWeek,
         </div>
     );
 }
-
 
 export default UserWeekSchedule;

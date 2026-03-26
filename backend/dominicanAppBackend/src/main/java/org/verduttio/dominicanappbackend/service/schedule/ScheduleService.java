@@ -181,9 +181,7 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesForUserInSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
-        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to).stream()
-                .filter(s -> s.getTaskSection() == null)
-                .collect(Collectors.toList());
+        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
     }
 
     public List<Task> getAvailableTasksBySupervisorRole(String supervisor, LocalDate from, LocalDate to) {
@@ -1893,6 +1891,23 @@ public class ScheduleService {
                         newSchedule.setTaskSection(section);
                         scheduleRepository.save(newSchedule);
                     }
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteSpecialEventSchedule(Long userId, Long taskId, LocalDate date, Long sectionId) {
+        // Używamy bezpiecznej metody, która nie ma nałożonych żadnych filtrów
+        List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, date);
+
+        for (Schedule schedule : schedules) {
+            if (schedule.getTask().getId().equals(taskId)) {
+                Long existingSectionId = schedule.getTaskSection() != null ? schedule.getTaskSection().getId() : null;
+
+                // Jeśli zgadza się ID zadania oraz ID sekcji, usuwamy z bazy
+                if (Objects.equals(existingSectionId, sectionId)) {
+                    scheduleRepository.deleteById(schedule.getId());
                 }
             }
         }

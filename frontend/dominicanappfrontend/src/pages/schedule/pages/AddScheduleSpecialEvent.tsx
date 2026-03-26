@@ -562,37 +562,58 @@ function AddScheduleSpecialEvent() {
 
     async function unassignTask(userId: number, taskId: number) {
         const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
-        const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-        const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-
         const task = visibleTasks.find(t => t.id === taskId);
         const specificSections = task?.taskSections || [];
 
-        // Jeśli zadanie MA zdefiniowane pory, czyścimy wszystkie możliwe warianty dla tego dnia
-        if (specificSections.length > 0) {
-            try {
-                const promises = specificSections.map(sec => {
-                    const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: sec.id };
-                    return fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify(reqData)
-                    });
-                });
+        // Flaga: czy zadanie jest ściśle niestandardowe (przypisane do tego konkretnego eventu)
+        const isSpecialTask = task?.specialEventId !== null && task?.specialEventId !== undefined;
 
-                await Promise.all(promises);
-                fetchSchedule();
-            } catch (err) {
-                console.error("Błąd podczas usuwania z wielu sekcji", err);
+        try {
+            if (currentSectionId !== null) {
+                // 1. Użytkownik jest w KONKRETNEJ zakładce (np. Rano) - usuwamy tylko z tej pory!
+                const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${currentSectionId}`;
+                await fetch(url, {
+                    method: 'DELETE',
+                    headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                    credentials: 'include'
+                });
+            } else {
+                // 2. Użytkownik jest w zakładce "Wszystkie"
+                if (specificSections.length > 0) {
+                    // Usuwamy ze wszystkich pór zadania
+                    const promises = specificSections.map(sec => {
+                        const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${sec.id}`;
+                        return fetch(url, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        });
+                    });
+
+                    // NOWOŚĆ: Jeśli to task niestandardowy (z eventu), dla pewności czyścimy też wpis całodniowy (null)
+                    if (isSpecialTask) {
+                        const urlNull = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                        promises.push(fetch(urlNull, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        }));
+                    }
+
+                    await Promise.all(promises);
+                } else {
+                    // Zadanie całkowicie bez pór (domyślnie "cały dzień" np. zwykłe dyżury przeniesione do eventu)
+                    const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                    await fetch(url, {
+                        method: 'DELETE',
+                        headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                        credentials: 'include'
+                    });
+                }
             }
-        } else {
-            // Zadanie BEZ zdefiniowanych pór ("Cały dzień")
-            const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
-            unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
+            fetchSchedule();
+        } catch (err) {
+            console.error("Błąd podczas usuwania", err);
         }
     }
 
