@@ -35,7 +35,8 @@ import {
     faExpand,
     faCompress,
     faTable,
-    faFileLines
+    faFileLines,
+    faClone
     } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
@@ -380,6 +381,36 @@ function AddScheduleSpecialEvent() {
         }
     };
 
+    // --- LOGIKA POBIERANIA ZE ZWYKŁEGO TYGODNIA ---
+    const handleCopyFromNormalWeek = async () => {
+        if (!window.confirm(`Czy na pewno chcesz pobrać zwykłe oficja z dnia ${format(currentDate, 'dd.MM')} i rozdzielić je na pory dnia dla Wydarzenia Specjalnego?`)) return;
+
+        setCopyLoading(true);
+        const dateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const url = `${backendUrl}/api/schedules/special-event/${eventId}/copy-from-normal-week?date=${dateStr}&roleName=${roleName}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error("Błąd z serwera podczas kopiowania");
+
+            fetchSchedule();
+            alert("Pobrano oficja ze zwykłego tygodnia!");
+
+        } catch (error) {
+            console.error("Błąd podczas pobierania oficjów ze zwykłego tygodnia", error);
+            alert("Wystąpił problem podczas pobierania oficjów.");
+        } finally {
+            setCopyLoading(false);
+        }
+    };
+
     const handleSelectAllTasks2 = () => {
         if (!conflictTask1Id) {
             alert("Najpierw wybierz oficjum w kroku 1!");
@@ -531,49 +562,58 @@ function AddScheduleSpecialEvent() {
 
     async function unassignTask(userId: number, taskId: number) {
         const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
-        const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-        const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-
         const task = visibleTasks.find(t => t.id === taskId);
         const specificSections = task?.taskSections || [];
 
-        // Jeśli zadanie MA zdefiniowane pory, czyścimy wszystkie możliwe warianty dla tego dnia
-        if (specificSections.length > 0) {
-            try {
-                const promises = specificSections.map(sec => {
-                    const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: sec.id };
-                    return fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify(reqData)
-                    });
-                });
+        // Flaga: czy zadanie jest ściśle niestandardowe (przypisane do tego konkretnego eventu)
+        const isSpecialTask = task?.specialEventId !== null && task?.specialEventId !== undefined;
 
-                // Zawsze dobijamy wpis z nullem ("Cały dzień"), żeby wyczyścić śmieci i zablokowane stany z przeszłości
-                const reqDataNull = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: null };
-                promises.push(fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
+        try {
+            if (currentSectionId !== null) {
+                // 1. Użytkownik jest w KONKRETNEJ zakładce (np. Rano) - usuwamy tylko z tej pory!
+                const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${currentSectionId}`;
+                await fetch(url, {
                     method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(reqDataNull)
-                }));
+                    headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                    credentials: 'include'
+                });
+            } else {
+                // 2. Użytkownik jest w zakładce "Wszystkie"
+                if (specificSections.length > 0) {
+                    // Usuwamy ze wszystkich pór zadania
+                    const promises = specificSections.map(sec => {
+                        const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${sec.id}`;
+                        return fetch(url, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        });
+                    });
 
-                await Promise.all(promises);
-                fetchSchedule();
-            } catch (err) {
-                console.error("Błąd podczas usuwania z wielu sekcji", err);
+                    // NOWOŚĆ: Jeśli to task niestandardowy (z eventu), dla pewności czyścimy też wpis całodniowy (null)
+                    if (isSpecialTask) {
+                        const urlNull = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                        promises.push(fetch(urlNull, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        }));
+                    }
+
+                    await Promise.all(promises);
+                } else {
+                    // Zadanie całkowicie bez pór (domyślnie "cały dzień" np. zwykłe dyżury przeniesione do eventu)
+                    const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                    await fetch(url, {
+                        method: 'DELETE',
+                        headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                        credentials: 'include'
+                    });
+                }
             }
-        } else {
-            // Zadanie BEZ zdefiniowanych pór ("Cały dzień")
-            const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
-            unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
+            fetchSchedule();
+        } catch (err) {
+            console.error("Błąd podczas usuwania", err);
         }
     }
 
@@ -984,10 +1024,25 @@ function AddScheduleSpecialEvent() {
 
                 {/* --- KOPIOWANIE DNIA --- */}
                 {event && (
-                    <div className="d-flex flex-column align-items-center mb-3">
-                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                            Skopiuj dzisiejsze oficja na:
-                        </h3>
+                    <div className="d-flex flex-column align-items-center mb-5 mt-4">
+                        <h5 className="fw-bold text-muted mb-3 mx-4">
+                            Zarządzanie dniami:
+                        </h5>
+
+                        {/* Nowy przycisk: Kopiowanie ze zwykłego tygodnia */}
+                        <div className="mb-4">
+                            <button
+                                className="btn btn-primary text-white shadow-sm fw-bold px-4 py-2"
+                                onClick={handleCopyFromNormalWeek}
+                                disabled={copyLoading}
+                            >
+                                <FontAwesomeIcon icon={faClone} className="me-2"/>
+                                Pobierz oficja ze zwykłego grafiku na dzisiaj
+                            </button>
+                        </div>
+
+                        <h6 className="text-muted fw-bold mb-3">Skopiuj widoczne przypisania z dzisiaj na:</h6>
+
                         <div className="d-flex justify-content-center flex-wrap gap-2">
                             {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
                                 const isCurrent = format(day, 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd');
@@ -1005,7 +1060,7 @@ function AddScheduleSpecialEvent() {
                                 );
                             })}
                         </div>
-                        {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa kopiowanie oficjów, to może potrwać kilka sekund... <LoadingSpinner/></div>}
+                        {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa operacja, to może potrwać kilka sekund... <LoadingSpinner/></div>}
                     </div>
                 )}
 
