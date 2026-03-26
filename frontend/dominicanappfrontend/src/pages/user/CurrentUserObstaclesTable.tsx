@@ -71,29 +71,27 @@ function CurrentUserObstaclesTable () {
                                 }
                             }
                             return (
-                                <>
-                                    <tr key={obstacle.id}
-                                        className={className}>
-                                        <td className='max-column-width-200'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
-                                        <td>{format(obstacle.fromDate, "dd.MM.yyyy")}</td>
-                                        <td>{format(obstacle.toDate, "dd.MM.yyyy")}</td>
-                                        <td>
-                                    <span className={
-                                        obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
-                                            obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
-                                                obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
-                                    }>
-                                        {obstacleStatusTranslation[obstacle.status]}
-                                    </span>
-                                        </td>
-                                        <td>
-                                            <button className="btn btn-dark" onClick={() => {
-                                                navigate(`/obstacles/my/${obstacle.id}`)
-                                            }}>Szczegóły
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </>
+                                <tr key={obstacle.id}
+                                    className={className}>
+                                    <td className='max-column-width-200'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
+                                    <td>{format(obstacle.fromDate, "dd.MM.yyyy")}</td>
+                                    <td>{format(obstacle.toDate, "dd.MM.yyyy")}</td>
+                                    <td>
+                                <span className={
+                                    obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                        obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                            obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                                }>
+                                    {obstacleStatusTranslation[obstacle.status]}
+                                </span>
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-dark" onClick={() => {
+                                            navigate(`/obstacles/my/${obstacle.id}`)
+                                        }}>Szczegóły
+                                        </button>
+                                    </td>
+                                </tr>
                             )
                         })}
                         </tbody>

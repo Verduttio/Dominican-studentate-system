@@ -22,7 +22,6 @@ const UserTasksStatistics: React.FC<UserTasksStatisticsProps> = ({userId}) => {
     useEffect(() => {
         requestFetchUserStatisticsForTasks(null, (data: UserTaskStatistics[]) => {
             setUserStatisticsForTasks(data);
-            console.log(data)
         });
     }, [requestFetchUserStatisticsForTasks]);
 
