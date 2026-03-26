@@ -1587,20 +1587,27 @@ public class ScheduleService {
                         .anyMatch(s -> conflictService.tasksAreInConflict(task.getId(), s.getTask().getId(), relevantConflicts, date.getDayOfWeek(), isFeastDate));
                 cell.setIsInConflict(isConflict);
 
-                // Przeszkody
-//                Set<Long> userObstacles = userObstacleTaskIdsMap.getOrDefault(user.getId(), Collections.emptySet());
-//                cell.setHasObstacle(userObstacles.contains(task.getId()));
                 // Przeszkody z uwzględnieniem pór dnia (sekcji)
                 List<Obstacle> userObstacles = userObstaclesMap.getOrDefault(user.getId(), Collections.emptyList());
                 boolean hasObstacle = userObstacles.stream().anyMatch(o -> {
                     // 1. Sprawdzamy, czy ta przeszkoda w ogóle dotyczy tego zadania
-                    boolean appliesToTask = o.getTasks().stream().anyMatch(t -> t.getId().equals(task.getId()));
+                    boolean appliesToTask = false;
+                    if (!o.getTasks().isEmpty()) {
+                        appliesToTask = o.getTasks().stream().anyMatch(t -> t.getId().equals(task.getId()));
+                    } else {
+                        // Logika dla "Dostępności ogólnej"
+                        String category = task.getSupervisorRole().getName();
+                        boolean isTacaOrKomunia = category.equals("Tacowy") || category.equals("Komunijny")
+                                || category.equals("Dziekan Tacowy") || category.equals("Dziekan komunijny");
+                        appliesToTask = !isTacaOrKomunia;
+                    }
+
                     if (!appliesToTask) return false;
 
                     // 2. Jeśli Dziekan widzi zakładkę "Wszystkie" (sectionId == null), zawsze pokazujemy na czerwono
                     if (sectionId == null) return true;
 
-                    // 3. Jeśli przeszkoda nie ma zaznaczonych sekcji -> dotyczy CAŁEGO dnia (np. Tace/Komunie lub stare przeszkody)
+                    // 3. Jeśli przeszkoda nie ma zaznaczonych sekcji -> dotyczy CAŁEGO dnia (np. stare przeszkody lub tace)
                     if (o.getTaskSections() == null || o.getTaskSections().isEmpty()) return true;
 
                     // 4. Jeśli przeszkoda ma sekcje -> blokujemy komórkę TYLKO jeśli wybrane sectionId jest na liście!

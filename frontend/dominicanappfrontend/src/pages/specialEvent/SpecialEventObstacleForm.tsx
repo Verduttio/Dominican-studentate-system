@@ -232,10 +232,8 @@ function SpecialEventObstacleForm() {
             for (const dateStr of activeGeneralDates) {
                 const sectionIds = selectedMatrix[dateStr];
 
-                // Wysłanie tylko ZADAŃ OGÓLNYCH (generalTasks) bez tac i komunii!
-                const idsToSend = isSpecificTask
-                    ? selectedTasks.map(t => t.id)
-                    : generalTasks.map(t => t.id);
+                // Jeśli user NIE zaznaczył konkretnych oficjów, wysyłamy pustą tablicę []
+                const idsToSend = isSpecificTask ? selectedTasks.map(t => t.id) : [];
 
                 const payload = {
                     userId: currentUser.id,
@@ -583,15 +581,17 @@ function SpecialEventObstacleForm() {
                                             </td>
                                             <td style={{ maxWidth: '200px' }}>
                                                 <div className="d-flex flex-wrap justify-content-center gap-1">
-                                                    {obs.tasks.map(t => (
-                                                        <span
-                                                            key={t.id}
-                                                            className="badge bg-primary text-wrap text-break"
-                                                            style={{ lineHeight: '1.4' }}
-                                                        >
-                                                            {t.nameAbbrev}
+                                                    {(!obs.tasks || obs.tasks.length === 0 || (obs.tasks.length === 1 && obs.tasks[0].id === 0 && !obs.tasks[0].nameAbbrev)) ? (
+                                                        <span className="badge bg-danger text-wrap text-break shadow-sm">
+                                                            Wszystkie oficja ogólne
                                                         </span>
-                                                    ))}
+                                                    ) : (
+                                                        obs.tasks.map((t, idx) => (
+                                                            <span key={t.id || idx} className="badge bg-primary text-wrap text-break">
+                                                                {t.nameAbbrev}
+                                                            </span>
+                                                        ))
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="small text-muted text-start" style={{ maxWidth: '250px' }}>

@@ -8,6 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.verduttio.dominicanappbackend.comparator.TaskComparator;
 import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
+import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.domain.User;
 import org.verduttio.dominicanappbackend.domain.obstacle.Obstacle;
@@ -37,15 +38,17 @@ public class ObstacleService {
     private final TaskComparator taskComparator = new TaskComparator();
     private final ObstacleNormalizer obstacleNormalizer;
     private final TaskSectionRepository taskSectionRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
     public ObstacleService(ObstacleRepository obstacleRepository,
-                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, ObstacleNormalizer obstacleNormalizer, TaskSectionRepository taskSectionRepository) {
+                           ObstacleValidator obstacleValidator, ScheduleRepository scheduleRepository, ObstacleNormalizer obstacleNormalizer, TaskSectionRepository taskSectionRepository, TaskRepository taskRepository) {
         this.obstacleRepository = obstacleRepository;
         this.obstacleValidator = obstacleValidator;
         this.scheduleRepository = scheduleRepository;
         this.obstacleNormalizer = obstacleNormalizer;
         this.taskSectionRepository = taskSectionRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<Obstacle> getAllObstacles() {
@@ -87,6 +90,19 @@ public class ObstacleService {
         obstacleRepository.save(obstacle);
     }
 
+    private boolean isTaskBlockedByObstacle(Task taskToCheck, Obstacle obstacle) {
+        if (!obstacle.getTasks().isEmpty()) {
+            return obstacle.getTasks().contains(taskToCheck);
+        }
+
+        // Pusta przeszkoda blokuje wszystko OPRÓCZ poniższych:
+        String category = taskToCheck.getSupervisorRole().getName();
+        boolean isTacaOrKomunia = category.equals("Tacowy") || category.equals("Komunijny")
+                || category.equals("Dziekan Tacowy") || category.equals("Dziekan komunijny");
+
+        return !isTacaOrKomunia;
+    }
+
     public void patchObstacle(Long obstacleId, ObstaclePatchDTO obstaclePatchDTO) {
         Obstacle obstacle = obstacleRepository.findById(obstacleId)
                 .orElseThrow(() -> new EntityNotFoundException("Obstacle not found with id: " + obstacleId));
@@ -96,8 +112,19 @@ public class ObstacleService {
 
         // Remove all schedules for user and tasks in the given range
         if(obstacle.getStatus() == ObstacleStatus.APPROVED) {
-            for (Task task : obstacle.getTasks()) {
-                scheduleRepository.deleteAllByUserIdAndTaskIdAndDateBetween(obstacle.getUser().getId(), task.getId(), obstacle.getFromDate(), obstacle.getToDate());
+            if (!obstacle.getTasks().isEmpty()) {
+                // Stara logika: usuń konkretne oficja
+                for (Task task : obstacle.getTasks()) {
+                    scheduleRepository.deleteAllByUserIdAndTaskIdAndDateBetween(obstacle.getUser().getId(), task.getId(), obstacle.getFromDate(), obstacle.getToDate());
+                }
+            } else {
+                // Nowa logika (Globalna): usuń wszystkie oficja OPRÓCZ tac i komunii
+                List<Schedule> userSchedules = scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(obstacle.getUser().getId(), obstacle.getFromDate(), obstacle.getToDate());
+                for (Schedule schedule : userSchedules) {
+                    if (isTaskBlockedByObstacle(schedule.getTask(), obstacle)) {
+                        scheduleRepository.deleteById(schedule.getId());
+                    }
+                }
             }
         }
 
@@ -118,16 +145,27 @@ public class ObstacleService {
     }
 
     public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdForDate(Long userId, Long taskId, LocalDate date) {
-        List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
-        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> obstacleValidator.isDateInRange(date, obstacle.getFromDate(), obstacle.getToDate())).toList();
-        return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        // Pobieramy wszystkie przeszkody usera, bo zapytanie w repozytorium pominęłoby puste listy!
+        List<Obstacle> userObstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId);
+
+        return userObstacles.stream()
+                .filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED)
+                .filter(obstacle -> obstacleValidator.isDateInRange(date, obstacle.getFromDate(), obstacle.getToDate()))
+                .filter(obstacle -> isTaskBlockedByObstacle(task, obstacle))
+                .toList();
     }
 
     public List<Obstacle> findApprovedObstaclesByUserIdAndTaskIdBetweenDate(Long userId, Long taskId, LocalDate fromDate, LocalDate toDate) {
-        List<Obstacle> userObstaclesForGivenTask = obstacleRepository.findObstaclesByUserIdAndTaskId(userId, taskId);
-        List<Obstacle> currentUserObstaclesForGivenTask = userObstaclesForGivenTask.stream().filter(obstacle -> (obstacle.getFromDate().isBefore(toDate) || obstacle.getFromDate().isEqual(toDate)) &&
-                                                                                                                (obstacle.getToDate().isEqual(fromDate) || obstacle.getToDate().isAfter(fromDate))).toList();
-        return currentUserObstaclesForGivenTask.stream().filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED).toList();
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        List<Obstacle> userObstacles = obstacleRepository.findObstaclesByUserIdSortedCustom(userId);
+
+        return userObstacles.stream()
+                .filter(obstacle -> obstacle.getStatus() == ObstacleStatus.APPROVED)
+                .filter(obstacle -> (obstacle.getFromDate().isBefore(toDate) || obstacle.getFromDate().isEqual(toDate)) &&
+                        (obstacle.getToDate().isEqual(fromDate) || obstacle.getToDate().isAfter(fromDate)))
+                .filter(obstacle -> isTaskBlockedByObstacle(task, obstacle))
+                .toList();
     }
 
     public List<Obstacle> getAllObstaclesByUserId(Long userId) {

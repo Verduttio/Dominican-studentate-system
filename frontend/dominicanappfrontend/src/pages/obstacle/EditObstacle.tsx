@@ -73,7 +73,12 @@ function EditObstacle() {
                         </tr>
                         <tr>
                             <th className="table-dark">Oficja</th>
-                            <td>{obstacle?.tasks.map(task => task.nameAbbrev).join(", ")}</td>
+                            <td className="fw-bold">
+                                {(!obstacle?.tasks || obstacle.tasks.length === 0 || (obstacle.tasks.length === 1 && obstacle.tasks[0].id === 0 && !obstacle.tasks[0].nameAbbrev))
+                                    ? <span className="text-danger">Wszystkie oficja ogólne</span>
+                                    : obstacle.tasks.map(task => task.nameAbbrev).join(", ")
+                                }
+                            </td>
                         </tr>
                         {/* NOWY WIERSZ: PORY DNIA */}
                         <tr>
