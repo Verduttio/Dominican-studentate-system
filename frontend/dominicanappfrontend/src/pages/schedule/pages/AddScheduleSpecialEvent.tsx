@@ -553,18 +553,6 @@ function AddScheduleSpecialEvent() {
                     });
                 });
 
-                // Zawsze dobijamy wpis z nullem ("Cały dzień"), żeby wyczyścić śmieci i zablokowane stany z przeszłości
-                const reqDataNull = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: null };
-                promises.push(fetch(`${backendUrl}/api/schedules/forDailyPeriod`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(reqDataNull)
-                }));
-
                 await Promise.all(promises);
                 fetchSchedule();
             } catch (err) {

@@ -1447,7 +1447,12 @@ public class ScheduleService {
         // 3. --- BATCH FETCHING (Pobieranie hurtowe) ---
 
         // A. Grafiki na ten tydzień dla wszystkich userów
-        List<Schedule> allSchedulesThisWeek = scheduleRepository.findByUserIdInAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userIds, weekStart, weekEnd);
+        List<Schedule> allSchedulesThisWeekRaw = scheduleRepository.findByUserIdInAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userIds, weekStart, weekEnd);
+
+        // --- ZMIANA: Całkowicie ignorujemy wpisy z nullem (z normalnego tygodnia / całodniowe) ---
+        List<Schedule> allSchedulesThisWeek = allSchedulesThisWeekRaw.stream()
+                .filter(s -> s.getTaskSection() != null)
+                .collect(Collectors.toList());
 
         // B. Przeszkody na dzisiaj
         List<Obstacle> allObstaclesToday = obstacleRepository.findActiveObstaclesForUsersOnDate(userIds, date);
