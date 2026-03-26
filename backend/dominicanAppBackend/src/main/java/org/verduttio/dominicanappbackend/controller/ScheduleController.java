@@ -404,4 +404,14 @@ public class ScheduleController {
         scheduleService.copySpecialEventDaySchedules(sourceDate, targetDate, roleName, sectionId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/special-event/{eventId}/copy-from-normal-week")
+    public ResponseEntity<Void> copyFromNormalWeek(
+            @PathVariable Long eventId,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date,
+            @RequestParam String roleName) {
+
+        scheduleService.copyFromNormalWeekToSpecialEvent(date, roleName);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -181,7 +181,9 @@ public class ScheduleService {
     }
 
     public List<Schedule> getAllSchedulesForUserInSpecifiedWeek(Long userId, LocalDate from, LocalDate to) {
-        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
+        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to).stream()
+                .filter(s -> s.getTaskSection() == null)
+                .collect(Collectors.toList());
     }
 
     public List<Task> getAvailableTasksBySupervisorRole(String supervisor, LocalDate from, LocalDate to) {
@@ -324,7 +326,10 @@ public class ScheduleService {
     }
 
     public List<Schedule> getSchedulesByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to) {
-        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to);
+        return scheduleRepository.findByUserIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userId, from, to)
+                .stream()
+                .filter(s -> s.getTaskSection() == null) // TYLKO ZWYKŁY TYDZIEŃ
+                .collect(Collectors.toList());
     }
 
     private List<Task> getTasksFromSchedules(List<Schedule> schedules) {
@@ -429,7 +434,10 @@ public class ScheduleService {
     }
 
     public boolean isScheduleInConflictWithOtherSchedules(Schedule schedule) {
-        List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(schedule.getUser().getId(), schedule.getDate());
+        List<Schedule> schedules = scheduleRepository.findByUserIdAndDateOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(schedule.getUser().getId(), schedule.getDate())
+                .stream()
+                .filter(s -> s.getTaskSection() == null) // IGNORUJEMY WYDARZENIA SPECJALNE W KONFLIKTACH
+                .toList();
         for(Schedule otherSchedule : schedules) {
             boolean isFeastDate = specialDateRepository.existsByTypeAndDate(SpecialDateType.FEAST, otherSchedule.getDate());
             if(conflictService.tasksAreInConflict(schedule.getTask().getId(), otherSchedule.getTask().getId(), otherSchedule.getDate().getDayOfWeek(), isFeastDate)) {
@@ -697,7 +705,10 @@ public class ScheduleService {
             throw new EntityNotFoundException("Task with given id does not exist");
         }
 
-        return scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to);
+        return scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(taskId, from, to)
+                .stream()
+                .filter(s -> s.getTaskSection() == null) // TYLKO ZWYKŁY TYDZIEŃ
+                .collect(Collectors.toList());
     }
 
     public List<ScheduleShortInfoForTask> getScheduleShortInfoForEachTaskForSpecifiedWeek(LocalDate from, LocalDate to) {
@@ -973,7 +984,10 @@ public class ScheduleService {
         List<Task> tasksByRole = taskService.findTasksBySupervisorRoleName(roleName);
         List<User> usersWhichCanPerformTasks = getUsersEligibleForTasks(tasksByRole, false);
         boolean weekWithFeast = !specialDateRepository.findByTypeAndDateBetween(SpecialDateType.FEAST, from, to).isEmpty();
-        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to)
+                .stream()
+                .filter(s -> s.getTaskSection() == null)
+                .collect(Collectors.toList());
         List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return usersWhichCanPerformTasks.stream()
@@ -988,7 +1002,10 @@ public class ScheduleService {
         User user = userService.getUserById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with given id does not exist"));
         boolean weekWithFeast = specialDateRepository.existsByTypeAndDateBetween(SpecialDateType.FEAST, from, to);
-        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to);
+        List<Schedule> schedulesForThisWeek = scheduleRepository.findByDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(from, to)
+                .stream()
+                .filter(s -> s.getTaskSection() == null)
+                .collect(Collectors.toList());
         List<Conflict> allConflicts = conflictService.getAllConflicts();
 
         return createUserTasksScheduleInfoWeekly(user, tasksByRole, from, to, weekWithFeast, schedulesForThisWeek, allConflicts);
@@ -1822,6 +1839,61 @@ public class ScheduleService {
                 // (Usunięto setWeekStartDate i setWeekEndDate, ponieważ encja Schedule tego nie przechowuje)
 
                 scheduleRepository.save(newSchedule);
+            }
+        }
+    }
+
+    @Transactional
+    public void copyFromNormalWeekToSpecialEvent(LocalDate date, String roleName) {
+        // 1. Pobieramy grafiki z normalnego tygodnia dla wybranego dnia (te, które mają taskSection == null)
+        List<Schedule> normalSchedules = getAllSchedulesByFromAndToDates(date, date).stream()
+                .filter(s -> s.getTask() != null && s.getTask().getSupervisorRole() != null)
+                .filter(s -> s.getTask().getSupervisorRole().getName().equals(roleName))
+                .filter(s -> s.getTaskSection() == null) // Interesują nas TYLKO wpisy całodniowe z bazy
+                .toList();
+
+        // 2. Pobieramy wszystkie grafiki z tego dnia, żeby sprawdzić, czy już czegoś nie wyznaczyliśmy i uniknąć duplikatów
+        List<Schedule> targetSchedules = getAllSchedulesByFromAndToDates(date, date);
+
+        for (Schedule src : normalSchedules) {
+            Task task = src.getTask();
+            User user = src.getUser();
+            Set<TaskSection> sectionsToAssign = task.getTaskSections();
+
+            // Jeśli zadanie nie ma przypisanych żadnych pór dnia (jest traktowane globalnie)
+            if (sectionsToAssign == null || sectionsToAssign.isEmpty()) {
+                boolean alreadyExists = targetSchedules.stream().anyMatch(t ->
+                        t.getUser().getId().equals(user.getId()) &&
+                                t.getTask().getId().equals(task.getId()) &&
+                                t.getTaskSection() == null
+                );
+
+                if (!alreadyExists) {
+                    Schedule newSchedule = new Schedule();
+                    newSchedule.setUser(user);
+                    newSchedule.setTask(task);
+                    newSchedule.setDate(date);
+                    newSchedule.setTaskSection(null);
+                    scheduleRepository.save(newSchedule);
+                }
+            } else {
+                // Jeśli zadanie MA pory dnia, przypisujemy brata do KAŻDEJ z nich
+                for (org.verduttio.dominicanappbackend.domain.TaskSection section : sectionsToAssign) {
+                    boolean alreadyExists = targetSchedules.stream().anyMatch(t ->
+                            t.getUser().getId().equals(user.getId()) &&
+                                    t.getTask().getId().equals(task.getId()) &&
+                                    t.getTaskSection() != null && t.getTaskSection().getId().equals(section.getId())
+                    );
+
+                    if (!alreadyExists) {
+                        Schedule newSchedule = new Schedule();
+                        newSchedule.setUser(user);
+                        newSchedule.setTask(task);
+                        newSchedule.setDate(date);
+                        newSchedule.setTaskSection(section);
+                        scheduleRepository.save(newSchedule);
+                    }
+                }
             }
         }
     }
