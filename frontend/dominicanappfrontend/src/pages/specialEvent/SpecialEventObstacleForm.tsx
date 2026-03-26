@@ -94,29 +94,36 @@ function SpecialEventObstacleForm() {
 
     // 1. Zadania ogólne (bez Tac i Komunii)
     const generalTasks = allTasks.filter(t => {
-        const cat = t.supervisorRole.name.toUpperCase();
-        return !cat.includes("TAC") && !cat.includes("KOMUN");
+        const cat = t.supervisorRole.name;
+        // Odrzucamy DOKŁADNIE te dwie kategorie, a "Dziekan komunijny" zostaje w ogólnych!
+        return cat !== "Tacowy" && cat !== "Komunijny";
     });
+
     const generalCategories = Array.from(new Set(generalTasks.map(t => t.supervisorRole.name))).sort();
     const tasksInGeneralCategory = generalTasks.filter(t => t.supervisorRole.name === selectedCategory);
 
-    // 2. Tace i Komunie (odporne na przedrostki typu "Dziekan" i wielkość liter)
+    // 2. Tace i Komunie (Ścisłe dopasowanie roli i kategorii + naturalne sortowanie)
     const collectionTasks = allTasks.filter(t => {
         if (!currentUser) return false;
 
-        const userRoleNames = currentUser.roles?.map(r => r.name.toUpperCase()) || [];
-        const category = t.supervisorRole.name.toUpperCase();
+        const userRoleNames = currentUser.roles?.map(r => r.name) || [];
+        const category = t.supervisorRole.name;
 
-        const isTaceTask = category.includes("TAC");
-        const isKomunieTask = category.includes("KOMUN");
+        // Ścisłe dopasowanie kategorii zadania
+        const isTaceTask = category === "Dziekan Tacowy";
+        const isKomunieTask = category === "Dziekan komunijny";
 
-        const userHasTaceRole = userRoleNames.some(role => role.includes("TAC"));
-        const userHasKomunieRole = userRoleNames.some(role => role.includes("KOMUN"));
+        // Ścisłe dopasowanie roli użytkownika
+        const userHasTaceRole = userRoleNames.includes("Tacowy");
+        const userHasKomunieRole = userRoleNames.includes("Komunijny");
 
         if (isTaceTask && userHasTaceRole) return true;
         if (isKomunieTask && userHasKomunieRole) return true;
 
         return false;
+    }).sort((a, b) => {
+        // Magia sortowania naturalnego: T9 będzie przed T10
+        return a.nameAbbrev.localeCompare(b.nameAbbrev, undefined, { numeric: true, sensitivity: 'base' });
     });
 
 

@@ -1772,6 +1772,12 @@ public class ScheduleService {
                 schedules = schedules.stream()
                         .filter(s -> roleName == null || s.getTask().getSupervisorRole().getName().equals(roleName))
                         .filter(s -> s.getTask().getSpecialEvent() == null || s.getTask().getSpecialEvent().getId().equals(eventId))
+                        // --- NOWOŚĆ: Wymuszamy Liturgistę na samej górze ---
+                        .sorted(Comparator.comparing((Schedule s) -> {
+                            boolean isLiturgy = "Liturgista".equals(s.getTask().getSupervisorRole().getName());
+                            return isLiturgy ? 0 : 1;
+                        }).thenComparing(s -> s.getTask().getSortOrder()))
+                        // ---------------------------------------------------
                         .toList();
 
                 Map<String, List<String>> sectionsMap = new HashMap<>();
@@ -1782,7 +1788,7 @@ public class ScheduleService {
                         continue;
                     }
 
-                    String secName = (s.getTaskSection() != null) ? s.getTaskSection().getName() : "";
+                    String secName = s.getTaskSection().getName();
                     sectionsMap.computeIfAbsent(secName, k -> new ArrayList<>()).add(s.getTask().getNameAbbrev());
                 }
                 schedulesMap.put(date, sectionsMap);
