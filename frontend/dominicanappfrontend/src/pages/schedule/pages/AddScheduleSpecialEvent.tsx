@@ -1046,9 +1046,9 @@ function AddScheduleSpecialEvent() {
                 {/* --- KOPIOWANIE DNIA --- */}
                 {event && (
                     <div className="d-flex flex-column align-items-center mb-5 mt-4">
-                        <h5 className="fw-bold text-muted mb-3 mx-4">
+                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
                             Zarządzanie dniami:
-                        </h5>
+                        </h3>
 
                         {/* Nowy przycisk: Kopiowanie ze zwykłego tygodnia */}
                         <div className="mb-4">
@@ -1062,7 +1062,9 @@ function AddScheduleSpecialEvent() {
                             </button>
                         </div>
 
-                        <h6 className="text-muted fw-bold mb-3">Skopiuj widoczne przypisania z dzisiaj na:</h6>
+                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
+                            Skopiuj widoczne przypisania z dzisiaj na:
+                        </h3>
 
                         <div className="d-flex justify-content-center flex-wrap gap-2">
                             {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
@@ -1070,7 +1072,7 @@ function AddScheduleSpecialEvent() {
                                 return (
                                     <button
                                         key={day.toString()}
-                                        className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-warning fw-bold text-dark'} shadow-sm`}
+                                        className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-primary fw-bold'} shadow-sm`}
                                         disabled={isCurrent || copyLoading}
                                         onClick={() => handleCopyDay(day)}
                                         style={{ minWidth: '80px' }}
@@ -1129,23 +1131,23 @@ function AddScheduleSpecialEvent() {
                                                     </td>
                                                     <td style={{ maxWidth: '200px' }}>
                                                         <div className="d-flex flex-wrap justify-content-center gap-1">
-                                                            {obs.tasks && obs.tasks.length > 0 ? (
-                                                                obs.tasks.map(t => (
+                                                            {(!obs.tasks || obs.tasks.length === 0 || (obs.tasks.length === 1 && obs.tasks[0].id === 0 && !obs.tasks[0].nameAbbrev)) ? (
+                                                                <span
+                                                                    className="badge bg-danger shadow-sm text-wrap text-break"
+                                                                    style={{ lineHeight: '1.4' }}
+                                                                >
+                                                                    Wszystkie oficja ogólne
+                                                                </span>
+                                                            ) : (
+                                                                obs.tasks.map((t, idx) => (
                                                                     <span
-                                                                        key={t.id}
+                                                                        key={t.id || idx}
                                                                         className="badge bg-primary shadow-sm text-wrap text-break"
                                                                         style={{ lineHeight: '1.4' }}
                                                                     >
                                                                         {t.nameAbbrev}
                                                                     </span>
                                                                 ))
-                                                            ) : (
-                                                                <span
-                                                                    className="badge bg-secondary shadow-sm text-wrap text-break"
-                                                                    style={{ lineHeight: '1.4' }}
-                                                                >
-                                                                    Wszystkie
-                                                                </span>
                                                             )}
                                                         </div>
                                                     </td>
