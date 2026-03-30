@@ -139,6 +139,7 @@ interface UserTasksScheduleInfoWeekly {
     userName: string;
     assignedTasks: string[];
     userTasksScheduleInfo: UserTaskScheduleInfo[];
+    totalEventAssignments?: number;
 }
 
 interface UserTasksScheduleInfoWeeklyByAllDays {

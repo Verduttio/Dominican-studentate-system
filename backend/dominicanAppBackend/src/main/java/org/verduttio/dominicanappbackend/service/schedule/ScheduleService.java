@@ -1448,6 +1448,19 @@ public class ScheduleService {
         final LocalDate weekStart = weekStartTemp; // FINAL dla lambdy
         final LocalDate weekEnd = weekStart.plusDays(6);
 
+        // --- NOWOŚĆ DO ZLICZANIA SUMY W SE ---
+        // 1. Musimy pobrać obiekt wydarzenia z bazy, by znać jego ramy czasowe!
+        SpecialEvent event = specialEventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Special Event not found"));
+
+        // 2. Zliczanie sumy
+        List<Schedule> allEventSchedules = scheduleRepository.findByUserIdInAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(userIds, event.getStartDate(), event.getEndDate());
+        Map<Long, Long> totalAssignmentsMap = allEventSchedules.stream()
+                .filter(s -> s.getTask().getSupervisorRole().getName().equals(roleName))
+                .filter(s -> s.getTaskSection() != null)
+                .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
+        // -------------------------------------
+
         // Sprawdzamy, czy w danym tygodniu wypada jakieś Święto LUB Wydarzenie Specjalne
         boolean tempWeekWithFeast = false;
         for (LocalDate d = weekStart; !d.isAfter(weekEnd); d = d.plusDays(1)) {
@@ -1620,6 +1633,7 @@ public class ScheduleService {
             }).collect(Collectors.toList());
 
             dto.setUserTasksScheduleInfo(cellInfos);
+            dto.setTotalEventAssignments(totalAssignmentsMap.getOrDefault(user.getId(), 0L).intValue());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -1717,7 +1731,6 @@ public class ScheduleService {
         allTasks.addAll(specialTasks);
 
         // Pobieramy wszystkie sekcje z bazy, by zachować ich naturalną kolejność (ID: 1-Rano, 2-Przedpołudnie itd.)
-        // Używamy naszej nowej metody z wymuszonym sortowaniem po ID!
         List<TaskSection> allSections = getAllTaskSections();
         java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> result = new java.util.LinkedHashMap<>();
 
@@ -1728,17 +1741,29 @@ public class ScheduleService {
         }
 
         for (Task task : allTasks) {
+            // Pobieramy wszystkie przypisania do tego zadania na dany dzień
             List<Schedule> schedules = scheduleRepository.findByTaskIdAndDateBetweenOrderByTask_SupervisorRole_SortOrderAscTask_SortOrderAsc(task.getId(), date, date);
-            List<String> assignedUsers = schedules.stream()
-                    .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
-                    .toList();
-
-            ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
 
             if (task.getTaskSections() == null || task.getTaskSections().isEmpty()) {
+                // Zadanie "Całodniowe" - po prostu wyciągamy unikalnych braci
+                List<String> assignedUsers = schedules.stream()
+                        .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
+                        .distinct() // <-- Magiczne słowo: usuwa duplikaty!
+                        .toList();
+
+                ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
                 result.get("").add(info);
             } else {
+                // Zadanie podzielone na pory dnia - filtrujemy przypisania po sekcjach!
                 for (TaskSection sec : task.getTaskSections()) {
+                    List<String> assignedUsers = schedules.stream()
+                            // Bierzemy TYLKO przypisania z tej konkretnej pory dnia
+                            .filter(s -> s.getTaskSection() != null && s.getTaskSection().getId().equals(sec.getId()))
+                            .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
+                            .distinct() // <-- Magiczne słowo: usuwa duplikaty!
+                            .toList();
+
+                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
                     result.get(sec.getName()).add(info);
                 }
             }
