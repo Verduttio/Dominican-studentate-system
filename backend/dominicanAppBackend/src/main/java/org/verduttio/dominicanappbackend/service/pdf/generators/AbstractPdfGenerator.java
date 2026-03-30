@@ -15,6 +15,7 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 
 public abstract class AbstractPdfGenerator implements PdfGenerator {
@@ -34,7 +35,14 @@ public abstract class AbstractPdfGenerator implements PdfGenerator {
 
     protected void initializeDocument() throws IOException {
         document = new PDDocument();
-        font = PDType0Font.load(document, new File(FONT_PATH));
+
+        // Wczytywanie czcionki jako strumienia z wnętrza pliku JAR (folder resources)
+        try (InputStream fontStream = getClass().getResourceAsStream("/" + FONT_PATH)) {
+            if (fontStream == null) {
+                throw new IOException("Nie znaleziono pliku czcionki w resources: " + FONT_PATH);
+            }
+            font = PDType0Font.load(document, fontStream);
+        }
     }
 
     protected PDPage addNewPage(PDRectangle size) {
