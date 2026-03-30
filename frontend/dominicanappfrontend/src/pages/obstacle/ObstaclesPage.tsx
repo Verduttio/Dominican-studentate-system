@@ -14,7 +14,7 @@ function ObstaclesPage () {
     const [obstaclePage, setObstaclePage] = useState<{ content: Obstacle[], totalPages: number }>({ content: [], totalPages: 0 });
     const { error, loading, request } = useHttp();
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const pageSize = 20;
+    const pageSize = 15;
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
