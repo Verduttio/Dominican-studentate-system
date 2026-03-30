@@ -20,7 +20,7 @@ public class SpecialEventMatrixPdfGenerator extends AbstractPdfGenerator {
     private final SpecialEvent event;
     private final Optional<String> supervisorRoleName;
     private final List<Obstacle> eventObstacles;
-    private static final int DAYS_PER_PAGE = 3;
+    private static final int DAYS_PER_PAGE = 2;
 
     public SpecialEventMatrixPdfGenerator(
             ScheduleService scheduleService,

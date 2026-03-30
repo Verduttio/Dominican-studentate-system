@@ -8,6 +8,8 @@ import be.quodlibet.boxable.VerticalAlignment;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.verduttio.dominicanappbackend.domain.Task;
+// Importujemy klasę z naszą funkcją czyszczącą!
+import org.verduttio.dominicanappbackend.service.pdf.generators.AbstractPdfGenerator;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -49,7 +51,10 @@ public class SpecialEventTaskDescriptionTableBuilder {
 
             // --- 1. Wiersz Nagłówka Kategorii ---
             Row<PDPage> headerRow = table.createRow(20f);
-            Cell<PDPage> headerCell = headerRow.createCell(100f, roleName.toUpperCase());
+
+            // Czyścimy nazwę roli
+            String cleanRoleName = AbstractPdfGenerator.sanitizeTextForPdf(roleName.toUpperCase());
+            Cell<PDPage> headerCell = headerRow.createCell(100f, cleanRoleName);
             headerCell.setFont(font);
             headerCell.setFontSize(12);
             headerCell.setFillColor(new Color(220, 220, 220)); // Jasnoszare tło
@@ -60,16 +65,22 @@ public class SpecialEventTaskDescriptionTableBuilder {
             for (Task task : tasks) {
                 Row<PDPage> taskRow = table.createRow(15f);
 
-                String nameText = task.getName() + "<br>(" + task.getNameAbbrev() + ")";
+                // Czyścimy nazwę i skrót
+                String cleanName = AbstractPdfGenerator.sanitizeTextForPdf(task.getName());
+                String cleanAbbrev = AbstractPdfGenerator.sanitizeTextForPdf(task.getNameAbbrev());
+                String nameText = cleanName + "<br>(" + cleanAbbrev + ")";
+
                 Cell<PDPage> nameCell = taskRow.createCell(20f, nameText);
                 nameCell.setFont(font);
                 nameCell.setFontSize(10);
                 nameCell.setAlign(HorizontalAlignment.CENTER);
                 nameCell.setValign(VerticalAlignment.MIDDLE);
 
+                // Czyścimy opis naszą nową funkcją (zamiast starego replaceAll)
                 String description = (task.getDescription() != null && !task.getDescription().trim().isEmpty())
-                        ? task.getDescription().replaceAll("\r?\n", "<br>")
+                        ? AbstractPdfGenerator.sanitizeTextForPdf(task.getDescription())
                         : "Brak opisu.";
+
                 Cell<PDPage> descCell = taskRow.createCell(80f, description);
                 descCell.setFont(font);
                 descCell.setFontSize(10);

@@ -7,6 +7,7 @@ public class UserTasksScheduleInfoWeekly {
     private String userName;
     private List<String> assignedTasks;
     private List<UserTaskScheduleInfo> userTasksScheduleInfo;
+    private Integer totalEventAssignments;
 
     // Getters i Setters
     public String getUserName() {
@@ -49,5 +50,13 @@ public class UserTasksScheduleInfoWeekly {
     }
 
     public UserTasksScheduleInfoWeekly() {
+    }
+
+    public Integer getTotalEventAssignments() {
+        return totalEventAssignments;
+    }
+
+    public void setTotalEventAssignments(Integer totalEventAssignments) {
+        this.totalEventAssignments = totalEventAssignments;
     }
 }
