@@ -731,7 +731,7 @@ public class ScheduleService {
 
         List<String> usersInfoStrings = createInfoStringsOfUsersOccurrenceFromGivenSchedule(schedules, task.getDaysOfWeek().size(), weekWithFeast);
 
-        return new ScheduleShortInfoForTask(taskId, task.getName(), usersInfoStrings);
+        return new ScheduleShortInfoForTask(taskId, task.getName(), task.getNameAbbrev(), usersInfoStrings);
     }
 
     private List<String> createInfoStringsOfUsersOccurrenceFromGivenSchedule(List<Schedule> schedules, int taskDaysOfWeekCount, boolean weekWithFeast) {
@@ -1711,7 +1711,7 @@ public class ScheduleService {
                             .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
                             .toList();
 
-                    return new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                    return new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
                 })
                 // Opcjonalnie: ukryj zadania, do których nikt nie jest przypisany, żeby nie marnować papieru
                 // .filter(info -> !info.getAssignedUsers().isEmpty())
@@ -1751,7 +1751,7 @@ public class ScheduleService {
                         .distinct() // <-- Magiczne słowo: usuwa duplikaty!
                         .toList();
                 if (!assignedUsers.isEmpty()) {
-                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
                     result.get("").add(info);
                 }
             } else {
@@ -1765,7 +1765,7 @@ public class ScheduleService {
                             .toList();
 
                     if (!assignedUsers.isEmpty()) {
-                        ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                        ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
                         result.get(sec.getName()).add(info);
                     }
                 }
