@@ -69,7 +69,7 @@ public class TaskSchedulePdfGenerator extends AbstractPdfGenerator {
 
     private void populateTable(BaseTable table, List<ScheduleShortInfoForTask> schedules) throws IOException {
         TaskTableBuilder tableBuilder = new TaskTableBuilder(table, font);
-        tableBuilder.buildTable(schedules);
+        tableBuilder.buildTable(schedules, null);
     }
 }
 

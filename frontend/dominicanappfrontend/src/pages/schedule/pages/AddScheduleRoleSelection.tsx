@@ -173,9 +173,9 @@ function AddScheduleRoleSelection() {
                                     <div className="card-body">
                                         {/* Ikonka roli w kolorze złotym + mała gwiazdka */}
                                         <div className="mb-3 position-relative d-inline-block">
-                                            <FontAwesomeIcon icon={faCalendarPlus} size="3x" className="text-warning" />
+                                            <FontAwesomeIcon icon={config.icon} size="3x" className="text-warning" />
                                             <FontAwesomeIcon
-                                                icon={config.icon}
+                                                icon={faCalendarPlus}
                                                 className="text-dark position-absolute top-0 start-100 translate-middle"
                                                 style={{fontSize: '1.5rem'}}
                                             />

@@ -41,10 +41,11 @@ public class ScheduleService {
     private final ObstacleRepository obstacleRepository;
     private final SpecialEventRepository specialEventRepository;
     private final TaskSectionRepository taskSectionRepository;
+    private final SpecialEventCommentRepository specialEventCommentRepository;
 
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, TaskService taskService, RoleService roleService, ObstacleService obstacleService, ConflictService conflictService, SpecialDateRepository specialDateRepository,
-                           TaskRepository taskRepository, ScheduleGenerator scheduleGenerator, ScheduleCleaner scheduleCleaner, ObstacleRepository obstacleRepository, SpecialEventRepository specialEventRepository, TaskSectionRepository taskSectionRepository) {
+                           TaskRepository taskRepository, ScheduleGenerator scheduleGenerator, ScheduleCleaner scheduleCleaner, ObstacleRepository obstacleRepository, SpecialEventRepository specialEventRepository, TaskSectionRepository taskSectionRepository, SpecialEventCommentRepository specialEventCommentRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.taskService = taskService;
@@ -58,6 +59,7 @@ public class ScheduleService {
         this.obstacleRepository = obstacleRepository;
         this.specialEventRepository = specialEventRepository;
         this.taskSectionRepository = taskSectionRepository;
+        this.specialEventCommentRepository = specialEventCommentRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -731,7 +733,7 @@ public class ScheduleService {
 
         List<String> usersInfoStrings = createInfoStringsOfUsersOccurrenceFromGivenSchedule(schedules, task.getDaysOfWeek().size(), weekWithFeast);
 
-        return new ScheduleShortInfoForTask(taskId, task.getName(), usersInfoStrings);
+        return new ScheduleShortInfoForTask(taskId, task.getName(), task.getNameAbbrev(), usersInfoStrings);
     }
 
     private List<String> createInfoStringsOfUsersOccurrenceFromGivenSchedule(List<Schedule> schedules, int taskDaysOfWeekCount, boolean weekWithFeast) {
@@ -1711,7 +1713,7 @@ public class ScheduleService {
                             .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
                             .toList();
 
-                    return new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                    return new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
                 })
                 // Opcjonalnie: ukryj zadania, do których nikt nie jest przypisany, żeby nie marnować papieru
                 // .filter(info -> !info.getAssignedUsers().isEmpty())
@@ -1750,9 +1752,10 @@ public class ScheduleService {
                         .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
                         .distinct() // <-- Magiczne słowo: usuwa duplikaty!
                         .toList();
-
-                ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
-                result.get("").add(info);
+                if (!assignedUsers.isEmpty()) {
+                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
+                    result.get("").add(info);
+                }
             } else {
                 // Zadanie podzielone na pory dnia - filtrujemy przypisania po sekcjach!
                 for (TaskSection sec : task.getTaskSections()) {
@@ -1763,8 +1766,10 @@ public class ScheduleService {
                             .distinct() // <-- Magiczne słowo: usuwa duplikaty!
                             .toList();
 
-                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
-                    result.get(sec.getName()).add(info);
+                    if (!assignedUsers.isEmpty()) {
+                        ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), task.getNameAbbrev(), assignedUsers);
+                        result.get(sec.getName()).add(info);
+                    }
                 }
             }
         }
@@ -1834,6 +1839,20 @@ public class ScheduleService {
     public List<TaskSection> getAllTaskSections() {
         // Wymuszamy sortowanie po ID rosnąco, żeby baza nie układała nam tego po swojemu (np. alfabetycznie)
         return taskSectionRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id"));
+    }
+
+    // --- POBIERANIE KOMENTARZY DLA GENERATORA PDF ---
+    public java.util.Map<String, String> getCommentsForSpecialEventDay(Long eventId, String roleName, LocalDate date) {
+        List<org.verduttio.dominicanappbackend.domain.SpecialEventComment> comments =
+                specialEventCommentRepository.findAllBySpecialEventIdAndRoleNameAndDate(eventId, roleName, date);
+
+        java.util.Map<String, String> commentsMap = new java.util.HashMap<>();
+        for (org.verduttio.dominicanappbackend.domain.SpecialEventComment comment : comments) {
+            // Jeśli sekcja jest null, kluczem staje się pusty string "" (komentarz na cały dzień)
+            String key = comment.getTaskSection() == null ? "" : comment.getTaskSection().getName();
+            commentsMap.put(key, comment.getContent());
+        }
+        return commentsMap;
     }
 
     @Transactional
