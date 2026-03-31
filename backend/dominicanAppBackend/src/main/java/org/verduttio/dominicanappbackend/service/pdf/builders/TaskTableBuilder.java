@@ -30,23 +30,44 @@ public class TaskTableBuilder {
         this.fontSize = 11;
     }
 
-    public void buildTable(List<ScheduleShortInfoForTask> schedules) throws IOException {
+    public void buildTable(List<ScheduleShortInfoForTask> schedules, String globalComment) throws IOException {
         addHeaderRow();
+        if (globalComment != null && !globalComment.trim().isEmpty()) {
+            addCommentRow(globalComment);
+        }
         renderSmartTasks(schedules);
         table.draw();
     }
 
-    public void buildTableWithSections(java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules) throws IOException {
+    public void buildTableWithSections(java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules, java.util.Map<String, String> comments) throws IOException {
         addHeaderRow();
+
+        // 1. Drukujemy komentarz GLOBALNY (dla całego dnia), jeśli istnieje w mapie pod pustym kluczem ""
+        if (comments != null && comments.containsKey("")) {
+            addCommentRow(comments.get(""));
+        }
+
         for (java.util.Map.Entry<String, List<ScheduleShortInfoForTask>> entry : sectionedSchedules.entrySet()) {
             String sectionName = entry.getKey();
             List<ScheduleShortInfoForTask> tasks = entry.getValue();
 
-            if (sectionName != null && !sectionName.isEmpty() && !tasks.isEmpty()) {
+            // 2. Drukujemy nagłówek sekcji (tylko jeśli ma zadania LUB ma komentarz)
+            boolean hasTasks = !tasks.isEmpty();
+            boolean hasComment = comments != null && comments.containsKey(sectionName);
+
+            if (sectionName != null && !sectionName.isEmpty() && (hasTasks || hasComment)) {
                 addSectionHeaderRow(sectionName);
+
+                // 3. Drukujemy komentarz dla tej konkretnej SEKCJ (jeśli istnieje)
+                if (hasComment) {
+                    addCommentRow(comments.get(sectionName));
+                }
             }
 
-            renderSmartTasks(tasks);
+            // 4. Drukujemy oficja dla tej sekcji
+            if (hasTasks) {
+                renderSmartTasks(tasks);
+            }
         }
         table.draw();
     }
@@ -82,6 +103,31 @@ public class TaskTableBuilder {
                 addShiftRow(task, null);
             }
         }
+    }
+
+    private void addCommentRow(String content) {
+        if (content == null || content.trim().isEmpty()) return;
+
+        String cleanContent = content
+                .replace("\n", "<br>")
+                .replace("\r", "")
+                .replace("\t", "    "); // Zamienia błąd U+0009 na 4 spacje!
+
+        Row<PDPage> row = table.createRow(8f);
+        Cell<PDPage> cell = row.createCell(100, cleanContent);
+        cell.setFont(font);
+        cell.setFontSize(this.fontSize - 1); // Odrobinę mniejsza czcionka niż oficja
+
+        // Eleganckie tło - jasna żółć (karteczka)
+        cell.setFillColor(new Color(255, 253, 231));
+        // Kolor tekstu - ciemnoszary
+        cell.setTextColor(new Color(70, 70, 70));
+
+        cell.setAlign(HorizontalAlignment.CENTER);
+        cell.setValign(VerticalAlignment.MIDDLE);
+        cell.setTopPadding(6f);
+        cell.setBottomPadding(6f);
+        cell.setLineSpacing(1.2f);
     }
 
     private void addHeaderRow() {

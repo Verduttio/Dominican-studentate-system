@@ -36,7 +36,9 @@ import {
     faCompress,
     faTable,
     faFileLines,
-    faClone
+    faClone,
+    faBold,
+    faItalic
     } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
@@ -80,6 +82,12 @@ function AddScheduleSpecialEvent() {
     const [copyLoading, setCopyLoading] = useState(false);
 
     const [isFullWidth, setIsFullWidth] = useState(false);
+
+    const [comment, setComment] = useState("");
+    const [isCommentLoading, setIsCommentLoading] = useState(false);
+    const [isCommentSaving, setIsCommentSaving] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [isCommentSaved, setIsCommentSaved] = useState(false);
 
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
@@ -244,6 +252,113 @@ function AddScheduleSpecialEvent() {
     const fetchConflicts = () => {
         requestAllConflicts(null, (data: Conflict[]) => setAllConflicts(data), false, `${backendUrl}/api/conflicts`, 'GET');
     };
+
+    // --- POBIERANIE KOMENTARZA ---
+    useEffect(() => {
+        if (!event || !roleName) return;
+
+        const fetchComment = async () => {
+            setIsCommentLoading(true);
+            try {
+                const dateStr = format(currentDate, 'yyyy-MM-dd');
+                let url = `${backendUrl}/api/special-events/${eventId}/comments?roleName=${roleName}&date=${dateStr}`;
+                if (currentSectionId !== null) {
+                    url += `&sectionId=${currentSectionId}`;
+                }
+
+                const response = await fetch(url, {
+                    headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setComment(data.content || "");
+                }
+            } catch (error) {
+                console.error("Błąd pobierania komentarza:", error);
+            } finally {
+                setIsCommentLoading(false);
+            }
+        };
+
+        fetchComment();
+    }, [currentDate, currentSectionId, event, roleName, eventId]);
+
+    // --- ZAPIS KOMENTARZA ---
+    const handleSaveComment = async (textToSave: string = comment) => {
+        setIsCommentSaving(true);
+        try {
+            const dateStr = format(currentDate, 'yyyy-MM-dd');
+            let url = `${backendUrl}/api/special-events/${eventId}/comments?roleName=${roleName}&date=${dateStr}`;
+            if (currentSectionId !== null) {
+                url += `&sectionId=${currentSectionId}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include',
+                body: JSON.stringify({ content: textToSave })
+            });
+
+            if (response.ok) {
+                // ZMIANA: Zamiast alertu, odpalamy animację na przycisku na 2 sekundy
+                if (textToSave !== "") {
+                    setIsCommentSaved(true);
+                    setTimeout(() => setIsCommentSaved(false), 2000);
+                }
+            } else {
+                alert("Wystąpił błąd podczas zapisywania komentarza.");
+            }
+        } catch (error) {
+            console.error("Błąd zapisu komentarza:", error);
+            alert("Wystąpił błąd podczas zapisywania komentarza.");
+        } finally {
+            setIsCommentSaving(false);
+        }
+    };
+
+    // --- USUWANIE KOMENTARZA ---
+    const handleDeleteComment = () => {
+        if (window.confirm("Czy na pewno chcesz trwale usunąć ten komentarz?")) {
+            setComment("");
+            handleSaveComment(""); // Natychmiastowy zapis pustego stringa (co usuwa go z bazy)
+        }
+    };
+
+    // --- WSTAWIANIE TAGÓW HTML W MIEJSCU KURSORA ---
+    const insertTag = (startTag: string, endTag: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = comment;
+
+        const before = text.substring(0, start);
+        const selected = text.substring(start, end);
+        const after = text.substring(end, text.length);
+
+        const newText = before + startTag + selected + endTag + after;
+        setComment(newText);
+
+        // Ustawienie kursora po wstawieniu
+        setTimeout(() => {
+            textarea.focus();
+            if (start === end) {
+                // Brak zaznaczenia - kursor wpada pomiędzy tagi
+                textarea.setSelectionRange(start + startTag.length, start + startTag.length);
+            } else {
+                // Było zaznaczenie - kursor wędruje na sam koniec
+                textarea.setSelectionRange(start + startTag.length + selected.length + endTag.length, start + startTag.length + selected.length + endTag.length);
+            }
+        }, 0);
+    };
+
 
     useEffect(() => {
         if (!event) return;
@@ -1112,6 +1227,79 @@ function AddScheduleSpecialEvent() {
                                         </tbody>
                                     </table>
                                 </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* --- SEKCJA KOMENTARZA --- */}
+                <div className="d-flex flex-column align-items-center mb-5 mt-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-3 mx-4 text-center">
+                        Komentarz do wydruku <br/>
+                        <span className="text-warning fs-5">
+                            {format(currentDate, 'dd.MM.yyyy')} - {currentSectionId === null ? "CAŁY DZIEŃ" : taskSections.find(s => s.id === currentSectionId)?.name?.toUpperCase()}
+                        </span>
+                    </h3>
+                    <div className="card shadow-sm w-100 border-primary" style={{ maxWidth: '800px' }}>
+                        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                            <span className="fw-bold small">Edytor treści</span>
+                            <div className="btn-group">
+                                <button
+                                    className="btn btn-light btn-sm text-dark"
+                                    title="Pogrubienie"
+                                    onClick={() => insertTag("<b>", "</b>")}
+                                >
+                                    <FontAwesomeIcon icon={faBold} />
+                                </button>
+                                <button
+                                    className="btn btn-light btn-sm text-dark ms-1"
+                                    title="Kursywa"
+                                    onClick={() => insertTag("<i>", "</i>")}
+                                >
+                                    <FontAwesomeIcon icon={faItalic} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="card-body">
+                            {isCommentLoading ? (
+                                <div className="text-center p-3"><LoadingSpinner /></div>
+                            ) : (
+                                <>
+                                    <textarea
+                                        ref={textareaRef}
+                                        className="form-control mb-3"
+                                        rows={4}
+                                        placeholder="Wpisz komentarz widoczny dla braci na wydruku PDF..."
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        style={{ resize: 'none' }}
+                                    />
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <button
+                                            className="btn btn-outline-danger btn-sm shadow-sm"
+                                            onClick={handleDeleteComment}
+                                            disabled={isCommentSaving || !comment}
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} className="me-2" />
+                                            Wyczyść i usuń
+                                        </button>
+
+                                        <button
+                                            className="btn btn-success shadow-sm"
+                                            onClick={() => handleSaveComment(comment)}
+                                            disabled={isCommentSaving || isCommentSaved}
+                                            style={{ minWidth: '220px' }}
+                                        >
+                                            {isCommentSaving ? (
+                                                <LoadingSpinner />
+                                            ) : isCommentSaved ? (
+                                                <><FontAwesomeIcon icon={faCheck} className="me-2" /> Zapisano!</>
+                                            ) : (
+                                                "Zapisz komentarz na wydruk"
+                                            )}
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>

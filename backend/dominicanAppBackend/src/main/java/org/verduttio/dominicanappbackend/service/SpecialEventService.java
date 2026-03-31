@@ -5,13 +5,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.verduttio.dominicanappbackend.domain.Conflict;
 import org.verduttio.dominicanappbackend.domain.SpecialEvent;
+import org.verduttio.dominicanappbackend.domain.SpecialEventComment;
 import org.verduttio.dominicanappbackend.domain.Task;
 import org.verduttio.dominicanappbackend.repository.ConflictRepository;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
+import org.verduttio.dominicanappbackend.repository.SpecialEventCommentRepository;
 import org.verduttio.dominicanappbackend.repository.SpecialEventRepository;
 import org.verduttio.dominicanappbackend.repository.TaskRepository;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -21,14 +24,18 @@ public class SpecialEventService {
     private final TaskRepository taskRepository;
     private final ConflictRepository conflictRepository;
     private final ScheduleRepository scheduleRepository;
+    private final SpecialEventCommentRepository commentRepository;
 
     public SpecialEventService(SpecialEventRepository specialEventRepository,
                                TaskRepository taskRepository,
-                               ConflictRepository conflictRepository, ScheduleRepository scheduleRepository) {
+                               ConflictRepository conflictRepository,
+                               ScheduleRepository scheduleRepository,
+                               SpecialEventCommentRepository commentRepository) {
         this.specialEventRepository = specialEventRepository;
         this.taskRepository = taskRepository;
         this.conflictRepository = conflictRepository;
         this.scheduleRepository = scheduleRepository;
+        this.commentRepository = commentRepository;
     }
 
     // --- METODY CRUD (których brakowało) ---
@@ -169,6 +176,25 @@ public class SpecialEventService {
 
                     conflictRepository.save(newConflict);
                 }
+            }
+        }
+
+        List<SpecialEventComment> oldComments = commentRepository.findAllBySpecialEventId(sourceEvent.getId());
+        for (SpecialEventComment oldComment : oldComments) {
+            // Obliczamy ile dni po rozpoczęciu starego eventu był ten komentarz (np. Wielki Piątek to +1 od Czwartku)
+            long daysFromStart = ChronoUnit.DAYS.between(sourceEvent.getStartDate(), oldComment.getDate());
+            LocalDate newCommentDate = newStart.plusDays(daysFromStart);
+
+            // Zabezpieczenie na wypadek, gdyby nowy event był krótszy niż stary (ucina komentarze wystające poza koniec)
+            if (!newCommentDate.isAfter(newEnd)) {
+                SpecialEventComment newComment = new SpecialEventComment();
+                newComment.setSpecialEvent(newEvent);
+                newComment.setDate(newCommentDate);
+                newComment.setRoleName(oldComment.getRoleName());
+                newComment.setTaskSection(oldComment.getTaskSection());
+                newComment.setContent(oldComment.getContent());
+
+                commentRepository.save(newComment);
             }
         }
 

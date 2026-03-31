@@ -22,6 +22,9 @@ public class SpecialEvent {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @OneToMany(mappedBy = "specialEvent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SpecialEventComment> comments = new ArrayList<>();
+
     // Relacja dwukierunkowa, aby łatwo pobierać zadania eventu
     @OneToMany(mappedBy = "specialEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
@@ -46,4 +49,6 @@ public class SpecialEvent {
     public void setTasks(List<Task> tasks) { this.tasks = tasks; }
     public java.util.Set<LocalDate> getCollectionDates() { return collectionDates; }
     public void setCollectionDates(java.util.Set<LocalDate> collectionDates) { this.collectionDates = collectionDates; }
+    public List<SpecialEventComment> getComments() { return comments; }
+    public void setComments(List<SpecialEventComment> comments) { this.comments = comments; }
 }
