@@ -1750,9 +1750,10 @@ public class ScheduleService {
                         .map(s -> s.getUser().getName() + " " + s.getUser().getSurname())
                         .distinct() // <-- Magiczne słowo: usuwa duplikaty!
                         .toList();
-
-                ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
-                result.get("").add(info);
+                if (!assignedUsers.isEmpty()) {
+                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                    result.get("").add(info);
+                }
             } else {
                 // Zadanie podzielone na pory dnia - filtrujemy przypisania po sekcjach!
                 for (TaskSection sec : task.getTaskSections()) {
@@ -1763,8 +1764,10 @@ public class ScheduleService {
                             .distinct() // <-- Magiczne słowo: usuwa duplikaty!
                             .toList();
 
-                    ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
-                    result.get(sec.getName()).add(info);
+                    if (!assignedUsers.isEmpty()) {
+                        ScheduleShortInfoForTask info = new ScheduleShortInfoForTask(task.getId(), task.getName(), assignedUsers);
+                        result.get(sec.getName()).add(info);
+                    }
                 }
             }
         }
