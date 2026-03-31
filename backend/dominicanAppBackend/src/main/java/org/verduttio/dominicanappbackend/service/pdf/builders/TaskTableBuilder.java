@@ -108,21 +108,37 @@ public class TaskTableBuilder {
     private void addCommentRow(String content) {
         if (content == null || content.trim().isEmpty()) return;
 
-        String cleanContent = content
-                .replace("\n", "<br>")
-                .replace("\r", "")
-                .replace("\t", "    "); // Zamienia błąd U+0009 na 4 spacje!
+        // 1. Zamieniamy entery na tagi <br>, żeby Boxable przeniósł tekst do nowej linii
+        String processedContent = content.replace("\n", "<br>");
 
+        // 2. Szukamy tagów <b>...</b> oraz <i>...</i> (case-insensitive, wieloliniowo)
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("<([biBI])>(.*?)</\\1>", java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = pattern.matcher(processedContent);
+
+        StringBuilder cleanContentBuilder = new StringBuilder();
+
+        while (matcher.find()) {
+            String tagName = matcher.group(1); // "b" lub "i"
+            String innerText = matcher.group(2); // tekst w środku
+
+            // "Odpolszczamy" tylko środek tagu
+            String sanitizedText = removePolishDiacritics(innerText);
+
+            // Składamy z powrotem w całość (używamy quoteReplacement na wypadek znaków specjalnych)
+            matcher.appendReplacement(cleanContentBuilder, "<" + tagName + ">" + java.util.regex.Matcher.quoteReplacement(sanitizedText) + "</" + tagName + ">");
+        }
+        matcher.appendTail(cleanContentBuilder);
+
+        String cleanContent = cleanContentBuilder.toString();
+
+        // 3. Rysujemy komórkę
         Row<PDPage> row = table.createRow(8f);
         Cell<PDPage> cell = row.createCell(100, cleanContent);
+
         cell.setFont(font);
-        cell.setFontSize(this.fontSize - 1); // Odrobinę mniejsza czcionka niż oficja
-
-        // Eleganckie tło - jasna żółć (karteczka)
+        cell.setFontSize(this.fontSize - 1);
         cell.setFillColor(new Color(255, 253, 231));
-        // Kolor tekstu - ciemnoszary
         cell.setTextColor(new Color(70, 70, 70));
-
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setValign(VerticalAlignment.MIDDLE);
         cell.setTopPadding(6f);
@@ -208,5 +224,18 @@ public class TaskTableBuilder {
         cell.setAlign(HorizontalAlignment.CENTER);
         cell.setValign(VerticalAlignment.MIDDLE);
         cell.setLineSpacing(1.2f);
+    }
+
+    private String removePolishDiacritics(String text) {
+        if (text == null) return "";
+        return text.replace("ą", "a").replace("Ą", "A")
+                .replace("ć", "c").replace("Ć", "C")
+                .replace("ę", "e").replace("Ę", "E")
+                .replace("ł", "l").replace("Ł", "L")
+                .replace("ń", "n").replace("Ń", "N")
+                .replace("ś", "s").replace("Ś", "S")
+                .replace("ź", "z").replace("Ź", "Z")
+                .replace("ż", "z").replace("Ż", "Z");
+        // "ó" i "Ó" zostają nienaruszone, bo WinAnsiEncoding je obsługuje
     }
 }
