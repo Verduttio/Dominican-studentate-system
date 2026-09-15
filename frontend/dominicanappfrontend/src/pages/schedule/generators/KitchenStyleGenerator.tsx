@@ -21,10 +21,14 @@ function KitchenStyleGenerator() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchEligibleUsers(null, (data: User[]) => {
-            setUsers(data);
-        });
-    }, [fetchEligibleUsers, supervisorRoleId]);
+            fetchEligibleUsers(null, (data: User[]) => {
+                // Filtrujemy braci, zostawiając tylko tych z przypisaną rolą Kuchnia
+                const kitchenUsers = data.filter(user =>
+                    user.roles?.some(role => role.id === 16 || role.name === "Kuchnia")
+                );
+                setUsers(kitchenUsers);
+            });
+        }, [fetchEligibleUsers, supervisorRoleId]);
 
     const handleInputChange = (name: string, value: string) => {
         if (name === 'fromDate') {

@@ -14,6 +14,7 @@ import org.verduttio.dominicanappbackend.service.UserService;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
@@ -36,7 +37,17 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
 
         roleTasks.sort(Comparator.comparing(Task::getSortOrder));
 
-        List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleId);
+        List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleId)
+                .stream()
+                .filter(user -> user.getRoles().stream()
+                        .anyMatch(role -> role.getId().equals(16L) || role.getName().equals("Kuchnia")))
+                .collect(Collectors.toList());
+
+        // Opcjonalne zabezpieczenie, żeby aplikacja nie wysypała się, gdy nie ma nikogo w kuchni
+        if (eligibleUsers.isEmpty()) {
+            logger.warn("No eligible users found with the required role for supervisor role ID: {}", roleId);
+            return;
+        }
 
         int userIndex = eligibleUsers.stream().filter(user -> user.getId().equals(startingFromUserId)).findFirst().map(eligibleUsers::indexOf).orElseThrow(EntityNotFoundException::new);
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
