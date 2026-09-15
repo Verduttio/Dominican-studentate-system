@@ -1,0 +1,1 @@
+ALTER TABLE special_event_comments ALTER COLUMN id SET DEFAULT nextval('special_event_comments_id_seq');

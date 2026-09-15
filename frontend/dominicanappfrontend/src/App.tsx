@@ -53,6 +53,8 @@ import SpecialEventsPage from "./pages/specialEvent/SpecialEventsPage";
 import AddEditSpecialEvent from "./pages/specialEvent/AddEditSpecialEvent";
 import AddScheduleSpecialEvent from './pages/schedule/pages/AddScheduleSpecialEvent';
 import SpecialEventObstacleForm from './pages/specialEvent/SpecialEventObstacleForm';
+import TaskSectionsManager from "./pages/task/TaskSectionsManager";
+
 
 const AppContent = () => {
     const location = useLocation();
@@ -103,6 +105,7 @@ const AppContent = () => {
                     <Route path="/schedule/special-event/:eventId" element={<AddScheduleSpecialEvent />} />
                     <Route path="/user-profile" Component={UserProfilePage}/>
                     <Route path="/other" Component={OtherEntities}/>
+                    <Route path="/task-sections" element={<TaskSectionsManager />} />
                     <Route path="/dean" Component={DeanPage}/>
                     <Route path="/dean/pocket-money" Component={PocketMoneyPage}/>
                     <Route path="/links" Component={LinksPage}/>

@@ -13,29 +13,32 @@ import org.verduttio.dominicanappbackend.domain.ObstacleStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public interface ObstacleRepository extends JpaRepository<Obstacle, Long> {
-    @Query("SELECT o FROM Obstacle o JOIN o.tasks t WHERE o.user.id = :userId AND t.id = :taskId")
+
+    // ZMIANA: LEFT JOIN + t IS NULL (łapie przeszkody ogólne)
+    @Query("SELECT DISTINCT o FROM Obstacle o LEFT JOIN o.tasks t WHERE o.user.id = :userId AND (t.id = :taskId OR t IS NULL)")
     List<Obstacle> findObstaclesByUserIdAndTaskId(@Param("userId") Long userId, @Param("taskId") Long taskId);
 
-    @Query("SELECT o FROM Obstacle o ORDER BY CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
+    // ZMIANA: Wymuszamy AWAITING na samej górze (THEN 1), a potem sortowanie po dacie!
+    @Query("SELECT o FROM Obstacle o ORDER BY CASE WHEN o.status = 'AWAITING' THEN 1 ELSE 2 END, CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
     List<Obstacle> findAllSorted();
 
-    @Query("SELECT o FROM Obstacle o ORDER BY CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
+    @Query("SELECT o FROM Obstacle o ORDER BY CASE WHEN o.status = 'AWAITING' THEN 1 ELSE 2 END, CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
     Page<Obstacle> findAllSorted(Pageable pageable);
 
-    @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId ORDER BY CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
+    @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId ORDER BY CASE WHEN o.status = 'AWAITING' THEN 1 ELSE 2 END, CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
     List<Obstacle> findObstaclesByUserIdSortedCustom(@Param("userId") Long userId);
 
-    @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId ORDER BY CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
+    @Query("SELECT o FROM Obstacle o WHERE o.user.id = :userId ORDER BY CASE WHEN o.status = 'AWAITING' THEN 1 ELSE 2 END, CASE WHEN o.fromDate > CURRENT_DATE THEN 1 WHEN o.toDate >= CURRENT_DATE THEN 2 ELSE 3 END, CASE WHEN o.fromDate > CURRENT_DATE THEN o.toDate WHEN o.toDate >= CURRENT_DATE THEN o.toDate ELSE o.toDate END DESC")
     Page<Obstacle> findObstaclesByUserIdSortedCustom(@Param("userId") Long userId, Pageable pageable);
 
-
-    @Query("SELECT o FROM Obstacle o JOIN o.tasks t WHERE t.id = :taskId")
+    // ZMIANA: LEFT JOIN + t IS NULL (łapie przeszkody ogólne)
+    @Query("SELECT DISTINCT o FROM Obstacle o LEFT JOIN o.tasks t WHERE t.id = :taskId OR t IS NULL")
     List<Obstacle> findAllByTaskId(Long taskId);
 
     @Query("SELECT o FROM Obstacle o WHERE o.user.id IN :userIds AND :date BETWEEN o.fromDate AND o.toDate AND o.status = 'APPROVED'")
     List<Obstacle> findActiveObstaclesForUsersOnDate(@Param("userIds") List<Long> userIds, @Param("date") LocalDate date);
+
     @Query("SELECT o FROM Obstacle o WHERE o.status = :status AND o.fromDate <= :endDate AND o.toDate >= :startDate ORDER BY o.fromDate ASC")
     List<Obstacle> findObstaclesByStatusAndDateRange(
             @Param("status") ObstacleStatus status,

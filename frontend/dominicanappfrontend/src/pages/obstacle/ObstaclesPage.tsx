@@ -14,7 +14,7 @@ function ObstaclesPage () {
     const [obstaclePage, setObstaclePage] = useState<{ content: Obstacle[], totalPages: number }>({ content: [], totalPages: 0 });
     const { error, loading, request } = useHttp();
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const pageSize = 10;
+    const pageSize = 15;
     const navigate = useNavigate();
     const location = useLocation();
     const locationStateMessage = location.state?.message;
@@ -91,7 +91,12 @@ function ObstaclesPage () {
                                 <tr key={obstacle.id}
                                     className={className}>
                                     <td>{obstacle.user.name} {obstacle.user.surname}</td>
-                                    <td className='max-column-width-300'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
+                                    <td className='max-column-width-300 fw-bold'>
+                                        {(!obstacle.tasks || obstacle.tasks.length === 0 || (obstacle.tasks.length === 1 && obstacle.tasks[0].id === 0 && !obstacle.tasks[0].nameAbbrev))
+                                            ? <span className="text-danger">Wszystkie oficja ogólne</span>
+                                            : obstacle.tasks.map(task => task.nameAbbrev).join(", ")
+                                        }
+                                    </td>
                                     <td>{format(obstacle.fromDate, 'dd.MM.yyyy')}</td>
                                     <td>{format(obstacle.toDate, 'dd.MM.yyyy')}</td>
                                     <td>

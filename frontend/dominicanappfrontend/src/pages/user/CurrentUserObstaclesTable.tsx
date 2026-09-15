@@ -71,29 +71,32 @@ function CurrentUserObstaclesTable () {
                                 }
                             }
                             return (
-                                <>
-                                    <tr key={obstacle.id}
-                                        className={className}>
-                                        <td className='max-column-width-200'>{obstacle.tasks.map(task => task.nameAbbrev).join(", ")}</td>
-                                        <td>{format(obstacle.fromDate, "dd.MM.yyyy")}</td>
-                                        <td>{format(obstacle.toDate, "dd.MM.yyyy")}</td>
-                                        <td>
-                                    <span className={
-                                        obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
-                                            obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
-                                                obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
-                                    }>
-                                        {obstacleStatusTranslation[obstacle.status]}
-                                    </span>
-                                        </td>
-                                        <td>
-                                            <button className="btn btn-dark" onClick={() => {
-                                                navigate(`/obstacles/my/${obstacle.id}`)
-                                            }}>Szczegóły
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </>
+                                <tr key={obstacle.id}
+                                    className={className}>
+                                    <td className='max-column-width-200 fw-bold'>
+                                        {(!obstacle.tasks || obstacle.tasks.length === 0 || (obstacle.tasks.length === 1 && obstacle.tasks[0].id === 0 && !obstacle.tasks[0].nameAbbrev))
+                                            ? <span className="text-danger">Wszystkie oficja ogólne</span>
+                                            : obstacle.tasks.map(task => task.nameAbbrev).join(", ")
+                                        }
+                                    </td>
+                                    <td>{format(obstacle.fromDate, "dd.MM.yyyy")}</td>
+                                    <td>{format(obstacle.toDate, "dd.MM.yyyy")}</td>
+                                    <td>
+                                <span className={
+                                    obstacle.status === ObstacleStatus.AWAITING ? 'highlighted-text-awaiting' :
+                                        obstacle.status === ObstacleStatus.APPROVED ? 'highlighted-text-approved' :
+                                            obstacle.status === ObstacleStatus.REJECTED ? 'highlighted-text-rejected' : ''
+                                }>
+                                    {obstacleStatusTranslation[obstacle.status]}
+                                </span>
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-dark" onClick={() => {
+                                            navigate(`/obstacles/my/${obstacle.id}`)
+                                        }}>Szczegóły
+                                        </button>
+                                    </td>
+                                </tr>
                             )
                         })}
                         </tbody>

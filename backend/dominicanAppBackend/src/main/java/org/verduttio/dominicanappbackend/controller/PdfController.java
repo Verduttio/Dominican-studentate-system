@@ -231,12 +231,13 @@ public class PdfController {
     }
 
     @GetMapping("/schedules/special-event/{eventId}/tasks-description")
-    public ResponseEntity<?> generateSchedulePdfForSpecialEventTaskDescriptions(@PathVariable Long eventId) {
+    public ResponseEntity<?> generateSchedulePdfForSpecialEventTaskDescriptions(@PathVariable Long eventId,
+                                                                                @RequestParam(required = false) String roleName) {
         try {
-            byte[] pdfContent = pdfService.generateSchedulePdfForSpecialEventTaskDescriptions(eventId);
+            byte[] pdfContent = pdfService.generateSchedulePdfForSpecialEventTaskDescriptions(eventId, roleName);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=Opisy_oficjow_specjalnych_" + eventId + ".pdf");
+            headers.add("Content-Disposition", "attachment; filename=Opisy_oficjow_specjalnych_" + (roleName != null ? roleName + "_" : "Wszystkie_") + eventId + ".pdf");
 
             return ResponseEntity
                     .ok()

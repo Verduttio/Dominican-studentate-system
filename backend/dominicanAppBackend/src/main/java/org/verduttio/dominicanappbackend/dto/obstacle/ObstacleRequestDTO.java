@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Set;
 
 public class ObstacleRequestDTO {
-    @NotNull(message="User id is mandatory")
+    @NotNull(message="User id can't be null")
     private Long userId;
-    @NotEmpty(message="Task id is mandatory")
+    @NotNull(message="Task id is mandatory")
     private Set<Long> tasksIds;
     @NotNull(message="From date is mandatory")
     private LocalDate fromDate;

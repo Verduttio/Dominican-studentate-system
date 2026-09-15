@@ -1,6 +1,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    Task, UserTasksScheduleInfoWeekly, SpecialEvent, UserTaskScheduleInfo, Role, Conflict, TaskSection, User, Obstacle
+    Task,
+    UserTasksScheduleInfoWeekly,
+    SpecialEvent,
+    UserTaskScheduleInfo,
+    Role,
+    Conflict,
+    TaskSection,
+    User,
+    Obstacle
 } from "../../../models/Interfaces";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {backendUrl} from "../../../utils/constants";
@@ -13,7 +21,25 @@ import {format, parseISO, eachDayOfInterval, startOfWeek, endOfWeek} from "date-
 import { pl } from 'date-fns/locale';
 import ConfirmAssignmentPopup from "../common/ConfirmAssignmentPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faCircleXmark, faXmark, faEye, faEyeSlash, faPlus, faFilePdf, faTrash, faUserPlus} from '@fortawesome/free-solid-svg-icons';
+import {
+    faCircleXmark,
+    faXmark,
+    faEye,
+    faEyeSlash,
+    faPlus,
+    faFilePdf,
+    faTrash,
+    faUserPlus,
+    faCheck,
+    faAdjust,
+    faExpand,
+    faCompress,
+    faTable,
+    faFileLines,
+    faClone,
+    faBold,
+    faItalic
+    } from '@fortawesome/free-solid-svg-icons';
 import UserShortScheduleHistoryPopup from "../common/UserShortScheduleHistoryPopup";
 import {isTaskFullyAssigned, countAssignedUsers} from "./ScheduleUtils";
 import SpecialEventTaskModal from '../../specialEvent/SpecialEventTaskModal';
@@ -52,6 +78,17 @@ function AddScheduleSpecialEvent() {
     const [eventObstacles, setEventObstacles] = useState<Obstacle[]>([]);
     const { request: requestObstacles, loading: loadingObstacles } = useHttp();
 
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [copyLoading, setCopyLoading] = useState(false);
+
+    const [isFullWidth, setIsFullWidth] = useState(false);
+
+    const [comment, setComment] = useState("");
+    const [isCommentLoading, setIsCommentLoading] = useState(false);
+    const [isCommentSaving, setIsCommentSaving] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [isCommentSaved, setIsCommentSaved] = useState(false);
+
     // Dane
     const [event, setEvent] = useState<SpecialEvent | null>(null);
     const [userDependencies, setUserDependencies] = useState<UserTasksScheduleInfoWeekly[]>([]);
@@ -60,7 +97,7 @@ function AddScheduleSpecialEvent() {
     // Requesty
     const { request: requestSchedule, loading: loadingSchedule, error: errorSchedule } = useHttp();
     const { request: requestEvent, loading: loadingEvent } = useHttp();
-    const { request: requestTasks } = useHttp(); // Jeden request do zadań
+    const { request: requestTasks } = useHttp();
     const { request: assignRequest, loading: assignLoading, error: assignError } = useHttp();
     const { request: unassignRequest, loading: unassignLoading, error: unassignError } = useHttp();
     const { request: requestRole } = useHttp();
@@ -81,23 +118,52 @@ function AddScheduleSpecialEvent() {
     const specialTasks = tasks?.filter(t => t.specialEventId !== null && t.specialEventId !== undefined) || [];
 
     const visibleTasks = React.useMemo(() => {
-            if (!tasks) return [];
-            // Jeśli wybrana jest zakładka "Wszystkie", pokaż wszystko
-            if (currentSectionId === null) return tasks;
+        if (!tasks) return [];
+        if (currentSectionId === null) return tasks;
 
-            // Zostaw tylko te zadania, które w swojej tablicy taskSections mają wybraną sekcję
-            return tasks.filter(task => {
-                // Zakładamy, że zwykłe oficja (bez specialEventId) pokazujemy zawsze,
-                // ale jeśli chcesz, by też podlegały sekcjom, zdejmij poniższy warunek
-                const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+        return tasks.filter(task => {
+            const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+            if (!task.taskSections || task.taskSections.length === 0) return false;
+            return task.taskSections.some(sec => sec.id === currentSectionId);
+        });
+    }, [tasks, currentSectionId]);
 
-                // Jeśli to zadanie specjalne, sprawdź jego sekcje
-                if (!task.taskSections || task.taskSections.length === 0) return false;
-                return task.taskSections.some(sec => sec.id === currentSectionId);
-            });
-        }, [tasks, currentSectionId]);
+    const visibleObstacles = React.useMemo(() => {
+        const currentDateStr = format(currentDate, 'yyyy-MM-dd');
+        const filtered = eventObstacles.filter(obs => {
+            const from = format(parseISO(obs.fromDate), 'yyyy-MM-dd');
+            const to = format(parseISO(obs.toDate), 'yyyy-MM-dd');
+            return currentDateStr >= from && currentDateStr <= to;
+        });
 
-    // 1. Pobierz Event i ustaw datę początkową (Tylko raz przy starcie)
+        filtered.sort((a, b) => {
+            const surnameCmp = a.user.surname.localeCompare(b.user.surname);
+            if (surnameCmp !== 0) return surnameCmp;
+            return a.user.name.localeCompare(b.user.name);
+        });
+
+        return filtered;
+    }, [eventObstacles, currentDate]);
+
+    // --- LOGIKA DO SORTOWANIA I POGRUBIANIA ZADAŃ ---
+    const currentSectionName = currentSectionId
+        ? taskSections.find(s => s.id === currentSectionId)?.name
+        : null;
+
+    const sortAssignedTasks = (tasksList: string[]) => {
+        return [...tasksList].sort((a, b) => {
+            const getIndex = (taskStr: string) => {
+                const match = taskStr.match(/\(([^)]+)\)$/); // Wyciąga tekst z nawiasu np. (Rano)
+                if (!match) return -1; // Jeśli nie ma pory dnia (Cały dzień), daj na sam początek
+                const secName = match[1];
+                const idx = taskSections.findIndex(s => s.name === secName);
+                return idx !== -1 ? idx : 999;
+            };
+            return getIndex(a) - getIndex(b);
+        });
+    };
+    // ------------------------------------------------
+
     useEffect(() => {
         requestEvent(null, (data: SpecialEvent) => {
             setEvent(data);
@@ -105,7 +171,6 @@ function AddScheduleSpecialEvent() {
             const end = parseISO(data.endDate);
             const today = new Date();
 
-            // Jeśli dzisiaj jest w trakcie eventu, ustaw dzisiaj, wpp. ustaw start
             if (today >= start && today <= end) {
                 setCurrentDate(today);
             } else {
@@ -114,7 +179,6 @@ function AddScheduleSpecialEvent() {
         }, false, `${backendUrl}/api/special-events/${eventId}`, 'GET');
     }, [eventId, requestEvent]);
 
-    // 2. Pobierz Zadania (Standardowe + Specjalne) - TYLKO RAZ po załadowaniu eventu
     useEffect(() => {
         if (!event || !roleName) return;
 
@@ -122,7 +186,6 @@ function AddScheduleSpecialEvent() {
             let stdTasks: Task[] = [];
             let spcTasks: Task[] = [];
 
-            // Standardowe
             await new Promise<void>(resolve => {
                 requestTasks(null, (data: Task[]) => {
                     stdTasks = data;
@@ -130,7 +193,6 @@ function AddScheduleSpecialEvent() {
                 }, false, `${backendUrl}/api/tasks/bySupervisorRole/${roleName}`, 'GET');
             });
 
-            // Specjalne
             await new Promise<void>(resolve => {
                 requestTasks(null, (data: Task[]) => {
                     spcTasks = data.filter(t => t.supervisorRole.name === roleName);
@@ -138,19 +200,15 @@ function AddScheduleSpecialEvent() {
                 }, false, `${backendUrl}/api/special-events/${eventId}/tasks`, 'GET');
             });
 
-            // Połącz: Standardowe + Specjalne
             setTasks([...stdTasks, ...spcTasks]);
         };
 
         fetchAllTasks();
-    }, [event, roleName, eventId, requestTasks]);
+    }, [event, roleName, eventId, requestTasks, refreshTrigger]);
 
     useEffect(() => {
         if (roleName) {
             requestRole(null, (data: Role[]) => {
-                // API zwraca listę, szukamy odpowiedniej (lub backend ma endpoint byName)
-                // Zakładam, że masz endpoint zwracający listę ról lub konkretną.
-                // Użyję bezpiecznego podejścia: pobierz wszystkie supervisor i znajdź właściwą.
                 const found = data.find(r => r.name === roleName);
                 if (found) setCurrentRoleObj(found);
             }, false, `${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
@@ -159,10 +217,10 @@ function AddScheduleSpecialEvent() {
 
     const handleTaskAdded = () => {
         setShowAddModal(false);
-        window.location.reload(); // Najszybsza metoda, żeby odświeżyć kolumny i tabelę
+        setRefreshTrigger(prev => prev + 1);
+        fetchSchedule();
     };
 
-    // 3. Pobierz Schedule Info (Macierz) - Przy każdej zmianie daty
     const fetchSchedule = () => {
         if (!event) return;
         const dateStr = format(currentDate, 'dd-MM-yyyy');
@@ -185,7 +243,6 @@ function AddScheduleSpecialEvent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentDate, event, currentSectionId]);
 
-    // Pobieranie wszystkich ról i konfliktów (raz przy starcie)
     useEffect(() => {
         requestAllRoles(null, (data: Role[]) => setAllRoles(data), false, `${backendUrl}/api/roles/types/SUPERVISOR`, 'GET');
         fetchConflicts();
@@ -196,8 +253,113 @@ function AddScheduleSpecialEvent() {
         requestAllConflicts(null, (data: Conflict[]) => setAllConflicts(data), false, `${backendUrl}/api/conflicts`, 'GET');
     };
 
+    // --- POBIERANIE KOMENTARZA ---
+    useEffect(() => {
+        if (!event || !roleName) return;
 
-    // Pobieranie wszystkich zatwierdzonych przeszkód dla tego wydarzenia
+        const fetchComment = async () => {
+            setIsCommentLoading(true);
+            try {
+                const dateStr = format(currentDate, 'yyyy-MM-dd');
+                let url = `${backendUrl}/api/special-events/${eventId}/comments?roleName=${roleName}&date=${dateStr}`;
+                if (currentSectionId !== null) {
+                    url += `&sectionId=${currentSectionId}`;
+                }
+
+                const response = await fetch(url, {
+                    headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setComment(data.content || "");
+                }
+            } catch (error) {
+                console.error("Błąd pobierania komentarza:", error);
+            } finally {
+                setIsCommentLoading(false);
+            }
+        };
+
+        fetchComment();
+    }, [currentDate, currentSectionId, event, roleName, eventId]);
+
+    // --- ZAPIS KOMENTARZA ---
+    const handleSaveComment = async (textToSave: string = comment) => {
+        setIsCommentSaving(true);
+        try {
+            const dateStr = format(currentDate, 'yyyy-MM-dd');
+            let url = `${backendUrl}/api/special-events/${eventId}/comments?roleName=${roleName}&date=${dateStr}`;
+            if (currentSectionId !== null) {
+                url += `&sectionId=${currentSectionId}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include',
+                body: JSON.stringify({ content: textToSave })
+            });
+
+            if (response.ok) {
+                // ZMIANA: Zamiast alertu, odpalamy animację na przycisku na 2 sekundy
+                if (textToSave !== "") {
+                    setIsCommentSaved(true);
+                    setTimeout(() => setIsCommentSaved(false), 2000);
+                }
+            } else {
+                alert("Wystąpił błąd podczas zapisywania komentarza.");
+            }
+        } catch (error) {
+            console.error("Błąd zapisu komentarza:", error);
+            alert("Wystąpił błąd podczas zapisywania komentarza.");
+        } finally {
+            setIsCommentSaving(false);
+        }
+    };
+
+    // --- USUWANIE KOMENTARZA ---
+    const handleDeleteComment = () => {
+        if (window.confirm("Czy na pewno chcesz trwale usunąć ten komentarz?")) {
+            setComment("");
+            handleSaveComment(""); // Natychmiastowy zapis pustego stringa (co usuwa go z bazy)
+        }
+    };
+
+    // --- WSTAWIANIE TAGÓW HTML W MIEJSCU KURSORA ---
+    const insertTag = (startTag: string, endTag: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = comment;
+
+        const before = text.substring(0, start);
+        const selected = text.substring(start, end);
+        const after = text.substring(end, text.length);
+
+        const newText = before + startTag + selected + endTag + after;
+        setComment(newText);
+
+        // Ustawienie kursora po wstawieniu
+        setTimeout(() => {
+            textarea.focus();
+            if (start === end) {
+                // Brak zaznaczenia - kursor wpada pomiędzy tagi
+                textarea.setSelectionRange(start + startTag.length, start + startTag.length);
+            } else {
+                // Było zaznaczenie - kursor wędruje na sam koniec
+                textarea.setSelectionRange(start + startTag.length + selected.length + endTag.length, start + startTag.length + selected.length + endTag.length);
+            }
+        }, 0);
+    };
+
+
     useEffect(() => {
         if (!event) return;
         requestObstacles(null, (data: Obstacle[]) => {
@@ -208,18 +370,15 @@ function AddScheduleSpecialEvent() {
                 if (obs.status !== 'APPROVED') return false;
                 const obsStart = new Date(obs.fromDate);
                 const obsEnd = new Date(obs.toDate);
-                // Sprawdzamy czy przeszkoda zahacza o ramy czasowe eventu
                 return obsStart <= eventEnd && obsEnd >= eventStart;
             });
 
-            // Sortujemy chronologicznie
             approvedForEvent.sort((a, b) => new Date(a.fromDate).getTime() - new Date(b.fromDate).getTime());
 
             setEventObstacles(approvedForEvent);
         }, false, `${backendUrl}/api/obstacles`, 'GET');
     }, [event, requestObstacles]);
 
-    // Pobieranie zadań do drugiego dropdowna (Zwykłe + Specjalne z tego eventu) po wybraniu kategorii
     useEffect(() => {
         if (!selectedConflictRole || !event) {
             setConflictTasks2([]);
@@ -243,13 +402,12 @@ function AddScheduleSpecialEvent() {
             });
 
             setConflictTasks2([...stdTasks, ...spcTasks]);
-            setSelectedTask2Ids([]); // Reset wyboru po zmianie kategorii
+            setSelectedTask2Ids([]);
         };
 
         fetchTasksForConflict();
     }, [selectedConflictRole, event, eventId, requestConflictTasks]);
 
-    // Pobieranie dostępnych pór dnia (sekcji)
     useEffect(() => {
         requestTaskSections(null, (data: TaskSection[]) => {
             setTaskSections(data);
@@ -257,9 +415,6 @@ function AddScheduleSpecialEvent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // --- FUNKCJE OBSŁUGI KOLIZJI ---
-
-    // Sprawdza, czy kolizja między wybranym task1 a danym task2 już istnieje
     const isConflictExisting = (task2Id: number) => {
         if (!conflictTask1Id) return false;
         return allConflicts.some(c =>
@@ -280,7 +435,6 @@ function AddScheduleSpecialEvent() {
         const allDays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
         for (const task2Id of selectedTask2Ids) {
-            // Podwójne zabezpieczenie przed wysłaniem duplikatu
             if (isConflictExisting(task2Id)) continue;
 
             const conflictData = {
@@ -290,7 +444,6 @@ function AddScheduleSpecialEvent() {
             };
 
             await new Promise<void>(resolve => {
-                // Jeśli request zwroci błąd, ignorujemy go i pętla leci dalej do kolejnego zadania
                 addConflictRequest(conflictData, () => resolve(), false, `${backendUrl}/api/conflicts`, 'POST')
                     .catch(() => resolve());
             });
@@ -311,17 +464,79 @@ function AddScheduleSpecialEvent() {
         }
     };
 
+    const handleCopyDay = async (targetDate: Date) => {
+        if (!window.confirm(`Czy na pewno chcesz skopiować widoczne przypisania z ${format(currentDate, 'dd.MM')} na dzień ${format(targetDate, 'dd.MM')}?`)) return;
+
+        setCopyLoading(true);
+        const sourceDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const targetDateStr = dateFormatter.formatDate(format(targetDate, 'dd-MM-yyyy'));
+
+        let url = `${backendUrl}/api/schedules/special-event/${eventId}/copy-day?sourceDate=${sourceDateStr}&targetDate=${targetDateStr}&roleName=${roleName}`;
+
+        if (currentSectionId !== null) {
+            url += `&sectionId=${currentSectionId}`;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error("Błąd z serwera podczas kopiowania");
+
+            fetchSchedule();
+            alert("Kopiowanie zakończone sukcesem!");
+
+        } catch (error) {
+            console.error("Błąd podczas kopiowania dnia", error);
+            alert("Wystąpił problem podczas kopiowania.");
+        } finally {
+            setCopyLoading(false);
+        }
+    };
+
+    const handleCopyFromNormalWeek = async () => {
+        if (!window.confirm(`Czy na pewno chcesz pobrać zwykłe oficja z dnia ${format(currentDate, 'dd.MM')} i rozdzielić je na pory dnia dla Wydarzenia Specjalnego?`)) return;
+
+        setCopyLoading(true);
+        const dateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const url = `${backendUrl}/api/schedules/special-event/${eventId}/copy-from-normal-week?date=${dateStr}&roleName=${roleName}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error("Błąd z serwera podczas kopiowania");
+
+            fetchSchedule();
+            alert("Pobrano oficja ze zwykłego tygodnia!");
+
+        } catch (error) {
+            console.error("Błąd podczas pobierania oficjów ze zwykłego tygodnia", error);
+            alert("Wystąpił problem podczas pobierania oficjów.");
+        } finally {
+            setCopyLoading(false);
+        }
+    };
+
     const handleSelectAllTasks2 = () => {
         if (!conflictTask1Id) {
             alert("Najpierw wybierz oficjum w kroku 1!");
             return;
         }
 
-        // Bierzemy tylko te zadania, które NIE MAJĄ jeszcze kolizji
         const availableTasks = conflictTasks2.filter(t => !isConflictExisting(t.id));
         if (availableTasks.length === 0) return;
 
-        // Jeśli wszystkie dostępne są już zaznaczone, odznaczamy je. Wpp. zaznaczamy wszystkie dostępne.
         const allAvailableSelected = availableTasks.every(t => selectedTask2Ids.includes(t.id));
 
         if (allAvailableSelected) {
@@ -331,18 +546,15 @@ function AddScheduleSpecialEvent() {
         }
     };
 
-    // --- LOGIKA POBIERANIA PDF ---
     const downloadPdf = async (url: string, filename: string) => {
         try {
-            // Pobieramy token, jeśli go używasz dodatkowo (nie zaszkodzi zostawić)
             const token = localStorage.getItem('token');
-
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 },
-                credentials: 'include' // <-- TO ROZWIĄZUJE PROBLEM 401 (Wysyła ciasteczko sesyjne)
+                credentials: 'include'
             });
 
             if (!response.ok) {
@@ -376,7 +588,20 @@ function AddScheduleSpecialEvent() {
         downloadPdf(url, `Tabela_${roleName}.pdf`);
     };
 
-    // --- LOGIKA PRZYPISYWANIA ---
+    const handlePrintAllMatrix = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/matrix`;
+        downloadPdf(url, `Caly_Harmonogram_${event?.name || 'Event'}.pdf`);
+    };
+
+    const handlePrintAllDescriptions = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description`;
+        downloadPdf(url, `Opisy_Wszystkich_Oficjow_${event?.name || 'Event'}.pdf`);
+    };
+
+    const handlePrintRoleDescriptions = () => {
+        const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description?roleName=${roleName}`;
+        downloadPdf(url, `Opisy_Oficjow_${roleName}_${event?.name || 'Event'}.pdf`);
+    };
 
     function handleSubmit(userId: number, taskId: number) {
         const dep = userDependencies.find(d => d.userId === userId);
@@ -385,7 +610,10 @@ function AddScheduleSpecialEvent() {
         const limit = task?.participantsLimit || 0;
         const assignedCount = countAssignedUsers(taskId, userDependencies);
 
-        if (udep?.isInConflict && assignedCount >= limit) {
+        if (udep?.hasObstacle) {
+            setPopupData({ userId, taskId, text: "Ten brat ma w tym czasie wpisaną PRZESZKODĘ. Czy na pewno chcesz go wyznaczyć mimo to?" });
+            setShowConfirmPopup(true);
+        } else if (udep?.isInConflict && assignedCount >= limit) {
             setPopupData({ userId, taskId, text: "Brat wykonuje inne oficjum (konflikt) ORAZ limit miejsc wyczerpany. Przypisać?" });
             setShowConfirmPopup(true);
         } else if (udep?.isInConflict) {
@@ -399,130 +627,203 @@ function AddScheduleSpecialEvent() {
         }
     }
 
-    function assignToTask(userId: number, taskId: number) {
+    async function assignToTask(userId: number, taskId: number) {
         const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
-        // Backend wymaga pełnego tygodnia do walidacji
         const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
         const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
 
-        const reqData = {
-            userId: userId,
-            taskId: taskId,
-            taskDate: taskDateStr,
-            weekStartDate: weekStartStr,
-            weekEndDate: weekEndStr,
-            taskSectionId: currentSectionId
-        };
+        const task = visibleTasks.find(t => t.id === taskId);
+        const specificSections = task?.taskSections || [];
 
-        assignRequest(reqData, () => {
+        if (specificSections.length > 0) {
+            try {
+                const promises = specificSections.map(sec => {
+                    if (currentSectionId !== null && currentSectionId !== sec.id) return Promise.resolve(null);
+
+                    const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: sec.id };
+                    return fetch(`${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(reqData)
+                    });
+                });
+
+                await Promise.all(promises);
+                fetchSchedule();
+                setShowConfirmPopup(false);
+            } catch (err) {
+                console.error("Błąd podczas przypisywania do wielu sekcji", err);
+            }
+        } else {
+            const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
+            assignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST')
+                .then(() => setShowConfirmPopup(false));
+        }
+    }
+
+    async function unassignTask(userId: number, taskId: number) {
+        const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
+        const task = visibleTasks.find(t => t.id === taskId);
+        const specificSections = task?.taskSections || [];
+        const isSpecialTask = task?.specialEventId !== null && task?.specialEventId !== undefined;
+
+        try {
+            if (currentSectionId !== null) {
+                const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${currentSectionId}`;
+                await fetch(url, {
+                    method: 'DELETE',
+                    headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                    credentials: 'include'
+                });
+            } else {
+                if (specificSections.length > 0) {
+                    const promises = specificSections.map(sec => {
+                        const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}&sectionId=${sec.id}`;
+                        return fetch(url, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        });
+                    });
+
+                    if (isSpecialTask) {
+                        const urlNull = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                        promises.push(fetch(urlNull, {
+                            method: 'DELETE',
+                            headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                            credentials: 'include'
+                        }));
+                    }
+
+                    await Promise.all(promises);
+                } else {
+                    const url = `${backendUrl}/api/schedules/special-event/daily?userId=${userId}&taskId=${taskId}&date=${taskDateStr}`;
+                    await fetch(url, {
+                        method: 'DELETE',
+                        headers: { ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}) },
+                        credentials: 'include'
+                    });
+                }
+            }
             fetchSchedule();
-        }, false, `${backendUrl}/api/schedules/forDailyPeriod?ignoreConflicts=true`, 'POST')
-            .then(() => setShowConfirmPopup(false));
+        } catch (err) {
+            console.error("Błąd podczas usuwania", err);
+        }
     }
 
-    function unassignTask(userId: number, taskId: number) {
-        const taskDateStr = dateFormatter.formatDate(format(currentDate, 'dd-MM-yyyy'));
-        const weekStartStr = dateFormatter.formatDate(format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-        const weekEndStr = dateFormatter.formatDate(format(endOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy'));
-
-        const reqData = { userId, taskId, taskDate: taskDateStr, weekStartDate: weekStartStr, weekEndDate: weekEndStr, taskSectionId: currentSectionId };
-
-        unassignRequest(reqData, () => fetchSchedule(), false, `${backendUrl}/api/schedules/forDailyPeriod`, 'DELETE');
-    }
-
-    const statsOnButton = (numberOfWeeklyAssignsFromStatsDate: number, lastAssignedWeeksAgo: number) => {
-        return `${lastAssignedWeeksAgo}|${numberOfWeeklyAssignsFromStatsDate}`;
-    }
-
-    // --- RENDEROWANIE KOMÓRKI (ZMODYFIKOWANE) ---
     const renderUserTaskScheduleInfo = (dep: UserTasksScheduleInfoWeekly, udep: UserTaskScheduleInfo, task: Task | undefined) => {
-        // 1. Logika ukrywania
-        // Sprawdzamy czy task jest specjalny (ma ID eventu)
         const isSpecial = task?.specialEventId !== null && task?.specialEventId !== undefined;
-        // Jeśli NIE jest specjalny i NIE mamy pokazywać standardowych -> ukryj
-        const isHidden = !isSpecial && !showStandardTasks;
-        const hiddenClass = isHidden ? "d-none" : "";
+        const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
+        const cellStyle: React.CSSProperties = {
+                width: "80px",
+                minWidth: "80px",
+                maxWidth: "80px",
+                verticalAlign: "middle"
+            };
 
         if (!udep.visible) {
             return (
-                <td key={udep.taskId} className={hiddenClass}>
-                    <button className="btn btn-secondary" disabled>
-                        <FontAwesomeIcon icon={faCircleXmark}/>
-                    </button>
+                <td key={udep.taskId} className={hiddenClass} style={cellStyle}>
+                    <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faCircleXmark}/></button>
                 </td>
             );
         }
 
         if (!udep.hasRoleForTheTask) {
             return (
-                <td key={udep.taskId} className={hiddenClass}>
-                    <button className="btn btn-secondary" disabled>
-                        <FontAwesomeIcon icon={faXmark}/>
-                    </button>
+                <td key={udep.taskId} className={hiddenClass} style={cellStyle}>
+                    <button className="btn btn-secondary" disabled><FontAwesomeIcon icon={faXmark}/></button>
                 </td>
             );
         }
 
-        // Tło komórki jeśli task pełny
         const cellClass = isTaskFullyAssigned(udep.taskId, visibleTasks, userDependencies) ? "bg-secondary" : "";
-
-        // Łączymy klasę tła z klasą ukrywania
         const finalClass = `${cellClass} ${hiddenClass}`;
+        const isPartiallyAssigned = !!udep.partiallyAssigned;
 
-        // Logika przycisków
         if (!udep.hasObstacle) {
             if (udep.assignedToTheTask) {
-                // PRZYPISANY
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className={udep.isInConflict ? 'highlighted-text-conflict' : ''}>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
                 );
-            } else {
-                // NIEPRZYPISANY (Można przypisać)
+            } else if (isPartiallyAssigned) {
+                    return (
+                        <td key={udep.taskId} className={finalClass} style={cellStyle}>
+                            <button
+                                className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-success'}
+                                onClick={() => unassignTask(dep.userId, udep.taskId)}
+                                disabled={assignLoading || unassignLoading}
+                                title="Częściowo wyznaczony. Kliknij, aby dodać na pozostałe pory."
+                            >
+                                <FontAwesomeIcon icon={faAdjust} />
+                            </button>
+                        </td>
+                    );
+                } else {
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
                             className={udep.isInConflict ? 'btn btn-warning' : 'btn btn-dark'}
                             onClick={() => handleSubmit(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
             }
         } else {
-            // MA PRZESZKODĘ
             if (udep.assignedToTheTask) {
-                // Przypisany mimo przeszkody
                 return (
-                    <td key={udep.taskId} className={finalClass}>
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
                         <button
-                            className='btn btn-info'
+                            className='btn btn-danger'
                             onClick={() => unassignTask(dep.userId, udep.taskId)}
                             disabled={assignLoading || unassignLoading}
                         >
                             <span className='highlighted-text-conflict'>
-                                {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                                <FontAwesomeIcon icon={faCheck} />
                             </span>
                         </button>
                     </td>
                 );
-            } else {
-                // Przeszkoda, nie przypisany (zablokowany)
+            } else if (isPartiallyAssigned) {
                 return (
-                    <td key={udep.taskId} className={finalClass}>
-                        <button className='btn btn-info' disabled={true}>
-                            {statsOnButton(udep.numberOfWeeklyAssignsFromStatsDate, udep.lastAssignedWeeksAgo)}
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
+                        <button
+                            className='btn btn-danger'
+                            onClick={() => unassignTask(dep.userId, udep.taskId)}
+                            disabled={assignLoading || unassignLoading}
+                            title="Częściowo wyznaczony mimo przeszkody. Kliknij, aby usunąć wszystkie pory."
+                        >
+                            <FontAwesomeIcon icon={faAdjust} />
+                        </button>
+                    </td>
+                );
+            } else {
+                return (
+                    <td key={udep.taskId} className={finalClass} style={cellStyle}>
+                        <button
+                            className='btn btn-danger'
+                            onClick={() => handleSubmit(dep.userId, udep.taskId)}
+                            disabled={assignLoading || unassignLoading}
+                            title="Przeszkoda!"
+                        >
+                            <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </td>
                 );
@@ -530,7 +831,6 @@ function AddScheduleSpecialEvent() {
         }
     }
 
-    // --- PASEK DNI EVENTU ---
     const renderDaySelector = () => {
         if (!event) return null;
         const days = eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) });
@@ -555,7 +855,6 @@ function AddScheduleSpecialEvent() {
         );
     };
 
-    // --- PASEK SEKCJI (PÓR DNIA) ---
     const renderSectionTabs = () => {
         return (
             <div className="d-flex justify-content-center flex-wrap gap-2 mb-4">
@@ -588,20 +887,45 @@ function AddScheduleSpecialEvent() {
         return user ? user.userName : "unknown";
     }
 
-    // Funkcja wywoływana po kliknięciu w imię z lewej strony macierzy
     const handleNameClick = (userId: number) => {
-        // Pobieramy pełne dane użytkownika, żeby sprawdzić jego role
         fetchUserRequest(null, (user: User) => {
             const isGuest = user.roles.some(r => r.name === 'ROLE_GUEST');
             if (isGuest) {
-                // Jeśli to gość, otwieramy modal do edycji
                 setGuestToEdit(user);
                 setShowGuestModal(true);
             } else {
-                // Jeśli to brat, standardowo otwieramy jego historię
                 setHistoryPopup({ show: true, userId: userId });
             }
         }, false, `${backendUrl}/api/users/${userId}`, 'GET');
+    };
+
+    // --- STYLE DLA ZAMROŻONYCH KOLUMN ---
+    // ROGI GÓRNE (Muszą być najwyżej, z-index: 1040)
+    const stickyHeader1Style: React.CSSProperties = {
+        position: 'sticky', left: 0, top: 0, zIndex: 1040, backgroundColor: '#212529',
+        minWidth: '140px', width: '140px', maxWidth: '140px', verticalAlign: 'middle'
+    };
+    const stickyHeader2Style: React.CSSProperties = {
+        position: 'sticky', left: '140px', top: 0, zIndex: 1040, backgroundColor: '#212529',
+        minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #495057', verticalAlign: 'middle'
+    };
+    const stickyRightHeaderStyle: React.CSSProperties = {
+        position: 'sticky', right: 0, top: 0, zIndex: 1040, backgroundColor: '#000', color: '#fff', // Czarne tło, biały tekst
+        minWidth: '80px', width: '80px', maxWidth: '80px', borderLeft: '2px solid #495057', verticalAlign: 'middle', whiteSpace: 'normal'
+    };
+
+    // KOLUMNY BOCZNE (Niżej niż rogi, z-index: 1020)
+    const stickyCell1Style: React.CSSProperties = {
+        position: 'sticky', left: 0, zIndex: 1020, backgroundColor: '#fff',
+        minWidth: '140px', width: '140px', maxWidth: '140px', verticalAlign: 'middle'
+    };
+    const stickyCell2Style: React.CSSProperties = {
+        position: 'sticky', left: '140px', zIndex: 1020, backgroundColor: '#fff',
+        minWidth: '220px', width: '220px', maxWidth: '220px', borderRight: '2px solid #dee2e6', verticalAlign: 'middle'
+    };
+    const stickyRightCellStyle: React.CSSProperties = {
+        position: 'sticky', right: 0, zIndex: 1020, backgroundColor: '#000000', color: '#ffc107', // Czarne tło, złoty tekst
+        minWidth: '80px', width: '80px', maxWidth: '80px', borderLeft: '2px solid #dee2e6', verticalAlign: 'middle', fontWeight: 'bold', fontSize: '1.2rem'
     };
 
     if (loadingEvent || isFunkcyjnyLoading || !event) return <LoadingSpinner />;
@@ -609,7 +933,6 @@ function AddScheduleSpecialEvent() {
 
     return (
         <div className="fade-in">
-            {/* Header stylizowany jak w AddScheduleDaily */}
             <h3 className="fw-bold entity-header-dynamic-size mb-0 mx-4">
                 {event.name} - {roleName}
             </h3>
@@ -625,22 +948,53 @@ function AddScheduleSpecialEvent() {
                 <AlertBox text={errorSchedule || assignError || unassignError} type="danger" width="500px"/>
             )}
 
+            <div className="card shadow-sm mb-4 mx-auto" style={{ maxWidth: '900px' }}>
+                <div className="card-body p-3">
+                    <div className="row text-center">
+                        <div className="col-md-6 border-end">
+                            <h6 className="fw-bold text-muted mb-3">Wydruki dla: {roleName}</h6>
+                            <div className="d-flex flex-wrap justify-content-center gap-2">
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintDaily}>
+                                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
+                                    Ten dzień
+                                </button>
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintMatrix}>
+                                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
+                                    Wszystkie dni
+                                </button>
+                                <button className="btn btn-dark btn-sm shadow-sm" onClick={handlePrintRoleDescriptions}>
+                                    <FontAwesomeIcon icon={faFileLines} className="me-2"/>
+                                    Opisy oficjów
+                                </button>
+                            </div>
+                        </div>
 
-            {/* --- NOWE PRZYCISKI PDF --- */}
-            <div className="d-flex justify-content-center gap-2 mb-3">
-                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintDaily}>
-                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
-                    Wydruk na dany dzień
-                </button>
-
-                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintMatrix}>
-                    <FontAwesomeIcon icon={faFilePdf} className="me-2"/>
-                    Wydruk całej tabeli ({roleName})
-                </button>
+                        <div className="col-md-6">
+                            <h6 className="fw-bold text-muted mb-3">Wydruki dla całego wydarzenia</h6>
+                            <div className="d-flex flex-wrap justify-content-center gap-2">
+                                <button className="btn btn-warning btn-sm shadow-sm" onClick={handlePrintAllMatrix}>
+                                    <FontAwesomeIcon icon={faTable} className="me-2"/>
+                                    Tabela zbiorcza
+                                </button>
+                                <button className="btn btn-dark btn-sm shadow-sm" onClick={handlePrintAllDescriptions}>
+                                    <FontAwesomeIcon icon={faFileLines} className="me-2"/>
+                                    Wszystkie opisy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {/* PRZYCISKI STERUJĄCE */}
+
             <div className="d-flex justify-content-center gap-2 mb-3">
-                {/* Przycisk 1: Pokaż/Ukryj */}
+                <button
+                    className="btn btn-primary btn-sm shadow-sm"
+                    onClick={() => setIsFullWidth(!isFullWidth)}
+                >
+                    <FontAwesomeIcon icon={isFullWidth ? faCompress : faExpand} className="me-2"/>
+                    {isFullWidth ? "Zwiń widok macierzy" : "Pełna szerokość macierzy"}
+                </button>
+
                 <button
                     className="btn btn-dark btn-sm shadow-sm"
                     onClick={() => setShowStandardTasks(!showStandardTasks)}
@@ -649,12 +1003,11 @@ function AddScheduleSpecialEvent() {
                     {showStandardTasks ? "Ukryj obowiązki standardowe" : "Pokaż obowiązki standardowe"}
                 </button>
 
-                {/* Przycisk 2: Dodaj Zadanie Specjalne (widoczny jeśli mamy rolę i event) */}
                 {currentRoleObj && event && (
                     <button
                         className="btn btn-success btn-sm shadow-sm"
                         onClick={() => {
-                            setTaskToEdit(null); // Czyszczenie przed dodaniem
+                            setTaskToEdit(null);
                             setShowAddModal(true);
                         }}
                     >
@@ -664,372 +1017,502 @@ function AddScheduleSpecialEvent() {
                 )}
             </div>
 
-            {/* Macierz */}
             {loadingSchedule ? <LoadingSpinner/> : (
-                <div className="d-flex-no-media-resize justify-content-center">
-                    <div className="table-responsive">
-                        <table className="table table-hover table-striped table-rounded table-shadow text-center w-auto mx-auto">
-                            <thead className="table-dark sticky-top">
-                            <tr>
-                                <th>Brat</th>
-                                <th>Oficja</th>
-                                {visibleTasks?.map(task => {
-                                    const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
-                                    const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
-
-                                    return (
-                                        <th
-                                            key={task.id}
-                                            className={`${(isSpecial) ? "bg-warning text-dark" : ""} ${hiddenClass}`}
-                                            style={{cursor: "pointer"}}
-                                            onClick={() => {
-                                                setTaskToEdit(task);
-                                                setShowAddModal(true);
-                                            }}
-                                        >
-                                            {task.nameAbbrev}
-                                        </th>
-                                    );
-                                })}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {userDependencies.map((dep, idx) => (
-                                <tr key={idx}>
-                                    <td>
-                                        <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
-                                            {dep.userName}
-                                        </button>
-                                    </td>
-                                    <td className='max-column-width-200'>
-                                        {dep.assignedTasks.map((task, index) => (
-                                            <React.Fragment key={index}>
-                                                {index !== 0 && ', '}
-                                                <strong>{task}</strong>
-                                            </React.Fragment>
-                                        ))}
-                                    </td>
-
-                                    {dep.userTasksScheduleInfo?.map((udep, cellIndex) => {
-                                        const correspondingTask = visibleTasks[cellIndex];
-                                        return renderUserTaskScheduleInfo(dep, udep, correspondingTask);
-                                    })}
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {/* --- Dodaj gościa --- */}
-            <button
-                className="btn btn-info btn-sm shadow-sm"
-                onClick={() => {
-                    setGuestToEdit(null); // Reset przed dodaniem nowego
-                    setShowGuestModal(true);
-                }}
-            >
-                <FontAwesomeIcon icon={faUserPlus} className="me-2" />
-                Dodaj gościa
-            </button>
-
-            {/* --- SEKCJA ZATWIERDZONYCH PRZESZKÓD --- */}
-            <div className="d-flex flex-column align-items-center mb-5 mt-5">
-                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                    Zatwierdzone Przeszkody
-                </h3>
-                <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
-                    <div className="card-body p-0">
-                        {loadingObstacles ? (
-                             <div className="text-center p-4"><LoadingSpinner /></div>
-                        ) : eventObstacles.length === 0 ? (
-                            <div className="text-center text-muted p-4">
-                                Brak zatwierdzonych przeszkód w terminie tego wydarzenia.
-                            </div>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table table-hover table-striped mb-0 text-center align-middle">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>Kto</th>
-                                            <th>Kiedy (Dzień + Pory)</th>
-                                            <th>Oficja</th>
-                                            <th>Opis wniosku</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {eventObstacles.map(obs => (
-                                            <tr key={obs.id}>
-                                                <td className="fw-bold text-nowrap">
-                                                    {obs.user.name} {obs.user.surname}
-                                                </td>
-                                                <td className="text-nowrap">
-                                                    <div className="fw-bold text-danger">
-                                                        {format(parseISO(obs.fromDate), 'dd.MM')}
-                                                        {obs.fromDate !== obs.toDate && ` - ${format(parseISO(obs.toDate), 'dd.MM')}`}
-                                                    </div>
-                                                    <div className="small text-muted fw-bold">
-                                                        {obs.taskSections && obs.taskSections.length > 0
-                                                            ? obs.taskSections.map(s => s.name).join(', ')
-                                                            : "Cały dzień"}
-                                                    </div>
-                                                </td>
-                                                <td style={{ maxWidth: '200px' }}>
-                                                    <div className="d-flex flex-wrap justify-content-center gap-1">
-                                                        {obs.tasks && obs.tasks.length > 0 ? (
-                                                            obs.tasks.map(t => (
-                                                                <span
-                                                                    key={t.id}
-                                                                    className="badge bg-primary shadow-sm text-wrap text-break"
-                                                                    style={{ lineHeight: '1.4' }}
-                                                                >
-                                                                    {t.nameAbbrev}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span
-                                                                className="badge bg-secondary shadow-sm text-wrap text-break"
-                                                                style={{ lineHeight: '1.4' }}
-                                                            >
-                                                                Wszystkie
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="text-start small" style={{ maxWidth: '300px' }}>
-                                                    {obs.applicantDescription || <span className="text-muted fst-italic">Brak opisu</span>}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* --- SEKCJA KOLIZJI (POD MACIERZĄ) --- */}
-            <div className="d-flex flex-column align-items-center mb-5">
-                <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
-                    Kolizje
-                </h3>
-
-                {/* FORMULARZ DODAWANIA KOLIZJI */}
-                <div className="card shadow-sm mb-5" style={{ minWidth: '400px', maxWidth: '100%' }}>
-                    <div className="card-header bg-dark text-white">
-                        <h6 className="mb-0">Dodaj nową kolizję</h6>
-                    </div>
-                    <div className="card-body">
-                        {/* Krok 1: Oficjum 1 */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">1. Wybierz oficjum specjalne (Baza)</label>
-                            <select
-                                className="form-select"
-                                value={conflictTask1Id}
-                                onChange={(e) => setConflictTask1Id(Number(e.target.value) || '')}
-                            >
-                                <option value="">-- Wybierz oficjum --</option>
-                                {specialTasks.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name} ({t.nameAbbrev})</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Krok 2: Kategoria dla Oficjum 2 */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">2. Kategoria drugiego oficjum</label>
-                            <select
-                                className="form-select"
-                                value={selectedConflictRole}
-                                onChange={(e) => setSelectedConflictRole(e.target.value)}
-                            >
-                                <option value="">-- Wybierz kategorię --</option>
-                                {allRoles.map(r => (
-                                    <option key={r.id} value={r.name}>{r.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Krok 3: Wybór konkretnych zadań (Checkbox list) */}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold">3. Wybierz oficjum(a) kolidujące</label>
-                            <div className="border rounded p-2" style={{maxHeight: '200px', overflowY: 'auto', backgroundColor: '#f8f9fa'}}>
-                                {!conflictTask1Id ? (
-                                    <span className="text-muted small">Wybierz oficjum z punktu 1...</span>
-                                ) : selectedConflictRole === '' ? (
-                                    <span className="text-muted small">Wybierz kategorię z punktu 2...</span>
-                                ) : conflictTasks2.length === 0 ? (
-                                    <span className="text-muted small">Brak oficjów w tej kategorii.</span>
-                                ) : (
-                                    <>
-                                        {(() => {
-                                            const availableTasks = conflictTasks2.filter(t => !isConflictExisting(t.id));
-                                            const allAvailableSelected = availableTasks.length > 0 && availableTasks.every(t => selectedTask2Ids.includes(t.id));
-
-                                            return (
-                                                <>
-                                                    {/* OPCJA ZAZNACZ WSZYSTKO */}
-                                                    <div className="form-check border-bottom pb-2 mb-2">
-                                                        <input
-                                                            className="form-check-input"
-                                                            type="checkbox"
-                                                            id="selectAllTasks2"
-                                                            checked={allAvailableSelected}
-                                                            onChange={handleSelectAllTasks2}
-                                                            disabled={availableTasks.length === 0}
-                                                        />
-                                                        <label className="form-check-label fw-bold small text-primary" htmlFor="selectAllTasks2" style={{cursor: availableTasks.length > 0 ? 'pointer' : 'not-allowed'}}>
-                                                            {availableTasks.length === 0 ? "Wszystkie możliwe kolizje już istnieją" : "Zaznacz wszystkie poniższe"}
-                                                        </label>
-                                                    </div>
-
-                                                    {/* LISTA ZADAŃ */}
-                                                    {conflictTasks2.map(t => {
-                                                        const alreadyExists = isConflictExisting(t.id);
-                                                        return (
-                                                            <div className="form-check" key={t.id}>
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    id={`ctask-${t.id}`}
-                                                                    // Jeśli istnieje, traktujemy jako checked wizualnie, ale go blokujemy
-                                                                    checked={selectedTask2Ids.includes(t.id) || alreadyExists}
-                                                                    disabled={alreadyExists}
-                                                                    onChange={() => toggleTask2Selection(t.id)}
-                                                                />
-                                                                <label
-                                                                    className={`form-check-label small ${alreadyExists ? 'text-muted' : ''}`}
-                                                                    htmlFor={`ctask-${t.id}`}
-                                                                    style={{cursor: alreadyExists ? 'not-allowed' : 'pointer'}}
-                                                                >
-                                                                    {t.name}
-                                                                    {t.specialEventId && <span className="badge bg-warning text-dark ms-1">Specjalne</span>}
-                                                                    {alreadyExists && <span className="badge bg-secondary ms-1">Już dodano</span>}
-                                                                </label>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </>
-                                            );
-                                        })()}
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="d-flex justify-content-end mt-4">
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleAddConflict}
-                                disabled={!conflictTask1Id || selectedTask2Ids.length === 0 || addConflictLoading}
-                            >
-                                {addConflictLoading ? <LoadingSpinner /> : <><FontAwesomeIcon icon={faPlus} className="me-2"/> Utwórz kolizje</>}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* TABELA AKTYWNYCH KOLIZJI */}
-                <div className="card shadow-sm w-auto" style={{ minWidth: '600px', maxWidth: '100%' }}>
-                    <div className="card-body p-0">
-                        <div className="table-responsive">
-                            <table className="table table-hover table-striped mb-0 text-center align-middle">
-                                <thead className="table-dark">
-                                    <tr>
-                                        <th style={{ width: '30%' }}>Oficjum Specjalne</th>
-                                        <th style={{ width: '70%' }}>Koliduje z...</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {specialTasks.length === 0 && (
-                                        <tr><td colSpan={2} className="text-muted p-4">Brak oficjów specjalnych w tej kategorii.</td></tr>
-                                    )}
-                                    {specialTasks.map(spcTask => {
-                                        const relatedConflicts = allConflicts.filter(c => c.task1.id === spcTask.id || c.task2.id === spcTask.id);
-
-                                        if (relatedConflicts.length === 0) return null;
+                <div
+                    style={isFullWidth ? { width: '100%', marginLeft: 'calc(50% - 50vw)' } : {}}
+                    className={isFullWidth ? "px-4 pb-3" : "d-flex justify-content-center w-100"}
+                >
+                    {/* USUNIĘTO: class="table-responsive" oraz style z maxHeight/overflow */}
+                    <div className="shadow-sm">
+                        <table className={`table table-hover table-striped table-rounded mb-0 text-center ${isFullWidth ? 'w-100' : 'w-auto mx-auto'}`}>
+                            <thead className="table-dark">
+                                <tr>
+                                    <th style={stickyHeader1Style}>Brat</th>
+                                    <th style={stickyHeader2Style}>Oficja</th>
+                                    {visibleTasks?.map(task => {
+                                        const isSpecial = task.specialEventId !== null && task.specialEventId !== undefined;
+                                        const hiddenClass = (!isSpecial && !showStandardTasks) ? "d-none" : "";
 
                                         return (
-                                            <tr key={spcTask.id}>
-                                                <td className="fw-bold border-end">{spcTask.name}</td>
-                                                <td className="text-start p-3">
-                                                    <div className="d-flex flex-wrap gap-2">
-                                                        {relatedConflicts.map(c => {
-                                                            const otherTask = c.task1.id === spcTask.id ? c.task2 : c.task1;
-                                                            return (
-                                                                <span key={c.id} className="badge bg-danger d-flex align-items-center gap-2 p-2 shadow-sm">
-                                                                    {otherTask.name}
-                                                                    <FontAwesomeIcon
-                                                                        icon={faTrash}
-                                                                        style={{cursor: 'pointer', fontSize: '0.9em', opacity: 0.8}}
-                                                                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                                                                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
-                                                                        onClick={() => handleDeleteConflict(c.id)}
-                                                                        title="Usuń tę kolizję"
-                                                                    />
-                                                                </span>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <th
+                                                key={task.id}
+                                                className={`${(isSpecial) ? "bg-warning text-dark" : ""} ${hiddenClass}`}
+                                                style={{
+                                                    position: 'sticky', top: 0, zIndex: 1030, backgroundColor: isSpecial ? '#ffc107' : '#212529',
+                                                    cursor: "pointer",
+                                                    width: "80px",
+                                                    minWidth: "80px",
+                                                    maxWidth: "80px",
+                                                    wordWrap: "break-word",
+                                                    whiteSpace: "normal",
+                                                    verticalAlign: "middle"
+                                                }}
+                                                onClick={() => {
+                                                    setTaskToEdit(task);
+                                                    setShowAddModal(true);
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.85rem', lineHeight: '1.2' }}>
+                                                    {task.nameAbbrev}
+                                                </div>
+                                            </th>
                                         );
                                     })}
+                                    <th style={stickyRightHeaderStyle}>Suma w SE</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {userDependencies.map((dep, idx) => (
+                                    <tr key={idx}>
+                                        <td style={stickyCell1Style}>
+                                            <button className="btn btn-info p-1 shadow-sm" onClick={() => handleNameClick(dep.userId)}>
+                                                {dep.userName}
+                                            </button>
+                                        </td>
+                                        <td className='max-column-width-200' style={stickyCell2Style}>
+                                            {/* ZMIANA: Przelatujemy przez ułożone i sformatowane nazwy zadań */}
+                                            {sortAssignedTasks(dep.assignedTasks).map((taskStr, index) => {
+                                                const isCurrentSection = currentSectionName && taskStr.endsWith(`(${currentSectionName})`);
+                                                return (
+                                                    <React.Fragment key={index}>
+                                                        {index !== 0 && ', '}
+                                                        <span className={isCurrentSection ? "fw-bolder text-primary" : "fw-bold"}>
+                                                            {taskStr}
+                                                        </span>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </td>
+
+                                        {dep.userTasksScheduleInfo?.map((udep, cellIndex) => {
+                                            const correspondingTask = visibleTasks[cellIndex];
+                                            return renderUserTaskScheduleInfo(dep, udep, correspondingTask);
+                                        })}
+
+                                        {/* NOWOŚĆ: Wyświetlanie sumy wszystkich oficjów */}
+                                        <td style={stickyRightCellStyle}>
+                                            {(dep as any).totalEventAssignments ?? 0}
+                                        </td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                )}
+
+                <div className="d-flex justify-content-center gap-2 mt-5 mb-3">
+                    <button
+                        className="btn btn-info btn-sm shadow-sm"
+                        onClick={() => {
+                            setGuestToEdit(null);
+                            setShowGuestModal(true);
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                        Dodaj gościa
+                    </button>
                 </div>
+
+                {event && (
+                    <div className="d-flex flex-column align-items-center mb-5 mt-4">
+                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
+                            Zarządzanie dniami:
+                        </h3>
+
+                        <div className="mb-4">
+                            <button
+                                className="btn btn-primary text-white shadow-sm fw-bold px-4 py-2"
+                                onClick={handleCopyFromNormalWeek}
+                                disabled={copyLoading}
+                            >
+                                <FontAwesomeIcon icon={faClone} className="me-2"/>
+                                Pobierz oficja ze zwykłego grafiku na dzisiaj
+                            </button>
+                        </div>
+
+                        <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
+                            Skopiuj widoczne przypisania z dzisiaj na:
+                        </h3>
+
+                        <div className="d-flex justify-content-center flex-wrap gap-2">
+                            {eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) }).map(day => {
+                                const isCurrent = format(day, 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd');
+                                return (
+                                    <button
+                                        key={day.toString()}
+                                        className={`btn ${isCurrent ? 'btn-dark text-white' : 'btn-primary fw-bold'} shadow-sm`}
+                                        disabled={isCurrent || copyLoading}
+                                        onClick={() => handleCopyDay(day)}
+                                        style={{ minWidth: '80px' }}
+                                    >
+                                        {format(day, 'dd.MM')} <br/>
+                                        <small className={isCurrent ? 'fw-normal' : 'fw-bold'}>{format(day, 'EEE', { locale: pl })}</small>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        {copyLoading && <div className="mt-3 text-primary fw-bold">Trwa operacja, to może potrwać kilka sekund... <LoadingSpinner/></div>}
+                    </div>
+                )}
+
+                <div className="d-flex flex-column align-items-center mb-5 mt-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4 text-center">
+                        Zatwierdzone Przeszkody <br/>
+                        <span className="text-warning fs-5">{format(currentDate, 'dd.MM.yyyy')}</span>
+                    </h3>
+                    <div className="card shadow-sm w-auto" style={{ minWidth: '800px', maxWidth: '100%' }}>
+                        <div className="card-body p-0">
+                            {loadingObstacles ? (
+                                 <div className="text-center p-4"><LoadingSpinner /></div>
+                            ) : visibleObstacles.length === 0 ? (
+                                <div className="text-center text-muted p-4">
+                                    Brak zatwierdzonych przeszkód w tym dniu.
+                                </div>
+                            ) : (
+                                <div className="table-responsive">
+                                    <table className="table table-hover table-striped mb-0 text-center align-middle">
+                                        <thead className="table-dark">
+                                            <tr>
+                                                <th>Kto</th>
+                                                <th>Kiedy (Dzień + Pory)</th>
+                                                <th>Oficja</th>
+                                                <th>Opis wniosku</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {visibleObstacles.map(obs => (
+                                                <tr key={obs.id}>
+                                                    <td className="fw-bold text-nowrap">
+                                                        {obs.user.surname} {obs.user.name}
+                                                    </td>
+                                                    <td className="text-nowrap">
+                                                        <div className="fw-bold text-danger">
+                                                            {format(parseISO(obs.fromDate), 'dd.MM')}
+                                                            {obs.fromDate !== obs.toDate && ` - ${format(parseISO(obs.toDate), 'dd.MM')}`}
+                                                        </div>
+                                                        <div className="small text-muted fw-bold">
+                                                            {obs.taskSections && obs.taskSections.length > 0
+                                                                ? obs.taskSections.map(s => s.name).join(', ')
+                                                                : "Cały dzień"}
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ maxWidth: '200px' }}>
+                                                        <div className="d-flex flex-wrap justify-content-center gap-1">
+                                                            {(!obs.tasks || obs.tasks.length === 0 || (obs.tasks.length === 1 && obs.tasks[0].id === 0 && !obs.tasks[0].nameAbbrev)) ? (
+                                                                <span
+                                                                    className="badge bg-danger shadow-sm text-wrap text-break"
+                                                                    style={{ lineHeight: '1.4' }}
+                                                                >
+                                                                    Wszystkie oficja ogólne
+                                                                </span>
+                                                            ) : (
+                                                                obs.tasks.map((t, idx) => (
+                                                                    <span
+                                                                        key={t.id || idx}
+                                                                        className="badge bg-primary shadow-sm text-wrap text-break"
+                                                                        style={{ lineHeight: '1.4' }}
+                                                                    >
+                                                                        {t.nameAbbrev}
+                                                                    </span>
+                                                                ))
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-start small" style={{ maxWidth: '300px' }}>
+                                                        {obs.applicantDescription || <span className="text-muted fst-italic">Brak opisu</span>}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* --- SEKCJA KOMENTARZA --- */}
+                <div className="d-flex flex-column align-items-center mb-5 mt-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-3 mx-4 text-center">
+                        Komentarz do wydruku <br/>
+                        <span className="text-warning fs-5">
+                            {format(currentDate, 'dd.MM.yyyy')} - {currentSectionId === null ? "CAŁY DZIEŃ" : taskSections.find(s => s.id === currentSectionId)?.name?.toUpperCase()}
+                        </span>
+                    </h3>
+                    <div className="card shadow-sm w-100 border-primary" style={{ maxWidth: '800px' }}>
+                        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                            <span className="fw-bold small">Edytor treści</span>
+                            <div className="btn-group">
+                                <button
+                                    className="btn btn-light btn-sm text-dark"
+                                    title="Pogrubienie"
+                                    onClick={() => insertTag("<b>", "</b>")}
+                                >
+                                    <FontAwesomeIcon icon={faBold} />
+                                </button>
+                                <button
+                                    className="btn btn-light btn-sm text-dark ms-1"
+                                    title="Kursywa"
+                                    onClick={() => insertTag("<i>", "</i>")}
+                                >
+                                    <FontAwesomeIcon icon={faItalic} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="card-body">
+                            {isCommentLoading ? (
+                                <div className="text-center p-3"><LoadingSpinner /></div>
+                            ) : (
+                                <>
+                                    <textarea
+                                        ref={textareaRef}
+                                        className="form-control mb-3"
+                                        rows={4}
+                                        placeholder="Wpisz komentarz widoczny dla braci na wydruku PDF..."
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        style={{ resize: 'none' }}
+                                    />
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <button
+                                            className="btn btn-outline-danger btn-sm shadow-sm"
+                                            onClick={handleDeleteComment}
+                                            disabled={isCommentSaving || !comment}
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} className="me-2" />
+                                            Wyczyść i usuń
+                                        </button>
+
+                                        <button
+                                            className="btn btn-success shadow-sm"
+                                            onClick={() => handleSaveComment(comment)}
+                                            disabled={isCommentSaving || isCommentSaved}
+                                            style={{ minWidth: '220px' }}
+                                        >
+                                            {isCommentSaving ? (
+                                                <LoadingSpinner />
+                                            ) : isCommentSaved ? (
+                                                <><FontAwesomeIcon icon={faCheck} className="me-2" /> Zapisano!</>
+                                            ) : (
+                                                "Zapisz komentarz na wydruk"
+                                            )}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="d-flex flex-column align-items-center mb-5">
+                    <h3 className="fw-bold entity-header-dynamic-size mb-4 mx-4">
+                        Kolizje
+                    </h3>
+
+                    <div className="card shadow-sm mb-5" style={{ minWidth: '400px', maxWidth: '100%' }}>
+                        <div className="card-header bg-dark text-white">
+                            <h6 className="mb-0">Dodaj nową kolizję</h6>
+                        </div>
+                        <div className="card-body">
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">1. Wybierz oficjum specjalne (Baza)</label>
+                                <select
+                                    className="form-select"
+                                    value={conflictTask1Id}
+                                    onChange={(e) => setConflictTask1Id(Number(e.target.value) || '')}
+                                >
+                                    <option value="">-- Wybierz oficjum --</option>
+                                    {specialTasks.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} ({t.nameAbbrev})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">2. Kategoria drugiego oficjum</label>
+                                <select
+                                    className="form-select"
+                                    value={selectedConflictRole}
+                                    onChange={(e) => setSelectedConflictRole(e.target.value)}
+                                >
+                                    <option value="">-- Wybierz kategorię --</option>
+                                    {allRoles.map(r => (
+                                        <option key={r.id} value={r.name}>{r.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">3. Wybierz oficjum(a) kolidujące</label>
+                                <div className="border rounded p-2" style={{maxHeight: '200px', overflowY: 'auto', backgroundColor: '#f8f9fa'}}>
+                                    {!conflictTask1Id ? (
+                                        <span className="text-muted small">Wybierz oficjum z punktu 1...</span>
+                                    ) : selectedConflictRole === '' ? (
+                                        <span className="text-muted small">Wybierz kategorię z punktu 2...</span>
+                                    ) : conflictTasks2.length === 0 ? (
+                                        <span className="text-muted small">Brak oficjów w tej kategorii.</span>
+                                    ) : (
+                                        <>
+                                            {(() => {
+                                                const availableTasks = conflictTasks2.filter(t => !isConflictExisting(t.id));
+                                                const allAvailableSelected = availableTasks.length > 0 && availableTasks.every(t => selectedTask2Ids.includes(t.id));
+
+                                                return (
+                                                    <>
+                                                        <div className="form-check border-bottom pb-2 mb-2">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id="selectAllTasks2"
+                                                                checked={allAvailableSelected}
+                                                                onChange={handleSelectAllTasks2}
+                                                                disabled={availableTasks.length === 0}
+                                                            />
+                                                            <label className="form-check-label fw-bold small text-primary" htmlFor="selectAllTasks2" style={{cursor: availableTasks.length > 0 ? 'pointer' : 'not-allowed'}}>
+                                                                {availableTasks.length === 0 ? "Wszystkie możliwe kolizje już istnieją" : "Zaznacz wszystkie poniższe"}
+                                                            </label>
+                                                        </div>
+
+                                                        {conflictTasks2.map(t => {
+                                                            const alreadyExists = isConflictExisting(t.id);
+                                                            return (
+                                                                <div className="form-check" key={t.id}>
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="checkbox"
+                                                                        id={`ctask-${t.id}`}
+                                                                        checked={selectedTask2Ids.includes(t.id) || alreadyExists}
+                                                                        disabled={alreadyExists}
+                                                                        onChange={() => toggleTask2Selection(t.id)}
+                                                                    />
+                                                                    <label
+                                                                        className={`form-check-label small ${alreadyExists ? 'text-muted' : ''}`}
+                                                                        htmlFor={`ctask-${t.id}`}
+                                                                        style={{cursor: alreadyExists ? 'not-allowed' : 'pointer'}}
+                                                                    >
+                                                                        {t.name}
+                                                                        {t.specialEventId && <span className="badge bg-warning text-dark ms-1">Specjalne</span>}
+                                                                        {alreadyExists && <span className="badge bg-secondary ms-1">Już dodano</span>}
+                                                                    </label>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </>
+                                                );
+                                            })()}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="d-flex justify-content-end mt-4">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleAddConflict}
+                                    disabled={!conflictTask1Id || selectedTask2Ids.length === 0 || addConflictLoading}
+                                >
+                                    {addConflictLoading ? <LoadingSpinner /> : <><FontAwesomeIcon icon={faPlus} className="me-2"/> Utwórz kolizje</>}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card shadow-sm w-auto" style={{ minWidth: '600px', maxWidth: '100%' }}>
+                        <div className="card-body p-0">
+                            <div className="table-responsive">
+                                <table className="table table-hover table-striped mb-0 text-center align-middle">
+                                    <thead className="table-dark">
+                                        <tr>
+                                            <th style={{ width: '30%' }}>Oficjum Specjalne</th>
+                                            <th style={{ width: '70%' }}>Koliduje z...</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {specialTasks.length === 0 && (
+                                            <tr><td colSpan={2} className="text-muted p-4">Brak oficjów specjalnych w tej kategorii.</td></tr>
+                                        )}
+                                        {specialTasks.map(spcTask => {
+                                            const relatedConflicts = allConflicts.filter(c => c.task1.id === spcTask.id || c.task2.id === spcTask.id);
+
+                                            if (relatedConflicts.length === 0) return null;
+
+                                            return (
+                                                <tr key={spcTask.id}>
+                                                    <td className="fw-bold border-end">{spcTask.name}</td>
+                                                    <td className="text-start p-3">
+                                                        <div className="d-flex flex-wrap gap-2">
+                                                            {relatedConflicts.map(c => {
+                                                                const otherTask = c.task1.id === spcTask.id ? c.task2 : c.task1;
+                                                                return (
+                                                                    <span key={c.id} className="badge bg-danger d-flex align-items-center gap-2 p-2 shadow-sm">
+                                                                        {otherTask.name}
+                                                                        <FontAwesomeIcon
+                                                                            icon={faTrash}
+                                                                            style={{cursor: 'pointer', fontSize: '0.9em', opacity: 0.8}}
+                                                                            onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                                                            onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                                                                            onClick={() => handleDeleteConflict(c.id)}
+                                                                            title="Usuń tę kolizję"
+                                                                        />
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {showConfirmPopup &&
+                    <ConfirmAssignmentPopup
+                        text={popupData.text}
+                        onHandle={() => assignToTask(popupData.userId, popupData.taskId)}
+                        onClose={() => setShowConfirmPopup(false)}
+                    />
+                }
+
+                {historyPopup.show &&
+                    <UserShortScheduleHistoryPopup
+                    onClose={() => setHistoryPopup({show:false, userId: 0})}
+                    userId={historyPopup.userId}
+                    userName={getUserName(historyPopup.userId)}
+                    date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
+                    weeks={5}
+                    />
+                }
+
+                {showAddModal && event && currentRoleObj && (
+                    <SpecialEventTaskModal
+                        eventId={event.id}
+                        supervisorRole={currentRoleObj}
+                        onClose={() => {
+                            setShowAddModal(false);
+                            setTaskToEdit(null);
+                        }}
+                        onSave={handleTaskAdded}
+                        taskToEdit={taskToEdit}
+                    />
+                )}
+
+                {showGuestModal && (
+                    <GuestUserModal
+                        guestToEdit={guestToEdit}
+                        onClose={() => setShowGuestModal(false)}
+                        onSave={() => {
+                            setShowGuestModal(false);
+                            fetchSchedule();
+                        }}
+                    />
+                )}
             </div>
-
-            {showConfirmPopup &&
-                <ConfirmAssignmentPopup
-                    text={popupData.text}
-                    onHandle={() => assignToTask(popupData.userId, popupData.taskId)}
-                    onClose={() => setShowConfirmPopup(false)}
-                />
-            }
-
-            {historyPopup.show &&
-                <UserShortScheduleHistoryPopup
-                onClose={() => setHistoryPopup({show:false, userId: 0})}
-                userId={historyPopup.userId}
-                userName={getUserName(historyPopup.userId)}
-                date={format(startOfWeek(currentDate, {weekStartsOn: 0}), 'dd-MM-yyyy')}
-                weeks={5}
-                />
-            }
-
-            {/* Modal dodawania/edycji nowego taska */}
-            {showAddModal && event && currentRoleObj && (
-                <SpecialEventTaskModal
-                    eventId={event.id}
-                    supervisorRole={currentRoleObj}
-                    onClose={() => {
-                        setShowAddModal(false);
-                        setTaskToEdit(null); // Czyszczenie przy zamykaniu
-                    }}
-                    onSave={handleTaskAdded}
-                    // ZMIANA: Przekazujemy stan zamiast null
-                    taskToEdit={taskToEdit}
-                />
-            )}
-
-            {/* Modal dodawania/edycji Gościa */}
-            {showGuestModal && (
-                <GuestUserModal
-                    guestToEdit={guestToEdit}
-                    onClose={() => setShowGuestModal(false)}
-                    onSave={() => {
-                        setShowGuestModal(false);
-                        fetchSchedule();
-                    }}
-                />
-            )}
-        </div>
-    );
+        );
 }
 
 export default AddScheduleSpecialEvent;

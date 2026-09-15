@@ -392,4 +392,37 @@ public class ScheduleController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/special-event/{eventId}/copy-day")
+    public ResponseEntity<Void> copyDaySchedules(
+            @PathVariable Long eventId,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate sourceDate,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate targetDate,
+            @RequestParam String roleName,
+            @RequestParam(required = false) Long sectionId) { // Opcjonalny parametr pory dnia
+
+        scheduleService.copySpecialEventDaySchedules(sourceDate, targetDate, roleName, sectionId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/special-event/{eventId}/copy-from-normal-week")
+    public ResponseEntity<Void> copyFromNormalWeek(
+            @PathVariable Long eventId,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date,
+            @RequestParam String roleName) {
+
+        scheduleService.copyFromNormalWeekToSpecialEvent(date, roleName);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/special-event/daily")
+    public ResponseEntity<Void> deleteSpecialEventSchedule(
+            @RequestParam Long userId,
+            @RequestParam Long taskId,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date,
+            @RequestParam(required = false) Long sectionId) {
+
+        scheduleService.deleteSpecialEventSchedule(userId, taskId, date, sectionId);
+        return ResponseEntity.ok().build();
+    }
 }

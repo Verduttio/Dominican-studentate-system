@@ -94,29 +94,36 @@ function SpecialEventObstacleForm() {
 
     // 1. Zadania ogólne (bez Tac i Komunii)
     const generalTasks = allTasks.filter(t => {
-        const cat = t.supervisorRole.name.toUpperCase();
-        return !cat.includes("TAC") && !cat.includes("KOMUN");
+        const cat = t.supervisorRole.name;
+        // Odrzucamy DOKŁADNIE te dwie kategorie, a "Dziekan komunijny" zostaje w ogólnych!
+        return cat !== "Tacowy" && cat !== "Komunijny";
     });
+
     const generalCategories = Array.from(new Set(generalTasks.map(t => t.supervisorRole.name))).sort();
     const tasksInGeneralCategory = generalTasks.filter(t => t.supervisorRole.name === selectedCategory);
 
-    // 2. Tace i Komunie (odporne na przedrostki typu "Dziekan" i wielkość liter)
+    // 2. Tace i Komunie (Ścisłe dopasowanie roli i kategorii + naturalne sortowanie)
     const collectionTasks = allTasks.filter(t => {
         if (!currentUser) return false;
 
-        const userRoleNames = currentUser.roles?.map(r => r.name.toUpperCase()) || [];
-        const category = t.supervisorRole.name.toUpperCase();
+        const userRoleNames = currentUser.roles?.map(r => r.name) || [];
+        const category = t.supervisorRole.name;
 
-        const isTaceTask = category.includes("TAC");
-        const isKomunieTask = category.includes("KOMUN");
+        // Ścisłe dopasowanie kategorii zadania
+        const isTaceTask = category === "Dziekan Tacowy";
+        const isKomunieTask = category === "Dziekan komunijny";
 
-        const userHasTaceRole = userRoleNames.some(role => role.includes("TAC"));
-        const userHasKomunieRole = userRoleNames.some(role => role.includes("KOMUN"));
+        // Ścisłe dopasowanie roli użytkownika
+        const userHasTaceRole = userRoleNames.includes("Tacowy");
+        const userHasKomunieRole = userRoleNames.includes("Komunijny");
 
         if (isTaceTask && userHasTaceRole) return true;
         if (isKomunieTask && userHasKomunieRole) return true;
 
         return false;
+    }).sort((a, b) => {
+        // Magia sortowania naturalnego: T9 będzie przed T10
+        return a.nameAbbrev.localeCompare(b.nameAbbrev, undefined, { numeric: true, sensitivity: 'base' });
     });
 
 
@@ -225,10 +232,8 @@ function SpecialEventObstacleForm() {
             for (const dateStr of activeGeneralDates) {
                 const sectionIds = selectedMatrix[dateStr];
 
-                // Wysłanie tylko ZADAŃ OGÓLNYCH (generalTasks) bez tac i komunii!
-                const idsToSend = isSpecificTask
-                    ? selectedTasks.map(t => t.id)
-                    : generalTasks.map(t => t.id);
+                // Jeśli user NIE zaznaczył konkretnych oficjów, wysyłamy pustą tablicę []
+                const idsToSend = isSpecificTask ? selectedTasks.map(t => t.id) : [];
 
                 const payload = {
                     userId: currentUser.id,
@@ -292,7 +297,9 @@ function SpecialEventObstacleForm() {
     const eventDays = eachDayOfInterval({ start: parseISO(event.startDate), end: parseISO(event.endDate) });
 
     const collectionDatesStrings = event.collectionDates || [];
-    const collectionDays = collectionDatesStrings.map(d => parseISO(d));
+        const collectionDays = collectionDatesStrings
+            .map(d => parseISO(d))
+            .sort((a, b) => a.getTime() - b.getTime());
 
     return (
         <div className="container mt-4 mb-5 fade-in" style={{ maxWidth: '900px' }}>
@@ -372,6 +379,16 @@ function SpecialEventObstacleForm() {
                                 </table>
                             </div>
 
+                            <div className="alert alert-secondary border-0 shadow-sm p-3 mb-4" style={{ fontSize: '0.9rem' }}>
+                                <h6 className="fw-bold mb-2"><i className="bi bi-info-circle me-2"></i>Legenda pór dnia:</h6>
+                                <ul className="list-unstyled mb-0">
+                                    <li><strong>🌅 Rano:</strong> czas do śniadania włącznie.</li>
+                                    <li><strong>☀️ Przedpołudnie:</strong> między śniadaniem a horką.</li>
+                                    <li><strong>⛪ Popołudnie:</strong> od horki włącznie.</li>
+                                    <li><strong>🌙 Wieczór:</strong> od nieszporów włącznie</li>
+                                </ul>
+                            </div>
+
                             {/* CHECKBOX DO ROZWIJANIA KONKRETNYCH ZADAŃ */}
                             <div className="form-check bg-light p-3 rounded border">
                                 <input
@@ -382,10 +399,10 @@ function SpecialEventObstacleForm() {
                                     onChange={(e) => setIsSpecificTask(e.target.checked)}
                                 />
                                 <label className="form-check-label ms-2 fw-bold" htmlFor="specificTaskCheck">
-                                    Powyższe przeszkody dotyczą <span className="text-danger text-decoration-underline">tylko określonego oficjum</span>
+                                    Chcę, aby powyższe przeszkody dotyczyły <span className="text-decoration-underline">tylko określonego oficjum</span>
                                 </label>
                                 <div className="text-muted small ms-2 mt-1">
-                                    Domyślnie zaznaczenie w tabeli oznacza brak dyspozycyjności na <strong>wszystkie</strong> oficja (z wyjątkiem tac i komunii).
+                                    Domyślnie zaznaczenie w tabeli oznacza brak dyspozycyjności na <strong className="text-danger">wszystkie</strong> oficja (z wyjątkiem tac i komunii).
                                 </div>
                             </div>
 
@@ -564,15 +581,17 @@ function SpecialEventObstacleForm() {
                                             </td>
                                             <td style={{ maxWidth: '200px' }}>
                                                 <div className="d-flex flex-wrap justify-content-center gap-1">
-                                                    {obs.tasks.map(t => (
-                                                        <span
-                                                            key={t.id}
-                                                            className="badge bg-primary text-wrap text-break"
-                                                            style={{ lineHeight: '1.4' }}
-                                                        >
-                                                            {t.nameAbbrev}
+                                                    {(!obs.tasks || obs.tasks.length === 0 || (obs.tasks.length === 1 && obs.tasks[0].id === 0 && !obs.tasks[0].nameAbbrev)) ? (
+                                                        <span className="badge bg-danger text-wrap text-break shadow-sm">
+                                                            Wszystkie oficja ogólne
                                                         </span>
-                                                    ))}
+                                                    ) : (
+                                                        obs.tasks.map((t, idx) => (
+                                                            <span key={t.id || idx} className="badge bg-primary text-wrap text-break">
+                                                                {t.nameAbbrev}
+                                                            </span>
+                                                        ))
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="small text-muted text-start" style={{ maxWidth: '250px' }}>

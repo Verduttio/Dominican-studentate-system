@@ -11,6 +11,7 @@ import org.verduttio.dominicanappbackend.util.DateUtils;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class SpecialEventDailyPdfGenerator extends AbstractPdfGenerator {
 
@@ -26,15 +27,17 @@ public class SpecialEventDailyPdfGenerator extends AbstractPdfGenerator {
     }
 
     private String getTitle() {
-        // Przykładowy format: "Liturgista - 14.04.2026"
         return roleName + " - " + date.format(DateUtils.getPlDateFormatter());
     }
 
     @Override
     public byte[] generatePdf() throws IOException {
-        // Pobieramy pogrupowaną mapę z naszego nowego serwisu
+        // 1. Pobieramy zadania z podziałem na sekcje
         java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules =
                 scheduleService.getScheduleShortInfoForTaskForSpecialEventDayWithSections(eventId, roleName, date);
+
+        // 2. NOWOŚĆ: Pobieramy mapę komentarzy (klucz: nazwa pory dnia, lub "" dla całego dnia)
+        Map<String, String> comments = scheduleService.getCommentsForSpecialEventDay(eventId, roleName, date);
 
         initializeDocument();
         PDPage page = addNewPage(PDRectangle.A4);
@@ -42,14 +45,16 @@ public class SpecialEventDailyPdfGenerator extends AbstractPdfGenerator {
         float startY = addTitle(page, getTitle());
         BaseTable table = initializeTable(page, startY);
 
-        populateTable(table, sectionedSchedules);
+        // Przekazujemy zadania i komentarze do renderowania
+        populateTable(table, sectionedSchedules, comments);
 
         return finalizeDocument();
     }
 
-    private void populateTable(BaseTable table, java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules) throws IOException {
+    private void populateTable(BaseTable table, java.util.LinkedHashMap<String, List<ScheduleShortInfoForTask>> sectionedSchedules, Map<String, String> comments) throws IOException {
         TaskTableBuilder tableBuilder = new TaskTableBuilder(table, font);
-        // Wywołujemy naszą NOWĄ metodę z Builder'a!
-        tableBuilder.buildTableWithSections(sectionedSchedules);
+
+        // Wywołujemy naszą wczorajszą zaktualizowaną metodę, która umie rysować "żółte karteczki"
+        tableBuilder.buildTableWithSections(sectionedSchedules, comments);
     }
 }

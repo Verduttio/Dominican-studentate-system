@@ -65,6 +65,7 @@ interface Schedule {
     task: Task;
     user: User;
     date: string;
+    taskSection?: TaskSection | null;
 }
 
 interface SpecialDate {
@@ -129,6 +130,7 @@ interface UserTaskScheduleInfo {
     isInConflict: boolean;
     hasObstacle: boolean;
     assignedToTheTask: boolean;
+    partiallyAssigned?: boolean;
     visible: boolean;
 }
 
@@ -137,6 +139,7 @@ interface UserTasksScheduleInfoWeekly {
     userName: string;
     assignedTasks: string[];
     userTasksScheduleInfo: UserTaskScheduleInfo[];
+    totalEventAssignments?: number;
 }
 
 interface UserTasksScheduleInfoWeeklyByAllDays {
