@@ -33,7 +33,11 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
     public void generateSchedule(Long roleId, Long startingFromUserId, LocalDate startDate, LocalDate endDate) {
         logger.info("Generating schedule for supervisor role ID: {}, starting from user ID: {}, from: {} to: {}",
                 roleId, startingFromUserId, startDate, endDate);
-        List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId);
+        
+        // Pobieramy tylko zadania standardowe (wykluczamy zadania ze special_event)
+        List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId).stream()
+                .filter(task -> task.getSpecialEvent() == null)
+                .collect(Collectors.toList());
 
         roleTasks.sort(Comparator.comparing(Task::getSortOrder));
 
@@ -43,13 +47,17 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
                         .anyMatch(role -> role.getId().equals(16L) || role.getName().equals("Kuchnia")))
                 .collect(Collectors.toList());
 
-        // Opcjonalne zabezpieczenie, żeby aplikacja nie wysypała się, gdy nie ma nikogo w kuchni
         if (eligibleUsers.isEmpty()) {
             logger.warn("No eligible users found with the required role for supervisor role ID: {}", roleId);
             return;
         }
 
-        int userIndex = eligibleUsers.stream().filter(user -> user.getId().equals(startingFromUserId)).findFirst().map(eligibleUsers::indexOf).orElseThrow(EntityNotFoundException::new);
+        int userIndex = eligibleUsers.stream()
+                .filter(user -> user.getId().equals(startingFromUserId))
+                .findFirst()
+                .map(eligibleUsers::indexOf)
+                .orElseThrow(() -> new EntityNotFoundException("Starting user not found in the eligible users list."));
+
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             LocalDate taskDate = date;
             for (Task roleTask : roleTasks) {
