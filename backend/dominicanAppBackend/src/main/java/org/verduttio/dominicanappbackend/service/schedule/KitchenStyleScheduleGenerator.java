@@ -12,7 +12,9 @@ import org.verduttio.dominicanappbackend.service.TaskService;
 import org.verduttio.dominicanappbackend.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
@@ -31,10 +33,31 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
     public void generateSchedule(Long roleId, Long startingFromUserId, LocalDate startDate, LocalDate endDate) {
         logger.info("Generating schedule for supervisor role ID: {}, starting from user ID: {}, from: {} to: {}",
                 roleId, startingFromUserId, startDate, endDate);
-        List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId);
-        List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleId);
 
-        int userIndex = eligibleUsers.stream().filter(user -> user.getId().equals(startingFromUserId)).findFirst().map(eligibleUsers::indexOf).orElseThrow(EntityNotFoundException::new);
+        // Pobieramy tylko zadania standardowe (wykluczamy zadania ze special_event)
+        List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId).stream()
+                .filter(task -> task.getSpecialEvent() == null)
+                .collect(Collectors.toList());
+
+        roleTasks.sort(Comparator.comparing(Task::getSortOrder));
+
+        List<User> eligibleUsers = userService.getUsersWhichAreEligibleToPerformTasksAssignedToSupervisorRole(roleId)
+                .stream()
+                .filter(user -> user.getRoles().stream()
+                        .anyMatch(role -> role.getId().equals(16L) || role.getName().equals("Kuchnia")))
+                .collect(Collectors.toList());
+
+        if (eligibleUsers.isEmpty()) {
+            logger.warn("No eligible users found with the required role for supervisor role ID: {}", roleId);
+            return;
+        }
+
+        int userIndex = eligibleUsers.stream()
+                .filter(user -> user.getId().equals(startingFromUserId))
+                .findFirst()
+                .map(eligibleUsers::indexOf)
+                .orElseThrow(() -> new EntityNotFoundException("Starting user not found in the eligible users list."));
+
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             LocalDate taskDate = date;
             for (Task roleTask : roleTasks) {
