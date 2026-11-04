@@ -10,6 +10,7 @@ import org.verduttio.dominicanappbackend.service.TaskService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -28,6 +29,8 @@ public class KitchenStyleScheduleCleaner implements ScheduleCleaner{
         logger.info("Cleaning schedule for supervisor role ID: {}, from: {} to: {}",
                 roleId, startDate, endDate);
         List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId);
+
+        roleTasks.sort(Comparator.comparing(Task::getSortOrder));
 
         List<Schedule> schedules = new ArrayList<>();
         for (int i = 0; i < roleTasks.size(); i++) {

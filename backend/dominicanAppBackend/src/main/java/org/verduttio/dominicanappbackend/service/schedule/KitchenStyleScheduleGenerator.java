@@ -33,7 +33,7 @@ public class KitchenStyleScheduleGenerator implements ScheduleGenerator {
     public void generateSchedule(Long roleId, Long startingFromUserId, LocalDate startDate, LocalDate endDate) {
         logger.info("Generating schedule for supervisor role ID: {}, starting from user ID: {}, from: {} to: {}",
                 roleId, startingFromUserId, startDate, endDate);
-
+        
         // Pobieramy tylko zadania standardowe (wykluczamy zadania ze special_event)
         List<Task> roleTasks = taskService.findTasksBySupervisorRoleId(roleId).stream()
                 .filter(task -> task.getSpecialEvent() == null)

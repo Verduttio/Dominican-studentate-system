@@ -142,9 +142,9 @@ const PocketMoneyPage = () => {
                                 {/* WIERSZ PODSUMOWANIA */}
                                 <tr className="table-dark fw-bold">
                                     <td>SUMA</td>
-                                    <td>-</td>
+                                    <td>{data.tableRows.reduce((sum, row) => sum + row.brotherCount, 0)}</td>
                                     <td>{data.totalPocketMoney} zł</td>
-                                    <td>-</td>
+                                    <td>{data.tableRows.reduce((sum, row) => sum + row.namedayCount, 0)}</td>
                                     <td>{data.totalNamedayMoney} zł</td>
                                     <td style={{ fontSize: '1.2em' }}>{data.grandTotal} zł</td>
                                 </tr>
