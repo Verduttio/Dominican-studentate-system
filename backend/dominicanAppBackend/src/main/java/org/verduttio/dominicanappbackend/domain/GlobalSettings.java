@@ -10,16 +10,16 @@ public class GlobalSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "setting_key", unique = true, nullable = false)
+    @Column(name = "setting_key", unique = true, nullable = false, length = 50)
     private String key;
 
-    @Column(name = "setting_value", nullable = false)
-    private Integer value;
+    @Column(name = "setting_value", nullable = false, length = 255)
+    private String value;
 
     public GlobalSettings() {
     }
 
-    public GlobalSettings(String key, Integer value) {
+    public GlobalSettings(String key, String value) {
         this.key = key;
         this.value = value;
     }
@@ -27,6 +27,6 @@ public class GlobalSettings {
     public Long getId() { return id; }
     public String getKey() { return key; }
     public void setKey(String key) { this.key = key; }
-    public Integer getValue() { return value; }
-    public void setValue(Integer value) { this.value = value; }
+    public String getValue() { return value; }
+    public void setValue(String value) { this.value = value; }
 }
