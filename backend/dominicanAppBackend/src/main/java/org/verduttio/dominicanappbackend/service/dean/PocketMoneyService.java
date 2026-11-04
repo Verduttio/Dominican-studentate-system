@@ -115,16 +115,25 @@ public class PocketMoneyService {
         );
     }
 
+
     private int getSettingValue(String key, int defaultValue) {
         return globalSettingsRepository.findByKey(key)
                 .map(GlobalSettings::getValue)
+                .map(value -> {
+                    try {
+                        return Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        return defaultValue;
+                    }
+                })
                 .orElse(defaultValue);
     }
 
     private void saveSetting(String key, int value) {
         GlobalSettings setting = globalSettingsRepository.findByKey(key)
-                .orElse(new GlobalSettings(key, value));
-        setting.setValue(value);
+                .orElse(new GlobalSettings(key, String.valueOf(value)));
+
+        setting.setValue(String.valueOf(value));
         globalSettingsRepository.save(setting);
     }
 
