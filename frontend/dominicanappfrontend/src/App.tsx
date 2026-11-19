@@ -54,7 +54,7 @@ import AddEditSpecialEvent from "./pages/specialEvent/AddEditSpecialEvent";
 import AddScheduleSpecialEvent from './pages/schedule/pages/AddScheduleSpecialEvent';
 import SpecialEventObstacleForm from './pages/specialEvent/SpecialEventObstacleForm';
 import TaskSectionsManager from "./pages/task/TaskSectionsManager";
-
+import WishesPage from "./pages/wishes/WishesPage";
 
 const AppContent = () => {
     const location = useLocation();
@@ -119,6 +119,7 @@ const AppContent = () => {
                     <Route path="/dean/special-events/edit/:id" element={<AddEditSpecialEvent />} />
                     <Route path="/special-events/:eventId/obstacles" element={<SpecialEventObstacleForm />} />
                     <Route path="*" element={<Navigate replace to="/loginForm"/>}/>
+                    <Route path="/wishes" Component={WishesPage}/>
                 </Routes>
             </div>
         </>

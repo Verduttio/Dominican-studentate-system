@@ -8,12 +8,15 @@ import { faUserPlus, faNoteSticky, faBars, faArrowLeft} from '@fortawesome/free-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useIsAdmin from "../services/UseIsAdmin";
 import useIsFunkcyjny from "../services/UseIsFunkcyjny";
-
+import { WishesMenuStateDTO } from "../models/Interfaces";
 
 const NavigationBar = () => {
     const navigate = useNavigate();
     const [numberOfUnverifiedUsers, setNumberOfUnverifiedUsers] = useState(0);
     const [numberOfAwaitingObstacles, setNumberOfAwaitingObstacles] = useState(0);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [wishesVisible, setWishesVisible] = useState(false);
+
     const { isAdmin} = useIsAdmin();
     const { isFunkcyjny } = useIsFunkcyjny();
     const { request: numberOfUnverifiedUsersRequest} = useHttp(
@@ -22,7 +25,10 @@ const NavigationBar = () => {
     const { request: numberOfAwaitingObstaclesRequest} = useHttp(
         `${backendUrl}/api/obstacles/AWAITING/count`, 'GET'
     );
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const { request: wishesMenuStateRequest } = useHttp(
+        `${backendUrl}/api/wishes/menu-state`, 'GET'
+    );
 
     useEffect(() => {
         numberOfUnverifiedUsersRequest(null, ((number) => {
@@ -36,6 +42,12 @@ const NavigationBar = () => {
             setNumberOfAwaitingObstacles(number);
         }))
     }, [numberOfAwaitingObstaclesRequest]);
+
+    useEffect(() => {
+        wishesMenuStateRequest(null, (data: WishesMenuStateDTO) => {
+            setWishesVisible(data.visible);
+        });
+    }, [wishesMenuStateRequest]);
 
     const navigateTo = (path : string) => {
         navigate(path);
@@ -90,6 +102,12 @@ const NavigationBar = () => {
                 >
                     Wydruki
                 </button>
+
+                {(wishesVisible || isAdmin) && (
+                    <button onClick={() => navigateTo('/wishes')}>
+                        Życzenia
+                    </button>
+                )}
 
                 {isFunkcyjny &&
                     <button
@@ -151,6 +169,12 @@ const NavigationBar = () => {
                 >
                     Wydruki
                 </button>
+
+                {(wishesVisible || isAdmin) && (
+                    <button onClick={() => navigateTo('/wishes')}>
+                        Życzenia
+                    </button>
+                )}
 
                 {isFunkcyjny &&
                     <button

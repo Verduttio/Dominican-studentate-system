@@ -26,6 +26,8 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       FRONTEND_URL: ${NGINX_URL}
+      WISHES_GAS_URL: ${WISHES_GAS_URL:-}
+      WISHES_GAS_SECRET: ${WISHES_GAS_SECRET:-}
     ports:
       - "8080:8080"
     depends_on:
