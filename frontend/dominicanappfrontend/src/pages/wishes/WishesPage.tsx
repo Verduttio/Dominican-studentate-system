@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { WishesPageDTO } from "../../models/Interfaces";
 import useHttp from "../../services/UseHttp";
 import { getCurrentUser } from "../../services/CurrentUserCookieService";
@@ -20,7 +20,8 @@ import {
     faUserMinus,
     faUserPlus,
     faCircleCheck,
-    faClock
+    faClock,
+    faFloppyDisk
 } from "@fortawesome/free-solid-svg-icons";
 
 type AdminWishChanges = {
@@ -56,11 +57,8 @@ const iconButtonStyle: React.CSSProperties = {
 const WishesPage: React.FC = () => {
     const [data, setData] = useState<WishesPageDTO | null>(null);
 
-    const [editingEmailId, setEditingEmailId] = useState<number | null>(null);
-    const [emailDraft, setEmailDraft] = useState("");
-
-    const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
-    const [messageDraft, setMessageDraft] = useState("");
+    const [emailDrafts, setEmailDrafts] = useState<Record<number, string>>({});
+    const [messageDrafts, setMessageDrafts] = useState<Record<number, string>>({});
 
     const [recipientDrafts, setRecipientDrafts] = useState<Record<number, string>>({});
     const [assignmentDrafts, setAssignmentDrafts] = useState<Record<number, string>>({});
@@ -70,13 +68,51 @@ const WishesPage: React.FC = () => {
     const [localError, setLocalError] = useState<string | null>(null);
 
     const [wishToDelete, setWishToDelete] = useState<number | null>(null);
-    const [editingTitle, setEditingTitle] = useState(false);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [newWishRecipient, setNewWishRecipient] = useState("");
     const [newWishEmail, setNewWishEmail] = useState("");
     const [newWishLetter, setNewWishLetter] = useState(false);
     const [sendResult, setSendResult] = useState<WishSendResult | null>(null);
+
+    const [savedFields, setSavedFields] = useState<Record<string, boolean>>({});
+    const savedTimers = useRef<Record<string, number>>({});
+
+    const showSavedIndicator = (key: string) => {
+        setSavedFields(previous => ({
+            ...previous,
+            [key]: true
+        }));
+
+        const previousTimer = savedTimers.current[key];
+
+        if (previousTimer) {
+            window.clearTimeout(previousTimer);
+        }
+
+        savedTimers.current[key] = window.setTimeout(() => {
+            setSavedFields(previous => ({
+                ...previous,
+                [key]: false
+            }));
+
+            delete savedTimers.current[key];
+        }, 2500);
+    };
+
+    const clearSavedIndicator = (key: string) => {
+        const timer = savedTimers.current[key];
+
+        if (timer) {
+            window.clearTimeout(timer);
+            delete savedTimers.current[key];
+        }
+
+        setSavedFields(previous => ({
+            ...previous,
+            [key]: false
+        }));
+    };
 
     const {
         error,
@@ -172,6 +208,14 @@ const WishesPage: React.FC = () => {
         loadData();
     }, [loadData]);
 
+    useEffect(() => {
+        return () => {
+            Object.values(savedTimers.current).forEach(timer => {
+                window.clearTimeout(timer);
+            });
+        };
+    }, []);
+
     const currentUserId = getCurrentUser()?.id;
 
     const claimWish = (wishId: number) => {
@@ -198,30 +242,26 @@ const WishesPage: React.FC = () => {
         );
     };
 
-    const startEmailEditing = (wishId: number, currentEmail: string | null) => {
-        setEditingEmailId(wishId);
-        setEmailDraft(currentEmail ?? "");
-    };
-
-    const cancelEmailEditing = () => {
-        setEditingEmailId(null);
-        setEmailDraft("");
-    };
-
-    const saveEmail = (wishId: number) => {
-        const email = emailDraft.trim();
+    const saveEmail = (wishId: number, currentEmail: string | null) => {
+        const email = (emailDrafts[wishId] ?? currentEmail ?? "").trim();
 
         if (!email) {
             return;
         }
 
+        clearSavedIndicator(`email-${wishId}`);
         setNotice(null);
 
         updateEmailRequest(
             { email },
             () => {
-                setEditingEmailId(null);
-                setEmailDraft("");
+                setEmailDrafts(previous => {
+                    const updated = { ...previous };
+                    delete updated[wishId];
+                    return updated;
+                });
+
+                showSavedIndicator(`email-${wishId}`);
                 loadData();
             },
             false,
@@ -230,24 +270,22 @@ const WishesPage: React.FC = () => {
         );
     };
 
-    const startMessageEditing = (wishId: number, currentMessage: string | null) => {
-        setEditingMessageId(wishId);
-        setMessageDraft(currentMessage ?? "");
-    };
+    const saveMessage = (wishId: number, currentMessage: string | null) => {
+        const message = messageDrafts[wishId] ?? currentMessage ?? "";
 
-    const cancelMessageEditing = () => {
-        setEditingMessageId(null);
-        setMessageDraft("");
-    };
-
-    const saveMessage = (wishId: number) => {
+        clearSavedIndicator(`message-${wishId}`);
         setNotice(null);
 
         updateMessageRequest(
-            { message: messageDraft },
+            { message },
             () => {
-                setEditingMessageId(null);
-                setMessageDraft("");
+                setMessageDrafts(previous => {
+                    const updated = { ...previous };
+                    delete updated[wishId];
+                    return updated;
+                });
+
+                showSavedIndicator(`message-${wishId}`);
                 loadData();
             },
             false,
@@ -256,11 +294,19 @@ const WishesPage: React.FC = () => {
         );
     };
 
-    const saveAdminWish = (wishId: number, changes: AdminWishChanges = {}) => {
+    const saveAdminWish = (
+        wishId: number,
+        changes: AdminWishChanges = {},
+        savedField?: string
+    ) => {
         const wish = data?.wishes.find(item => item.id === wishId);
 
         if (!wish) {
             return;
+        }
+
+        if (savedField) {
+            clearSavedIndicator(savedField);
         }
 
         const recipient =
@@ -303,6 +349,10 @@ const WishesPage: React.FC = () => {
                     return updated;
                 });
 
+                if (savedField) {
+                    showSavedIndicator(savedField);
+                }
+
                 setNotice("Zapisano zmiany wpisu.");
                 loadData();
             },
@@ -318,6 +368,7 @@ const WishesPage: React.FC = () => {
             return;
         }
 
+        clearSavedIndicator("title");
         setLocalError(null);
         setNotice(null);
 
@@ -327,7 +378,7 @@ const WishesPage: React.FC = () => {
                 visible: data.visible
             },
             () => {
-                setEditingTitle(false);
+                showSavedIndicator("title");
                 setNotice("Zapisano temat wiadomości e-mail.");
                 loadData();
             },
@@ -440,8 +491,8 @@ const WishesPage: React.FC = () => {
             (resetCount: number) => {
                 setRecipientDrafts({});
                 setAssignmentDrafts({});
-                setEditingEmailId(null);
-                setEditingMessageId(null);
+                setEmailDrafts({});
+                setMessageDrafts({});
                 setNotice(`Reset zakończony. Zresetowano wpisów: ${resetCount}.`);
                 loadData();
             },
@@ -544,68 +595,38 @@ const WishesPage: React.FC = () => {
 
             <div className="mb-4">
                 <div className="d-flex justify-content-center align-items-center gap-2">
-                    {data.admin && editingTitle ? (
+                    {data.admin ? (
                         <>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control text-center"
                                 style={{ maxWidth: "500px" }}
                                 value={titleDraft}
-                                onChange={(event) => setTitleDraft(event.target.value)}
+                                onChange={(event) => {
+                                    clearSavedIndicator("title");
+                                    setTitleDraft(event.target.value);
+                                }}
                                 aria-label="Temat wiadomości e-mail"
-                                autoFocus
                             />
 
                             <button
                                 type="button"
-                                className="btn btn-sm btn-success"
+                                className={`btn d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 ${
+                                    savedFields["title"] ? 'btn-success' : 'btn-primary'
+                                }`}
                                 style={iconButtonStyle}
                                 disabled={settingsLoading || !titleDraft.trim()}
                                 onClick={saveTitle}
-                                title="Zapisz temat"
+                                title={savedFields["title"] ? "Zapisano temat" : "Zapisz temat"}
                                 aria-label="Zapisz temat"
                             >
-                                <FontAwesomeIcon icon={faCheck} />
-                            </button>
-
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-danger"
-                                style={iconButtonStyle}
-                                disabled={settingsLoading}
-                                onClick={() => {
-                                    setTitleDraft(data.title);
-                                    setEditingTitle(false);
-                                }}
-                                title="Anuluj"
-                                aria-label="Anuluj edycję tematu"
-                            >
-                                <FontAwesomeIcon icon={faXmark} />
+                                <FontAwesomeIcon icon={savedFields["title"] ? faCheck : faFloppyDisk} />
                             </button>
                         </>
                     ) : (
-                        <>
-                            <h1 className="entity-header-dynamic-size text-center mb-0">
-                                {data.title}
-                            </h1>
-
-                            {data.admin && (
-                                <button
-                                    type="button"
-                                    className="btn btn-sm btn-warning d-inline-flexalign-items-center justify-content-center p-0 ms-1"
-                                    style={{ ...iconButtonStyle, flexShrink: 0, transform: 'translateY(7px)' }}
-
-                                    onClick={() => {
-                                        setTitleDraft(data.title);
-                                        setEditingTitle(true);
-                                    }}
-                                    title="Edytuj temat wiadomości e-mail"
-                                    aria-label="Edytuj temat wiadomości e-mail"
-                                >
-                                    <FontAwesomeIcon icon={faPencilAlt} />
-                                </button>
-                            )}
-                        </>
+                        <h1 className="entity-header-dynamic-size text-center mb-0">
+                            {data.title}
+                        </h1>
                     )}
                 </div>
 
@@ -792,25 +813,31 @@ const WishesPage: React.FC = () => {
                                                                 className="form-control form-control-sm"
                                                                 style={{ minWidth: 0 }}
                                                                 value={recipientDrafts[wish.id] ?? wish.recipient}
-                                                                onChange={(event) =>
+                                                                onChange={(event) => {
+                                                                    clearSavedIndicator(`recipient-${wish.id}`);
+
                                                                     setRecipientDrafts(previous => ({
                                                                         ...previous,
                                                                         [wish.id]: event.target.value
-                                                                    }))
-                                                                }
+                                                                    }));
+                                                                }}
                                                                 aria-label="Adresat"
                                                             />
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                className={`btn d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 ${
+                                                                    savedFields[`recipient-${wish.id}`] ? 'btn-success' : 'btn-primary'
+                                                                }`}
                                                                 style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
-                                                                onClick={() => saveAdminWish(wish.id)}
-                                                                title="Zapisz adresata"
+                                                                onClick={() => saveAdminWish(wish.id, {}, `recipient-${wish.id}`)}
+                                                                title={savedFields[`recipient-${wish.id}`] ? "Zapisano adresata" : "Zapisz adresata"}
                                                                 aria-label="Zapisz adresata"
                                                             >
-                                                                <FontAwesomeIcon icon={faCheck} />
+                                                                <FontAwesomeIcon
+                                                                    icon={savedFields[`recipient-${wish.id}`] ? faCheck : faFloppyDisk}
+                                                                />
                                                             </button>
                                                         </div>
                                                     ) : (
@@ -821,68 +848,49 @@ const WishesPage: React.FC = () => {
                                                 </td>
 
                                                 <td style={{ minWidth: "220px" }}>
-                                                    {editingEmailId === wish.id ? (
+                                                    {canEditWish ? (
                                                         <div className="d-flex align-items-center gap-1">
                                                             <input
                                                                 type="text"
                                                                 className="form-control form-control-sm"
                                                                 style={{ minWidth: 0 }}
-                                                                value={emailDraft}
-                                                                onChange={(event) => setEmailDraft(event.target.value)}
+                                                                value={emailDrafts[wish.id] ?? wish.email ?? ""}
+                                                                onChange={(event) => {
+                                                                    clearSavedIndicator(`email-${wish.id}`);
+
+                                                                    setEmailDrafts(previous => ({
+                                                                        ...previous,
+                                                                        [wish.id]: event.target.value
+                                                                    }));
+                                                                }}
                                                                 placeholder={wish.letter ? "Adres pocztowy" : "Adres e-mail"}
                                                                 aria-label="Adres"
                                                             />
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                className={`btn d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 ${
+                                                                    savedFields[`email-${wish.id}`] ? 'btn-success' : 'btn-primary'
+                                                                }`}
                                                                 style={iconButtonStyle}
-                                                                disabled={emailLoading || !emailDraft.trim()}
-                                                                onClick={() => saveEmail(wish.id)}
-                                                                title="Zapisz adres"
+                                                                disabled={emailLoading || !(emailDrafts[wish.id] ?? wish.email ?? "").trim()}
+                                                                onClick={() => saveEmail(wish.id, wish.email)}
+                                                                title={savedFields[`email-${wish.id}`] ? "Zapisano adres" : "Zapisz adres"}
                                                                 aria-label="Zapisz adres"
                                                             >
-                                                                <FontAwesomeIcon icon={faCheck} />
-                                                            </button>
-
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-sm btn-secondary flex-shrink-0"
-                                                                style={iconButtonStyle}
-                                                                disabled={emailLoading}
-                                                                onClick={cancelEmailEditing}
-                                                                title="Anuluj"
-                                                                aria-label="Anuluj"
-                                                            >
-                                                                <FontAwesomeIcon icon={faXmark} />
+                                                                <FontAwesomeIcon
+                                                                    icon={savedFields[`email-${wish.id}`] ? faCheck : faFloppyDisk}
+                                                                />
                                                             </button>
                                                         </div>
                                                     ) : (
-                                                        <div className="d-flex align-items-center justify-content-between gap-2">
-                                                            <span
-                                                                className="flex-grow-1"
-                                                                style={{ minWidth: 0, overflowWrap: "anywhere" }}
-                                                            >
-                                                                {wish.email || (
-                                                                    <span className="text-muted fst-italic">
-                                                                        Brak adresu
-                                                                    </span>
-                                                                )}
-                                                            </span>
-
-                                                            {canEditWish && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-warning flex-shrink-0"
-                                                                    style={iconButtonStyle}
-                                                                    onClick={() => startEmailEditing(wish.id, wish.email)}
-                                                                    title="Edytuj adres"
-                                                                    aria-label="Edytuj adres"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faPencilAlt} />
-                                                                </button>
+                                                        <span style={{ overflowWrap: "anywhere" }}>
+                                                            {wish.email || (
+                                                                <span className="text-muted fst-italic">
+                                                                    Brak adresu
+                                                                </span>
                                                             )}
-                                                        </div>
+                                                        </span>
                                                     )}
                                                 </td>
 
@@ -895,7 +903,7 @@ const WishesPage: React.FC = () => {
                                                         {data.admin && (
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-warning"
+                                                                className="btn btn-sm btn-primary"
                                                                 style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() =>
@@ -917,12 +925,14 @@ const WishesPage: React.FC = () => {
                                                                 className="form-select form-select-sm"
                                                                 style={{ minWidth: 0, maxWidth: "220px" }}
                                                                 value={selectedUserId}
-                                                                onChange={(event) =>
+                                                                onChange={(event) => {
+                                                                    clearSavedIndicator(`assignment-${wish.id}`);
+
                                                                     setAssignmentDrafts(previous => ({
                                                                         ...previous,
                                                                         [wish.id]: event.target.value
-                                                                    }))
-                                                                }
+                                                                    }));
+                                                                }}
                                                                 aria-label="Przypisany brat"
                                                             >
                                                                 <option value="">Nieprzypisane</option>
@@ -936,14 +946,18 @@ const WishesPage: React.FC = () => {
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-success d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0"
+                                                                className={`btn d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 ${
+                                                                            savedFields[`assignment-${wish.id}`] ? 'btn-success' : 'btn-primary'
+                                                                          }`}
                                                                 style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
-                                                                onClick={() => saveAdminWish(wish.id)}
+                                                                onClick={() => saveAdminWish(wish.id, {}, `assignment-${wish.id}`)}
                                                                 title="Zapisz przypisanie"
                                                                 aria-label="Zapisz przypisanie"
                                                             >
-                                                                <FontAwesomeIcon icon={faCheck} />
+                                                                <FontAwesomeIcon
+                                                                    icon={savedFields[`assignment-${wish.id}`] ? faCheck : faFloppyDisk}
+                                                                />
                                                             </button>
                                                         </div>
                                                     ) : wish.userId === null ? (
@@ -985,68 +999,53 @@ const WishesPage: React.FC = () => {
                                                 </td>
 
                                                 <td style={{ minWidth: "260px" }}>
-                                                    {editingMessageId === wish.id ? (
+                                                    {canEditWish ? (
                                                         <div className="d-flex align-items-start gap-1">
                                                             <textarea
                                                                 className="form-control form-control-sm flex-grow-1"
                                                                 style={{ minWidth: 0 }}
                                                                 rows={4}
-                                                                value={messageDraft}
-                                                                onChange={(event) => setMessageDraft(event.target.value)}
+                                                                value={messageDrafts[wish.id] ?? wish.message ?? ""}
+                                                                onChange={(event) => {
+                                                                    clearSavedIndicator(`message-${wish.id}`);
+
+                                                                    setMessageDrafts(previous => ({
+                                                                        ...previous,
+                                                                        [wish.id]: event.target.value
+                                                                    }));
+                                                                }}
                                                                 placeholder="Treść życzeń"
                                                                 aria-label="Treść życzeń"
                                                             />
 
-                                                            <div className="d-flex flex-column gap-1 flex-shrink-0">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-success"
-                                                                    style={iconButtonStyle}
-                                                                    disabled={messageLoading}
-                                                                    onClick={() => saveMessage(wish.id)}
-                                                                    title="Zapisz wiadomość"
-                                                                    aria-label="Zapisz wiadomość"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faCheck} />
-                                                                </button>
-
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-secondary"
-                                                                    style={iconButtonStyle}
-                                                                    disabled={messageLoading}
-                                                                    onClick={cancelMessageEditing}
-                                                                    title="Anuluj"
-                                                                    aria-label="Anuluj"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faXmark} />
-                                                                </button>
-                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                className={`btn d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0 ${
+                                                                    savedFields[`message-${wish.id}`] ? 'btn-success' : 'btn-primary'
+                                                                  }`}
+                                                                style={iconButtonStyle}
+                                                                disabled={messageLoading}
+                                                                onClick={() => saveMessage(wish.id, wish.message)}
+                                                                title={savedFields[`message-${wish.id}`] ? "Zapisano wiadomość" : "Zapisz wiadomość"}
+                                                                aria-label="Zapisz wiadomość"
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={savedFields[`message-${wish.id}`] ? faCheck : faFloppyDisk}
+                                                                />
+                                                            </button>
                                                         </div>
                                                     ) : (
-                                                        <div className="d-flex align-items-start justify-content-between gap-2">
-                                                            <div
-                                                                className="flex-grow-1"
-                                                                style={{ minWidth: 0, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
-                                                            >
-                                                                {wish.message || (
-                                                                    <span className="text-muted fst-italic">
-                                                                        Brak wiadomości
-                                                                    </span>
-                                                                )}
-                                                            </div>
-
-                                                            {canEditWish && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-warning flex-shrink-0"
-                                                                    style={iconButtonStyle}
-                                                                    onClick={() => startMessageEditing(wish.id, wish.message)}
-                                                                    title="Edytuj wiadomość"
-                                                                    aria-label="Edytuj wiadomość"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faPencilAlt} />
-                                                                </button>
+                                                        <div
+                                                            style={{
+                                                                minWidth: 0,
+                                                                whiteSpace: "pre-wrap",
+                                                                overflowWrap: "anywhere"
+                                                            }}
+                                                        >
+                                                            {wish.message || (
+                                                                <span className="text-muted fst-italic">
+                                                                    Brak wiadomości
+                                                                </span>
                                                             )}
                                                         </div>
                                                     )}
