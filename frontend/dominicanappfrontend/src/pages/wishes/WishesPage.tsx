@@ -639,15 +639,11 @@ const WishesPage: React.FC = () => {
                 )}
             </div>
 
-            <div className="card shadow-sm mb-5">
+            <div className="card border-0 shadow-sm mb-5">
                 <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">Lista życzeń</h5>
 
                     <div className="d-flex align-items-center gap-2">
-                        <span className="badge bg-light text-dark">
-                            {data.wishes.length} wpisów
-                        </span>
-
                         {data.admin && (
                             <button
                                 type="button"
@@ -746,7 +742,7 @@ const WishesPage: React.FC = () => {
 
                                         {data.admin && (
                                             <>
-                                                <th>Czy wysłane</th>
+                                                <th>Wysłane?</th>
                                                 <th className="text-center">Akcje</th>
                                             </>
                                         )}
@@ -890,12 +886,12 @@ const WishesPage: React.FC = () => {
                                                     </div>
                                                 </td>
 
-                                                <td style={{ minWidth: "200px" }}>
+                                                <td className="text-center align-middle" style={{ minWidth: "120px" }}>
                                                     {data.admin ? (
-                                                        <div className="d-flex align-items-center gap-1">
+                                                        <div className="d-flex align-items-center justify-content-center gap-1">
                                                             <select
                                                                 className="form-select form-select-sm"
-                                                                style={{ minWidth: 0 }}
+                                                                style={{ minWidth: 0, maxWidth: "220px" }}
                                                                 value={selectedUserId}
                                                                 onChange={(event) =>
                                                                     setAssignmentDrafts(previous => ({
@@ -916,7 +912,7 @@ const WishesPage: React.FC = () => {
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                className="btn btn-success d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0"
                                                                 style={{ width: "34px", height: "34px" }}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() => saveAdminWish(wish.id)}
@@ -927,34 +923,39 @@ const WishesPage: React.FC = () => {
                                                             </button>
                                                         </div>
                                                     ) : wish.userId === null ? (
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
-                                                            disabled={claimLoading}
-                                                            onClick={() => claimWish(wish.id)}
-                                                        >
-                                                            <FontAwesomeIcon icon={faUserPlus} />
-                                                            <span>
-                                                                {claimLoading ? "Przypisywanie..." : ""}
-                                                            </span>
-                                                        </button>
+                                                        // Nikt nie jest przypisany — wyśrodkowany przycisk przypisania
+                                                        <div className="d-flex justify-content-center">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-primary d-inline-flex align-items-center justify-content-center p-0"
+                                                                style={{ width: "34px", height: "34px" }}
+                                                                disabled={claimLoading}
+                                                                onClick={() => claimWish(wish.id)}
+                                                                title="Przypisz się do życzeń"
+                                                                aria-label="Przypisz się do życzeń"
+                                                            >
+                                                                <FontAwesomeIcon icon={faUserPlus} />
+                                                            </button>
+                                                        </div>
+                                                    ) : wish.userId === currentUserId ? (
+                                                        // Ja jestem przypisany — tylko czerwona ikonka wypisania
+                                                        <div className="d-flex justify-content-center">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-danger d-inline-flex align-items-center justify-content-center p-0"
+                                                                style={{ width: "34px", height: "34px" }}
+                                                                disabled={releaseLoading}
+                                                                onClick={() => releaseWish(wish.id)}
+                                                                title="Wypisz się z życzeń"
+                                                                aria-label="Wypisz się z życzeń"
+                                                            >
+                                                                <FontAwesomeIcon icon={faUserMinus} />
+                                                            </button>
+                                                        </div>
                                                     ) : (
-                                                        <div className="d-flex align-items-center flex-wrap gap-2">
-                                                            <span>{wish.userName}</span>
-
-                                                            {wish.userId === currentUserId && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-secondary d-inline-flex align-items-center gap-2"
-                                                                    disabled={releaseLoading}
-                                                                    onClick={() => releaseWish(wish.id)}
-                                                                >
-                                                                    <FontAwesomeIcon icon={faUserMinus} />
-                                                                    <span>
-                                                                        {releaseLoading ? "Wypisywanie..." : ""}
-                                                                    </span>
-                                                                </button>
-                                                            )}
+                                                        // Przypisany jest ktoś inny — samo wyśrodkowane imię i nazwisko
+                                                        <div className="text-center">
+                                                            {wish.userName}
                                                         </div>
                                                     )}
                                                 </td>
@@ -1066,7 +1067,7 @@ const WishesPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="card shadow-sm mb-4">
+            <div className="card border-0 shadow-sm mb-4">
                 <div className="card-header bg-dark text-white">
                     <h5 className="mb-0">Statystyki przypisań</h5>
                 </div>
