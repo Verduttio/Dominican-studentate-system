@@ -18,7 +18,9 @@ import {
     faEnvelope,
     faArrowRightArrowLeft,
     faUserMinus,
-    faUserPlus
+    faUserPlus,
+    faCircleCheck,
+    faClock
 } from "@fortawesome/free-solid-svg-icons";
 
 type AdminWishChanges = {
@@ -639,7 +641,16 @@ const WishesPage: React.FC = () => {
                 )}
             </div>
 
-            <div className="card border-0 shadow-sm mb-5">
+            <div
+                className="card border-0 shadow-sm mb-5"
+                style={{
+                    width: "95vw",
+                    maxWidth: "96vw",
+                    position: "relative",
+                    left: "50%",
+                    transform: "translateX(-50%)"
+                }}
+            >
                 <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">Lista życzeń</h5>
 
@@ -647,11 +658,11 @@ const WishesPage: React.FC = () => {
                         {data.admin && (
                             <button
                                 type="button"
-                                className="btn btn-sm btn-primary"
+                                className={`btn btn-sm btn-warning ${showAddForm ? "d-none" : ""}`}
+
                                 onClick={() => setShowAddForm(previous => !previous)}
                             >
-                                <FontAwesomeIcon icon={showAddForm ? faXmark : faPlus} className="me-1" />
-                                {showAddForm ? "Zamknij" : "Dodaj wpis"}
+                                <FontAwesomeIcon icon={showAddForm ? faXmark : faPlus} />
                             </button>
                         )}
                     </div>
@@ -1029,15 +1040,23 @@ const WishesPage: React.FC = () => {
                                                 </td>
 
                                                 {data.admin && (
-                                                    <td className="text-center">
+                                                    <td className="text-center align-middle">
                                                         {wish.sent ? (
-                                                            <span className="badge bg-success">
-                                                                Tak
-                                                            </span>
+                                                            <FontAwesomeIcon
+                                                                icon={faCircleCheck}
+                                                                className="text-success"
+                                                                size="lg"
+                                                                title="Wysłane"
+                                                                aria-label="Wysłane"
+                                                            />
                                                         ) : (
-                                                            <span className="badge bg-warning text-dark">
-                                                                Nie
-                                                            </span>
+                                                            <FontAwesomeIcon
+                                                                icon={faClock}
+                                                                className="text-warning"
+                                                                size="lg"
+                                                                title="Niewysłane"
+                                                                aria-label="Niewysłane"
+                                                            />
                                                         )}
                                                     </td>
                                                 )}
