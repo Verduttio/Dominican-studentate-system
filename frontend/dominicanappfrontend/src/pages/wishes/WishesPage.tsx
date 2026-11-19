@@ -592,7 +592,7 @@ const WishesPage: React.FC = () => {
                             {data.admin && (
                                 <button
                                     type="button"
-                                    className="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center p-0"
+                                    className="btn btn-sm btn-warning d-inline-flexalign-items-center justify-content-center p-0 ms-1"
                                     style={{ ...iconButtonStyle, flexShrink: 0, transform: 'translateY(7px)' }}
 
                                     onClick={() => {
@@ -873,7 +873,7 @@ const WishesPage: React.FC = () => {
                                                             {canEditWish && (
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                                                    className="btn btn-sm btn-warning flex-shrink-0"
                                                                     style={iconButtonStyle}
                                                                     onClick={() => startEmailEditing(wish.id, wish.email)}
                                                                     title="Edytuj adres"
@@ -888,7 +888,7 @@ const WishesPage: React.FC = () => {
 
                                                 <td className="text-center" style={{ minWidth: "130px" }}>
                                                     <div className="d-flex align-items-center justify-content-center gap-2">
-                                                        <span className={`badge ${wish.letter ? "bg-secondary" : "bg-primary"}`}>
+                                                        <span className={`badge ${wish.letter ? "bg-secondary" : "bg-success"}`}>
                                                             {wish.letter ? "Listownie" : "E-mail"}
                                                         </span>
 
@@ -1039,7 +1039,7 @@ const WishesPage: React.FC = () => {
                                                             {canEditWish && (
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                                                    className="btn btn-sm btn-warning flex-shrink-0"
                                                                     style={iconButtonStyle}
                                                                     onClick={() => startMessageEditing(wish.id, wish.message)}
                                                                     title="Edytuj wiadomość"
@@ -1065,7 +1065,7 @@ const WishesPage: React.FC = () => {
                                                         ) : (
                                                             <FontAwesomeIcon
                                                                 icon={faClock}
-                                                                className="text-warning"
+                                                                className="text-secondary"
                                                                 size="lg"
                                                                 title="Niewysłane"
                                                                 aria-label="Niewysłane"
