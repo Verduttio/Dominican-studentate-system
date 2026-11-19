@@ -12,13 +12,30 @@ import {
     faTrash,
     faCheck,
     faXmark,
-    faRotateLeft
+    faRotateLeft,
+    faPlus,
+    faPaperPlane,
+    faEnvelope,
+    faArrowRightArrowLeft,
+    faUserMinus,
+    faUserPlus
 } from "@fortawesome/free-solid-svg-icons";
 
 type AdminWishChanges = {
     recipient?: string;
     letter?: boolean;
     userId?: number | null;
+};
+
+type WishSendResult = {
+    testMode: boolean;
+    total: number;
+    succeeded: number;
+    errors: {
+        wishId: number;
+        recipient: string;
+        error: string;
+    }[];
 };
 
 const WishesPage: React.FC = () => {
@@ -39,6 +56,12 @@ const WishesPage: React.FC = () => {
 
     const [wishToDelete, setWishToDelete] = useState<number | null>(null);
     const [editingTitle, setEditingTitle] = useState(false);
+
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newWishRecipient, setNewWishRecipient] = useState("");
+    const [newWishEmail, setNewWishEmail] = useState("");
+    const [newWishLetter, setNewWishLetter] = useState(false);
+    const [sendResult, setSendResult] = useState<WishSendResult | null>(null);
 
     const {
         error,
@@ -107,6 +130,28 @@ const WishesPage: React.FC = () => {
         loading: deleteLoading,
         request: deleteWishRequest
     } = useHttp<null>(`${backendUrl}/api/wishes`, "DELETE");
+
+    const {
+        error: createError,
+        loading: createLoading,
+        request: createWishRequest
+    } = useHttp<{
+        recipient: string;
+        email: string | null;
+        letter: boolean;
+    }>(`${backendUrl}/api/wishes`, "POST");
+
+    const {
+        error: testSendError,
+        loading: testSending,
+        request: testSendRequest
+    } = useHttp<null>(`${backendUrl}/api/wishes/send/test`, "POST");
+
+    const {
+        error: sendError,
+        loading: sending,
+        request: sendWishesRequest
+    } = useHttp<null>(`${backendUrl}/api/wishes/send`, "POST");
 
     useEffect(() => {
         loadData();
@@ -277,6 +322,71 @@ const WishesPage: React.FC = () => {
         );
     };
 
+    const handleCreateWish = () => {
+        const recipient = newWishRecipient.trim();
+
+        if (!recipient) {
+            setLocalError("Wpisz nazwę adresata.");
+            return;
+        }
+
+        setLocalError(null);
+        setNotice(null);
+
+        createWishRequest(
+            {
+                recipient,
+                email: newWishEmail.trim() || null,
+                letter: newWishLetter
+            },
+            () => {
+                setNewWishRecipient("");
+                setNewWishEmail("");
+                setNewWishLetter(false);
+                setShowAddForm(false);
+                setNotice("Dodano nowy wpis.");
+                loadData();
+            }
+        );
+    };
+
+    const handleTestSend = () => {
+        setSendResult(null);
+        setNotice(null);
+        setLocalError(null);
+
+        testSendRequest(
+            null,
+            (result: WishSendResult) => {
+                setSendResult(result);
+            }
+        );
+    };
+
+    const handleRealSend = () => {
+        const confirmed = window.confirm(
+            "Czy na pewno chcesz wysłać życzenia na wszystkie zapisane adresy e-mail?\n\n" +
+            "Ta operacja może wysłać prawdziwe wiadomości."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setSendResult(null);
+        setNotice(null);
+        setLocalError(null);
+
+        sendWishesRequest(
+            null,
+            (result: WishSendResult) => {
+                setSendResult(result);
+                setNotice("Zakończono proces wysyłki.");
+                loadData();
+            }
+        );
+    };
+
     const handleDeleteWish = () => {
         if (wishToDelete === null) {
             return;
@@ -353,7 +463,10 @@ const WishesPage: React.FC = () => {
         settingsError,
         resetError,
         deleteError,
-        localError
+        localError,
+        createError,
+        testSendError,
+        sendError,
     ].filter((message): message is string => Boolean(message));
 
     return (
@@ -377,6 +490,39 @@ const WishesPage: React.FC = () => {
             {notice && (
                 <div className="alert alert-success" role="status">
                     {notice}
+                </div>
+            )}
+
+            {sendResult && (
+                <div className={`alert ${sendResult.errors.length > 0 ? "alert-warning" : "alert-success"}`}>
+                    <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>
+                                {sendResult.testMode ? "Wynik testu" : "Wynik wysyłki"}
+                            </strong>
+
+                            <div className="mt-1">
+                                Powodzenie: {sendResult.succeeded} / {sendResult.total}
+                            </div>
+
+                            {sendResult.errors.length > 0 && (
+                                <ul className="mb-0 mt-2">
+                                    {sendResult.errors.map((item) => (
+                                        <li key={item.wishId}>
+                                            <strong>{item.recipient}:</strong> {item.error}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            className="btn-close"
+                            onClick={() => setSendResult(null)}
+                            aria-label="Zamknij raport"
+                        />
+                    </div>
                 </div>
             )}
 
@@ -428,7 +574,13 @@ const WishesPage: React.FC = () => {
                             {data.admin && (
                                 <button
                                     type="button"
-                                    className="btn btn-sm btn-outline-dark"
+                                    className="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center p-0"
+                                    style={{
+                                        width: "34px",
+                                        height: "34px",
+                                        flexShrink: 0,
+                                        transform: "translateY(7px)"
+                                    }}
                                     onClick={() => {
                                         setTitleDraft(data.title);
                                         setEditingTitle(true);
@@ -450,15 +602,37 @@ const WishesPage: React.FC = () => {
                 </div>
 
                 {data.admin && (
-                    <div className="d-flex justify-content-end mt-2">
+                    <div className="d-flex justify-content-center flex-wrap gap-2 mt-3">
                         <button
                             type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            disabled={resetLoading}
+                            className="btn btn-warning"
+                            disabled={testSending || sending}
+                            onClick={handleTestSend}
+                            title="Wyślij testowe wiadomości na adres zalogowanego administratora"
+                        >
+                            <FontAwesomeIcon icon={faEnvelope} className="me-2" />
+                            {testSending ? "Testowanie..." : "Test"}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="btn btn-success"
+                            disabled={testSending || sending}
+                            onClick={handleRealSend}
+                            title="Wyślij życzenia na właściwe adresy e-mail"
+                        >
+                            <FontAwesomeIcon icon={faPaperPlane} className="me-2" />
+                            {sending ? "Wysyłanie..." : "Wyślij"}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="btn btn-danger"
+                            disabled={resetLoading || testSending || sending}
                             onClick={resetAllWishes}
                             title="Zresetuj wszystkie życzenia"
                         >
-                            <FontAwesomeIcon icon={faRotateLeft} className="me-1" />
+                            <FontAwesomeIcon icon={faRotateLeft} className="me-2" />
                             {resetLoading ? "Resetowanie..." : "Resetuj dane"}
                         </button>
                     </div>
@@ -469,12 +643,92 @@ const WishesPage: React.FC = () => {
                 <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">Lista życzeń</h5>
 
-                    <span className="badge bg-light text-dark">
-                        {data.wishes.length} wpisów
-                    </span>
+                    <div className="d-flex align-items-center gap-2">
+                        <span className="badge bg-light text-dark">
+                            {data.wishes.length} wpisów
+                        </span>
+
+                        {data.admin && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-primary"
+                                onClick={() => setShowAddForm(previous => !previous)}
+                            >
+                                <FontAwesomeIcon icon={showAddForm ? faXmark : faPlus} className="me-1" />
+                                {showAddForm ? "Zamknij" : "Dodaj wpis"}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="card-body p-0">
+                    {data.admin && showAddForm && (
+                        <div className="p-3 border-bottom bg-light">
+                            <div className="row g-2 align-items-end">
+                                <div className="col-md-4">
+                                    <label className="form-label">Adresat</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={newWishRecipient}
+                                        onChange={(event) => setNewWishRecipient(event.target.value)}
+                                        placeholder="Imię i nazwisko / nazwa adresata"
+                                    />
+                                </div>
+
+                                <div className="col-md-4">
+                                    <label className="form-label">Adres</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={newWishEmail}
+                                        onChange={(event) => setNewWishEmail(event.target.value)}
+                                        placeholder={newWishLetter ? "Adres pocztowy" : "Adres e-mail"}
+                                    />
+                                </div>
+
+                                <div className="col-md-2">
+                                    <label className="form-label">Forma</label>
+                                    <select
+                                        className="form-select"
+                                        value={newWishLetter ? "letter" : "email"}
+                                        onChange={(event) => setNewWishLetter(event.target.value === "letter")}
+                                    >
+                                        <option value="email">E-mail</option>
+                                        <option value="letter">Listownie</option>
+                                    </select>
+                                </div>
+
+                                <div className="col-md-2 d-flex gap-1">
+                                    <button
+                                        type="button"
+                                        className="btn btn-success flex-grow-1"
+                                        disabled={createLoading || !newWishRecipient.trim()}
+                                        onClick={handleCreateWish}
+                                        title="Dodaj wpis"
+                                    >
+                                        <FontAwesomeIcon icon={faCheck} />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        disabled={createLoading}
+                                        onClick={() => {
+                                            setShowAddForm(false);
+                                            setNewWishRecipient("");
+                                            setNewWishEmail("");
+                                            setNewWishLetter(false);
+                                        }}
+                                        title="Anuluj"
+                                    >
+                                        <FontAwesomeIcon icon={faXmark} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {data.wishes.length === 0 ? (
                         <p className="text-muted text-center p-4 mb-0">
                             Nie dodano jeszcze żadnych życzeń.
@@ -512,14 +766,12 @@ const WishesPage: React.FC = () => {
                                             <tr key={wish.id}>
                                                 <td style={{ minWidth: "180px" }}>
                                                     {data.admin ? (
-                                                        <div className="d-flex flex-column gap-2">
+                                                        <div className="d-flex align-items-center gap-1">
                                                             <input
                                                                 type="text"
                                                                 className="form-control form-control-sm"
-                                                                value={
-                                                                    recipientDrafts[wish.id] ??
-                                                                    wish.recipient
-                                                                }
+                                                                style={{ minWidth: 0 }}
+                                                                value={recipientDrafts[wish.id] ?? wish.recipient}
                                                                 onChange={(event) =>
                                                                     setRecipientDrafts(previous => ({
                                                                         ...previous,
@@ -531,11 +783,14 @@ const WishesPage: React.FC = () => {
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-outline-primary align-self-start"
+                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                style={{ width: "34px", height: "34px" }}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() => saveAdminWish(wish.id)}
+                                                                title="Zapisz adresata"
+                                                                aria-label="Zapisz adresata"
                                                             >
-                                                                Zapisz nazwę
+                                                                <FontAwesomeIcon icon={faCheck} />
                                                             </button>
                                                         </div>
                                                     ) : (
@@ -547,45 +802,47 @@ const WishesPage: React.FC = () => {
 
                                                 <td style={{ minWidth: "220px" }}>
                                                     {editingEmailId === wish.id ? (
-                                                        <div className="d-flex flex-column gap-2">
+                                                        <div className="d-flex align-items-center gap-1">
                                                             <input
                                                                 type="text"
                                                                 className="form-control form-control-sm"
+                                                                style={{ minWidth: 0 }}
                                                                 value={emailDraft}
-                                                                onChange={(event) =>
-                                                                    setEmailDraft(event.target.value)
-                                                                }
-                                                                placeholder={
-                                                                    wish.letter
-                                                                        ? "Adres pocztowy"
-                                                                        : "Adres e-mail"
-                                                                }
+                                                                onChange={(event) => setEmailDraft(event.target.value)}
+                                                                placeholder={wish.letter ? "Adres pocztowy" : "Adres e-mail"}
                                                                 aria-label="Adres"
                                                             />
 
-                                                            <div className="d-flex gap-1">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-success"
-                                                                    disabled={emailLoading || !emailDraft.trim()}
-                                                                    onClick={() => saveEmail(wish.id)}
-                                                                >
-                                                                    {emailLoading ? "Zapisywanie..." : "Zapisz"}
-                                                                </button>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                style={{ width: "34px", height: "34px" }}
+                                                                disabled={emailLoading || !emailDraft.trim()}
+                                                                onClick={() => saveEmail(wish.id)}
+                                                                title="Zapisz adres"
+                                                                aria-label="Zapisz adres"
+                                                            >
+                                                                <FontAwesomeIcon icon={faCheck} />
+                                                            </button>
 
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-outline-secondary"
-                                                                    disabled={emailLoading}
-                                                                    onClick={cancelEmailEditing}
-                                                                >
-                                                                    Anuluj
-                                                                </button>
-                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-secondary flex-shrink-0"
+                                                                style={{ width: "34px", height: "34px" }}
+                                                                disabled={emailLoading}
+                                                                onClick={cancelEmailEditing}
+                                                                title="Anuluj"
+                                                                aria-label="Anuluj"
+                                                            >
+                                                                <FontAwesomeIcon icon={faXmark} />
+                                                            </button>
                                                         </div>
                                                     ) : (
-                                                        <div className="d-flex flex-column gap-1">
-                                                            <span>
+                                                        <div className="d-flex align-items-center justify-content-between gap-2">
+                                                            <span
+                                                                className="flex-grow-1"
+                                                                style={{ minWidth: 0, overflowWrap: "anywhere" }}
+                                                            >
                                                                 {wish.email || (
                                                                     <span className="text-muted fst-italic">
                                                                         Brak adresu
@@ -596,8 +853,8 @@ const WishesPage: React.FC = () => {
                                                             {canEditWish && (
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-outline-dark align-self-start"
-                                                                    style={{ width: "32px", height: "32px" }}
+                                                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                                                    style={{ width: "34px", height: "34px" }}
                                                                     onClick={() => startEmailEditing(wish.id, wish.email)}
                                                                     title="Edytuj adres"
                                                                     aria-label="Edytuj adres"
@@ -610,44 +867,35 @@ const WishesPage: React.FC = () => {
                                                 </td>
 
                                                 <td className="text-center" style={{ minWidth: "130px" }}>
-                                                    {data.admin ? (
-                                                        <button
-                                                            type="button"
-                                                            className={`btn btn-sm ${
-                                                                wish.letter
-                                                                    ? "btn-outline-secondary"
-                                                                    : "btn-outline-primary"
-                                                            }`}
-                                                            disabled={adminWishLoading}
-                                                            onClick={() =>
-                                                                saveAdminWish(wish.id, {
-                                                                    letter: !wish.letter
-                                                                })
-                                                            }
-                                                            title="Kliknij, aby zmienić formę"
-                                                        >
-                                                            {wish.letter
-                                                                ? "Listownie · Zmień"
-                                                                : "E-mail · Zmień"}
-                                                        </button>
-                                                    ) : (
-                                                        wish.letter ? (
-                                                            <span className="badge bg-secondary">
-                                                                Listownie
-                                                            </span>
-                                                        ) : (
-                                                            <span className="badge bg-primary">
-                                                                E-mail
-                                                            </span>
-                                                        )
-                                                    )}
+                                                    <div className="d-flex align-items-center justify-content-center gap-2">
+                                                        <span className={`badge ${wish.letter ? "bg-secondary" : "bg-primary"}`}>
+                                                            {wish.letter ? "Listownie" : "E-mail"}
+                                                        </span>
+
+                                                        {data.admin && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-warning"
+                                                                style={{ width: "34px", height: "34px" }}
+                                                                disabled={adminWishLoading}
+                                                                onClick={() =>
+                                                                    saveAdminWish(wish.id, { letter: !wish.letter })
+                                                                }
+                                                                title="Zmień formę wysyłki"
+                                                                aria-label="Zmień formę wysyłki"
+                                                            >
+                                                                <FontAwesomeIcon icon={faArrowRightArrowLeft} />
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
 
                                                 <td style={{ minWidth: "200px" }}>
                                                     {data.admin ? (
-                                                        <div className="d-flex flex-column gap-2">
+                                                        <div className="d-flex align-items-center gap-1">
                                                             <select
                                                                 className="form-select form-select-sm"
+                                                                style={{ minWidth: 0 }}
                                                                 value={selectedUserId}
                                                                 onChange={(event) =>
                                                                     setAssignmentDrafts(previous => ({
@@ -657,15 +905,10 @@ const WishesPage: React.FC = () => {
                                                                 }
                                                                 aria-label="Przypisany brat"
                                                             >
-                                                                <option value="">
-                                                                    Nieprzypisane
-                                                                </option>
+                                                                <option value="">Nieprzypisane</option>
 
                                                                 {data.users.map(user => (
-                                                                    <option
-                                                                        key={user.id}
-                                                                        value={String(user.id)}
-                                                                    >
+                                                                    <option key={user.id} value={String(user.id)}>
                                                                         {user.name} {user.surname}
                                                                     </option>
                                                                 ))}
@@ -673,36 +916,43 @@ const WishesPage: React.FC = () => {
 
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-sm btn-outline-primary align-self-start"
+                                                                className="btn btn-sm btn-success flex-shrink-0"
+                                                                style={{ width: "34px", height: "34px" }}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() => saveAdminWish(wish.id)}
+                                                                title="Zapisz przypisanie"
+                                                                aria-label="Zapisz przypisanie"
                                                             >
-                                                                Zapisz przypisanie
+                                                                <FontAwesomeIcon icon={faCheck} />
                                                             </button>
                                                         </div>
                                                     ) : wish.userId === null ? (
                                                         <button
                                                             type="button"
-                                                            className="btn btn-sm btn-outline-primary"
+                                                            className="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
                                                             disabled={claimLoading}
                                                             onClick={() => claimWish(wish.id)}
                                                         >
-                                                            {claimLoading ? "Przypisywanie..." : "+ Przypisz"}
+                                                            <FontAwesomeIcon icon={faUserPlus} />
+                                                            <span>
+                                                                {claimLoading ? "Przypisywanie..." : ""}
+                                                            </span>
                                                         </button>
                                                     ) : (
-                                                        <div className="d-flex flex-column gap-1">
+                                                        <div className="d-flex align-items-center flex-wrap gap-2">
                                                             <span>{wish.userName}</span>
 
                                                             {wish.userId === currentUserId && (
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-outline-danger align-self-start"
+                                                                    className="btn btn-sm btn-secondary d-inline-flex align-items-center gap-2"
                                                                     disabled={releaseLoading}
                                                                     onClick={() => releaseWish(wish.id)}
                                                                 >
-                                                                    {releaseLoading
-                                                                        ? "Wypisywanie..."
-                                                                        : "Wypisz się"}
+                                                                    <FontAwesomeIcon icon={faUserMinus} />
+                                                                    <span>
+                                                                        {releaseLoading ? "Wypisywanie..." : ""}
+                                                                    </span>
                                                                 </button>
                                                             )}
                                                         </div>
@@ -711,41 +961,49 @@ const WishesPage: React.FC = () => {
 
                                                 <td style={{ minWidth: "260px" }}>
                                                     {editingMessageId === wish.id ? (
-                                                        <div className="d-flex flex-column gap-2">
+                                                        <div className="d-flex align-items-start gap-1">
                                                             <textarea
-                                                                className="form-control form-control-sm"
+                                                                className="form-control form-control-sm flex-grow-1"
+                                                                style={{ minWidth: 0 }}
                                                                 rows={4}
                                                                 value={messageDraft}
-                                                                onChange={(event) =>
-                                                                    setMessageDraft(event.target.value)
-                                                                }
+                                                                onChange={(event) => setMessageDraft(event.target.value)}
                                                                 placeholder="Treść życzeń"
                                                                 aria-label="Treść życzeń"
                                                             />
 
-                                                            <div className="d-flex gap-1">
+                                                            <div className="d-flex flex-column gap-1 flex-shrink-0">
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-sm btn-success"
+                                                                    style={{ width: "34px", height: "34px" }}
                                                                     disabled={messageLoading}
                                                                     onClick={() => saveMessage(wish.id)}
+                                                                    title="Zapisz wiadomość"
+                                                                    aria-label="Zapisz wiadomość"
                                                                 >
-                                                                    {messageLoading ? "Zapisywanie..." : "Zapisz"}
+                                                                    <FontAwesomeIcon icon={faCheck} />
                                                                 </button>
 
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-outline-secondary"
+                                                                    className="btn btn-sm btn-secondary"
+                                                                    style={{ width: "34px", height: "34px" }}
                                                                     disabled={messageLoading}
                                                                     onClick={cancelMessageEditing}
+                                                                    title="Anuluj"
+                                                                    aria-label="Anuluj"
                                                                 >
-                                                                    Anuluj
+                                                                    <FontAwesomeIcon icon={faXmark} />
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div className="d-flex flex-column gap-1">
-                                                            <div style={{ whiteSpace: "pre-wrap" }}>
+                                                        <div className="d-flex align-items-start justify-content-between gap-2">
+                                                            <div
+                                                                className="flex-grow-1"
+                                                                style={{ minWidth: 0, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
+                                                            >
                                                                 {wish.message || (
                                                                     <span className="text-muted fst-italic">
                                                                         Brak wiadomości
@@ -756,8 +1014,8 @@ const WishesPage: React.FC = () => {
                                                             {canEditWish && (
                                                                 <button
                                                                     type="button"
-                                                                    className="btn btn-sm btn-outline-dark align-self-start"
-                                                                    style={{ width: "32px", height: "32px" }}
+                                                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                                                    style={{ width: "34px", height: "34px" }}
                                                                     onClick={() => startMessageEditing(wish.id, wish.message)}
                                                                     title="Edytuj wiadomość"
                                                                     aria-label="Edytuj wiadomość"
@@ -787,7 +1045,7 @@ const WishesPage: React.FC = () => {
                                                     <td className="text-center">
                                                         <button
                                                             type="button"
-                                                            className="btn btn-sm btn-outline-danger"
+                                                            className="btn btn-sm btn-danger"
                                                             style={{ width: "32px", height: "32px" }}
                                                             disabled={deleteLoading}
                                                             onClick={() => setWishToDelete(wish.id)}
