@@ -40,6 +40,19 @@ type WishSendResult = {
     }[];
 };
 
+const iconButtonStyle: React.CSSProperties = {
+    width: "25px",
+    height: "25px",
+    minWidth: "25px",
+    minHeight: "25px",
+    padding: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    fontSize: "12px"
+};
+
 const WishesPage: React.FC = () => {
     const [data, setData] = useState<WishesPageDTO | null>(null);
 
@@ -519,6 +532,7 @@ const WishesPage: React.FC = () => {
                         </div>
 
                         <button
+                            style={iconButtonStyle}
                             type="button"
                             className="btn-close"
                             onClick={() => setSendResult(null)}
@@ -545,6 +559,7 @@ const WishesPage: React.FC = () => {
                             <button
                                 type="button"
                                 className="btn btn-sm btn-success"
+                                style={iconButtonStyle}
                                 disabled={settingsLoading || !titleDraft.trim()}
                                 onClick={saveTitle}
                                 title="Zapisz temat"
@@ -555,7 +570,8 @@ const WishesPage: React.FC = () => {
 
                             <button
                                 type="button"
-                                className="btn btn-sm btn-outline-secondary"
+                                className="btn btn-sm btn-danger"
+                                style={iconButtonStyle}
                                 disabled={settingsLoading}
                                 onClick={() => {
                                     setTitleDraft(data.title);
@@ -569,20 +585,16 @@ const WishesPage: React.FC = () => {
                         </>
                     ) : (
                         <>
-                            <h2 className="entity-header-dynamic-size text-center mb-0">
+                            <h1 className="entity-header-dynamic-size text-center mb-0">
                                 {data.title}
-                            </h2>
+                            </h1>
 
                             {data.admin && (
                                 <button
                                     type="button"
                                     className="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center p-0"
-                                    style={{
-                                        width: "34px",
-                                        height: "34px",
-                                        flexShrink: 0,
-                                        transform: "translateY(7px)"
-                                    }}
+                                    style={{ ...iconButtonStyle, flexShrink: 0, transform: 'translateY(7px)' }}
+
                                     onClick={() => {
                                         setTitleDraft(data.title);
                                         setEditingTitle(true);
@@ -597,14 +609,14 @@ const WishesPage: React.FC = () => {
                     )}
                 </div>
 
-                <div className="text-center">
-                    <small className="text-muted">
+                <div className="text-center mb-4">
+                    <small className="text-white">
                         Temat wiadomości e-mail
                     </small>
                 </div>
 
                 {data.admin && (
-                    <div className="d-flex justify-content-center flex-wrap gap-2 mt-3">
+                    <div className="d-flex justify-content-center flex-wrap gap-2 mt-4 mb-4">
                         <button
                             type="button"
                             className="btn btn-warning"
@@ -658,6 +670,7 @@ const WishesPage: React.FC = () => {
                         {data.admin && (
                             <button
                                 type="button"
+                                style={iconButtonStyle}
                                 className={`btn btn-sm btn-warning ${showAddForm ? "d-none" : ""}`}
 
                                 onClick={() => setShowAddForm(previous => !previous)}
@@ -683,7 +696,7 @@ const WishesPage: React.FC = () => {
                                     />
                                 </div>
 
-                                <div className="col-md-4">
+                                <div className="col-md-5">
                                     <label className="form-label">Adres</label>
                                     <input
                                         type="text"
@@ -706,7 +719,7 @@ const WishesPage: React.FC = () => {
                                     </select>
                                 </div>
 
-                                <div className="col-md-2 d-flex gap-1">
+                                <div className="col-md-1 d-flex gap-1">
                                     <button
                                         type="button"
                                         className="btn btn-success flex-grow-1"
@@ -719,7 +732,7 @@ const WishesPage: React.FC = () => {
 
                                     <button
                                         type="button"
-                                        className="btn btn-secondary"
+                                        className="btn btn-secondary flex-grow-1"
                                         disabled={createLoading}
                                         onClick={() => {
                                             setShowAddForm(false);
@@ -791,7 +804,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-sm btn-success flex-shrink-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() => saveAdminWish(wish.id)}
                                                                 title="Zapisz adresata"
@@ -823,7 +836,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-sm btn-success flex-shrink-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={emailLoading || !emailDraft.trim()}
                                                                 onClick={() => saveEmail(wish.id)}
                                                                 title="Zapisz adres"
@@ -835,7 +848,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-sm btn-secondary flex-shrink-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={emailLoading}
                                                                 onClick={cancelEmailEditing}
                                                                 title="Anuluj"
@@ -861,7 +874,7 @@ const WishesPage: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-sm btn-primary flex-shrink-0"
-                                                                    style={{ width: "34px", height: "34px" }}
+                                                                    style={iconButtonStyle}
                                                                     onClick={() => startEmailEditing(wish.id, wish.email)}
                                                                     title="Edytuj adres"
                                                                     aria-label="Edytuj adres"
@@ -883,7 +896,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-sm btn-warning"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() =>
                                                                     saveAdminWish(wish.id, { letter: !wish.letter })
@@ -924,7 +937,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-success d-inline-flex align-items-center justify-content-center p-0 flex-shrink-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={adminWishLoading}
                                                                 onClick={() => saveAdminWish(wish.id)}
                                                                 title="Zapisz przypisanie"
@@ -939,7 +952,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-primary d-inline-flex align-items-center justify-content-center p-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={claimLoading}
                                                                 onClick={() => claimWish(wish.id)}
                                                                 title="Przypisz się do życzeń"
@@ -954,7 +967,7 @@ const WishesPage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-danger d-inline-flex align-items-center justify-content-center p-0"
-                                                                style={{ width: "34px", height: "34px" }}
+                                                                style={iconButtonStyle}
                                                                 disabled={releaseLoading}
                                                                 onClick={() => releaseWish(wish.id)}
                                                                 title="Wypisz się z życzeń"
@@ -988,7 +1001,7 @@ const WishesPage: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-sm btn-success"
-                                                                    style={{ width: "34px", height: "34px" }}
+                                                                    style={iconButtonStyle}
                                                                     disabled={messageLoading}
                                                                     onClick={() => saveMessage(wish.id)}
                                                                     title="Zapisz wiadomość"
@@ -1000,7 +1013,7 @@ const WishesPage: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-sm btn-secondary"
-                                                                    style={{ width: "34px", height: "34px" }}
+                                                                    style={iconButtonStyle}
                                                                     disabled={messageLoading}
                                                                     onClick={cancelMessageEditing}
                                                                     title="Anuluj"
@@ -1027,7 +1040,7 @@ const WishesPage: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-sm btn-primary flex-shrink-0"
-                                                                    style={{ width: "34px", height: "34px" }}
+                                                                    style={iconButtonStyle}
                                                                     onClick={() => startMessageEditing(wish.id, wish.message)}
                                                                     title="Edytuj wiadomość"
                                                                     aria-label="Edytuj wiadomość"
@@ -1066,7 +1079,7 @@ const WishesPage: React.FC = () => {
                                                         <button
                                                             type="button"
                                                             className="btn btn-sm btn-danger"
-                                                            style={{ width: "32px", height: "32px" }}
+                                                            style={iconButtonStyle}
                                                             disabled={deleteLoading}
                                                             onClick={() => setWishToDelete(wish.id)}
                                                             title="Usuń cały wpis"
