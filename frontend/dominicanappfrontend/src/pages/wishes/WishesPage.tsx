@@ -59,6 +59,7 @@ const WishesPage: React.FC = () => {
 
     const [emailDrafts, setEmailDrafts] = useState<Record<number, string>>({});
     const [messageDrafts, setMessageDrafts] = useState<Record<number, string>>({});
+    const [activeMessageId, setActiveMessageId] = useState<number | null>(null);
 
     const [recipientDrafts, setRecipientDrafts] = useState<Record<number, string>>({});
     const [assignmentDrafts, setAssignmentDrafts] = useState<Record<number, string>>({});
@@ -1003,8 +1004,10 @@ const WishesPage: React.FC = () => {
                                                         <div className="d-flex align-items-start gap-1">
                                                             <textarea
                                                                 className="form-control form-control-sm flex-grow-1"
-                                                                style={{ minWidth: 0 }}
-                                                                rows={4}
+                                                                style={{ minWidth: 0, resize: "vertical" }}
+                                                                rows={activeMessageId === wish.id ? 4 : 1}
+                                                                onFocus={() => setActiveMessageId(wish.id)}
+                                                                onBlur={() => setActiveMessageId(null)}
                                                                 value={messageDrafts[wish.id] ?? wish.message ?? ""}
                                                                 onChange={(event) => {
                                                                     clearSavedIndicator(`message-${wish.id}`);
