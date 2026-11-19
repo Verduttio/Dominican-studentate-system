@@ -158,8 +158,42 @@ public class WishService {
     }
 
     @Transactional
+    public void releaseWish(Long wishId) {
+        Wish wish = getWishOrThrow(wishId);
+
+        User currentUser = SecurityUtils.getCurrentUser();
+        User assignedUser = wish.getUser();
+
+        if (assignedUser == null
+                || !Objects.equals(assignedUser.getId(), currentUser.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Możesz wypisać się tylko z wpisu przypisanego do Ciebie"
+            );
+        }
+
+        wish.setUser(null);
+        wishRepository.save(wish);
+    }
+
+    @Transactional
     public void updateEmail(Long wishId, String email) {
         Wish wish = getWishOrThrow(wishId);
+
+        User currentUser = SecurityUtils.getCurrentUser();
+        boolean admin = SecurityUtils.userHasRoleAdmin();
+
+        if (!admin) {
+            User assignedUser = wish.getUser();
+
+            if (assignedUser == null
+                    || !Objects.equals(assignedUser.getId(), currentUser.getId())) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Możesz edytować tylko adresy wpisów przypisanych do Ciebie"
+                );
+            }
+        }
 
         wish.setEmail(email.trim());
         wishRepository.save(wish);
@@ -241,6 +275,12 @@ public class WishService {
 
         Wish wish = getWishOrThrow(wishId);
         wishRepository.delete(wish);
+    }
+
+    @Transactional
+    public int resetAllWishes() {
+        requireAdmin();
+        return wishRepository.resetAllWishes();
     }
 
     @Transactional

@@ -36,6 +36,12 @@ public class WishesController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{wishId}/claim")
+    public ResponseEntity<Void> releaseWish(@PathVariable Long wishId) {
+        wishService.releaseWish(wishId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{wishId}/email")
     public ResponseEntity<Void> updateEmail(
             @PathVariable Long wishId,
@@ -75,6 +81,11 @@ public class WishesController {
     public ResponseEntity<Void> deleteWish(@PathVariable Long wishId) {
         wishService.deleteWish(wishId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Integer> resetAllWishes() {
+        return ResponseEntity.ok(wishService.resetAllWishes());
     }
 
     @PatchMapping("/settings")

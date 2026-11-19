@@ -38,4 +38,13 @@ public interface WishRepository extends JpaRepository<Wish, Long> {
             @Param("wishId") Long wishId,
             @Param("user") User user
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        UPDATE Wish w
+        SET w.message = null,
+            w.isSent = false,
+            w.user = null
+        """)
+    int resetAllWishes();
 }
