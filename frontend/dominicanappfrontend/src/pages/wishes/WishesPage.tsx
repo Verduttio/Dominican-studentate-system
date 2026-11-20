@@ -21,7 +21,9 @@ import {
     faUserPlus,
     faCircleCheck,
     faClock,
-    faFloppyDisk
+    faFloppyDisk,
+    faEye,
+    faEyeSlash
 } from "@fortawesome/free-solid-svg-icons";
 
 type AdminWishChanges = {
@@ -389,6 +391,42 @@ const WishesPage: React.FC = () => {
         );
     };
 
+    const toggleWishesVisibility = () => {
+        if (!data) {
+            return;
+        }
+
+        const nextVisible = !data.visible;
+
+        setLocalError(null);
+        setNotice(null);
+
+        updateSettingsRequest(
+            {
+                title: data.title,
+                visible: nextVisible
+            },
+            () => {
+                setData(previous =>
+                    previous
+                        ? { ...previous, visible: nextVisible }
+                        : previous
+                );
+
+                setNotice(
+                    nextVisible
+                        ? "Życzenia zostały udostępnione użytkownikom."
+                        : "Życzenia zostały ukryte przed użytkownikami."
+                );
+
+                window.dispatchEvent(new Event("wishes-visibility-changed"));
+            },
+            false,
+            `${backendUrl}/api/wishes/settings`,
+            "PATCH"
+        );
+    };
+
     const handleCreateWish = () => {
         const recipient = newWishRecipient.trim();
 
@@ -641,13 +679,27 @@ const WishesPage: React.FC = () => {
                     <div className="d-flex justify-content-center flex-wrap gap-2 mt-4 mb-4">
                         <button
                             type="button"
+                            className={`btn ${data.visible ? "btn-primary" : "btn-success"}`}
+                            disabled={settingsLoading}
+                            onClick={toggleWishesVisibility}
+                            title={data.visible ? "Ukryj życzenia przed użytkownikami" : "Pokaż życzenia użytkownikom"}
+                        >
+                            <FontAwesomeIcon
+                                icon={data.visible ? faEyeSlash : faEye}
+                                className="me-2"
+                            />
+                            {data.visible ? "Ukryj" : "Pokaż"}
+                        </button>
+
+                        <button
+                            type="button"
                             className="btn btn-warning"
                             disabled={testSending || sending}
                             onClick={handleTestSend}
                             title="Wyślij testowe wiadomości na adres zalogowanego administratora"
                         >
                             <FontAwesomeIcon icon={faEnvelope} className="me-2" />
-                            {testSending ? "Testowanie..." : "Test"}
+                            {testSending ? "Testowanie..." : "Testuj"}
                         </button>
 
                         <button
@@ -1101,31 +1153,70 @@ const WishesPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-dark text-white">
-                    <h5 className="mb-0">Statystyki przypisań</h5>
-                </div>
+            {data.statistics.length === 0 ? (
+                <p className="text-muted text-center mt-4">
+                    Brak aktywnych Braci do wyświetlenia.
+                </p>
+            ) : (
+                <div className="d-flex justify-content-center mt-4">
+                    <div
+                        className="table-responsive"
+                        style={{
+                            width: "fit-content",
+                            maxWidth: "100%"
+                        }}
+                    >
+                        <table
+                            className="table table-hover table-striped table-rounded table-shadow table-bordered mb-0"
+                            style={{
+                                width: "auto",
+                                tableLayout: "auto"
+                            }}
+                        >
+                            <thead className="table-dark">
+                                <tr>
+                                    <th className="text-nowrap">
+                                        Brat
+                                    </th>
+                                    <th
+                                        className="text-center text-nowrap"
+                                        style={{ width: "1%" }}
+                                    >
+                                        Życzenia
+                                    </th>
+                                </tr>
+                            </thead>
 
-                <div className="card-body">
-                    {data.statistics.length === 0 ? (
-                        <p className="text-muted mb-0">
-                            Żaden Brat nie ma jeszcze przypisanych życzeń.
-                        </p>
-                    ) : (
-                        <div className="d-flex flex-wrap gap-2">
-                            {data.statistics.map((stat) => (
-                                <span
-                                    key={stat.userId}
-                                    className="badge bg-light text-dark border p-2"
-                                    style={{ fontSize: "0.95rem" }}
-                                >
-                                    {stat.name} {stat.surname}: {stat.count}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+                            <tbody>
+                                {data.statistics.map((stat) => (
+                                    <tr key={stat.userId}>
+                                        <td className="text-nowrap">
+                                            {stat.name} {stat.surname}
+                                        </td>
+
+                                        <td className="text-center text-nowrap">
+                                            <span
+                                                className={
+                                                    stat.count === 0
+                                                        ? "badge bg-danger bg-opacity-10 text-danger"
+                                                        : "badge bg-light text-dark border"
+                                                }
+                                                style={{
+                                                    minWidth: "5rem",
+                                                    display: "inline-block",
+                                                    fontSize: "0.9rem"
+                                                }}
+                                            >
+                                                {stat.count}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

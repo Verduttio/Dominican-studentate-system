@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -80,34 +78,25 @@ public class WishService {
                 })
                 .toList();
 
-        var wishesByUser = allWishes.stream()
+        Map<Long, Long> wishesCountByUser = allWishes.stream()
                 .filter(wish -> wish.getUser() != null)
                 .collect(Collectors.groupingBy(
                         wish -> wish.getUser().getId(),
-                        LinkedHashMap::new,
-                        Collectors.toList()
+                        Collectors.counting()
                 ));
 
-        List<WishesPageDTO.UserStats> statistics = wishesByUser.values().stream()
-                .map(userWishes -> {
-                    User user = userWishes.get(0).getUser();
-
-                    return new WishesPageDTO.UserStats(
-                            user.getId(),
-                            user.getName(),
-                            user.getSurname(),
-                            userWishes.size()
-                    );
-                })
-                .sorted(
-                        Comparator.comparing(
-                                WishesPageDTO.UserStats::surname,
-                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
-                        ).thenComparing(
-                                WishesPageDTO.UserStats::name,
-                                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
-                        )
-                )
+        List<WishesPageDTO.UserStats> statistics = userService
+                .getUsersWhichHaveAnyOfRoles(List.of("Brat"))
+                .stream()
+                .filter(User::isEnabled)
+                .filter(user -> user.getRoles().stream()
+                        .noneMatch(role -> role.getName().equals("ROLE_GUEST")))
+                .map(user -> new WishesPageDTO.UserStats(
+                        user.getId(),
+                        user.getName(),
+                        user.getSurname(),
+                        wishesCountByUser.getOrDefault(user.getId(), 0L)
+                ))
                 .toList();
 
         String title = getSettingValue("wishes_title", DEFAULT_TITLE);
