@@ -81,7 +81,9 @@ jobs:
           cp .env.template .env && \
           sed -i 's|http://localhost|${{ secrets.NGINX_URL_OP }}|g' .env && \
           sed -i 's/your-google-client-id/${{ secrets.GOOGLE_CLIENT_ID_OP }}/g' .env && \
-          sed -i 's/your-google-client-secret/${{ secrets.GOOGLE_CLIENT_SECRET_OP }}/g' .env"
+          sed -i 's/your-google-client-secret/${{ secrets.GOOGLE_CLIENT_SECRET_OP }}/g' .env && \
+          sed -i 's|https://script.google.com/macros/s/PASTE_DEPLOYMENT_ID/exec|${{ secrets.WISHES_GAS_URL_OP }}|g' .env && \
+          sed -i 's|replace-with-a-long-random-secret|${{ secrets.WISHES_GAS_SECRET_OP }}|g' .env"
 
       - name: Copy migration file from previous version
         run: |
