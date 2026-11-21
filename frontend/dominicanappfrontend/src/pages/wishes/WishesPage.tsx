@@ -714,7 +714,7 @@ const WishesPage: React.FC = () => {
                     <div className="d-flex justify-content-center flex-wrap gap-2 mt-4 mb-4">
                         <button
                             type="button"
-                            className={`btn ${data.visible ? "btn-primary" : "btn-success"}`}
+                            className={`btn ${data.visible ? "btn-secondary" : "btn-primary"}`}
                             disabled={settingsLoading}
                             onClick={toggleWishesVisibility}
                             title={data.visible ? "Ukryj życzenia przed użytkownikami" : "Pokaż życzenia użytkownikom"}
@@ -772,13 +772,13 @@ const WishesPage: React.FC = () => {
                         <div className="card-body py-3 px-3">
                             <div className="small d-flex flex-column gap-3">
                                 <div className="d-flex align-items-start gap-2">
-                                    <span className={`btn btn-sm ${data.visible ? "btn-primary" : "btn-success"} py-1 px-2 flex-shrink-0`}>
+                                    <span className={`btn btn-sm ${data.visible ? "btn-secondary" : "btn-primary"} py-1 px-2 flex-shrink-0`}>
                                         <FontAwesomeIcon icon={data.visible ? faEyeSlash : faEye} />
                                     </span>
                                     <div>
                                         <strong>{data.visible ? "Ukryj" : "Pokaż"}</strong>
                                         <div className="text-muted">
-                                            Ukrywa listę życzeń przed użytkownikami albo ponownie ją udostępnia.
+                                            Ukrywa/pokazuje użytkownikom przycisk do strony z życzeniami na pasku nawigacyjnym.
                                         </div>
                                     </div>
                                 </div>
@@ -792,6 +792,7 @@ const WishesPage: React.FC = () => {
                                         <div className="text-muted">
                                             Wysyła prawdziwe wiadomości testowe na adres dziekana.
                                             Oryginalny adres odbiorcy jest umieszony w temacie.
+                                            Dotyczy wyłącznie wiadomości, które NIE MAJĄ statusu "Utworzono".
                                         </div>
                                     </div>
                                 </div>
@@ -804,7 +805,8 @@ const WishesPage: React.FC = () => {
                                         <strong>Utwórz drafty</strong>
                                         <div className="text-muted">
                                             Tworzy wersje robocze w Gmailu, zaadresowane do właściwych odbiorców.
-                                            Wiadomości nie są wysyłane automatycznie — można je sprawdzić i wysłać później.
+                                            Wiadomości nie są wysyłane automatycznie — można je sprawdzić i wysłać z poziomu Gmaila.
+                                            Dotyczy wyłącznie wiadomości, które NIE MAJĄ statusu "Utworzono".
                                         </div>
                                     </div>
                                 </div>
