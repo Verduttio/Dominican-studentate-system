@@ -118,8 +118,9 @@ function AddScheduleRoleSelection() {
 
     return (
         <div className="container mt-4 fade-in">
-            <h2 className="text-center mb-5">Wybierz sekcję do wyznaczania</h2>
-
+            <div className="d-flex justify-content-center mb-4">
+                <h1 className="entity-header">Wybierz sekcję do wyznaczania</h1>
+            </div>
             <div className="row justify-content-center">
             {currentUser?.roles
                 .filter((role) => role.type === "SUPERVISOR")

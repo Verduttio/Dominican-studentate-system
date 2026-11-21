@@ -270,3 +270,34 @@ export interface TaskSection {
     id: number;
     name: string;
 }
+
+export interface WishRow {
+    id: number;
+    recipient: string;
+    email: string | null;
+    letter: boolean;
+    userId: number | null;
+    userName: string | null;
+    message: string | null;
+    sent: boolean | null;
+}
+
+export interface WishUserStats {
+    userId: number;
+    name: string;
+    surname: string;
+    count: number;
+}
+
+export interface WishesPageDTO {
+    title: string;
+    visible: boolean;
+    admin: boolean;
+    wishes: WishRow[];
+    users: UserShortInfo[];
+    statistics: WishUserStats[];
+}
+
+export interface WishesMenuStateDTO {
+    visible: boolean;
+}

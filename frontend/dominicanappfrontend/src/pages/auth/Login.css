@@ -22,10 +22,10 @@
     display: flex;
 }
 
-.d-flex {
+.login-layout {
     display: flex;
-    align-items: center; /* Wyrównanie pionowe do środka */
-    justify-content: center; /* Wyrównanie poziome do środka */
+    align-items: center;
+    justify-content: center;
 }
 
 .d-flex-no-media-resize {
@@ -64,9 +64,9 @@
 }
 
 @media (max-width: 550px) {
-    .d-flex {
-        flex-direction: column; /* Zmienia układ elementów na pionowy */
-        align-items: stretch; /* Rozciąga elementy, aby zajmowały całą dostępną szerokość */
+    .login-layout {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .login-box, .login-image {
