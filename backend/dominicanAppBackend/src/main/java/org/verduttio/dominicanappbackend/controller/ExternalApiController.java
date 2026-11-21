@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.verduttio.dominicanappbackend.domain.Schedule;
 import org.verduttio.dominicanappbackend.repository.ScheduleRepository;
+import org.verduttio.dominicanappbackend.util.EnvUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,12 +17,14 @@ import java.util.stream.Collectors;
 public class ExternalApiController {
 
     private final ScheduleRepository scheduleRepository;
+    private final String apiKey;
 
-    // Prosty klucz "na sztywno" do zabezpieczenia przed przypadkowym wejściem
-    private static final String API_KEY = "TajneHasloGAS";
-
-    public ExternalApiController(ScheduleRepository scheduleRepository) {
+    public ExternalApiController(
+            ScheduleRepository scheduleRepository,
+            EnvUtils envUtils
+    ) {
         this.scheduleRepository = scheduleRepository;
+        this.apiKey = envUtils.getAppEnvVariable("WISHES_GAS_SECRET");
     }
 
     @GetMapping("/task-emails")
@@ -29,7 +32,7 @@ public class ExternalApiController {
             @RequestParam Long taskId,
             @RequestParam String key
     ) {
-        if (!API_KEY.equals(key)) {
+        if (apiKey == null || !apiKey.equals(key)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
