@@ -88,6 +88,12 @@ public class WishesController {
         return ResponseEntity.ok(wishService.resetAllWishes());
     }
 
+    @PostMapping("/{wishId}/reset-status")
+    public ResponseEntity<Void> resetWishSentStatus(@PathVariable Long wishId) {
+        wishService.resetWishSentStatus(wishId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/settings")
     public ResponseEntity<Void> updateSettings(
             @Valid @RequestBody WishesSettingsUpdateDTO request

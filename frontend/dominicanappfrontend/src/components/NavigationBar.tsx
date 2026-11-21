@@ -103,7 +103,7 @@ const NavigationBar = () => {
                     Wydruki
                 </button>
 
-                {(wishesVisible || isAdmin) && (
+                {(wishesVisible && !isAdmin) && (
                     <button onClick={() => navigateTo('/wishes')}>
                         Życzenia
                     </button>
@@ -170,7 +170,7 @@ const NavigationBar = () => {
                     Wydruki
                 </button>
 
-                {(wishesVisible || isAdmin) && (
+                {(wishesVisible && !isAdmin) && (
                     <button onClick={() => navigateTo('/wishes')}>
                         Życzenia
                     </button>

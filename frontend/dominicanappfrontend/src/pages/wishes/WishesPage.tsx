@@ -23,7 +23,8 @@ import {
     faClock,
     faFloppyDisk,
     faEye,
-    faEyeSlash
+    faEyeSlash,
+    faMinus
 } from "@fortawesome/free-solid-svg-icons";
 
 type AdminWishChanges = {
@@ -171,6 +172,12 @@ const WishesPage: React.FC = () => {
         loading: resetLoading,
         request: resetWishesRequest
     } = useHttp<null>(`${backendUrl}/api/wishes/reset`, "POST");
+
+    const {
+        error: resetWishStatusError,
+        loading: resetWishStatusLoading,
+        request: resetWishStatusRequest
+    } = useHttp<null>(`${backendUrl}/api/wishes`, "POST");
 
     const loadData = useCallback(() => {
         request(null, (response: WishesPageDTO) => {
@@ -456,6 +463,16 @@ const WishesPage: React.FC = () => {
     };
 
     const handleTestSend = () => {
+        const confirmed = window.confirm(
+            "Tryb testowy wysyła prawdziwe wiadomości testowe na adres dziekana. " +
+            "Oryginalny adres odbiorcy jest umieszony w temacie.\n\n" +
+            "Czy kontynuować?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
         setSendResult(null);
         setNotice(null);
         setLocalError(null);
@@ -464,6 +481,7 @@ const WishesPage: React.FC = () => {
             null,
             (result: WishSendResult) => {
                 setSendResult(result);
+                setNotice("Zakończono wysyłanie wiadomości testowych.");
             }
         );
     };
@@ -541,6 +559,22 @@ const WishesPage: React.FC = () => {
         );
     };
 
+    const resetWishStatus = (wishId: number) => {
+        setLocalError(null);
+        setNotice(null);
+
+        resetWishStatusRequest(
+            null,
+            () => {
+                setNotice("Zresetowano status utworzenia draftu.");
+                loadData();
+            },
+            false,
+            `${backendUrl}/api/wishes/${wishId}/reset-status`,
+            "POST"
+        );
+    };
+
     if (!data && loading) {
         return <LoadingSpinner />;
     }
@@ -572,6 +606,7 @@ const WishesPage: React.FC = () => {
         createError,
         testSendError,
         sendError,
+        resetWishStatusError
     ].filter((message): message is string => Boolean(message));
 
     return (
@@ -727,20 +762,64 @@ const WishesPage: React.FC = () => {
                 )}
 
                 {data.admin && (
-                    <div className="card border-0 shadow-sm mx-auto mt-3 mb-4"
-                         style={{ maxWidth: "650px" }}>
-                        <div className="card-body py-2 px-3">
-                            <div className="small">
-                                <div className="mb-2">
-                                    <strong>Testuj</strong> — Wysyła maile na adres dziekan. Oryginalny adres
-                                    odbiorcy pojawia się w temacie wiadomości.
+                    <div
+                        className="card border-0 shadow-sm mx-auto mt-3 mb-4"
+                        style={{
+                            width: "fit-content",
+                            maxWidth: "min(720px, 95vw)"
+                        }}
+                    >
+                        <div className="card-body py-3 px-3">
+                            <div className="small d-flex flex-column gap-3">
+                                <div className="d-flex align-items-start gap-2">
+                                    <span className={`btn btn-sm ${data.visible ? "btn-primary" : "btn-success"} py-1 px-2 flex-shrink-0`}>
+                                        <FontAwesomeIcon icon={data.visible ? faEyeSlash : faEye} />
+                                    </span>
+                                    <div>
+                                        <strong>{data.visible ? "Ukryj" : "Pokaż"}</strong>
+                                        <div className="text-muted">
+                                            Ukrywa listę życzeń przed użytkownikami albo ponownie ją udostępnia.
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <strong>Utwórz drafty</strong> — tworzy wersje robocze
-                                    zaadresowane do właściwych odbiorców. Wiadomości nie są
-                                    wysyłane automatycznie — można je sprawdzić i wysłać
-                                    później bezpośrednio z Gmaila.
+                                <div className="d-flex align-items-start gap-2">
+                                    <span className="btn btn-sm btn-warning py-1 px-2 flex-shrink-0">
+                                        <FontAwesomeIcon icon={faEnvelope} />
+                                    </span>
+                                    <div>
+                                        <strong>Testuj</strong>
+                                        <div className="text-muted">
+                                            Wysyła prawdziwe wiadomości testowe na adres dziekana.
+                                            Oryginalny adres odbiorcy jest umieszony w temacie.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex align-items-start gap-2">
+                                    <span className="btn btn-sm btn-success py-1 px-2 flex-shrink-0">
+                                        <FontAwesomeIcon icon={faPaperPlane} />
+                                    </span>
+                                    <div>
+                                        <strong>Utwórz drafty</strong>
+                                        <div className="text-muted">
+                                            Tworzy wersje robocze w Gmailu, zaadresowane do właściwych odbiorców.
+                                            Wiadomości nie są wysyłane automatycznie — można je sprawdzić i wysłać później.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex align-items-start gap-2">
+                                    <span className="btn btn-sm btn-danger py-1 px-2 flex-shrink-0">
+                                        <FontAwesomeIcon icon={faRotateLeft} />
+                                    </span>
+                                    <div>
+                                        <strong>Resetuj dane</strong>
+                                        <div className="text-muted">
+                                            Resetuje wszystkie życzenia: usuwa ich treść, zeruje statusy
+                                            i usuwa przypisania braci. Nie usuwa adresatów ani adresów.
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1129,23 +1208,51 @@ const WishesPage: React.FC = () => {
 
                                                 {data.admin && (
                                                     <td className="text-center align-middle">
-                                                        {wish.sent ? (
-                                                            <FontAwesomeIcon
-                                                                icon={faCircleCheck}
-                                                                className="text-success"
-                                                                size="lg"
-                                                                title="Draft utworzony"
-                                                                aria-label="Draft utworzony"
-                                                            />
-                                                        ) : (
-                                                            <FontAwesomeIcon
-                                                                icon={faClock}
-                                                                className="text-secondary"
-                                                                size="lg"
-                                                                title="Draft nieutworzony"
-                                                                aria-label="Draft nieutworzony"
-                                                            />
-                                                        )}
+                                                        <div className="d-inline-flex align-items-center justify-content-center gap-2">
+                                                            {wish.letter ? (
+                                                                <FontAwesomeIcon
+                                                                    icon={faEnvelope}
+                                                                    className="text-warning"
+                                                                    size="lg"
+                                                                    title="Nie dotyczy — wpis listowny"
+                                                                    aria-label="Nie dotyczy — wpis listowny"
+                                                                />
+                                                            ) : (
+                                                                <>
+                                                                    {wish.sent ? (
+                                                                        <FontAwesomeIcon
+                                                                            icon={faCircleCheck}
+                                                                            className="text-success"
+                                                                            size="lg"
+                                                                            title="Draft utworzony"
+                                                                            aria-label="Draft utworzony"
+                                                                        />
+                                                                    ) : (
+                                                                        <FontAwesomeIcon
+                                                                            icon={faClock}
+                                                                            className="text-secondary"
+                                                                            size="lg"
+                                                                            title="Draft nieutworzony"
+                                                                            aria-label="Draft nieutworzony"
+                                                                        />
+                                                                    )}
+
+                                                                    {wish.sent && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center p-0"
+                                                                            style={iconButtonStyle}
+                                                                            disabled={resetWishStatusLoading}
+                                                                            onClick={() => resetWishStatus(wish.id)}
+                                                                            title="Zresetuj status utworzenia draftu"
+                                                                            aria-label={`Zresetuj status utworzenia draftu: ${wish.recipient}`}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faRotateLeft} />
+                                                                        </button>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 )}
 

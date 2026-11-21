@@ -15,7 +15,9 @@ const OtherEntities = () => {
 
     return (
         <div className="container mt-4 fade-in">
-            <h2 className="text-center mb-4">Inne ustawienia</h2>
+            <div className="d-flex justify-content-center mb-4">
+                <h1 className="entity-header">Inne ustawienia</h1>
+            </div>
 
             <div className="row justify-content-center">
 

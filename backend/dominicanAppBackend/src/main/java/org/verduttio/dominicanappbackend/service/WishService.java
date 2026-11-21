@@ -273,6 +273,16 @@ public class WishService {
     }
 
     @Transactional
+    public void resetWishSentStatus(Long wishId) {
+        requireAdmin();
+
+        Wish wish = getWishOrThrow(wishId);
+        wish.setSent(false);
+
+        wishRepository.save(wish);
+    }
+
+    @Transactional
     public void updateSettings(WishesSettingsUpdateDTO request) {
         requireAdmin();
 
