@@ -85,12 +85,15 @@ public class WishService {
                         Collectors.counting()
                 ));
 
-        List<WishesPageDTO.UserStats> statistics = userService
+        List<User> eligibleBrothers = userService
                 .getUsersWhichHaveAnyOfRoles(List.of("Brat"))
                 .stream()
                 .filter(User::isEnabled)
                 .filter(user -> user.getRoles().stream()
                         .noneMatch(role -> role.getName().equals("ROLE_GUEST")))
+                .toList();
+
+        List<WishesPageDTO.UserStats> statistics = eligibleBrothers.stream()
                 .map(user -> new WishesPageDTO.UserStats(
                         user.getId(),
                         user.getName(),
@@ -105,7 +108,13 @@ public class WishService {
         );
 
         List<UserShortInfo> users = admin
-                ? userService.getAllUsersShortInfo()
+                ? eligibleBrothers.stream()
+                .map(user -> new UserShortInfo(
+                        user.getId(),
+                        user.getName(),
+                        user.getSurname()
+                ))
+                .toList()
                 : List.of();
 
         return new WishesPageDTO(
