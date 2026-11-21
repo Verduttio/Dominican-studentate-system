@@ -470,8 +470,8 @@ const WishesPage: React.FC = () => {
 
     const handleRealSend = () => {
         const confirmed = window.confirm(
-            "Czy na pewno chcesz wysłać życzenia na wszystkie zapisane adresy e-mail?\n\n" +
-            "Ta operacja może wysłać prawdziwe wiadomości."
+            "Czy na pewno chcesz utworzyć drafty dla wszystkich zapisanych adresów e-mail?\n\n" +
+            "Wiadomości NIE zostaną wysłane. Zostaną utworzone jako wersje robocze w Gmailu."
         );
 
         if (!confirmed) {
@@ -486,7 +486,7 @@ const WishesPage: React.FC = () => {
             null,
             (result: WishSendResult) => {
                 setSendResult(result);
-                setNotice("Zakończono proces wysyłki.");
+                setNotice("Zakończono tworzenie wersji roboczych.");
                 loadData();
             }
         );
@@ -603,7 +603,7 @@ const WishesPage: React.FC = () => {
                     <div className="d-flex justify-content-between align-items-start">
                         <div>
                             <strong>
-                                {sendResult.testMode ? "Wynik testu" : "Wynik wysyłki"}
+                                {sendResult.testMode ? "Wynik testu" : "Wynik tworzenia draftów"}
                             </strong>
 
                             <div className="mt-1">
@@ -696,7 +696,7 @@ const WishesPage: React.FC = () => {
                             className="btn btn-warning"
                             disabled={testSending || sending}
                             onClick={handleTestSend}
-                            title="Wyślij testowe wiadomości na adres zalogowanego administratora"
+                            title="Wyślij testowe wiadomości na adres dziekana"
                         >
                             <FontAwesomeIcon icon={faEnvelope} className="me-2" />
                             {testSending ? "Testowanie..." : "Testuj"}
@@ -707,10 +707,10 @@ const WishesPage: React.FC = () => {
                             className="btn btn-success"
                             disabled={testSending || sending}
                             onClick={handleRealSend}
-                            title="Wyślij życzenia na właściwe adresy e-mail"
+                            title="Utwórz wersje robocze zaadresowane do właściwych odbiorców"
                         >
                             <FontAwesomeIcon icon={faPaperPlane} className="me-2" />
-                            {sending ? "Wysyłanie..." : "Wyślij"}
+                            {sending ? "Tworzenie draftów..." : "Utwórz drafty"}
                         </button>
 
                         <button
@@ -723,6 +723,27 @@ const WishesPage: React.FC = () => {
                             <FontAwesomeIcon icon={faRotateLeft} className="me-2" />
                             {resetLoading ? "Resetowanie..." : "Resetuj dane"}
                         </button>
+                    </div>
+                )}
+
+                {data.admin && (
+                    <div className="card border-0 shadow-sm mx-auto mt-3 mb-4"
+                         style={{ maxWidth: "650px" }}>
+                        <div className="card-body py-2 px-3">
+                            <div className="small">
+                                <div className="mb-2">
+                                    <strong>Testuj</strong> — Wysyła maile na adres dziekan. Oryginalny adres
+                                    odbiorcy pojawia się w temacie wiadomości.
+                                </div>
+
+                                <div>
+                                    <strong>Utwórz drafty</strong> — tworzy wersje robocze
+                                    zaadresowane do właściwych odbiorców. Wiadomości nie są
+                                    wysyłane automatycznie — można je sprawdzić i wysłać
+                                    później bezpośrednio z Gmaila.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -840,7 +861,7 @@ const WishesPage: React.FC = () => {
 
                                         {data.admin && (
                                             <>
-                                                <th>Wysłane?</th>
+                                                <th>Utworzono</th>
                                                 <th className="text-center">Akcje</th>
                                             </>
                                         )}
@@ -947,7 +968,7 @@ const WishesPage: React.FC = () => {
                                                     )}
                                                 </td>
 
-                                                <td className="text-center" style={{ minWidth: "130px" }}>
+                                                <td className="text-center" style={{ minWidth: "50px" }}>
                                                     <div className="d-flex align-items-center justify-content-center gap-2">
                                                         <span className={`badge ${wish.letter ? "bg-secondary" : "bg-success"}`}>
                                                             {wish.letter ? "Listownie" : "E-mail"}
@@ -1051,7 +1072,7 @@ const WishesPage: React.FC = () => {
                                                     )}
                                                 </td>
 
-                                                <td style={{ minWidth: "260px" }}>
+                                                <td style={{ minWidth: "400px" }}>
                                                     {canEditWish ? (
                                                         <div className="d-flex align-items-start gap-1">
                                                             <textarea
@@ -1113,16 +1134,16 @@ const WishesPage: React.FC = () => {
                                                                 icon={faCircleCheck}
                                                                 className="text-success"
                                                                 size="lg"
-                                                                title="Wysłane"
-                                                                aria-label="Wysłane"
+                                                                title="Draft utworzony"
+                                                                aria-label="Draft utworzony"
                                                             />
                                                         ) : (
                                                             <FontAwesomeIcon
                                                                 icon={faClock}
                                                                 className="text-secondary"
                                                                 size="lg"
-                                                                title="Niewysłane"
-                                                                aria-label="Niewysłane"
+                                                                title="Draft nieutworzony"
+                                                                aria-label="Draft nieutworzony"
                                                             />
                                                         )}
                                                     </td>

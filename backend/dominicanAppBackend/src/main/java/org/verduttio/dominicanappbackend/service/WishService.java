@@ -301,8 +301,6 @@ public class WishService {
     public WishSendResultDTO sendEmails(boolean testMode) {
         requireAdmin();
 
-        User currentUser = SecurityUtils.getCurrentUser();
-
         List<Wish> candidates = testMode
                 ? wishRepository.findAllByOrderByIdAsc().stream()
                 .filter(wish -> !wish.isSent() && !wish.isLetter())
@@ -334,14 +332,7 @@ public class WishService {
             sendable.add(wish);
         }
 
-        String testRecipient = testMode ? currentUser.getEmail() : null;
-
-        if (testMode && (testRecipient == null || testRecipient.isBlank())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Zalogowany administrator nie ma ustawionego adresu e-mail"
-            );
-        }
+        String testRecipient = null;
 
         if (sendable.isEmpty()) {
             return new WishSendResultDTO(
