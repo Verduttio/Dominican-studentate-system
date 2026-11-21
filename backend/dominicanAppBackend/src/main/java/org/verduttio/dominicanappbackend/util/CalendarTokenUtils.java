@@ -15,20 +15,6 @@ public class CalendarTokenUtils {
 
     public CalendarTokenUtils(EnvUtils envUtils) {
         this.secretKey = envUtils.getAppEnvVariable("WISHES_GAS_SECRET");
-
-        if (secretKey == null || secretKey.isBlank()) {
-            throw new IllegalStateException(
-                    "Brak konfiguracji WISHES_GAS_SECRET."
-            );
-        }
-
-        int keyLength = secretKey.getBytes(StandardCharsets.UTF_8).length;
-
-        if (keyLength != 16 && keyLength != 24 && keyLength != 32) {
-            throw new IllegalStateException(
-                    "WISHES_GAS_SECRET musi mieć 16, 24 lub 32 bajty, aby można było używać AES."
-            );
-        }
     }
 
     public String encryptUserId(Long userId) {
