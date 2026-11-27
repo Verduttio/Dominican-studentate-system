@@ -57,6 +57,29 @@ const iconButtonStyle: React.CSSProperties = {
     fontSize: "12px"
 };
 
+const formatRecipient = (recipient: string) => {
+    return recipient.split(/(\([^()]*\))/g).map((part, index) => {
+        if (part.startsWith("(") && part.endsWith(")")) {
+            return (
+                <strong key={index} className="text-danger">
+                    {part}
+                </strong>
+            );
+        }
+
+        return part;
+    });
+};
+
+const resizeTextarea = (textarea: HTMLTextAreaElement | null) => {
+    if (!textarea) {
+        return;
+    }
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+};
+
 const WishesPage: React.FC = () => {
     const [data, setData] = useState<WishesPageDTO | null>(null);
 
@@ -801,7 +824,7 @@ const WishesPage: React.FC = () => {
                                     <span className="btn btn-sm btn-success py-1 px-2 flex-shrink-0">
                                         <FontAwesomeIcon icon={faPaperPlane} />
                                     </span>
-                                    <div>
+                                    <div>f
                                         <strong>Utwórz drafty</strong>
                                         <div className="text-muted">
                                             Tworzy wersje robocze w Gmailu, zaadresowane do właściwych odbiorców.
@@ -962,13 +985,18 @@ const WishesPage: React.FC = () => {
                                             <tr key={wish.id}>
                                                 <td style={{ minWidth: "180px" }}>
                                                     {data.admin ? (
-                                                        <div className="d-flex align-items-center gap-1">
-                                                            <input
-                                                                type="text"
-                                                                className="form-control form-control-sm"
-                                                                style={{ minWidth: 0 }}
+                                                        <div className="d-flex align-items-start gap-1">
+                                                            <textarea
+                                                                rows={1}
+                                                                className="form-control form-control-sm flex-grow-1"
+                                                                style={{
+                                                                    minWidth: 0,
+                                                                    resize: "none",
+                                                                    overflow: "hidden"
+                                                                }}
                                                                 value={recipientDrafts[wish.id] ?? wish.recipient}
                                                                 onChange={(event) => {
+                                                                    resizeTextarea(event.currentTarget);
                                                                     clearSavedIndicator(`recipient-${wish.id}`);
 
                                                                     setRecipientDrafts(previous => ({
@@ -976,6 +1004,7 @@ const WishesPage: React.FC = () => {
                                                                         [wish.id]: event.target.value
                                                                     }));
                                                                 }}
+                                                                ref={resizeTextarea}
                                                                 aria-label="Adresat"
                                                             />
 
@@ -997,20 +1026,26 @@ const WishesPage: React.FC = () => {
                                                         </div>
                                                     ) : (
                                                         <span className="fw-semibold">
-                                                            {wish.recipient}
+                                                            {formatRecipient(wish.recipient)}
                                                         </span>
                                                     )}
                                                 </td>
 
                                                 <td style={{ minWidth: "220px" }}>
                                                     {canEditWish ? (
-                                                        <div className="d-flex align-items-center gap-1">
-                                                            <input
-                                                                type="text"
-                                                                className="form-control form-control-sm"
-                                                                style={{ minWidth: 0 }}
+                                                        <div className="d-flex align-items-start gap-1">
+                                                            <textarea
+                                                                ref={resizeTextarea}
+                                                                rows={1}
+                                                                className="form-control form-control-sm flex-grow-1"
+                                                                style={{
+                                                                    minWidth: 0,
+                                                                    resize: "none",
+                                                                    overflow: "hidden"
+                                                                }}
                                                                 value={emailDrafts[wish.id] ?? wish.email ?? ""}
                                                                 onChange={(event) => {
+                                                                    resizeTextarea(event.currentTarget);
                                                                     clearSavedIndicator(`email-${wish.id}`);
 
                                                                     setEmailDrafts(previous => ({
