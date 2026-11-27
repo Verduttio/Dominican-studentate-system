@@ -121,7 +121,7 @@ function SchedulePage() {
     // Functions for downloading PDFs
     const downloadSchedulePdfForUsers = async () => {
         let targetUrl = `${backendUrl}/api/pdf/schedules/users/groupedTasksByRoles/week?from=${fromDateString}&to=${toDateString}`;
-        const filename = `Harmonogram_bracia_${fromDateString}-${toDateString}.pdf`;
+        const filename = `Wszystkie (${fromDateString} - ${toDateString}).pdf`;
         await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForUsers, setLoadingDownloadSchedulePdfForUsers);
     };
 
@@ -147,7 +147,7 @@ function SchedulePage() {
                 const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
                 const a = document.createElement('a');
                 a.href = blobUrl;
-                a.download = `Harmonogram_Liturgiczne_PLUS_${fromDateString}-${toDateString}.pdf`;
+                a.download = `Liturgiczne+ (${fromDateString}-${toDateString}).pdf`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -156,7 +156,7 @@ function SchedulePage() {
             // --- STARA LOGIKA DLA POJEDYNCZYCH RÓL ---
             else {
                 let targetUrl = `${backendUrl}/api/pdf/schedules/tasks/byRole/${selectedSupervisorRoleName}/scheduleShortInfo/week?from=${fromDateString}&to=${toDateString}`;
-                const filename = `Harmonogram_oficja_dla_${selectedSupervisorRoleName}_${fromDateString}-${toDateString}.pdf`;
+                const filename = `${selectedSupervisorRoleName} (${fromDateString} - ${toDateString}).pdf`;
 
                 await downloadPdf(targetUrl, filename, setErrorDownloadSchedulePdfForTasksByRole, setLoadingDownloadSchedulePdfForTasksByRole);
                 return;

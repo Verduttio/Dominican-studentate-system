@@ -580,27 +580,27 @@ function AddScheduleSpecialEvent() {
     const handlePrintDaily = () => {
         const dateStr = format(currentDate, 'dd-MM-yyyy');
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/daily?roleName=${roleName}&date=${dateStr}`;
-        downloadPdf(url, `Oficja_${roleName}_${dateStr}.pdf`);
+        downloadPdf(url, `${roleName} (${dateStr}).pdf`);
     };
 
     const handlePrintMatrix = () => {
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/matrix?roleName=${roleName}`;
-        downloadPdf(url, `Tabela_${roleName}.pdf`);
+        downloadPdf(url, `Tabela - ${roleName}.pdf`);
     };
 
     const handlePrintAllMatrix = () => {
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/matrix`;
-        downloadPdf(url, `Caly_Harmonogram_${event?.name || 'Event'}.pdf`);
+        downloadPdf(url, `Caly_Harmonogram_${event?.name || 'Święta'}.pdf`);
     };
 
     const handlePrintAllDescriptions = () => {
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description`;
-        downloadPdf(url, `Opisy_Wszystkich_Oficjow_${event?.name || 'Event'}.pdf`);
+        downloadPdf(url, `Opisy_Oficjow_${event?.name || 'Święta'}.pdf`);
     };
 
     const handlePrintRoleDescriptions = () => {
         const url = `${backendUrl}/api/pdf/schedules/special-event/${eventId}/tasks-description?roleName=${roleName}`;
-        downloadPdf(url, `Opisy_Oficjow_${roleName}_${event?.name || 'Event'}.pdf`);
+        downloadPdf(url, `Opisy_${roleName}_${event?.name || 'Święta'}.pdf`);
     };
 
     function handleSubmit(userId: number, taskId: number) {
